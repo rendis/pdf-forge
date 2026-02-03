@@ -33,9 +33,12 @@ func main() {
         sdk.WithI18nFile("config/injectors.i18n.yaml"),
     )
 
-    // Register extensions
-    engine.RegisterInjector(&CustomerNameInjector{})
-    engine.RegisterMapper(&MyMapper{})
+    // Register extensions via helper functions (keeps main clean)
+    registerInjectors(engine)
+    registerMiddleware(engine)
+    registerLifecycle(engine)
+
+    engine.SetMapper(&MyMapper{})
     engine.SetInitFunc(MyInit())
     engine.SetWorkspaceInjectableProvider(&MyProvider{})
 
@@ -46,6 +49,21 @@ func main() {
     if err := engine.Run(); err != nil {
         log.Fatal(err)
     }
+}
+
+func registerInjectors(engine *sdk.Engine) {
+    engine.RegisterInjector(&CustomerNameInjector{})
+    // Add more injectors here...
+}
+
+func registerMiddleware(engine *sdk.Engine) {
+    engine.UseMiddleware(myLoggerMiddleware())
+    engine.UseAPIMiddleware(myTenantValidation())
+}
+
+func registerLifecycle(engine *sdk.Engine) {
+    engine.OnStart(func(ctx context.Context) error { return nil })
+    engine.OnShutdown(func(ctx context.Context) error { return nil })
 }
 ```
 
@@ -209,7 +227,7 @@ func (m *MyMapper) Map(ctx context.Context, mapCtx *sdk.MapperContext) (any, err
 }
 ```
 
-**Register**: `engine.RegisterMapper(&MyMapper{})`
+**Register**: `engine.SetMapper(&MyMapper{})`
 
 Access in injector: `injCtx.RequestPayload().(map[string]any)`
 
@@ -330,6 +348,163 @@ internal_api:
   api_key: "your-secret-key"
 ```
 
+## Dummy Auth Mode (Development)
+
+For local development without JWT/JWKS setup:
+
+**Enable**: Leave `auth.jwks_url` empty in `config/app.yaml`
+
+```yaml
+auth:
+  jwks_url: "" # Empty = dummy mode
+```
+
+**What happens**:
+
+- Auto-seeds SUPERADMIN user: `admin@pdfforge.local`
+- Skips JWT validation on all `/api/v1/*` routes
+- `Authorization` header not required
+- Full admin access to all tenants/workspaces
+- Warning logged: `"⚠ auth not configured — running in dummy mode (dev only)"`
+
+**Headers still required** (for tenant/workspace scoped routes):
+
+- `X-Tenant-ID`: UUID
+- `X-Workspace-ID`: UUID
+
+**Example request** (no auth needed):
+
+```bash
+curl -X GET http://localhost:8080/api/v1/templates \
+  -H "X-Tenant-ID: <tenant-uuid>" \
+  -H "X-Workspace-ID: <workspace-uuid>"
+```
+
+**Warning**: Dev only. Never use in production.
+
+## Custom Middleware
+
+Add middleware to customize request handling.
+
+**Global** (all routes - after CORS, before auth):
+
+```go
+engine.UseMiddleware(func(c *gin.Context) {
+    // Runs on ALL routes (health, swagger, api, internal)
+    start := time.Now()
+    c.Next()
+    slog.InfoContext(c.Request.Context(), "request",
+        slog.Duration("latency", time.Since(start)))
+})
+```
+
+**API only** (`/api/v1/*` - after auth, before controllers):
+
+```go
+engine.UseAPIMiddleware(func(c *gin.Context) {
+    // Runs after auth - user context available:
+    // c.Get("user_id"), c.Get("tenant_id"), c.Get("workspace_id")
+    c.Next()
+})
+```
+
+**Execution order**:
+
+```
+Global: Recovery → Logger → CORS → [User Global] → Routes
+API:    Operation → Auth → Identity → Roles → [User API] → Controller
+```
+
+See **enterprise-scenarios.md** Scenario F for complete examples.
+
+## Lifecycle Hooks
+
+Register code to run at startup and shutdown.
+
+**OnStart** (after config/preflight, before HTTP server):
+
+```go
+engine.OnStart(func(ctx context.Context) error {
+    slog.InfoContext(ctx, "app starting")
+    return nil
+})
+```
+
+**OnShutdown** (after HTTP stops, before exit):
+
+```go
+engine.OnShutdown(func(ctx context.Context) error {
+    slog.InfoContext(ctx, "app stopping")
+    return nil
+})
+```
+
+### Background Processes Pattern
+
+Both hooks are **synchronous**. For background processes (schedulers, workers), spawn a goroutine:
+
+```go
+var (
+    schedulerCtx    context.Context
+    schedulerCancel context.CancelFunc
+    schedulerDone   chan struct{}
+)
+
+engine.OnStart(func(ctx context.Context) error {
+    schedulerCtx, schedulerCancel = context.WithCancel(context.Background())
+    schedulerDone = make(chan struct{})
+
+    go func() {
+        defer close(schedulerDone)
+        myScheduler.Run(schedulerCtx)  // blocking call in goroutine
+    }()
+
+    return nil  // return immediately
+})
+
+engine.OnShutdown(func(ctx context.Context) error {
+    schedulerCancel()    // signal scheduler to stop
+    <-schedulerDone      // wait for clean exit
+    return nil
+})
+```
+
+### Anti-Pattern
+
+```go
+// ❌ WRONG: Blocking call in OnStart - server never starts!
+engine.OnStart(func(ctx context.Context) error {
+    myScheduler.Run(ctx)  // blocks forever
+    return nil
+})
+```
+
+## What's NOT Supported
+
+pdf-forge is a configured engine, not a plugin system. These are **NOT extensible**:
+
+| Feature              | Status  | Alternative                                 |
+| -------------------- | ------- | ------------------------------------------- |
+| Custom middleware    | ✅      | `UseMiddleware()`, `UseAPIMiddleware()`     |
+| Lifecycle hooks      | ✅      | `OnStart()`, `OnShutdown()`                 |
+| Custom HTTP routes   | ❌      | Deploy separate service                     |
+| Auth providers       | ❌      | Config `auth.jwks_url` only                 |
+| Database hooks       | ❌      | Use `InitFunc` for pre-load                 |
+| Custom env prefix    | ❌      | Use `DOC_ENGINE_*` (hardcoded)              |
+| Request interception | Partial | `SetMapper()` (render only) + middleware    |
+| Custom log handlers  | ❌      | Config `logging.level`/`format` only        |
+
+**Extension Points Available:**
+
+- `RegisterInjector()` - custom data resolvers (multiple)
+- `SetMapper()` - custom request parsing for render (one)
+- `SetInitFunc()` - shared setup before injectors per request
+- `SetWorkspaceInjectableProvider()` - dynamic workspace injectables
+- `UseMiddleware()` / `UseAPIMiddleware()` - HTTP middleware
+- `OnStart()` / `OnShutdown()` - lifecycle hooks
+
+See **enterprise-scenarios.md** for workarounds and patterns.
+
 ## API Headers
 
 | Header           | Purpose                            |
@@ -341,5 +516,8 @@ internal_api:
 
 ## References
 
+- **config-reference.md** - Environment variables, YAML keys, performance tuning
+- **patterns-reference.md** - Logging, error handling, context, concurrency, anti-patterns
+- **enterprise-scenarios.md** - Complete integration examples (CRM, Vault, validation)
+- **types-reference.md** - Tables API, Lists API, FormatConfig presets
 - **domain-reference.md** - Tenants, workspaces, roles, version states, render flow
-- **types-reference.md** - Tables API, Lists API, FormatConfig presets, WorkspaceInjectableProvider details

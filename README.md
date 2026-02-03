@@ -21,6 +21,8 @@ Build document templates in a visual editor, inject dynamic data through a plugi
 - **Dummy auth mode** -- Start developing immediately without OIDC provider setup
 - **CLI scaffolding** -- `pdfforge-cli init myapp` generates a ready-to-run project
 - **Dynamic workspace injectables** -- Runtime injectables per workspace via `WorkspaceInjectableProvider`
+- **Lifecycle hooks** -- `OnStart()` / `OnShutdown()` for background processes (schedulers, workers)
+- **Custom middleware** -- `UseMiddleware()` / `UseAPIMiddleware()` for request processing
 
 ## How It Works
 
@@ -180,7 +182,9 @@ func main() {
 package main
 
 import (
+    "context"
     "log"
+    "log/slog"
     "github.com/rendis/pdf-forge/sdk"
 )
 
@@ -190,23 +194,61 @@ func main() {
         sdk.WithI18nFile("config/injectors.i18n.yaml"),
     )
 
-    // Register custom injectors
-    engine.RegisterInjector(&CustomerNameInjector{})
-    engine.RegisterInjector(&InvoiceTotalInjector{})
-    engine.RegisterInjector(&ItemsTableInjector{})
+    // Register extensions via helper functions (keeps main clean)
+    registerInjectors(engine)
+    registerMiddleware(engine)
+    registerLifecycle(engine)
 
-    // Register request mapper (parses incoming render requests)
-    engine.RegisterMapper(&MyMapper{})
+    // Set request mapper (parses incoming render requests)
+    engine.SetMapper(&MyMapper{})
 
-    // Set init function (runs before injectors, loads shared data)
+    // Set init function (runs before injectors per request, loads shared data)
     engine.SetInitFunc(myInitFunc)
 
-    // Optional: register workspace injectable provider (dynamic per-workspace injectables)
+    // Optional: workspace injectable provider (dynamic per-workspace injectables)
     engine.SetWorkspaceInjectableProvider(&MyProvider{})
 
     if err := engine.Run(); err != nil {
         log.Fatal(err)
     }
+}
+
+func registerInjectors(engine *sdk.Engine) {
+    engine.RegisterInjector(&CustomerNameInjector{})
+    engine.RegisterInjector(&InvoiceTotalInjector{})
+    engine.RegisterInjector(&ItemsTableInjector{})
+}
+
+func registerMiddleware(engine *sdk.Engine) {
+    engine.UseMiddleware(myLoggerMiddleware())
+    engine.UseAPIMiddleware(myTenantValidation())
+}
+
+func registerLifecycle(engine *sdk.Engine) {
+    var cancel context.CancelFunc
+    var done chan struct{}
+
+    engine.OnStart(func(ctx context.Context) error {
+        // Start background processes in goroutine (hooks are sync!)
+        var bgCtx context.Context
+        bgCtx, cancel = context.WithCancel(context.Background())
+        done = make(chan struct{})
+        go func() {
+            defer close(done)
+            // myScheduler.Run(bgCtx)
+            slog.InfoContext(bgCtx, "background process running")
+            <-bgCtx.Done()
+        }()
+        return nil
+    })
+
+    engine.OnShutdown(func(ctx context.Context) error {
+        if cancel != nil {
+            cancel()
+            <-done // Wait for clean exit
+        }
+        return nil
+    })
 }
 ```
 

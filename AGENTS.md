@@ -122,6 +122,40 @@ type WorkspaceInjectableProvider interface {
 
 Register via `engine.SetWorkspaceInjectableProvider(provider)`. See `examples/quickstart/extensions/workspace_provider.go`.
 
+### Middleware (`sdk/types.go`)
+
+```go
+type Middleware = gin.HandlerFunc
+```
+
+Register via:
+
+- `engine.UseMiddleware(mw)` - all routes (after CORS, before auth)
+- `engine.UseAPIMiddleware(mw)` - `/api/v1/*` only (after auth, user context available)
+
+**Execution order**:
+
+```
+Global: Recovery → Logger → CORS → [User Global] → Routes
+API:    Operation → Auth → Identity → Roles → [User API] → Controller
+```
+
+See `examples/quickstart/extensions/middleware.go`.
+
+### Lifecycle Hooks (`sdk/engine.go`)
+
+```go
+// OnStart - runs AFTER config/preflight, BEFORE HTTP server
+engine.OnStart(func(ctx context.Context) error { ... })
+
+// OnShutdown - runs AFTER HTTP server stops, BEFORE exit
+engine.OnShutdown(func(ctx context.Context) error { ... })
+```
+
+**Important**: Both hooks are synchronous. For background processes, spawn a goroutine in `OnStart` and clean up in `OnShutdown`.
+
+See `examples/quickstart/main.go` for background process pattern.
+
 ## Built-in Injectors
 
 | Code            | Data Type | Description                                             |
