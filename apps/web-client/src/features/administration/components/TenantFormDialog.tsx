@@ -1,13 +1,12 @@
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
+  BaseDialogContent,
+  DialogClose,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { SystemTenant } from '@/features/system-injectables/api/system-tenants-api'
@@ -180,114 +179,124 @@ export function TenantFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === 'create'
-              ? t('administration.tenants.form.createTitle', 'Create Tenant')
-              : t('administration.tenants.form.editTitle', 'Edit Tenant')}
-          </DialogTitle>
-          <DialogDescription>
-            {mode === 'create'
-              ? t('administration.tenants.form.createDescription', 'Create a new tenant organization.')
-              : t('administration.tenants.form.editDescription', 'Update tenant details.')}
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name field */}
+      <BaseDialogContent className="max-w-md">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-border p-6">
           <div>
-            <label className="mb-1.5 block text-sm font-medium">
-              {t('administration.tenants.form.name', 'Name')} *
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                setNameError('')
-              }}
-              placeholder={t('administration.tenants.form.namePlaceholder', 'Tenant name')}
-              className={cn(
-                'w-full rounded-sm border bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-foreground',
-                nameError ? 'border-destructive' : 'border-border'
-              )}
-              disabled={isLoading}
-            />
-            {nameError && (
-              <p className="mt-1 text-xs text-destructive">{nameError}</p>
-            )}
+            <DialogTitle className="font-mono text-sm font-medium uppercase tracking-widest text-foreground">
+              {mode === 'create'
+                ? t('administration.tenants.form.createTitle', 'Create Tenant')
+                : t('administration.tenants.form.editTitle', 'Edit Tenant')}
+            </DialogTitle>
+            <DialogDescription className="mt-1 text-sm font-light text-muted-foreground">
+              {mode === 'create'
+                ? t('administration.tenants.form.createDescription', 'Create a new tenant organization.')
+                : t('administration.tenants.form.editDescription', 'Update tenant details.')}
+            </DialogDescription>
           </div>
+          <DialogClose className="text-muted-foreground transition-colors hover:text-foreground">
+            <X className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+        </div>
 
-          {/* Code field - only in create mode */}
-          {mode === 'create' && (
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-6 p-6">
+            {/* Name field */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                {t('administration.tenants.form.code', 'Code')} *
+              <label className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                {t('administration.tenants.form.name', 'Name')} *
               </label>
               <input
                 type="text"
-                value={code}
+                value={name}
                 onChange={(e) => {
-                  setCode(normalizeCodeWhileTyping(e.target.value))
-                  setCodeError('')
+                  setName(e.target.value)
+                  setNameError('')
                 }}
-                onBlur={handleCodeBlur}
-                placeholder={t('administration.tenants.form.codePlaceholder', 'TENANT_CODE')}
+                placeholder={t('administration.tenants.form.namePlaceholder', 'Tenant name')}
                 className={cn(
-                  'w-full rounded-sm border bg-transparent px-3 py-2 text-sm font-mono uppercase outline-none transition-colors focus:border-foreground',
-                  codeError ? 'border-destructive' : 'border-border'
+                  'w-full rounded-none border-0 border-b bg-transparent py-2 text-base font-light text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus-visible:border-foreground focus-visible:ring-0',
+                  nameError ? 'border-destructive' : 'border-border'
                 )}
                 disabled={isLoading}
+                autoFocus
               />
-              {codeError && (
-                <p className="mt-1 text-xs text-destructive">{codeError}</p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t('administration.tenants.form.codeHint', '2-10 uppercase characters')}
+              <p className={cn('mt-1 text-xs', nameError ? 'text-destructive' : 'text-transparent')}>
+                {nameError || '\u00A0'}
               </p>
             </div>
-          )}
 
-          {/* Code display in edit mode */}
-          {mode === 'edit' && tenant && (
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                {t('administration.tenants.form.code', 'Code')}
-              </label>
-              <div className="rounded-sm border border-border bg-muted px-3 py-2">
-                <span className="font-mono text-sm uppercase">{tenant.code}</span>
+            {/* Code field - only in create mode */}
+            {mode === 'create' && (
+              <div>
+                <label className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                  {t('administration.tenants.form.code', 'Code')} *
+                </label>
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => {
+                    setCode(normalizeCodeWhileTyping(e.target.value))
+                    setCodeError('')
+                  }}
+                  onBlur={handleCodeBlur}
+                  placeholder={t('administration.tenants.form.codePlaceholder', 'TENANT_CODE')}
+                  className={cn(
+                    'w-full rounded-none border-0 border-b bg-transparent py-2 font-mono text-base uppercase text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus-visible:border-foreground focus-visible:ring-0',
+                    codeError ? 'border-destructive' : 'border-border'
+                  )}
+                  disabled={isLoading}
+                  maxLength={10}
+                />
+                <p className={cn('mt-1 text-xs', codeError ? 'text-destructive' : 'text-muted-foreground')}>
+                  {codeError || t('administration.tenants.form.codeHint', '2-10 uppercase characters')}
+                </p>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Description field */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">
-              {t('administration.tenants.form.description', 'Description')}
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t('administration.tenants.form.descriptionPlaceholder', 'Optional description')}
-              rows={3}
-              className="w-full rounded-sm border border-border bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
-              disabled={isLoading}
-            />
+            {/* Code display in edit mode */}
+            {mode === 'edit' && tenant && (
+              <div>
+                <label className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                  {t('administration.tenants.form.code', 'Code')}
+                </label>
+                <div className="border-b border-border bg-transparent py-2">
+                  <span className="font-mono text-base uppercase text-muted-foreground">{tenant.code}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Description field */}
+            <div>
+              <label className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                {t('administration.tenants.form.description', 'Description')}
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t('administration.tenants.form.descriptionPlaceholder', 'Optional description')}
+                rows={3}
+                className="w-full rounded-none border-0 border-b border-border bg-transparent py-2 text-base font-light text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus-visible:border-foreground focus-visible:ring-0"
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          {/* Footer */}
+          <div className="flex justify-end gap-3 border-t border-border p-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-sm border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+              className="rounded-none border border-border bg-background px-6 py-2.5 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground disabled:opacity-50"
               disabled={isLoading}
             >
               {t('common.cancel', 'Cancel')}
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-sm bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-none bg-foreground px-6 py-2.5 font-mono text-xs uppercase tracking-wider text-background transition-colors hover:bg-foreground/90 disabled:opacity-50"
               disabled={isLoading}
             >
               {isLoading && <Loader2 size={16} className="animate-spin" />}
@@ -295,9 +304,9 @@ export function TenantFormDialog({
                 ? t('common.create', 'Create')
                 : t('common.save', 'Save')}
             </button>
-          </DialogFooter>
+          </div>
         </form>
-      </DialogContent>
+      </BaseDialogContent>
     </Dialog>
   )
 }
