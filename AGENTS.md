@@ -22,7 +22,7 @@ cmd/
   api/                → Standalone server binary
   pdfforge-cli/       → CLI tool (init, migrate, doctor, version, update)
 skills/
-  pdf-forge/SKILL.md  → AI agent skill (copied to projects on init)
+  pdf-forge/          → AI agent skill (install via: npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge)
 internal/
   core/
     entity/           → Domain types (InjectableValue, TableValue, ListValue, etc.)
@@ -135,7 +135,7 @@ Register via:
 
 **Execution order**:
 
-```
+```plaintext
 Global: Recovery → Logger → CORS → [User Global] → Routes
 API:    Operation → Auth → Identity → Roles → [User API] → Controller
 ```
@@ -266,13 +266,13 @@ Options:
 
 ### `init` Flags
 
-| Flag              | Default        | Description                     |
-| ----------------- | -------------- | ------------------------------- |
-| `-m, --module`    | `<name>`       | Go module name                  |
-| `--examples`      | `true`         | Include example injectors       |
-| `--docker`        | `true`         | Include Docker setup            |
-| `--git`           | `false`        | Initialize git repository       |
-| `-y, --yes`       | —              | Non-interactive mode            |
+| Flag           | Default  | Description               |
+| -------------- | -------- | ------------------------- |
+| `-m, --module` | `<name>` | Go module name            |
+| `--examples`   | `true`   | Include example injectors |
+| `--docker`     | `true`   | Include Docker setup      |
+| `--git`        | `false`  | Initialize git repository |
+| `-y, --yes`    | —        | Non-interactive mode      |
 
 ### `doctor` Checks
 
@@ -288,11 +288,11 @@ When running Command Center → "Install/Update Project":
 
 **Detection**: Scans for `.pdfforge.lock` file
 
-| Status   | Meaning                        | Options                              |
-| -------- | ------------------------------ | ------------------------------------ |
-| NEW      | No project found               | Create here / Create in subdirectory |
-| EXISTING | Project up-to-date             | Reinstall/Reset                      |
-| OUTDATED | Version mismatch in lock file  | Update / Skip                        |
+| Status   | Meaning                       | Options                              |
+| -------- | ----------------------------- | ------------------------------------ |
+| NEW      | No project found              | Create here / Create in subdirectory |
+| EXISTING | Project up-to-date            | Reinstall/Reset                      |
+| OUTDATED | Version mismatch in lock file | Update / Skip                        |
 
 **Conflict Resolution** (for modified files):
 
@@ -302,10 +302,6 @@ When running Command Center → "Install/Update Project":
 4. Overwrite all
 
 Backups stored in `.pdfforge-backup/` with timestamp.
-
-### Skill
-
-The CLI includes a pdf-forge skill at `skills/pdf-forge/SKILL.md`. On `init`, copies to `.agents/skills/pdf-forge/SKILL.md` in the new project.
 
 ## Decision Log
 
@@ -339,10 +335,21 @@ IMPORTANT: Read the relevant doc BEFORE working on that area.
 | [apps/web-client/docs/architecture.md](apps/web-client/docs/architecture.md)   | Frontend stack, folder structure                                              |
 | [apps/web-client/docs/design_system.md](apps/web-client/docs/design_system.md) | UI components, colors, typography                                             |
 
+## AI Agent Skill
+
+Install the pdf-forge skill for AI-assisted development:
+
+```bash
+npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
+```
+
+Supports Claude Code, Cursor, Windsurf, Codex, Gemini.
+
 ## Available Skills
 
 | Skill              | When to Use                             |
 | ------------------ | --------------------------------------- |
+| **pdf-forge**      | Building/extending pdf-forge projects   |
 | **feature-dev**    | New features touching multiple layers   |
 | **commit**         | Create a git commit                     |
 | **commit-push-pr** | Commit, push, and open PR               |

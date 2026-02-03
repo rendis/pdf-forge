@@ -104,6 +104,14 @@ PG_PORT=5433 make up
 
 The engine starts on `http://localhost:8080`. See [Endpoints](#endpoints) for what's available.
 
+## AI Agent Skill
+
+Install the pdf-forge skill for AI-assisted development:
+
+```bash
+npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
+```
+
 ## Endpoints
 
 All services run on a single port (`:8080`):
@@ -683,31 +691,6 @@ pdfforge-cli version         # Print version
 pdfforge-cli update          # Self-update CLI
 ```
 
-### Skills Management
-
-Manage AI coding agent skills centrally:
-
-```bash
-# Add skills from GitHub
-pdfforge-cli skill add user/repo
-
-# Add specific skill
-pdfforge-cli skill add user/repo --skill frontend-design
-
-# List installed skills
-pdfforge-cli skill list
-
-# Remove skills (interactive)
-pdfforge-cli skill remove
-
-# Sync symlinks to agents
-pdfforge-cli skill sync
-```
-
-Skills are stored in `.agents/skills/` and symlinked to each agent's directory.
-
-**Config:** Edit `skills/agents.yaml` to customize target agents.
-
 ### Doctor Output
 
 `pdfforge-cli doctor` validates:
@@ -780,9 +763,9 @@ github.com/rendis/pdf-forge/
 ├── sdk/                       # Public API (Engine, types, options)
 ├── cmd/
 │   ├── api/                   # Standalone server binary
-│   └── pdfforge-cli/          # CLI tool (init, migrate, doctor, skill)
+│   └── pdfforge-cli/          # CLI tool (init, migrate, doctor)
 ├── skills/
-│   └── agents.yaml            # AI agent definitions for skill sync
+│   └── pdf-forge/             # AI agent skill (install via npx skills add)
 ├── internal/                  # All implementation (not importable)
 │   ├── core/                  # Domain: entities, ports, services
 │   ├── adapters/              # HTTP controllers, PostgreSQL repos

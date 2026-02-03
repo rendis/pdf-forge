@@ -11,7 +11,6 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/rendis/pdf-forge/cmd/pdfforge-cli/internal/project"
 	"github.com/rendis/pdf-forge/cmd/pdfforge-cli/internal/templates"
-	"github.com/rendis/pdf-forge/skills"
 	"github.com/spf13/cobra"
 )
 
@@ -172,11 +171,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 		printWarning(fmt.Sprintf("failed to create lock file: %v", err))
 	}
 
-	// Copy pdf-forge skill
-	if err := copySkill(projectName); err != nil {
-		printWarning(fmt.Sprintf("failed to copy skill: %v", err))
-	}
-
 	// Run go mod tidy
 	fmt.Println()
 	printInfo("Running go mod tidy...")
@@ -331,72 +325,6 @@ func renderTemplate(tmplName string, data templates.Data) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
-}
-
-// copySkill copies the pdf-forge skill files to the project's .agents/skills directory
-func copySkill(projectName string) error {
-	skillDir := filepath.Join(projectName, ".agents", "skills", "pdf-forge")
-
-	// Read all files from embedded FS
-	entries, err := skills.PDFForgeSkillFS.ReadDir("pdf-forge")
-	if err != nil {
-		return fmt.Errorf("reading embedded skill files: %w", err)
-	}
-
-	// Create directory
-	if err := os.MkdirAll(skillDir, 0o755); err != nil {
-		return err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue // skip subdirs
-		}
-
-		content, err := skills.PDFForgeSkillFS.ReadFile("pdf-forge/" + entry.Name())
-		if err != nil {
-			return fmt.Errorf("reading %s: %w", entry.Name(), err)
-		}
-
-		destPath := filepath.Join(skillDir, entry.Name())
-
-		// Check if file exists and compare content
-		if existing, err := os.ReadFile(destPath); err == nil {
-			if bytes.Equal(existing, content) {
-				continue // same content, skip
-			}
-			// Content is different - ask for confirmation
-			confirmed, err := askSkillFileOverwrite(entry.Name())
-			if err != nil {
-				return err
-			}
-			if !confirmed {
-				continue
-			}
-		}
-
-		if err := os.WriteFile(destPath, content, 0o644); err != nil {
-			return fmt.Errorf("writing %s: %w", entry.Name(), err)
-		}
-		printInfo("Created .agents/skills/pdf-forge/" + entry.Name())
-	}
-
-	return nil
-}
-
-// askSkillFileOverwrite asks user if they want to update an existing skill file
-func askSkillFileOverwrite(filename string) (bool, error) {
-	if initNonInteractive {
-		return true, nil // In non-interactive mode, always update
-	}
-
-	var confirmed bool
-	err := huh.NewConfirm().
-		Title(fmt.Sprintf("Update %s?", filename)).
-		Description("The skill file has changed. Update to the latest version?").
-		Value(&confirmed).
-		Run()
-	return confirmed, err
 }
 
 // findForgeRoot returns the local pdf-forge source directory for use in go.mod replace directives.

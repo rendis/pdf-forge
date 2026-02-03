@@ -7,6 +7,14 @@ description: Use when building, extending or using pdf-forge multi-tenant PDF te
 
 Go module for multi-tenant document templates with PDF generation via Typst.
 
+## Installation
+
+```bash
+npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
+```
+
+Supports Claude Code, Cursor, Windsurf, Codex, Gemini.
+
 ## How It Works
 
 ```plaintext
@@ -410,7 +418,7 @@ engine.UseAPIMiddleware(func(c *gin.Context) {
 
 **Execution order**:
 
-```
+```plaintext
 Global: Recovery → Logger → CORS → [User Global] → Routes
 API:    Operation → Auth → Identity → Roles → [User API] → Controller
 ```
@@ -483,16 +491,16 @@ engine.OnStart(func(ctx context.Context) error {
 
 pdf-forge is a configured engine, not a plugin system. These are **NOT extensible**:
 
-| Feature              | Status  | Alternative                                 |
-| -------------------- | ------- | ------------------------------------------- |
-| Custom middleware    | ✅      | `UseMiddleware()`, `UseAPIMiddleware()`     |
-| Lifecycle hooks      | ✅      | `OnStart()`, `OnShutdown()`                 |
-| Custom HTTP routes   | ❌      | Deploy separate service                     |
-| Auth providers       | ❌      | Config `auth.jwks_url` only                 |
-| Database hooks       | ❌      | Use `InitFunc` for pre-load                 |
-| Custom env prefix    | ❌      | Use `DOC_ENGINE_*` (hardcoded)              |
-| Request interception | Partial | `SetMapper()` (render only) + middleware    |
-| Custom log handlers  | ❌      | Config `logging.level`/`format` only        |
+| Feature              | Status  | Alternative                              |
+| -------------------- | ------- | ---------------------------------------- |
+| Custom middleware    | ✅      | `UseMiddleware()`, `UseAPIMiddleware()`  |
+| Lifecycle hooks      | ✅      | `OnStart()`, `OnShutdown()`              |
+| Custom HTTP routes   | ❌      | Deploy separate service                  |
+| Auth providers       | ❌      | Config `auth.jwks_url` only              |
+| Database hooks       | ❌      | Use `InitFunc` for pre-load              |
+| Custom env prefix    | ❌      | Use `DOC_ENGINE_*` (hardcoded)           |
+| Request interception | Partial | `SetMapper()` (render only) + middleware |
+| Custom log handlers  | ❌      | Config `logging.level`/`format` only     |
 
 **Extension Points Available:**
 

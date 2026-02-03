@@ -19,20 +19,12 @@ type LockFile struct {
 	Version     string                `yaml:"version"`
 	GeneratedAt time.Time             `yaml:"generated_at"`
 	Files       map[string]FileRecord `yaml:"files"`
-	Skills      *SkillsRecord         `yaml:"skills,omitempty"`
 }
 
 // FileRecord tracks a generated file
 type FileRecord struct {
 	Hash            string `yaml:"hash"`
 	TemplateVersion string `yaml:"template_version"`
-}
-
-// SkillsRecord tracks installed skills
-type SkillsRecord struct {
-	Source    string   `yaml:"source,omitempty"`
-	Installed []string `yaml:"installed,omitempty"`
-	Agents    []string `yaml:"agents,omitempty"`
 }
 
 // NewLockFile creates a new lock file
