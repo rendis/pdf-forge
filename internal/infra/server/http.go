@@ -207,7 +207,7 @@ func (s *HTTPServer) Engine() *gin.Engine {
 func healthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "healthy",
-		"service": "doc-engine",
+		"service": "pdf-forge",
 	})
 }
 

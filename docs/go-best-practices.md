@@ -43,7 +43,7 @@ Reference guide for Go development, based on official sources and community rese
 
 ### Hexagonal Architecture (Ports & Adapters)
 
-**Recommended for microservices** - Implemented in doc-engine.
+**Recommended for microservices** - Implemented in pdf-forge.
 
 ```plaintext
 +--------------------------------------------------+
