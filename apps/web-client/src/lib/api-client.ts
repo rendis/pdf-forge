@@ -4,8 +4,8 @@ import { useAppContextStore } from '@/stores/app-context-store'
 
 import { refreshAccessToken } from '@/lib/oidc'
 
-// API Base URL from environment
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'
+// API Base URL from environment (default: relative URL for embedded frontend)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
 
 // Flag to prevent multiple simultaneous refresh attempts
 let isRefreshing = false

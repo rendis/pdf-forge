@@ -9,7 +9,7 @@ import { fetchMyRoles } from '@/features/auth/api/auth-api'
 import { initializeTheme } from '@/stores/theme-store'
 import { LoadingOverlay } from '@/components/common/LoadingSpinner'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
 
 interface ClientConfig {
   dummyAuth: boolean
