@@ -1,0 +1,1 @@
+import{i as r}from"./index-Ct5NtD0M.js";const t=r(i=>({isTransitioning:!1,direction:null,startTransition:n=>i({isTransitioning:!0,direction:n}),endTransition:()=>i({isTransitioning:!1,direction:null})}));export{t as u};

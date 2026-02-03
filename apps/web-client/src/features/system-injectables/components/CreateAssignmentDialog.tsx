@@ -398,7 +398,7 @@ export function CreateAssignmentDialog({
                 >
                   <FolderOpen size={16} className="shrink-0 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {t('systemInjectables.workspace', 'Workspace')}
+                    {t('systemInjectables.workspaceLabel', 'Workspace')}
                   </span>
                 </button>
               </div>
