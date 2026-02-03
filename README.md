@@ -624,12 +624,47 @@ The backend (JWKS validation) works with any OIDC-compliant provider:
 
 ## CLI Reference
 
+### Interactive Mode
+
+```bash
+pdfforge-cli              # Opens command center
+```
+
+### Commands
+
 ```bash
 pdfforge-cli init <name>     # Scaffold a new project
-pdfforge-cli migrate         # Apply pending database migrations
-pdfforge-cli doctor          # Check prerequisites (Typst, DB, schema, auth)
+pdfforge-cli init <name> -y  # Non-interactive with defaults
+pdfforge-cli migrate         # Apply database migrations
+pdfforge-cli doctor          # Check prerequisites
 pdfforge-cli version         # Print version
+pdfforge-cli update          # Self-update CLI
 ```
+
+### Skills Management
+
+Manage AI coding agent skills centrally:
+
+```bash
+# Add skills from GitHub
+pdfforge-cli skill add user/repo
+
+# Add specific skill
+pdfforge-cli skill add user/repo --skill frontend-design
+
+# List installed skills
+pdfforge-cli skill list
+
+# Remove skills (interactive)
+pdfforge-cli skill remove
+
+# Sync symlinks to agents
+pdfforge-cli skill sync
+```
+
+Skills are stored in `.agents/skills/` and symlinked to each agent's directory.
+
+**Config:** Edit `skills/agents.yaml` to customize target agents.
 
 ### Doctor Output
 
@@ -703,7 +738,9 @@ github.com/rendis/pdf-forge/
 ├── sdk/                       # Public API (Engine, types, options)
 ├── cmd/
 │   ├── api/                   # Standalone server binary
-│   └── pdfforge-cli/          # CLI tool
+│   └── pdfforge-cli/          # CLI tool (init, migrate, doctor, skill)
+├── skills/
+│   └── agents.yaml            # AI agent definitions for skill sync
 ├── internal/                  # All implementation (not importable)
 │   ├── core/                  # Domain: entities, ports, services
 │   ├── adapters/              # HTTP controllers, PostgreSQL repos

@@ -20,7 +20,9 @@ pdf-forge is **NOT**: a standalone WYSIWYG editor, a Word/DOCX generator (PDF on
 sdk/                  → Public API facade (Engine, types, options)
 cmd/
   api/                → Standalone server binary
-  pdfforge-cli/       → CLI tool (init, migrate, doctor, version)
+  pdfforge-cli/       → CLI tool (init, migrate, doctor, version, update)
+skills/
+  pdf-forge/SKILL.md  → AI agent skill (copied to projects on init)
 internal/
   core/
     entity/           → Domain types (InjectableValue, TableValue, ListValue, etc.)
@@ -64,13 +66,13 @@ make dev                  # Hot reload (air)
 
 The only importable package for consumers. Everything else is `internal/`.
 
-| File             | Contents                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------------------- |
-| `engine.go`      | `Engine`, `New()`, `Run()`, `RunMigrations()`, `SetWorkspaceInjectableProvider()`                 |
-| `options.go`     | `WithConfigFile()`, `WithConfig()`, `WithI18nFile()`, `WithDevFrontendURL()`                      |
+| File             | Contents                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `engine.go`      | `Engine`, `New()`, `Run()`, `RunMigrations()`, `SetWorkspaceInjectableProvider()`                                |
+| `options.go`     | `WithConfigFile()`, `WithConfig()`, `WithI18nFile()`, `WithDevFrontendURL()`                                     |
 | `types.go`       | Re-exported types: `Injector`, `ResolveFunc`, `InitFunc`, `RequestMapper`, `WorkspaceInjectableProvider`, values |
-| `initializer.go` | Runtime DI wiring (replaces Wire)                                                                 |
-| `preflight.go`   | Startup checks: Typst CLI, DB, schema, auth                                                       |
+| `initializer.go` | Runtime DI wiring (replaces Wire)                                                                                |
+| `preflight.go`   | Startup checks: Typst CLI, DB, schema, auth                                                                      |
 
 ## Key Interfaces (Extension Points)
 
@@ -201,12 +203,75 @@ Full reference with all keys, defaults, and performance tuning: [docs/configurat
 
 ## CLI (`cmd/pdfforge-cli/`)
 
+### Command Center
+
+Run without arguments for interactive menu:
+
 ```bash
-pdfforge-cli init <name>    # Scaffold project
-pdfforge-cli migrate         # Apply migrations
-pdfforge-cli doctor          # Check Typst, DB, schema, auth
-pdfforge-cli version         # Print version
+pdfforge-cli
 ```
+
+Options:
+
+- **Install/Update Project** - detect existing projects, handle conflicts
+- **Check System (doctor)** - verify Typst, DB, auth
+- **Run Migrations** - apply pending migrations
+- **Exit**
+
+### Commands
+
+| Command                       | Description                   |
+| ----------------------------- | ----------------------------- |
+| `pdfforge-cli`                | Interactive command center    |
+| `pdfforge-cli init <name>`    | Scaffold new project          |
+| `pdfforge-cli migrate`        | Apply database migrations     |
+| `pdfforge-cli doctor`         | Check Typst, DB, schema, auth |
+| `pdfforge-cli version`        | Print version info            |
+| `pdfforge-cli update`         | Self-update CLI               |
+| `pdfforge-cli update --check` | Check for updates only        |
+
+### `init` Flags
+
+| Flag              | Default        | Description                     |
+| ----------------- | -------------- | ------------------------------- |
+| `-m, --module`    | `<name>`       | Go module name                  |
+| `--examples`      | `true`         | Include example injectors       |
+| `--docker`        | `true`         | Include Docker setup            |
+| `--git`           | `false`        | Initialize git repository       |
+| `-y, --yes`       | —              | Non-interactive mode            |
+
+### `doctor` Checks
+
+1. **Typst CLI** - `typst --version`
+2. **PostgreSQL** - Connection test
+3. **DB Schema** - Checks `tenancy.tenants` table exists
+4. **Auth** - JWKS URL configured or dummy mode warning
+5. **OS Info** - Platform and architecture
+
+### Project Update Flow
+
+When running Command Center → "Install/Update Project":
+
+**Detection**: Scans for `.pdfforge.lock` file
+
+| Status   | Meaning                        | Options                              |
+| -------- | ------------------------------ | ------------------------------------ |
+| NEW      | No project found               | Create here / Create in subdirectory |
+| EXISTING | Project up-to-date             | Reinstall/Reset                      |
+| OUTDATED | Version mismatch in lock file  | Update / Skip                        |
+
+**Conflict Resolution** (for modified files):
+
+1. Skip modified files (keep changes)
+2. Show diff and decide per-file
+3. Backup and overwrite
+4. Overwrite all
+
+Backups stored in `.pdfforge-backup/` with timestamp.
+
+### Skill
+
+The CLI includes a pdf-forge skill at `skills/pdf-forge/SKILL.md`. On `init`, copies to `.agents/skills/pdf-forge/SKILL.md` in the new project.
 
 ## Decision Log
 
@@ -265,5 +330,5 @@ IMPORTANT: Read the relevant doc BEFORE working on that area.
 ## PR Guidelines
 
 1. `make build && make test && make lint`
-3. Run `make swagger` if API changed
-4. Update README.md if public API or config changed
+2. Run `make swagger` if API changed
+3. Update README.md if public API or config changed
