@@ -382,3 +382,83 @@ ERROR: circular dependency detected: injector_a -> injector_b -> injector_a
 If an injector code has no translation, the code itself is displayed as the name.
 
 **Solution:** Add the translation to `config/injectors.i18n.yaml`.
+
+---
+
+## WorkspaceInjectableProvider
+
+For dynamic, workspace-specific injectables that are defined at runtime (not at startup), implement `WorkspaceInjectableProvider`.
+
+### When to Use
+
+- Injectables that vary by workspace (different workspaces have different available variables)
+- Injectables fetched from external systems at runtime
+- Dynamic injectables that can't be registered at startup
+
+### Interface
+
+```go
+type WorkspaceInjectableProvider interface {
+    // GetInjectables returns available injectables for a workspace.
+    // Called when editor opens. Provider handles i18n internally.
+    GetInjectables(ctx context.Context, req *GetInjectablesRequest) (*GetInjectablesResult, error)
+
+    // ResolveInjectables resolves a batch of injectable codes.
+    // Return (nil, error) for CRITICAL failures that stop render.
+    // Return (result, nil) with result.Errors for non-critical failures.
+    ResolveInjectables(ctx context.Context, req *ResolveInjectablesRequest) (*ResolveInjectablesResult, error)
+}
+```
+
+### Implementation Example
+
+```go
+type MyProvider struct{}
+
+func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
+    // Fetch available injectables for this workspace from your system
+    // req.TenantCode, req.WorkspaceCode identify the workspace
+    // req.Locale specifies the language for labels/descriptions
+
+    return &sdk.GetInjectablesResult{
+        Injectables: []sdk.ProviderInjectable{
+            {
+                Code:        "customer_name",
+                Label:       "Customer Name", // Already translated
+                Description: "Full name of the customer",
+                DataType:    sdk.ValueTypeString,
+                GroupKey:    "customer_data",
+            },
+        },
+        Groups: []sdk.ProviderGroup{
+            {Key: "customer_data", Name: "Customer Data", Icon: "user"},
+        },
+    }, nil
+}
+
+func (p *MyProvider) ResolveInjectables(ctx context.Context, req *sdk.ResolveInjectablesRequest) (*sdk.ResolveInjectablesResult, error) {
+    values := make(map[string]*sdk.InjectableValue)
+
+    for _, code := range req.Codes {
+        // Resolve each code from your external system
+        // Use req.Headers, req.Payload, req.InitData as needed
+        val := sdk.StringValue("resolved value")
+        values[code] = &val
+    }
+
+    return &sdk.ResolveInjectablesResult{Values: values}, nil
+}
+```
+
+### Registration
+
+```go
+engine.SetWorkspaceInjectableProvider(&MyProvider{})
+```
+
+### Key Points
+
+- **i18n**: Provider handles translations internally; return pre-translated `Label`, `Description`, and group `Name`
+- **Code Collisions**: Provider codes must not conflict with registry injector codes (error on collision)
+- **Groups**: Provider can define custom groups that merge with YAML-defined groups
+- **Error Handling**: Return `(nil, error)` for critical failures; use `result.Errors` for non-critical

@@ -64,13 +64,13 @@ make dev                  # Hot reload (air)
 
 The only importable package for consumers. Everything else is `internal/`.
 
-| File             | Contents                                                                          |
-| ---------------- | --------------------------------------------------------------------------------- |
-| `engine.go`      | `Engine`, `New()`, `Run()`, `RunMigrations()`                                     |
-| `options.go`     | `WithConfigFile()`, `WithConfig()`, `WithI18nFile()`, `WithDevFrontendURL()`      |
-| `types.go`       | Re-exported types: `Injector`, `ResolveFunc`, `InitFunc`, `RequestMapper`, values |
-| `initializer.go` | Runtime DI wiring (replaces Wire)                                                 |
-| `preflight.go`   | Startup checks: Typst CLI, DB, schema, auth                                       |
+| File             | Contents                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| `engine.go`      | `Engine`, `New()`, `Run()`, `RunMigrations()`, `SetWorkspaceInjectableProvider()`                 |
+| `options.go`     | `WithConfigFile()`, `WithConfig()`, `WithI18nFile()`, `WithDevFrontendURL()`                      |
+| `types.go`       | Re-exported types: `Injector`, `ResolveFunc`, `InitFunc`, `RequestMapper`, `WorkspaceInjectableProvider`, values |
+| `initializer.go` | Runtime DI wiring (replaces Wire)                                                                 |
+| `preflight.go`   | Startup checks: Typst CLI, DB, schema, auth                                                       |
 
 ## Key Interfaces (Extension Points)
 
@@ -101,6 +101,24 @@ type RequestMapper interface {
 ```go
 type InitFunc func(ctx context.Context, injCtx *InjectorContext) (any, error)
 ```
+
+### WorkspaceInjectableProvider (`internal/core/port/workspace_injectable_provider.go`)
+
+Dynamic workspace-specific injectables. Implement this to provide custom injectables per workspace at runtime (when editor opens), not at startup.
+
+```go
+type WorkspaceInjectableProvider interface {
+    // GetInjectables returns available injectables for a workspace.
+    // Called when editor opens. Provider handles i18n internally.
+    GetInjectables(ctx context.Context, req *GetInjectablesRequest) (*GetInjectablesResult, error)
+
+    // ResolveInjectables resolves a batch of injectable codes.
+    // Return (nil, error) for CRITICAL failures, (result, nil) with result.Errors for non-critical.
+    ResolveInjectables(ctx context.Context, req *ResolveInjectablesRequest) (*ResolveInjectablesResult, error)
+}
+```
+
+Register via `engine.SetWorkspaceInjectableProvider(provider)`. See `examples/quickstart/extensions/workspace_provider.go`.
 
 ## Built-in Injectors
 

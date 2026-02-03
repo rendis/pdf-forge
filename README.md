@@ -20,6 +20,7 @@ Build document templates in a visual editor, inject dynamic data through a plugi
 - **Embedded frontend** -- Ships with a React SPA; no separate frontend deployment needed
 - **Dummy auth mode** -- Start developing immediately without OIDC provider setup
 - **CLI scaffolding** -- `pdfforge-cli init myapp` generates a ready-to-run project
+- **Dynamic workspace injectables** -- Runtime injectables per workspace via `WorkspaceInjectableProvider`
 
 ## How It Works
 
@@ -200,6 +201,9 @@ func main() {
     // Set init function (runs before injectors, loads shared data)
     engine.SetInitFunc(myInitFunc)
 
+    // Optional: register workspace injectable provider (dynamic per-workspace injectables)
+    engine.SetWorkspaceInjectableProvider(&MyProvider{})
+
     if err := engine.Run(); err != nil {
         log.Fatal(err)
     }
@@ -316,6 +320,63 @@ func myInitFunc(ctx context.Context, injCtx *sdk.InjectorContext) (any, error) {
 ```
 
 Access in injectors via `injCtx.InitData().(*SharedData)`.
+
+## Writing a Workspace Injectable Provider
+
+For dynamic injectables that vary per workspace and are defined at runtime (not at startup), implement `sdk.WorkspaceInjectableProvider`. Use this when:
+
+- Different workspaces have different available injectables
+- Injectables are fetched from external systems at runtime
+- You can't know all injectables at startup
+
+```go
+type MyProvider struct{}
+
+func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
+    // req.TenantCode, req.WorkspaceCode identify the workspace
+    // req.Locale for i18n (return pre-translated labels)
+
+    return &sdk.GetInjectablesResult{
+        Injectables: []sdk.ProviderInjectable{
+            {
+                Code:        "customer_name",
+                Label:       "Customer Name", // Already translated
+                Description: "Full name of the customer",
+                DataType:    sdk.ValueTypeString,
+                GroupKey:    "custom_data",
+            },
+        },
+        Groups: []sdk.ProviderGroup{
+            {Key: "custom_data", Name: "Custom Data", Icon: "user"},
+        },
+    }, nil
+}
+
+func (p *MyProvider) ResolveInjectables(ctx context.Context, req *sdk.ResolveInjectablesRequest) (*sdk.ResolveInjectablesResult, error) {
+    // req.Codes contains the injectable codes to resolve
+    // req.Headers, req.Payload, req.InitData available for context
+
+    values := make(map[string]*sdk.InjectableValue)
+    for _, code := range req.Codes {
+        val := sdk.StringValue("resolved value")
+        values[code] = &val
+    }
+    return &sdk.ResolveInjectablesResult{Values: values}, nil
+}
+```
+
+Register via:
+
+```go
+engine.SetWorkspaceInjectableProvider(&MyProvider{})
+```
+
+**Key points:**
+
+- **i18n**: Provider handles translations internally; return pre-translated `Label`, `Description`, and group `Name`
+- **Error handling**: Return `(nil, error)` for critical failures that stop render; use `result.Errors` map for non-critical failures
+- **Code collisions**: Provider codes must not conflict with registry injector codes (error on collision)
+- **Groups**: Provider can define custom groups that merge with YAML-defined groups
 
 ## Value Types
 
