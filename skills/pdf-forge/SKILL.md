@@ -529,3 +529,4 @@ See **enterprise-scenarios.md** for workarounds and patterns.
 - **enterprise-scenarios.md** - Complete integration examples (CRM, Vault, validation)
 - **types-reference.md** - Tables API, Lists API, FormatConfig presets
 - **domain-reference.md** - Tenants, workspaces, roles, version states, render flow
+- **scripts-reference.md** - Custom scripts system (`make run-script`)

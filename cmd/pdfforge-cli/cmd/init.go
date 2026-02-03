@@ -97,6 +97,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 	dirs := []string{
 		projectName,
 		projectName + "/config",
+		projectName + "/scripts",
 	}
 	if initIncludeExamples {
 		dirs = append(dirs, projectName+"/extensions/injectors")
@@ -126,6 +127,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		projectName + "/extensions/mapper.go":       "mapper.go.tmpl",
 		projectName + "/extensions/init.go":         "init.go.tmpl",
 		projectName + "/extensions/middleware.go":   "middleware.go.tmpl",
+		projectName + "/scripts/README.md":          "scripts_readme.md.tmpl",
 		projectName + "/go.mod":                     "go.mod.tmpl",
 	}
 
