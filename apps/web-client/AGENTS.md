@@ -39,9 +39,9 @@ This is a React 19 + TypeScript SPA for a multi-tenant document assembly platfor
   - Three role levels: System (SUPERADMIN), Tenant (OWNER/ADMIN), Workspace (OWNER/ADMIN/EDITOR/OPERATOR/VIEWER)
   - `usePermission()` hook checks permissions against current context
   - `<PermissionGuard>` component for declarative UI permission control
-- **Matriz de Permisos**: Documentación detallada en `../doc-engine/docs/authorization-matrix.md`
+- **Matriz de Permisos**: Documentación detallada en `../pdf-forge/docs/authorization-matrix.md`
 
-> **IMPORTANTE**: Antes de implementar validaciones de permisos, controles de acceso, uso de `<PermissionGuard>` o `usePermission()`, **SIEMPRE** consulta la matriz de autorización (`../doc-engine/docs/authorization-matrix.md`) para conocer los permisos exactos por endpoint y los roles mínimos requeridos para cada operación.
+> **IMPORTANTE**: Antes de implementar validaciones de permisos, controles de acceso, uso de `<PermissionGuard>` o `usePermission()`, **SIEMPRE** consulta la matriz de autorización (`../pdf-forge/docs/authorization-matrix.md`) para conocer los permisos exactos por endpoint y los roles mínimos requeridos para cada operación.
 
 ### API Layer
 
@@ -52,11 +52,11 @@ This is a React 19 + TypeScript SPA for a multi-tenant document assembly platfor
 
 > **IMPORTANTE**: Antes de implementar o interactuar con cualquier componente de la API, **SIEMPRE** consulta la especificación OpenAPI siguiendo este orden de prioridad:
 >
-> 1. **MCP `doc-engine-api` (Recomendado)**: Usa las herramientas `mcp__doc-engine-api__*` para consultar el swagger de forma interactiva y eficiente.
+> 1. **MCP `pdf-forge-api` (Recomendado)**: Usa las herramientas `mcp__pdf-forge-api__*` para consultar el swagger de forma interactiva y eficiente.
 >
 >    **Si el MCP no está disponible**, sugiere al usuario instalarlo siguiendo la guía: `docs/mcp_setup.md`
 >
-> 2. **Archivo YAML (Fallback)**: Solo si el MCP no está disponible y no se puede instalar, consulta directamente `../doc-engine/docs/swagger.yaml`. **Advertencia**: El archivo swagger es muy extenso (~3000+ líneas), lo que consume mucho contexto.
+> 2. **Archivo YAML (Fallback)**: Solo si el MCP no está disponible y no se puede instalar, consulta directamente `../pdf-forge/docs/swagger.yaml`. **Advertencia**: El archivo swagger es muy extenso (~3000+ líneas), lo que consume mucho contexto.
 
 ### Feature Structure
 

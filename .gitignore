@@ -82,15 +82,6 @@ next-env.d.ts
 # IDE / Editors
 # =========================
 
-# VSCode
-.vscode/
-.cursor/
-.claude/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
 # JetBrains (GoLand, WebStorm, IntelliJ)
 .idea/
 *.iml
@@ -142,7 +133,9 @@ secrets/
 .env*
 !.env.example
 
-# Agents
+# Local settings
+.vscode
+.agents/
 .claude/
-CLAUDE.md
-GEMINI.md
+*.local.json
+.env.local
