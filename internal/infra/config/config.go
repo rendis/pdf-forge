@@ -37,7 +37,8 @@ func Load() (*Config, error) {
 		// Config file not found is acceptable, we'll use env vars and defaults
 	}
 
-	// Set defaults
+	// Bind env vars and set defaults
+	bindEnvVars(v)
 	setDefaults(v)
 
 	// Unmarshal into struct
@@ -54,6 +55,44 @@ func Load() (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+// bindEnvVars explicitly binds environment variables to config keys.
+// Required because Viper's AutomaticEnv doesn't work reliably with Unmarshal.
+func bindEnvVars(v *viper.Viper) {
+	// Database
+	v.BindEnv("database.host")
+	v.BindEnv("database.port")
+	v.BindEnv("database.user")
+	v.BindEnv("database.password")
+	v.BindEnv("database.name")
+	v.BindEnv("database.ssl_mode")
+	v.BindEnv("database.max_pool_size")
+	v.BindEnv("database.min_pool_size")
+	v.BindEnv("database.max_idle_time_seconds")
+	// Server
+	v.BindEnv("server.port")
+	v.BindEnv("server.read_timeout")
+	v.BindEnv("server.write_timeout")
+	v.BindEnv("server.shutdown_timeout")
+	v.BindEnv("server.swagger_ui")
+	// Auth
+	v.BindEnv("auth.jwks_url")
+	v.BindEnv("auth.issuer")
+	v.BindEnv("auth.audience")
+	// InternalAPI
+	v.BindEnv("internal_api.enabled")
+	v.BindEnv("internal_api.api_key")
+	// Logging
+	v.BindEnv("logging.level")
+	v.BindEnv("logging.format")
+	// Typst
+	v.BindEnv("typst.bin_path")
+	v.BindEnv("typst.timeout_seconds")
+	v.BindEnv("typst.max_concurrent")
+	v.BindEnv("typst.acquire_timeout_seconds")
+	// Environment
+	v.BindEnv("environment")
 }
 
 // setDefaults sets default configuration values.
@@ -73,7 +112,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("database.ssl_mode", "disable")
 	v.SetDefault("database.max_pool_size", 10)
 	v.SetDefault("database.min_pool_size", 2)
-	v.SetDefault("database.max_idle_time", 300)
+	v.SetDefault("database.max_idle_time_seconds", 300)
 
 	// Logging defaults
 	v.SetDefault("logging.level", "info")
@@ -103,6 +142,7 @@ func LoadFromFile(filePath string) (*Config, error) {
 		return nil, fmt.Errorf("reading config file %s: %w", filePath, err)
 	}
 
+	bindEnvVars(v)
 	setDefaults(v)
 
 	var cfg Config
