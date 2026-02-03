@@ -70,15 +70,25 @@ func runInit(cmd *cobra.Command, args []string) error {
 		initGitInit = config.GitInit
 	}
 
-	// Validate project doesn't exist
-	if _, err := os.Stat(projectName); err == nil {
-		return fmt.Errorf("directory %q already exists", projectName)
+	// Validate project doesn't exist (skip for "." which always exists)
+	if projectName != "." {
+		if _, err := os.Stat(projectName); err == nil {
+			return fmt.Errorf("directory %q already exists", projectName)
+		}
 	}
 
 	// Use base name as module if not specified
 	moduleName := initModuleName
 	if moduleName == "" {
-		moduleName = filepath.Base(projectName)
+		if projectName == "." {
+			cwd, err := os.Getwd()
+			if err != nil {
+				return fmt.Errorf("cannot determine current directory: %w", err)
+			}
+			moduleName = filepath.Base(cwd)
+		} else {
+			moduleName = filepath.Base(projectName)
+		}
 	}
 
 	fmt.Println()
@@ -252,8 +262,10 @@ func runInteractiveInit() (*initConfig, error) {
 			if s == "" {
 				return fmt.Errorf("project name is required")
 			}
-			if _, err := os.Stat(s); err == nil {
-				return fmt.Errorf("directory %q already exists", s)
+			if s != "." {
+				if _, err := os.Stat(s); err == nil {
+					return fmt.Errorf("directory %q already exists", s)
+				}
 			}
 			return nil
 		}).
@@ -264,6 +276,11 @@ func runInteractiveInit() (*initConfig, error) {
 
 	// Module name (with default)
 	defaultModule := config.ProjectName
+	if defaultModule == "." {
+		if cwd, err := os.Getwd(); err == nil {
+			defaultModule = filepath.Base(cwd)
+		}
+	}
 	err = huh.NewInput().
 		Title("Go module name").
 		Description("The Go module path for your project").
