@@ -193,6 +193,7 @@ func getTemplateFiles() []TemplateFile {
 		{TemplateName: "i18n.yaml.tmpl", OutputPath: "config/injectors.i18n.yaml"},
 		{TemplateName: "init.go.tmpl", OutputPath: "extensions/init.go"},
 		{TemplateName: "mapper.go.tmpl", OutputPath: "extensions/mapper.go"},
+		{TemplateName: "middleware.go.tmpl", OutputPath: "extensions/middleware.go"},
 		{TemplateName: "example_value.go.tmpl", OutputPath: "extensions/injectors/example_value.go", Optional: true},
 		{TemplateName: "example_number.go.tmpl", OutputPath: "extensions/injectors/example_number.go", Optional: true},
 		{TemplateName: "example_bool.go.tmpl", OutputPath: "extensions/injectors/example_bool.go", Optional: true},

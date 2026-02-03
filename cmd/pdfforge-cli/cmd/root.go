@@ -294,6 +294,7 @@ func getTemplateNameForFile(path string) string {
 		"config/injectors.i18n.yaml":           "i18n.yaml.tmpl",
 		"extensions/init.go":                   "init.go.tmpl",
 		"extensions/mapper.go":                 "mapper.go.tmpl",
+		"extensions/middleware.go":             "middleware.go.tmpl",
 		"extensions/injectors/example_value.go":  "example_value.go.tmpl",
 		"extensions/injectors/example_number.go": "example_number.go.tmpl",
 		"extensions/injectors/example_bool.go":   "example_bool.go.tmpl",

@@ -81,6 +81,7 @@ func detectGeneratedFiles(dir string) []string {
 		"config/injectors.i18n.yaml",
 		"extensions/init.go",
 		"extensions/mapper.go",
+		"extensions/middleware.go",
 		"extensions/injectors/example_value.go",
 		"extensions/injectors/example_number.go",
 		"extensions/injectors/example_bool.go",

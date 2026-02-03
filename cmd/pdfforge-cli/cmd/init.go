@@ -126,6 +126,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		projectName + "/config/injectors.i18n.yaml": "i18n.yaml.tmpl",
 		projectName + "/extensions/mapper.go":       "mapper.go.tmpl",
 		projectName + "/extensions/init.go":         "init.go.tmpl",
+		projectName + "/extensions/middleware.go":   "middleware.go.tmpl",
 		projectName + "/go.mod":                     "go.mod.tmpl",
 	}
 

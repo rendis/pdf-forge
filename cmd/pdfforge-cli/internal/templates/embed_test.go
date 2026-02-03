@@ -20,6 +20,7 @@ func TestAllTemplatesExist(t *testing.T) {
 		"i18n.yaml.tmpl",
 		"init.go.tmpl",
 		"mapper.go.tmpl",
+		"middleware.go.tmpl",
 		"example_value.go.tmpl",
 		"example_number.go.tmpl",
 		"example_bool.go.tmpl",
@@ -44,10 +45,10 @@ func TestAllTemplatesExist(t *testing.T) {
 }
 
 func TestTemplateCount(t *testing.T) {
-	// Should have at least 17 templates
+	// Should have at least 18 templates
 	templates := Templates.Templates()
-	if len(templates) < 17 {
-		t.Errorf("expected at least 17 templates, got %d", len(templates))
+	if len(templates) < 18 {
+		t.Errorf("expected at least 18 templates, got %d", len(templates))
 	}
 }
 
