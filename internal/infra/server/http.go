@@ -58,6 +58,8 @@ func NewHTTPServer(
 	tenantController *controller.TenantController,
 	documentTypeController *controller.DocumentTypeController,
 	internalRenderController *controller.InternalRenderController,
+	globalMiddleware []gin.HandlerFunc,
+	apiMiddleware []gin.HandlerFunc,
 ) *HTTPServer {
 	// Set Gin mode based on environment
 	if cfg.Environment == "production" {
@@ -70,6 +72,11 @@ func NewHTTPServer(
 	engine.Use(gin.Recovery())
 	engine.Use(gin.Logger())
 	engine.Use(corsMiddleware())
+
+	// User-provided global middleware (after CORS, before routes)
+	for _, mw := range globalMiddleware {
+		engine.Use(mw)
+	}
 
 	// Health check endpoint (no auth required)
 	engine.GET("/health", healthHandler)
@@ -95,6 +102,11 @@ func NewHTTPServer(
 		v1.Use(middleware.JWTAuth(&cfg.Auth))
 		v1.Use(middlewareProvider.IdentityContext())
 		v1.Use(middlewareProvider.SystemRoleContext())
+	}
+
+	// User-provided API middleware (after auth, before controllers)
+	for _, mw := range apiMiddleware {
+		v1.Use(mw)
 	}
 	{
 		// Placeholder ping endpoint

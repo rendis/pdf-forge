@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"log"
+	"log/slog"
 
 	"github.com/rendis/pdf-forge/sdk"
 	"quickstart/extensions"
@@ -14,22 +16,18 @@ func main() {
 		sdk.WithI18nFile("config/injectors.i18n.yaml"),
 	)
 
-	// Register one example injector per ValueType
-	engine.RegisterInjector(&injectors.ExampleStringInjector{}) // STRING
-	engine.RegisterInjector(&injectors.ExampleNumberInjector{}) // NUMBER
-	engine.RegisterInjector(&injectors.ExampleBoolInjector{})   // BOOL
-	engine.RegisterInjector(&injectors.ExampleTimeInjector{})   // TIME
-	engine.RegisterInjector(&injectors.ExampleImageInjector{})  // IMAGE
-	engine.RegisterInjector(&injectors.ExampleTableInjector{})  // TABLE
-	engine.RegisterInjector(&injectors.ExampleListInjector{})   // LIST
+	// Register extensions via helper functions (keeps main clean)
+	registerInjectors(engine)
+	registerMiddleware(engine)
+	registerLifecycle(engine)
 
-	// Register mapper (handles request parsing for render)
-	engine.RegisterMapper(&extensions.ExampleMapper{})
+	// Set mapper (handles request parsing for render)
+	engine.SetMapper(&extensions.ExampleMapper{})
 
-	// Register init function (loads shared data before injectors)
+	// Set init function (loads shared data before injectors)
 	engine.SetInitFunc(extensions.ExampleInit())
 
-	// Register workspace injectable provider (optional, for dynamic workspace-specific injectables)
+	// Set workspace injectable provider (optional, for dynamic workspace-specific injectables)
 	engine.SetWorkspaceInjectableProvider(&extensions.ExampleWorkspaceProvider{})
 
 	// Auto-apply pending database migrations (idempotent)
@@ -40,4 +38,70 @@ func main() {
 	if err := engine.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// registerInjectors registers all custom injectors.
+// Group related injectors together for clarity.
+func registerInjectors(engine *sdk.Engine) {
+	// One example injector per ValueType
+	engine.RegisterInjector(&injectors.ExampleStringInjector{}) // STRING
+	engine.RegisterInjector(&injectors.ExampleNumberInjector{}) // NUMBER
+	engine.RegisterInjector(&injectors.ExampleBoolInjector{})   // BOOL
+	engine.RegisterInjector(&injectors.ExampleTimeInjector{})   // TIME
+	engine.RegisterInjector(&injectors.ExampleImageInjector{})  // IMAGE
+	engine.RegisterInjector(&injectors.ExampleTableInjector{})  // TABLE
+	engine.RegisterInjector(&injectors.ExampleListInjector{})   // LIST
+}
+
+// registerMiddleware registers HTTP middleware.
+// Global middleware runs on ALL routes (health, swagger, api, internal).
+// API middleware runs on /api/v1/* routes only, AFTER authentication.
+func registerMiddleware(engine *sdk.Engine) {
+	// Global middleware (all routes)
+	engine.UseMiddleware(extensions.RequestLoggerMiddleware())
+	engine.UseMiddleware(extensions.CustomHeadersMiddleware())
+
+	// API middleware (/api/v1/* only, after auth)
+	engine.UseAPIMiddleware(extensions.TenantValidationMiddleware())
+}
+
+// registerLifecycle registers startup and shutdown hooks.
+// Hooks are SYNCHRONOUS - for background processes, spawn a goroutine.
+func registerLifecycle(engine *sdk.Engine) {
+	// Example: background scheduler pattern
+	// Uncomment and adapt for real schedulers/workers
+	var schedulerCancel context.CancelFunc
+	var schedulerDone chan struct{}
+
+	engine.OnStart(func(ctx context.Context) error {
+		slog.InfoContext(ctx, "running OnStart hook")
+
+		// Example: start a background scheduler
+		var schedulerCtx context.Context
+		schedulerCtx, schedulerCancel = context.WithCancel(context.Background())
+		schedulerDone = make(chan struct{})
+
+		go func() {
+			defer close(schedulerDone)
+			// Replace with your scheduler:
+			// myScheduler.Run(schedulerCtx)
+			slog.InfoContext(schedulerCtx, "background process started (placeholder)")
+			<-schedulerCtx.Done()
+			slog.InfoContext(schedulerCtx, "background process stopped")
+		}()
+
+		return nil // Return immediately - scheduler runs in background
+	})
+
+	engine.OnShutdown(func(ctx context.Context) error {
+		slog.InfoContext(ctx, "running OnShutdown hook")
+
+		// Stop background scheduler gracefully
+		if schedulerCancel != nil {
+			schedulerCancel()
+			<-schedulerDone // Wait for clean exit
+		}
+
+		return nil
+	})
 }

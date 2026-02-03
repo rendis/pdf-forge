@@ -242,6 +242,8 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		tenantCtrl,
 		documentTypeCtrl,
 		internalRenderCtrl,
+		e.globalMiddleware,
+		e.apiMiddleware,
 	)
 
 	return &appComponents{

@@ -3,9 +3,15 @@
 package sdk
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/rendis/pdf-forge/internal/core/entity"
 	"github.com/rendis/pdf-forge/internal/core/port"
 )
+
+// Middleware is the function signature for HTTP middleware.
+// Use with UseMiddleware() and UseAPIMiddleware().
+type Middleware = gin.HandlerFunc
 
 // Re-export types that extension authors need.
 // Everything else stays internal.

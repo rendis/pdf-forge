@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/rendis/pdf-forge/internal/core/port"
 	"github.com/rendis/pdf-forge/internal/infra/config"
 	"github.com/rendis/pdf-forge/internal/infra/logging"
@@ -26,6 +28,14 @@ type Engine struct {
 	mapper            port.RequestMapper
 	initFunc          port.InitFunc
 	workspaceProvider port.WorkspaceInjectableProvider
+
+	// Middleware
+	globalMiddleware []gin.HandlerFunc // Applied to all routes (after CORS, before auth)
+	apiMiddleware    []gin.HandlerFunc // Applied to /api/v1/* routes (after auth)
+
+	// Lifecycle hooks
+	onStartHooks    []func(ctx context.Context) error // Run after config/preflight, before HTTP server
+	onShutdownHooks []func(ctx context.Context) error // Run after HTTP server stops, before exit
 }
 
 // New creates a new Engine with the given options.
@@ -44,11 +54,16 @@ func (e *Engine) RegisterInjector(inj port.Injector) *Engine {
 	return e
 }
 
-// RegisterMapper sets the request mapper for the engine.
-// Only ONE mapper is allowed.
-func (e *Engine) RegisterMapper(m port.RequestMapper) *Engine {
+// SetMapper sets the request mapper for render requests.
+// Only ONE mapper is supported.
+func (e *Engine) SetMapper(m port.RequestMapper) *Engine {
 	e.mapper = m
 	return e
+}
+
+// Deprecated: Use SetMapper instead.
+func (e *Engine) RegisterMapper(m port.RequestMapper) *Engine {
+	return e.SetMapper(m)
 }
 
 // SetInitFunc sets the global initialization function.
@@ -63,6 +78,38 @@ func (e *Engine) SetInitFunc(fn port.InitFunc) *Engine {
 // and ResolveInjectables is called during render for provider-owned codes.
 func (e *Engine) SetWorkspaceInjectableProvider(p port.WorkspaceInjectableProvider) *Engine {
 	e.workspaceProvider = p
+	return e
+}
+
+// UseMiddleware adds middleware to be applied globally to all routes.
+// Execution order: Recovery → Logger → CORS → [User Global Middleware] → Routes
+// Use for logging, tracing, custom headers, etc.
+func (e *Engine) UseMiddleware(mw gin.HandlerFunc) *Engine {
+	e.globalMiddleware = append(e.globalMiddleware, mw)
+	return e
+}
+
+// UseAPIMiddleware adds middleware to /api/v1/* routes only.
+// Execution order: Operation → Auth → Identity → Roles → [User API Middleware] → Controller
+// Use for rate limiting, tenant validation, custom authorization, etc.
+func (e *Engine) UseAPIMiddleware(mw gin.HandlerFunc) *Engine {
+	e.apiMiddleware = append(e.apiMiddleware, mw)
+	return e
+}
+
+// OnStart registers a hook that runs AFTER config/preflight, BEFORE HTTP server starts.
+// Hooks run synchronously in registration order.
+// For background processes (schedulers, workers), spawn a goroutine inside the hook.
+func (e *Engine) OnStart(fn func(ctx context.Context) error) *Engine {
+	e.onStartHooks = append(e.onStartHooks, fn)
+	return e
+}
+
+// OnShutdown registers a hook that runs AFTER HTTP server stops, BEFORE exit.
+// Hooks run synchronously in REVERSE registration order (LIFO).
+// Use to gracefully stop background processes started in OnStart.
+func (e *Engine) OnShutdown(fn func(ctx context.Context) error) *Engine {
+	e.onShutdownHooks = append(e.onShutdownHooks, fn)
 	return e
 }
 
@@ -153,6 +200,13 @@ func (e *Engine) runWithSignals(ctx context.Context, app *appComponents) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	// Run OnStart hooks (sync, in registration order)
+	for i, hook := range e.onStartHooks {
+		if err := hook(ctx); err != nil {
+			return fmt.Errorf("onStart hook %d: %w", i, err)
+		}
+	}
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
@@ -170,6 +224,13 @@ func (e *Engine) runWithSignals(ctx context.Context, app *appComponents) error {
 	case err := <-errChan:
 		slog.ErrorContext(ctx, "server error", slog.String("error", err.Error()))
 		return err
+	}
+
+	// Run OnShutdown hooks (sync, reverse order - LIFO)
+	for i := len(e.onShutdownHooks) - 1; i >= 0; i-- {
+		if err := e.onShutdownHooks[i](ctx); err != nil {
+			slog.ErrorContext(ctx, "onShutdown hook error", slog.Int("hook", i), slog.Any("error", err))
+		}
 	}
 
 	app.cleanup()
