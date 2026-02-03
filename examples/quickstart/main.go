@@ -29,6 +29,9 @@ func main() {
 	// Register init function (loads shared data before injectors)
 	engine.SetInitFunc(extensions.ExampleInit())
 
+	// Register workspace injectable provider (optional, for dynamic workspace-specific injectables)
+	engine.SetWorkspaceInjectableProvider(&extensions.ExampleWorkspaceProvider{})
+
 	// Auto-apply pending database migrations (idempotent)
 	if err := engine.RunMigrations(); err != nil {
 		log.Fatal("migrations: ", err)
