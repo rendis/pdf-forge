@@ -1,0 +1,148 @@
+# =========================
+# Go
+# =========================
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+pdfforge-cli
+api
+!cmd/pdfforge-cli
+!cmd/api
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+coverage.txt
+coverage-all.html
+__debug_bin*
+
+# Go workspace file
+go.work.sum
+
+# Dependency directories
+vendor/
+
+# Go build cache
+.cache/
+
+# Air (hot reload)
+tmp/
+
+# =========================
+# React / Node.js
+# =========================
+
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build output
+build/
+.next/
+out/
+
+# Testing
+coverage/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# =========================
+# IDE / Editors
+# =========================
+
+# VSCode
+.vscode/
+.cursor/
+.claude/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains (GoLand, WebStorm, IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# =========================
+# OS
+# =========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# =========================
+# Docker
+# =========================
+.docker/
+
+# =========================
+# Misc
+# =========================
+
+# Logs
+logs/
+*.log
+
+# Secrets
+*.key
+*.pem
+secrets/
+
+# Local development
+.env*
+!.env.example
+
+# Agents
+.claude/
+CLAUDE.md
+GEMINI.md
