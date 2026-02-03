@@ -57,7 +57,7 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 			slog.String("workspace_code", cmd.WorkspaceCode),
 			slog.String("template_type_code", cmd.TemplateTypeCode),
 		)
-		return s.renderVersion(ctx, cached, cmd.Injectables)
+		return s.renderVersion(ctx, cached, cmd.Injectables, cmd.TenantCode, cmd.WorkspaceCode)
 	}
 
 	// Cache miss — resolve through fallback chain
@@ -69,7 +69,7 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 	// Store in cache
 	s.templateCache.Set(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode, version)
 
-	return s.renderVersion(ctx, version, cmd.Injectables)
+	return s.renderVersion(ctx, version, cmd.Injectables, cmd.TenantCode, cmd.WorkspaceCode)
 }
 
 // resolveTemplateVersion walks the fallback chain to find a published template version.
@@ -175,7 +175,7 @@ func (s *InternalRenderService) tryResolveVersionWithWorkspace(ctx context.Conte
 }
 
 // renderVersion parses the content structure and renders a PDF.
-func (s *InternalRenderService) renderVersion(ctx context.Context, version *entity.TemplateVersionWithDetails, injectables map[string]any) (*port.RenderPreviewResult, error) {
+func (s *InternalRenderService) renderVersion(ctx context.Context, version *entity.TemplateVersionWithDetails, injectables map[string]any, tenantCode, workspaceCode string) (*port.RenderPreviewResult, error) {
 	doc, err := portabledoc.Parse(version.ContentStructure)
 	if err != nil {
 		return nil, fmt.Errorf("parsing content structure: %w", err)
@@ -186,7 +186,7 @@ func (s *InternalRenderService) renderVersion(ctx context.Context, version *enti
 	}
 
 	// Resolve system injectables server-side
-	injectables = s.resolveSystemInjectables(ctx, version.Injectables, injectables)
+	injectables = s.resolveSystemInjectables(ctx, version.Injectables, injectables, tenantCode, workspaceCode)
 
 	// Build injectable defaults
 	defaults := BuildVersionInjectableDefaults(version.Injectables)
@@ -200,7 +200,7 @@ func (s *InternalRenderService) renderVersion(ctx context.Context, version *enti
 
 // resolveSystemInjectables resolves system injectable values and merges them with caller-provided values.
 // Caller-provided values take priority over resolved values.
-func (s *InternalRenderService) resolveSystemInjectables(ctx context.Context, versionInjectables []*entity.VersionInjectableWithDefinition, callerValues map[string]any) map[string]any {
+func (s *InternalRenderService) resolveSystemInjectables(ctx context.Context, versionInjectables []*entity.VersionInjectableWithDefinition, callerValues map[string]any, tenantCode, workspaceCode string) map[string]any {
 	// Collect system injectable codes
 	var systemCodes []string
 	for _, inj := range versionInjectables {
@@ -213,8 +213,8 @@ func (s *InternalRenderService) resolveSystemInjectables(ctx context.Context, ve
 		return callerValues
 	}
 
-	// Resolve system injectables
-	injCtx := entity.NewInjectorContext("", "", "", "render", nil, nil)
+	// Resolve system injectables with tenant/workspace codes for provider support
+	injCtx := entity.NewInjectorContextWithCodes("", "", "", "render", tenantCode, workspaceCode, nil, nil)
 	result, err := s.resolver.Resolve(ctx, injCtx, systemCodes)
 	if err != nil {
 		slog.WarnContext(ctx, "failed to resolve system injectables",

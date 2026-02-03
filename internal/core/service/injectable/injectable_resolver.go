@@ -34,18 +34,24 @@ type ResolveResult struct {
 
 // InjectableResolverService resolves injector values.
 type InjectableResolverService struct {
-	registry port.InjectorRegistry
+	registry          port.InjectorRegistry
+	workspaceProvider port.WorkspaceInjectableProvider // can be nil
 }
 
 // NewInjectableResolverService creates a new resolution service.
-func NewInjectableResolverService(registry port.InjectorRegistry) *InjectableResolverService {
+func NewInjectableResolverService(
+	registry port.InjectorRegistry,
+	workspaceProvider port.WorkspaceInjectableProvider, // can be nil
+) *InjectableResolverService {
 	return &InjectableResolverService{
-		registry: registry,
+		registry:          registry,
+		workspaceProvider: workspaceProvider,
 	}
 }
 
 // Resolve resolves the values of the referenced injectors.
-// Executes Init() GLOBAL first, then resolves injectors by dependency levels.
+// Executes Init() GLOBAL first, then resolves registry injectors by dependency levels,
+// then resolves provider injectors in batch.
 func (s *InjectableResolverService) Resolve(
 	ctx context.Context,
 	injCtx *entity.InjectorContext,
@@ -72,7 +78,46 @@ func (s *InjectableResolverService) Resolve(
 		injCtx.SetInitData(initData)
 	}
 
-	// 2. Build dependency graph
+	// 2. Partition codes: registry vs provider
+	registryCodes, providerCodes := s.partitionCodes(referencedCodes)
+
+	// 3. Resolve registry codes via dependency graph
+	if len(registryCodes) > 0 {
+		if err := s.resolveRegistryCodes(ctx, injCtx, registryCodes, result); err != nil {
+			return nil, err
+		}
+	}
+
+	// 4. Resolve provider codes in batch (if provider is registered)
+	if len(providerCodes) > 0 && s.workspaceProvider != nil {
+		if err := s.resolveProviderCodes(ctx, injCtx, providerCodes, result); err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+// partitionCodes separates codes into registry-owned and provider-owned.
+func (s *InjectableResolverService) partitionCodes(codes []string) (registryCodes, providerCodes []string) {
+	for _, code := range codes {
+		if _, ok := s.registry.Get(code); ok {
+			registryCodes = append(registryCodes, code)
+		} else {
+			providerCodes = append(providerCodes, code)
+		}
+	}
+	return
+}
+
+// resolveRegistryCodes resolves codes from the registry using dependency graph.
+func (s *InjectableResolverService) resolveRegistryCodes(
+	ctx context.Context,
+	injCtx *entity.InjectorContext,
+	codes []string,
+	result *ResolveResult,
+) error {
+	// Build dependency graph
 	graph := NewDependencyGraph()
 	err := graph.BuildFromInjectors(
 		func(code string) ([]string, bool) {
@@ -83,19 +128,19 @@ func (s *InjectableResolverService) Resolve(
 			_, deps := inj.Resolve()
 			return deps, true
 		},
-		referencedCodes,
+		codes,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("building dependency graph: %w", err)
+		return fmt.Errorf("building dependency graph: %w", err)
 	}
 
-	// 3. Get execution order (by levels)
+	// Get execution order (by levels)
 	levels, err := graph.TopologicalSort()
 	if err != nil {
-		return nil, fmt.Errorf("topological sort: %w", err)
+		return fmt.Errorf("topological sort: %w", err)
 	}
 
-	// 4. Execute injectors by levels
+	// Execute injectors by levels
 	for levelIdx, level := range levels {
 		slog.DebugContext(ctx, "executing injector level",
 			"level", levelIdx,
@@ -103,11 +148,58 @@ func (s *InjectableResolverService) Resolve(
 		)
 
 		if err := s.executeLevel(ctx, injCtx, level, result); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return result, nil
+	return nil
+}
+
+// resolveProviderCodes resolves codes from the workspace provider in batch.
+func (s *InjectableResolverService) resolveProviderCodes(
+	ctx context.Context,
+	injCtx *entity.InjectorContext,
+	codes []string,
+	result *ResolveResult,
+) error {
+	slog.DebugContext(ctx, "resolving provider codes",
+		"codes", codes,
+		"tenant_code", injCtx.TenantCode(),
+		"workspace_code", injCtx.WorkspaceCode(),
+	)
+
+	providerResult, err := s.workspaceProvider.ResolveInjectables(ctx, &port.ResolveInjectablesRequest{
+		TenantCode:      injCtx.TenantCode(),
+		WorkspaceCode:   injCtx.WorkspaceCode(),
+		TemplateID:      injCtx.TemplateID(),
+		Codes:           codes,
+		SelectedFormats: injCtx.GetSelectedFormats(),
+		Headers:         injCtx.GetHeaders(),
+		Payload:         injCtx.RequestPayload(),
+		InitData:        injCtx.InitData(),
+	})
+	if err != nil {
+		// Critical error from provider - stop render
+		return fmt.Errorf("provider resolution failed: %w", err)
+	}
+
+	// Merge provider values into result
+	result.mu.Lock()
+	defer result.mu.Unlock()
+
+	for code, value := range providerResult.Values {
+		if value != nil {
+			result.Values[code] = *value
+			injCtx.SetResolved(code, value.AsAny())
+		}
+	}
+
+	// Non-critical errors
+	for code, errMsg := range providerResult.Errors {
+		result.Errors[code] = fmt.Errorf("%s", errMsg)
+	}
+
+	return nil
 }
 
 // executeLevel executes all injectors in a level in parallel.

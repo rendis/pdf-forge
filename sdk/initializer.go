@@ -157,7 +157,10 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	userAccessHistorySvc := accesssvc.NewUserAccessHistoryService(userAccessHistoryRepo)
 
 	// --- Services: Injectable ---
-	injectableSvc := injectablesvc.NewInjectableService(injectableRepo, systemInjectableRepo, injReg)
+	injectableSvc := injectablesvc.NewInjectableService(
+		injectableRepo, systemInjectableRepo, injReg,
+		workspaceRepo, tenantRepo, e.workspaceProvider,
+	)
 	workspaceInjectableSvc := injectablesvc.NewWorkspaceInjectableService(workspaceInjectableRepo)
 	systemInjectableSvc := injectablesvc.NewSystemInjectableService(systemInjectableRepo, injReg)
 
@@ -190,7 +193,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	}
 
 	// --- Injectable Resolver ---
-	injectableResolver := injectablesvc.NewInjectableResolverService(injReg)
+	injectableResolver := injectablesvc.NewInjectableResolverService(injReg, e.workspaceProvider)
 
 	// --- Template Cache ---
 	ttl := time.Duration(cfg.Typst.TemplateCacheTTL) * time.Second

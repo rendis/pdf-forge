@@ -60,7 +60,10 @@ func (c *ContentInjectableController) ListInjectables(ctx *gin.Context) {
 	workspaceID, _ := middleware.GetWorkspaceID(ctx)
 	locale := ctx.DefaultQuery("locale", "es")
 
-	injectables, err := c.injectableUC.ListInjectables(ctx.Request.Context(), workspaceID)
+	result, err := c.injectableUC.ListInjectables(ctx.Request.Context(), &injectableuc.ListInjectablesRequest{
+		WorkspaceID: workspaceID,
+		Locale:      locale,
+	})
 	if err != nil {
 		slog.ErrorContext(ctx.Request.Context(), "failed to list injectables",
 			slog.String("workspace_id", workspaceID),
@@ -70,8 +73,7 @@ func (c *ContentInjectableController) ListInjectables(ctx *gin.Context) {
 		return
 	}
 
-	groups := c.injectableUC.GetGroups(locale)
-	ctx.JSON(http.StatusOK, c.injectableMapper.ToListResponse(injectables, groups))
+	ctx.JSON(http.StatusOK, c.injectableMapper.ToListResponse(result.Injectables, result.Groups))
 }
 
 // GetInjectable retrieves an injectable by ID.

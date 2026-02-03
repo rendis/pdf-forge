@@ -8,6 +8,7 @@ import (
 	"github.com/rendis/pdf-forge/internal/core/entity"
 	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
 	"github.com/rendis/pdf-forge/internal/core/port"
+	injectableuc "github.com/rendis/pdf-forge/internal/core/usecase/injectable"
 )
 
 // validationContext holds shared state during validation.
@@ -144,18 +145,21 @@ func (s *Service) loadAccessibleInjectables(vctx *validationContext) error {
 		return nil
 	}
 
-	injectables, err := s.injectableUC.ListInjectables(vctx.ctx, vctx.workspaceID)
+	result, err := s.injectableUC.ListInjectables(vctx.ctx, &injectableuc.ListInjectablesRequest{
+		WorkspaceID: vctx.workspaceID,
+		Locale:      "es", // Default locale for validation
+	})
 	if err != nil {
 		return err
 	}
 
-	vctx.accessibleInjectables = make(portabledoc.Set[string], len(injectables))
-	for _, inj := range injectables {
+	vctx.accessibleInjectables = make(portabledoc.Set[string], len(result.Injectables))
+	for _, inj := range result.Injectables {
 		vctx.accessibleInjectables.Add(inj.Key)
 	}
 
 	// Store full list for extraction phase
-	vctx.accessibleInjectableList = injectables
+	vctx.accessibleInjectableList = result.Injectables
 
 	return nil
 }

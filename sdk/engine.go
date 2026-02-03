@@ -22,9 +22,10 @@ type Engine struct {
 	i18nFilePath   string
 	devFrontendURL string
 
-	injectors []port.Injector
-	mapper    port.RequestMapper
-	initFunc  port.InitFunc
+	injectors         []port.Injector
+	mapper            port.RequestMapper
+	initFunc          port.InitFunc
+	workspaceProvider port.WorkspaceInjectableProvider
 }
 
 // New creates a new Engine with the given options.
@@ -54,6 +55,14 @@ func (e *Engine) RegisterMapper(m port.RequestMapper) *Engine {
 // Runs once before all injectors on each render request.
 func (e *Engine) SetInitFunc(fn port.InitFunc) *Engine {
 	e.initFunc = fn
+	return e
+}
+
+// SetWorkspaceInjectableProvider sets the provider for workspace-specific injectables.
+// If set, the provider's GetInjectables is called when listing injectables,
+// and ResolveInjectables is called during render for provider-owned codes.
+func (e *Engine) SetWorkspaceInjectableProvider(p port.WorkspaceInjectableProvider) *Engine {
+	e.workspaceProvider = p
 	return e
 }
 

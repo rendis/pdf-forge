@@ -160,6 +160,8 @@ type InjectorContext struct {
 	templateID      string
 	transactionalID string
 	operation       string
+	tenantCode      string
+	workspaceCode   string
 	headers         map[string]string
 	resolvedValues  map[string]any
 	requestPayload  any
@@ -179,6 +181,27 @@ func NewInjectorContext(
 		templateID:      templateID,
 		transactionalID: transactionalID,
 		operation:       op,
+		headers:         headers,
+		resolvedValues:  make(map[string]any),
+		requestPayload:  payload,
+	}
+}
+
+// NewInjectorContextWithCodes creates a new InjectorContext with tenant/workspace codes.
+func NewInjectorContextWithCodes(
+	externalID, templateID, transactionalID string,
+	op string,
+	tenantCode, workspaceCode string,
+	headers map[string]string,
+	payload any,
+) *InjectorContext {
+	return &InjectorContext{
+		externalID:      externalID,
+		templateID:      templateID,
+		transactionalID: transactionalID,
+		operation:       op,
+		tenantCode:      tenantCode,
+		workspaceCode:   workspaceCode,
 		headers:         headers,
 		resolvedValues:  make(map[string]any),
 		requestPayload:  payload,
@@ -211,6 +234,34 @@ func (c *InjectorContext) Operation() string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.operation
+}
+
+// TenantCode returns the tenant code.
+func (c *InjectorContext) TenantCode() string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.tenantCode
+}
+
+// WorkspaceCode returns the workspace code.
+func (c *InjectorContext) WorkspaceCode() string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.workspaceCode
+}
+
+// SetTenantCode sets the tenant code (internal use).
+func (c *InjectorContext) SetTenantCode(code string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.tenantCode = code
+}
+
+// SetWorkspaceCode sets the workspace code (internal use).
+func (c *InjectorContext) SetWorkspaceCode(code string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.workspaceCode = code
 }
 
 // Header returns the value of a specific header.
@@ -275,4 +326,32 @@ func (c *InjectorContext) SetSelectedFormats(formats map[string]string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.selectedFormats = formats
+}
+
+// GetSelectedFormats returns a copy of all selected formats.
+func (c *InjectorContext) GetSelectedFormats() map[string]string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.selectedFormats == nil {
+		return nil
+	}
+	result := make(map[string]string, len(c.selectedFormats))
+	for k, v := range c.selectedFormats {
+		result[k] = v
+	}
+	return result
+}
+
+// GetHeaders returns a copy of all headers.
+func (c *InjectorContext) GetHeaders() map[string]string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.headers == nil {
+		return nil
+	}
+	result := make(map[string]string, len(c.headers))
+	for k, v := range c.headers {
+		result[k] = v
+	}
+	return result
 }

@@ -115,3 +115,30 @@ var (
 	StringPtr = entity.StringPtr
 	IntPtr    = entity.IntPtr
 )
+
+// WorkspaceInjectableProvider types for dynamic workspace-specific injectables.
+type (
+	// WorkspaceInjectableProvider defines the interface for workspace-specific injectables.
+	WorkspaceInjectableProvider = port.WorkspaceInjectableProvider
+
+	// GetInjectablesRequest contains parameters for fetching workspace injectables.
+	GetInjectablesRequest = port.GetInjectablesRequest
+
+	// GetInjectablesResult contains the list of available injectables and groups.
+	GetInjectablesResult = port.GetInjectablesResult
+
+	// ProviderInjectable represents an injectable definition from the provider.
+	ProviderInjectable = port.ProviderInjectable
+
+	// ProviderFormat represents a format option for an injectable.
+	ProviderFormat = port.ProviderFormat
+
+	// ProviderGroup represents a custom group for organizing injectables.
+	ProviderGroup = port.ProviderGroup
+
+	// ResolveInjectablesRequest contains parameters for resolving injectable values.
+	ResolveInjectablesRequest = port.ResolveInjectablesRequest
+
+	// ResolveInjectablesResult contains the resolved values and any non-critical errors.
+	ResolveInjectablesResult = port.ResolveInjectablesResult
+)
