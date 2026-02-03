@@ -1,0 +1,1348 @@
+{
+  "common": {
+    "appName": "PDF Forge",
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "apply": "Aplicar",
+    "saving": "Guardando...",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "archive": "Archivar",
+    "archiving": "Archivando...",
+    "cancelling": "Cancelando...",
+    "edit": "Editar",
+    "create": "Crear",
+    "creating": "Creando...",
+    "move": "Mover",
+    "moving": "Moviendo...",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "search": "Buscar",
+    "searchMinChars": "Escribe al menos 3 caracteres para buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "noResults": "No se encontraron resultados",
+    "noDescription": "Sin descripción",
+    "viewAll": "Ver Todo",
+    "more": "Más",
+    "less": "Menos",
+    "yes": "Sí",
+    "no": "No",
+    "all": "Todo",
+    "none": "Ninguno",
+    "selectAll": "Seleccionar Todo",
+    "actions": "Acciones",
+    "clear": "Limpiar todo",
+    "optional": "opcional",
+    "processing": "Procesando...",
+    "language": "Idioma",
+    "changeLanguage": "Cambiar idioma"
+  },
+  "tags": {
+    "searchPlaceholder": "Buscar o crear etiquetas...",
+    "noTags": "No hay etiquetas disponibles",
+    "createNew": "Crear \"{{name}}\"",
+    "create": {
+      "title": "Crear Nueva Etiqueta",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Nombre de la etiqueta (3-50 caracteres)",
+      "colorLabel": "Color",
+      "submit": "Crear Etiqueta",
+      "minLength": "Mínimo 3 caracteres"
+    }
+  },
+  "nav": {
+    "templates": "Plantillas",
+    "documents": "Documentos",
+    "variables": "Variables",
+    "members": "Miembros",
+    "administration": "Administración",
+    "logout": "Cerrar Sesión"
+  },
+  "sidebar": {
+    "pin": "Anclar barra lateral",
+    "unpin": "Desanclar barra lateral"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "loginTitle": "Inicia sesión en tu cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "authenticate": "Autenticar",
+    "forgotPassword": "Recuperar acceso",
+    "logout": "Cerrar Sesión",
+    "loggingIn": "Iniciando sesión...",
+    "invalidCredentials": "Correo o contraseña inválidos"
+  },
+  "login": {
+    "title": "Inicia sesión en",
+    "subtitle": "tu cuenta.",
+    "email": "Usuario / Correo",
+    "password": "Contraseña",
+    "authenticate": "AUTENTICAR",
+    "authenticating": "AUTENTICANDO...",
+    "recover": "Recuperar acceso",
+    "error": "Usuario o contraseña inválidos"
+  },
+  "tenant": {
+    "selectTitle": "Selecciona tu Organización",
+    "selectDescription": "Elige un ambiente de tenant para acceder a tus espacios de trabajo y documentos.",
+    "searchPlaceholder": "Buscar organizaciones...",
+    "lastAccessed": "Último acceso",
+    "users": "usuarios",
+    "backToLogin": "Volver al login"
+  },
+  "selectTenant": {
+    "title": "Selecciona tu",
+    "subtitle": "Organización.",
+    "description": "Elige un ambiente de tenant para acceder a tus plantillas de documentos y herramientas de ensamblaje.",
+    "back": "Volver al login",
+    "filter": "Filtrar por organización...",
+    "minChars": "Escribe al menos 3 caracteres para buscar"
+  },
+  "workspace": {
+    "current": "Workspace Actual",
+    "select": "Seleccionar Workspace",
+    "type": {
+      "SYSTEM": "Sistema",
+      "CLIENT": "Cliente"
+    },
+    "status": {
+      "ACTIVE": "Activo",
+      "SUSPENDED": "Suspendido",
+      "ARCHIVED": "Archivado"
+    }
+  },
+  "templates": {
+    "title": "Lista de Plantillas",
+    "section": "Plantillas",
+    "header": "Gestión",
+    "createNew": "Crear Nueva Plantilla",
+    "searchPlaceholder": "Buscar plantillas...",
+    "folder": "Carpeta",
+    "tags": "Etiquetas",
+    "columns": {
+      "name": "Nombre de Plantilla",
+      "versions": "Versiones",
+      "scheduled": "Programadas",
+      "status": "Estado",
+      "lastModified": "Última Modificación",
+      "action": "Acción"
+    },
+    "status": {
+      "label": "Estado",
+      "published": "Publicado",
+      "draft": "Borrador",
+      "any": "Cualquiera"
+    },
+    "versions": "Versiones",
+    "version": "versión",
+    "versionsLabel": "versiones",
+    "lastModified": "Última Modificación",
+    "author": "Autor",
+    "noTemplates": "No se encontraron plantillas",
+    "showing": "Mostrando {{start}}-{{end}} de {{total}} plantillas",
+    "empty": "No hay plantillas en esta carpeta",
+    "createFirst": "Crea tu primera plantilla",
+    "createDialog": {
+      "title": "Nueva Plantilla",
+      "description": "Crea una nueva plantilla de documento",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Ingresa el título de la plantilla...",
+      "tagsLabel": "Etiquetas",
+      "documentTypeLabel": "Tipo de Documento",
+      "submit": "Crear Plantilla"
+    },
+    "actions": {
+      "newTemplate": "NUEVA PLANTILLA",
+      "goToFolder": "Ir a carpeta",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "editDialog": {
+      "title": "Editar Plantilla",
+      "description": "Actualizar nombre y etiquetas de la plantilla",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Ingresa el título de la plantilla...",
+      "tagsLabel": "Etiquetas",
+      "submit": "Guardar Cambios"
+    },
+    "deleteDialog": {
+      "title": "Eliminar Plantilla",
+      "message": "¿Estás seguro de que deseas eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "moveDialog": {
+      "title": "Mover Plantilla",
+      "message": "¿Estás seguro de que deseas mover \"{{name}}\" a \"{{folder}}\"?",
+      "toRoot": "Raíz"
+    },
+    "detail": {
+      "header": "Detalles de Plantilla",
+      "backToList": "Volver a Plantillas",
+      "backToFolder": "Volver a la carpeta",
+      "notFound": "Plantilla no encontrada",
+      "metadata": "Metadatos",
+      "information": "Información",
+      "folder": "Carpeta",
+      "createdAt": "Creado",
+      "updatedAt": "Última Actualización",
+      "versionsCount": "Versiones",
+      "tags": "Etiquetas",
+      "noTags": "Sin etiquetas",
+      "editTags": "Editar etiquetas",
+      "versionsSection": "Historial de Versiones",
+      "versionsTotal": "{{count}} versión(es)",
+      "noVersions": "Aún no hay versiones",
+      "createVersion": "Crear Nueva Versión",
+      "createFirstVersion": "Crear primera versión",
+      "filters": {
+        "published": "Publicadas",
+        "scheduled": "Agendadas",
+        "draft": "Borradores",
+        "archived": "Archivadas"
+      },
+      "documentType": "Tipo de Documento",
+      "noDocumentType": "Sin tipo asignado",
+      "selectDocumentType": "Seleccionar tipo",
+      "noDocumentTypesAvailable": "No hay tipos de documento disponibles"
+    },
+    "documentType": {
+      "conflictTitle": "Tipo de documento en uso",
+      "conflictDescription": "Este tipo de documento ya está asignado a \"{{title}}\". ¿Deseas reemplazarlo? El tipo será removido de la otra plantilla.",
+      "replace": "Reemplazar"
+    },
+    "editTagsDialog": {
+      "title": "Editar Etiquetas",
+      "description": "Agregar o eliminar etiquetas de esta plantilla",
+      "submit": "Guardar Etiquetas"
+    },
+    "versionInfo": {
+      "createdAt": "Creado",
+      "publishedAt": "Publicado",
+      "archivedAt": "Archivado",
+      "scheduledAt": "Agendado",
+      "openEditor": "Abrir en Editor"
+    },
+    "createVersionDialog": {
+      "title": "Nueva Versión",
+      "description": "Crear una nueva versión de esta plantilla",
+      "nameLabel": "Nombre de Versión",
+      "namePlaceholder": "ej., Borrador Inicial, Revisión de Cambios...",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional de los cambios...",
+      "submit": "Crear Versión"
+    },
+    "cloneVersionDialog": {
+      "title": "Clonar Versión",
+      "description": "Crear una nueva versión a partir de {{versionName}}",
+      "sourceVersion": "Versión origen: v{{versionNumber}} - {{versionName}}",
+      "submit": "Clonar Versión"
+    },
+    "versionDeleteDialog": {
+      "title": "Eliminar Versión",
+      "message": "¿Estás seguro de que deseas eliminar la versión {{version}}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "versionArchiveDialog": {
+      "title": "Archivar Versión",
+      "message": "¿Estás seguro de que deseas archivar la versión {{version}}? Esta acción no se puede deshacer.",
+      "confirm": "Archivar"
+    },
+    "versionCancelScheduleDialog": {
+      "title": "Cancelar Publicación Agendada",
+      "message": "¿Estás seguro de que deseas cancelar la publicación agendada de la versión {{version}}?",
+      "confirm": "Cancelar Programación"
+    },
+    "versions": {
+      "actions": {
+        "delete": "Eliminar",
+        "publishNow": "Publicar Ahora",
+        "schedule": "Programar",
+        "archive": "Archivar",
+        "clone": "Clonar versión",
+        "cancelSchedule": "Cancelar Programación"
+      }
+    },
+    "publishDialog": {
+      "title": "Publicar Versión",
+      "description": "Hacer la versión \"{{name}}\" disponible",
+      "warningTitle": "Esta acción:",
+      "warning1": "Reemplazará la versión publicada actual",
+      "warning2": "Hará este contenido disponible inmediatamente",
+      "confirm": "Publicar Ahora"
+    },
+    "scheduleDialog": {
+      "title": "Programar Publicación",
+      "description": "Programa cuándo \"{{name}}\" estará disponible",
+      "dateLabel": "Fecha de Publicación",
+      "timeLabel": "Hora de Publicación",
+      "info": "La versión se publicará automáticamente en el horario programado. Puedes cancelar en cualquier momento antes.",
+      "confirm": "Programar"
+    },
+    "warnings": {
+      "noDocumentType": "Sin tipo asignado",
+      "noDocumentTypeDescription": "Esta plantilla tiene una versión publicada pero no tiene tipo de documento. No será encontrada a través de la API interna de renderizado."
+    },
+    "tooltips": {
+      "publishedVersion": "Versión publicada: v{{version}}",
+      "scheduledVersions": "{{count}} versión(es) programada(s) para publicar"
+    },
+    "validationDialog": {
+      "title": "Errores de Validación",
+      "description": "No se puede publicar la versión debido a errores en el contenido",
+      "errors": "Errores",
+      "warnings": "Advertencias",
+      "openEditor": "Abrir en Editor"
+    }
+  },
+  "documents": {
+    "title": "Explorador de Documentos",
+    "newFolder": "Nueva Carpeta",
+    "searchPlaceholder": "Buscar documentos...",
+    "type": "Tipo",
+    "subfolders": "Subcarpetas",
+    "documents": "Documentos",
+    "noDocuments": "No se encontraron documentos",
+    "header": {
+      "label": "Repositorio"
+    },
+    "filters": {
+      "type": "Tipo: Todos",
+      "sort": "Orden: Más reciente"
+    }
+  },
+  "folders": {
+    "subfolders": "Subcarpetas",
+    "empty": "Aún no hay carpetas. Crea una para comenzar.",
+    "createDialog": {
+      "title": "Nueva Carpeta",
+      "description": "Crea una nueva carpeta para organizar tus plantillas",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Ingresa el nombre de la carpeta...",
+      "submit": "Crear Carpeta"
+    },
+    "renameDialog": {
+      "title": "Renombrar Carpeta",
+      "description": "Ingresa un nuevo nombre para esta carpeta.",
+      "nameLabel": "Nombre de la Carpeta",
+      "namePlaceholder": "Ingresa el nombre de la carpeta..."
+    },
+    "deleteDialog": {
+      "title": "Eliminar Carpeta",
+      "thisFolder": "esta carpeta",
+      "multipleFolders": "{{count}} carpetas",
+      "confirmMessage": "¿Estás seguro de que deseas eliminar {{name}}?",
+      "warning": "Esto también eliminará todas las subcarpetas y documentos dentro. Esta acción no se puede deshacer."
+    },
+    "moveDialog": {
+      "title": "Mover a Carpeta",
+      "description": "Selecciona una carpeta de destino.",
+      "root": "Raíz (Sin padre)",
+      "noFolders": "No hay carpetas disponibles"
+    },
+    "confirmMoveDialog": {
+      "title": "Mover Carpeta",
+      "message": "¿Estás seguro de que deseas mover \"{{name}}\" a \"{{folder}}\"?"
+    },
+    "actions": {
+      "newFolder": "NUEVA CARPETA",
+      "rename": "Renombrar",
+      "move": "Mover a...",
+      "delete": "Eliminar"
+    },
+    "selection": {
+      "count": "{{count}} seleccionados",
+      "selectAll": "Seleccionar Todos",
+      "start": "Seleccionar elementos"
+    },
+    "stats": {
+      "folders_one": "carpeta",
+      "folders_other": "carpetas",
+      "templates_one": "plantilla",
+      "templates_other": "plantillas",
+      "empty": "Vacío"
+    }
+  },
+  "editor": {
+    "document": "Documento",
+    "status": {
+      "editable": "Editable",
+      "readOnly": "Solo lectura",
+      "readOnlyBanner": "Este documento está publicado y no puede ser editado"
+    },
+    "errors": {
+      "loadFailed": "Error al cargar",
+      "importFailed": "Error al importar el contenido",
+      "versionLoadFailed": "Error al cargar la versión"
+    },
+    "variablesPanel": {
+      "header": "Variables",
+      "expandAll": "Expandir todo",
+      "collapseAll": "Colapsar todo",
+      "collapse": {
+        "expand": "Expandir panel",
+        "collapse": "Colapsar panel"
+      },
+      "search": {
+        "placeholder": "Buscar variables..."
+      },
+      "loading": "Cargando variables...",
+      "empty": {
+        "title": "No se encontraron variables",
+        "searchSuggestion": "Prueba con otra búsqueda",
+        "addSuggestion": "Agrega variables al workspace"
+      },
+      "sections": {
+        "signerRoles": "Roles de Firmantes",
+        "internalVariables": "Variables del Sistema",
+        "externalVariables": "Variables Personalizadas"
+      }
+    },
+    "toolbar": {
+      "blocks": "Bloques",
+      "scrollLeft": "Desplazar a la izquierda",
+      "scrollRight": "Desplazar a la derecha",
+      "undo": "Deshacer",
+      "redo": "Rehacer",
+      "fontFamily": "Fuente",
+      "fontSize": "Tamaño",
+      "heading1": "Encabezado 1",
+      "heading2": "Encabezado 2",
+      "heading3": "Encabezado 3",
+      "bold": "Negrita",
+      "italic": "Cursiva",
+      "strikethrough": "Tachado",
+      "alignLeft": "Alinear a la izquierda",
+      "alignCenter": "Centrar",
+      "alignRight": "Alinear a la derecha",
+      "alignJustify": "Justificar",
+      "alignment": "Alineación",
+      "bulletList": "Lista",
+      "orderedList": "Lista numerada",
+      "blockquote": "Cita",
+      "horizontalRule": "Línea horizontal",
+      "insertImage": "Insertar imagen",
+      "signatureBlock": "Bloque de firma",
+      "conditionalBlock": "Bloque condicional",
+      "exportDocument": "Exportar documento (JSON)",
+      "importDocument": "Importar documento (JSON)",
+      "history": "Historial",
+      "headings": "Encabezados",
+      "textFormatting": "Formato de texto",
+      "lists": "Listas",
+      "blockElements": "Bloques",
+      "actions": "Acciones",
+      "exportDocumentShort": "Exportar documento",
+      "importDocumentShort": "Importar documento"
+    },
+    "preparation": {
+      "title": "Preparando documento"
+    },
+    "autosaved": "Guardado automático",
+    "saving": "Guardando...",
+    "publish": "Publicar Plantilla",
+    "backToDetails": "Volver a Detalles",
+    "structures": "Estructuras",
+    "variables": "Variables",
+    "signerRoles": "Roles de Firma",
+    "roleInjectables": {
+      "name": "nombre",
+      "email": "email"
+    },
+    "roles": {
+      "defaultLabel": "Rol {{number}}",
+      "emptyValue": "(vacío)",
+      "empty": {
+        "title": "No hay roles definidos",
+        "description": "Agrega roles para asignarlos a las firmas"
+      },
+      "addFirst": "Agregar primer rol",
+      "panel": {
+        "selection": {
+          "enable": "Seleccionar roles",
+          "disable": "Cancelar selección"
+        },
+        "view": {
+          "expanded": "Vista expandida",
+          "compact": "Vista compacta",
+          "expandAll": "Expandir todas las cards"
+        },
+        "collapse": {
+          "expand": "Expandir panel",
+          "collapse": "Colapsar panel"
+        },
+        "add": "Agregar rol",
+        "delete": {
+          "title_one": "Eliminar {{count}} rol",
+          "title_other": "Eliminar {{count}} roles",
+          "confirmation": "¿Estás seguro de que deseas eliminar los roles seleccionados? Esta acción no se puede deshacer."
+        }
+      },
+      "card": {
+        "placeholder": "Nombre del rol",
+        "fields": {
+          "name": "Nombre",
+          "email": "Correo"
+        },
+        "fieldType": {
+          "text": "Texto",
+          "variable": "Variable",
+          "toVariable": "Cambiar a variable",
+          "toText": "Cambiar a texto"
+        },
+        "placeholders": {
+          "name": "Nombre del firmante",
+          "email": "email@ejemplo.com"
+        },
+        "selectVariable": "Seleccionar variable",
+        "noVariables": "No hay variables de texto disponibles",
+        "delete": {
+          "title": "Eliminar rol",
+          "confirmation": "¿Estás seguro de que deseas eliminar el rol \"{{name}}\"? Esta acción no se puede deshacer."
+        }
+      }
+    },
+    "insertImage": "Imagen",
+    "insertConditional": "Condicional",
+    "insertSignature": "Firma",
+    "insertTable": "Tabla",
+    "table": {
+      "options": "Opciones de tabla",
+      "rows": "Filas",
+      "columns": "Columnas",
+      "settings": "Ajustes",
+      "addRowAbove": "Añadir fila arriba",
+      "addRowAboveDisabled": "No se puede añadir fila encima del encabezado",
+      "addRowBelow": "Añadir fila abajo",
+      "addColumnLeft": "Añadir columna izquierda",
+      "addColumnRight": "Añadir columna derecha",
+      "deleteRow": "Eliminar fila",
+      "deleteColumn": "Eliminar columna",
+      "deleteTable": "Eliminar tabla",
+      "copyTable": "Copiar tabla",
+      "cutTable": "Cortar tabla",
+      "mergeSplit": "Unir/Dividir celdas",
+      "toggleHeader": "Alternar encabezado",
+      "stylesTitle": "Estilos de Tabla",
+      "stylesDescription": "Configura los estilos del encabezado y cuerpo de la tabla",
+      "header": "Encabezado",
+      "body": "Cuerpo",
+      "fontFamily": "Familia de Fuente",
+      "selectFont": "Seleccionar fuente",
+      "fontSize": "Tamaño de Fuente",
+      "fontWeight": "Grosor de Fuente",
+      "textColor": "Color de Texto",
+      "textAlign": "Alineación de Texto",
+      "background": "Fondo"
+    },
+    "tableInjector": {
+      "dynamicTable": "Tabla Dinámica",
+      "variable": "Variable",
+      "noVariable": "Sin variable asignada",
+      "editStyles": "Editar Estilos",
+      "delete": "Eliminar",
+      "previewHint": "El contenido de la tabla se completará cuando se renderice el documento"
+    },
+    "listInjector": {
+      "dynamicList": "Lista Dinámica",
+      "variable": "Variable",
+      "noVariable": "Sin variable asignada",
+      "editStyles": "Editar Estilos",
+      "delete": "Eliminar",
+      "previewHint": "El contenido de la lista se completará cuando se renderice el documento",
+      "symbols": {
+        "bullet": "Viñeta",
+        "number": "Número",
+        "dash": "Guión",
+        "roman": "Romano",
+        "letter": "Letra"
+      }
+    },
+    "list": {
+      "stylesTitle": "Estilos de Lista",
+      "items": "Elementos"
+    },
+    "sender": "Remitente",
+    "recipient": "Destinatario",
+    "undefined": "Sin definir",
+    "autoSave": {
+      "saved": "Guardado",
+      "pending": "Sin guardar...",
+      "saving": "Guardando...",
+      "error": "Error al guardar",
+      "justNow": "ahora mismo",
+      "secondsAgo": "hace {{count}}s",
+      "minutesAgo": "hace {{count}}m"
+    },
+    "pageSettings": {
+      "title": "Configuración de Página",
+      "description": "Ajusta el tamaño y los márgenes de la página.",
+      "pageSize": "Tamaño de Página",
+      "pageSizePlaceholder": "Selecciona un tamaño",
+      "margins": "Márgenes (px)",
+      "marginTop": "Superior",
+      "marginBottom": "Inferior",
+      "marginLeft": "Izquierdo",
+      "marginRight": "Derecho",
+      "reset": "Restablecer",
+      "applyMargins": "Aplicar Márgenes"
+    },
+    "preview": {
+      "title": "Vista Previa del Documento",
+      "description": "Ingresa los valores para generar la vista previa del documento.",
+      "systemVariables": "Variables de Sistema",
+      "systemVariablesHelp": "Estos valores se calculan automáticamente. Puedes modificarlos si lo necesitas.",
+      "standardVariables": "Variables del Documento",
+      "roleVariables": "Variables de Firmantes",
+      "generate": "Generar Vista Previa",
+      "generating": "Generando...",
+      "generateAnyway": "Generar de Todas Formas",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "download": "Descargar",
+      "noVariables": "Este documento no tiene variables. ¿Generar vista previa con valores por defecto?",
+      "generateTestData": "Generar Datos de Prueba",
+      "generateRandom": "Generar valor aleatorio",
+      "resetToEmulated": "Restablecer valor automático",
+      "auto": "Auto",
+      "errors": {
+        "invalidNumber": "Debe ser un número válido",
+        "invalidDate": "Formato de fecha inválido",
+        "invalidEmail": "Formato de email inválido",
+        "apiError": "Error al generar vista previa",
+        "invalidData": "Datos inválidos. Verifica los valores ingresados.",
+        "notFound": "Plantilla o versión no encontrada.",
+        "serverError": "Error del servidor. Intenta nuevamente."
+      },
+      "pdfModal": {
+        "title": "Vista Previa del Documento",
+        "loading": "Cargando PDF...",
+        "error": "Error al cargar PDF",
+        "page": "Página",
+        "zoomIn": "Acercar",
+        "zoomOut": "Alejar",
+        "zoomReset": "Restablecer zoom"
+      },
+      "tableSection": "Datos de Tabla",
+      "addRow": "Agregar Fila",
+      "deleteRow": "Eliminar Fila",
+      "emptyTable": "Sin filas. Haz clic en 'Agregar Fila' para agregar datos.",
+      "imageVariables": "Variables de Imagen",
+      "generateRandomImage": "Generar imagen aleatoria",
+      "invalidUrl": "URL no válida",
+      "imageLoadError": "No se pudo cargar la imagen",
+      "listSection": "Listas",
+      "addListItem": "Agregar Elemento",
+      "listItemPlaceholder": "Texto del elemento...",
+      "addSubItem": "Agregar sub-elemento",
+      "subItemPlaceholder": "Texto del sub-elemento..."
+    },
+    "workflow": {
+      "title": "Configuración de firma",
+      "settings": "Configuración de firma",
+      "orderMode": "Orden de firma",
+      "parallel": "Paralelo",
+      "sequential": "Secuencial",
+      "notificationScope": "Notificaciones",
+      "global": "Global",
+      "individual": "Individual",
+      "notifications": "Notificaciones",
+      "notificationsFor": "Notificaciones",
+      "notificationsDescription": "Selecciona cuándo este firmante recibirá notificaciones:",
+      "notifyWhen": "Notificar a firmantes cuando:",
+      "individualHint": "Configura las notificaciones de cada rol usando el icono de campana en cada tarjeta.",
+      "triggers": {
+        "onDocumentCreated": "Al crear documento",
+        "onPreviousRolesSigned": "Cuando firmen roles anteriores",
+        "onTurnToSign": "Cuando le toque firmar",
+        "onAllComplete": "Al completar todas las firmas"
+      },
+      "previousRoles": {
+        "title": "Seleccionar roles anteriores",
+        "auto": "Automático",
+        "custom": "Personalizado",
+        "customize": "Personalizar",
+        "none": "Ninguno",
+        "autoDescription": "Se notificará automáticamente cuando todos los roles anteriores (según el orden) hayan firmado.",
+        "customDescription": "Selecciona los roles que deben firmar antes de notificar:",
+        "noRoles": "No hay roles anteriores disponibles."
+      },
+      "activeCount": "{{count}} activos",
+      "notConfigured": "No configurado"
+    },
+    "signature": {
+      "title": "Firma",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "configureBlock": "Configurar Bloque de Firma",
+      "signatureCount": "Cantidad de firmas",
+      "layout": "Distribución",
+      "lineWidth": "Ancho de línea",
+      "signatureN": "Firma {{n}}",
+      "label": "Etiqueta",
+      "labelPlaceholder": "Ej: Firma del Cliente",
+      "subtitleOptional": "Subtítulo (opcional)",
+      "subtitlePlaceholder": "Ej: Representante Legal",
+      "cancel": "Cancelar",
+      "saveChanges": "Guardar cambios",
+      "roleAssigned": "Rol asignado",
+      "noRolesAvailable": "No hay roles disponibles",
+      "defineRoles": "Define roles en el panel derecho",
+      "unassigned": "Sin asignar",
+      "selectRole": "Seleccionar rol",
+      "inUse": "(en uso)",
+      "allRolesAssigned": "Todos los roles están asignados",
+      "roleDeleted": "Rol eliminado",
+      "lineWidths": {
+        "small": "Pequeña",
+        "medium": "Mediana",
+        "large": "Grande"
+      },
+      "layouts": {
+        "left": "Izquierda",
+        "leftDesc": "Firma alineada a la izquierda",
+        "center": "Centro",
+        "centerDesc": "Firma centrada",
+        "right": "Derecha",
+        "rightDesc": "Firma alineada a la derecha",
+        "sides": "Lados",
+        "sidesDesc": "Una firma a cada lado",
+        "stackedCenter": "Apiladas Centro",
+        "stackedCenterDesc": "Ambas firmas centradas y apiladas",
+        "stackedLeft": "Apiladas Izquierda",
+        "stackedLeftDesc": "Ambas firmas a la izquierda",
+        "stackedRight": "Apiladas Derecha",
+        "stackedRightDesc": "Ambas firmas a la derecha",
+        "row": "Fila",
+        "rowDesc": "Tres firmas en una fila",
+        "invertedPyramid": "Pirámide Invertida",
+        "invertedPyramidDesc": "Dos arriba, una abajo centrada",
+        "pyramid": "Pirámide",
+        "pyramidDesc": "Una arriba centrada, dos abajo",
+        "grid": "Cuadrícula",
+        "gridDesc": "Cuatro firmas en grid 2x2",
+        "threePlusOne": "Tres + Uno",
+        "threePlusOneDesc": "Tres arriba, una abajo centrada",
+        "onePlusThree": "Uno + Tres",
+        "onePlusThreeDesc": "Una arriba centrada, tres abajo"
+      },
+      "image": {
+        "title": "Imagen de firma",
+        "preview": "Vista previa de firma",
+        "editImage": "Editar imagen",
+        "deleteImage": "Eliminar imagen",
+        "opacity": "Opacidad",
+        "upload": "Subir imagen",
+        "uploadHelp": "PNG, JPG, GIF o WebP. Máximo 2MB.",
+        "unsupportedType": "Tipo de archivo no soportado. Use PNG, JPG, GIF o WebP.",
+        "fileTooLarge": "El archivo es muy grande. Máximo 2MB.",
+        "cropTitle": "Editar Imagen de Firma",
+        "reset": "Restablecer",
+        "apply": "Aplicar"
+      }
+    },
+    "conditional": {
+      "title": "Condicional",
+      "configure": "Configurar",
+      "delete": "Eliminar",
+      "logicBuilder": "Constructor de Lógica",
+      "logicBuilderDesc": "Arrastra variables y configura las reglas de visualización.",
+      "cancel": "Cancelar",
+      "saveConfig": "Guardar Configuración",
+      "incomplete": "(Incompleto)",
+      "alwaysVisibleEmpty": "Siempre visible (Grupo vacío)",
+      "alwaysVisibleNoConditions": "Siempre visible (sin condiciones)",
+      "variables": "Variables",
+      "search": "Buscar...",
+      "loading": "Cargando...",
+      "noVariablesFound": "No se encontraron variables.",
+      "emptyGroup": "Grupo vacío - agrega una regla o grupo",
+      "rule": "Regla",
+      "group": "Grupo",
+      "dragVariable": "Arrastra variable",
+      "value": "Valor",
+      "select": "Seleccionar",
+      "true": "Verdadero",
+      "false": "Falso",
+      "switchToVariable": "Cambiar a variable",
+      "switchToLiteral": "Cambiar a texto literal",
+      "selectVariable": "Seleccionar variable",
+      "noVariablesOfType": "No hay variables de tipo {{type}}",
+      "empty": "(vacío)",
+      "formula": "Fórmula",
+      "configureLogic": "Configurar lógica",
+      "operators": {
+        "equals": "igual a (=)",
+        "notEquals": "distinto (≠)",
+        "isEmpty": "vacío",
+        "isNotEmpty": "no vacío",
+        "contains": "contiene",
+        "startsWith": "inicia con",
+        "endsWith": "termina con",
+        "greaterThan": "mayor que (>)",
+        "lessThan": "menor que (<)",
+        "greaterOrEqual": "≥ o igual",
+        "lessOrEqual": "≤ o igual",
+        "isBefore": "antes de",
+        "isAfter": "después de",
+        "isTrue": "verdadero",
+        "isFalse": "falso"
+      }
+    },
+    "image": {
+      "title": "Imagen",
+      "insertImage": "Insertar imagen",
+      "square": "Cuadrado",
+      "circle": "Circular",
+      "editImage": "Editar imagen",
+      "deleteImage": "Eliminar imagen",
+      "configure": "Configurar imagen",
+      "noImageVariables": "No hay variables de imagen disponibles",
+      "selectVariable": "Seleccionar variable de imagen",
+      "placeholder": "Imagen de prueba",
+      "generatePlaceholder": "Generar imagen de prueba",
+      "placeholderHint": "Esta imagen es solo un marcador. La imagen real se cargará al generar el documento.",
+      "alignments": {
+        "blockLeft": "Bloque izquierda",
+        "blockCenter": "Bloque centro",
+        "blockRight": "Bloque derecha"
+      },
+      "modal": {
+        "title": "Insertar imagen",
+        "description": "Añade una imagen desde URL o galería",
+        "gallery": "Galería",
+        "cancel": "Cancelar",
+        "insert": "Insertar imagen",
+        "urlLabel": "URL de la imagen",
+        "urlPlaceholder": "https://ejemplo.com/imagen.jpg",
+        "invalidUrl": "URL no válida. Debe comenzar con http:// o https://",
+        "loadError": "No se pudo cargar la imagen. Verifica la URL.",
+        "testImage": "Imagen de prueba",
+        "loading": "Cargando imagen...",
+        "enterUrl": "Ingresa una URL para ver la vista previa",
+        "preview": "Vista previa",
+        "cropImage": "Recortar imagen"
+      },
+      "gallery": {
+        "title": "Galería de imágenes",
+        "comingSoon": "Esta funcionalidad estará disponible próximamente. Por ahora, puedes insertar imágenes usando una URL."
+      },
+      "cropper": {
+        "title": "Recortar imagen",
+        "description": "Ajusta el área de recorte",
+        "shape": "Forma:",
+        "reset": "Restablecer",
+        "cancel": "Cancelar",
+        "apply": "Aplicar recorte"
+      }
+    },
+    "slashCommands": {
+      "text": "Texto",
+      "textDesc": "Párrafo de texto normal",
+      "heading1": "Título 1",
+      "heading1Desc": "Título grande",
+      "heading2": "Título 2",
+      "heading2Desc": "Título mediano",
+      "heading3": "Título 3",
+      "heading3Desc": "Título pequeño",
+      "bulletList": "Lista",
+      "bulletListDesc": "Lista con viñetas",
+      "orderedList": "Lista numerada",
+      "orderedListDesc": "Lista con números",
+      "blockquote": "Cita",
+      "blockquoteDesc": "Bloque de cita",
+      "codeBlock": "Código",
+      "codeBlockDesc": "Bloque de código",
+      "divider": "Divisor",
+      "dividerDesc": "Línea horizontal",
+      "pageBreak": "Salto de página",
+      "pageBreakDesc": "Insertar salto de página",
+      "image": "Imagen",
+      "imageDesc": "Insertar imagen",
+      "signature": "Firma",
+      "signatureDesc": "Bloque de firma configurable",
+      "conditional": "Condicional",
+      "conditionalDesc": "Contenido condicional",
+      "table": "Tabla",
+      "tableDesc": "Insertar una tabla",
+      "variable": "Variable",
+      "variableDesc": "Insertar variable",
+      "noCommandsFound": "No se encontraron comandos",
+      "groups": {
+        "basic": "Básico",
+        "lists": "Listas",
+        "blocks": "Bloques",
+        "media": "Media",
+        "documents": "Documentos"
+      }
+    },
+    "inconsistencies": {
+      "count": "{{count}} INCONSISTENCIAS",
+      "count_one": "{{count}} INCONSISTENCIA",
+      "position": "{{current}} DE {{total}}",
+      "clickToNavigate": "Clic para navegar a inconsistencias",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "injectable": {
+      "errors": {
+        "roleDeleted": "El rol asociado fue eliminado"
+      }
+    }
+  },
+  "members": {
+    "system": {
+      "label": "Sistema",
+      "title": "Usuarios del Sistema",
+      "description": "Gestiona usuarios con roles a nivel de sistema."
+    },
+    "tenant": {
+      "label": "Organización",
+      "title": "Miembros del Tenant",
+      "description": "Gestiona los miembros de esta organización."
+    },
+    "workspace": {
+      "label": "Workspace",
+      "title": "Miembros",
+      "description": "Gestiona los miembros del workspace y sus roles."
+    },
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "status": "Estado",
+      "empty": "No se encontraron miembros"
+    },
+    "add": {
+      "button": "AGREGAR MIEMBRO",
+      "title": "Agregar Miembro",
+      "description": "Agrega un usuario por correo y asigna un rol.",
+      "email": "Correo",
+      "fullName": "Nombre Completo",
+      "role": "Rol",
+      "submit": "Agregar Miembro"
+    },
+    "changeRole": {
+      "title": "Cambiar Rol",
+      "description": "Actualizar rol de {{name}}.",
+      "current": "Rol Actual",
+      "new": "Nuevo Rol",
+      "submit": "Actualizar Rol"
+    },
+    "remove": {
+      "title": "Eliminar Miembro",
+      "confirm": "¿Estás seguro de que deseas eliminar a {{name}}? Esta acción no se puede deshacer.",
+      "submit": "Eliminar"
+    },
+    "actions": {
+      "changeRole": "Cambiar Rol",
+      "remove": "Eliminar"
+    },
+    "roles": {
+      "SUPERADMIN": "Super Administrador",
+      "PLATFORM_ADMIN": "Administrador de Plataforma",
+      "TENANT_OWNER": "Propietario del Tenant",
+      "TENANT_ADMIN": "Administrador del Tenant",
+      "OWNER": "Propietario",
+      "ADMIN": "Administrador",
+      "EDITOR": "Editor",
+      "OPERATOR": "Operador",
+      "VIEWER": "Visualizador"
+    },
+    "roleDescriptions": {
+      "SUPERADMIN": "Acceso total a la plataforma. Gestiona tenants, usuarios y configuración global.",
+      "PLATFORM_ADMIN": "Acceso de lectura a tenants e inyectables del sistema.",
+      "TENANT_OWNER": "Gestión completa del tenant. Crear workspaces, gestionar miembros y configuración.",
+      "TENANT_ADMIN": "Acceso de lectura a información del tenant, workspaces y miembros.",
+      "OWNER": "Gestión completa del workspace. Gestionar miembros, roles y todo el contenido.",
+      "ADMIN": "Gestionar contenido, publicar versiones, invitar miembros y eliminar items.",
+      "EDITOR": "Crear y editar plantillas, versiones, carpetas, etiquetas y variables.",
+      "OPERATOR": "Generar PDFs desde plantillas publicadas. Acceso de lectura al contenido.",
+      "VIEWER": "Acceso de solo lectura a todo el contenido del workspace."
+    },
+    "error": {
+      "load": "Error al cargar miembros",
+      "alreadyExists": "Este usuario ya es miembro",
+      "notFound": "Miembro no encontrado",
+      "cannotRemoveOwner": "No se puede eliminar al propietario",
+      "invalidRole": "Rol inválido"
+    }
+  },
+  "variables": {
+    "title": "Variables",
+    "header": "Workspace",
+    "create": "CREAR VARIABLE",
+    "empty": "No hay variables definidas",
+    "emptyHint": "Crea tu primera variable para usar en plantillas",
+    "columns": {
+      "key": "Clave de Variable",
+      "label": "Etiqueta",
+      "description": "Descripción",
+      "defaultValue": "Valor por Defecto",
+      "status": "Estado",
+      "action": "Acción"
+    },
+    "key": "Clave de Variable",
+    "keyPlaceholder": "ej., nombre_empresa",
+    "keyHint": "Usa formato snake_case (letras, números, guiones bajos)",
+    "label": "Etiqueta",
+    "labelPlaceholder": "ej., Nombre de la Empresa",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Breve descripción de la variable",
+    "defaultValue": "Valor por Defecto",
+    "defaultValuePlaceholder": "ej., Acme Corporation",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "createDialog": {
+      "title": "Nueva Variable",
+      "description": "Crear una nueva variable para usar en plantillas",
+      "submit": "Crear Variable"
+    },
+    "editDialog": {
+      "title": "Editar Variable",
+      "description": "Actualizar las propiedades de la variable"
+    },
+    "deleteDialog": {
+      "title": "Eliminar Variable",
+      "message": "¿Estás seguro de que deseas eliminar la variable \"{{name}}\"? Esta acción no se puede deshacer."
+    }
+  },
+  "pagination": {
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "page": "Página"
+  },
+  "administration": {
+    "label": "Sistema",
+    "labelTenant": "Tenant",
+    "title": "Administración",
+    "tabs": {
+      "tenants": "Tenants",
+      "users": "Usuarios",
+      "injectables": "Inyectables",
+      "audit": "Auditoría",
+      "documentTypes": "Tipos de Documento",
+      "workspaces": "Workspaces"
+    },
+    "documentTypes": {
+      "description": "Gestiona los tipos de documento y sus configuraciones.",
+      "searchPlaceholder": "Buscar tipos de documento...",
+      "loadError": "Error al cargar tipos de documento",
+      "noResults": "No se encontraron tipos de documento",
+      "empty": "No hay tipos de documento",
+      "create": "Crear Tipo",
+      "columns": {
+        "code": "Código",
+        "name": "Nombre",
+        "templates": "Plantillas",
+        "actions": "Acciones"
+      },
+      "form": {
+        "createTitle": "Crear Tipo de Documento",
+        "editTitle": "Editar Tipo de Documento",
+        "createDescription": "Agrega un nuevo tipo de documento para organizar plantillas.",
+        "editDescription": "Actualiza los detalles del tipo de documento.",
+        "code": "Código",
+        "codePlaceholder": "CONTRACT_TYPE",
+        "codeHint": "Solo mayúsculas, números y guiones bajos",
+        "codeRequired": "El código es requerido",
+        "codeTooLong": "El código debe tener 50 caracteres o menos",
+        "codeInvalid": "El código debe empezar con letra y contener solo mayúsculas, números y guiones bajos",
+        "codeExists": "Ya existe un tipo de documento con este código",
+        "name": "Nombre",
+        "namePlaceholder": "Nombre del tipo",
+        "nameRequired": "El nombre en español es requerido",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Descripción opcional",
+        "createSuccess": "Tipo de documento creado",
+        "updateSuccess": "Tipo de documento actualizado",
+        "saveError": "Error al guardar el tipo de documento"
+      },
+      "delete": {
+        "title": "Eliminar Tipo de Documento",
+        "confirm": "¿Estás seguro de eliminar \"{{name}}\"?",
+        "hasTemplates": "Este tipo está asignado a {{count}} plantilla(s)",
+        "hasTemplatesDescription": "Este tipo de documento está en uso. Elige cómo proceder.",
+        "forceOption": "Quitar tipo de todas las plantillas",
+        "forceHint": "Las plantillas quedarán sin tipo de documento asignado",
+        "replaceOption": "Reemplazar con otro tipo",
+        "noOtherTypes": "No hay otros tipos de documento disponibles",
+        "selectReplacement": "Selecciona el tipo de reemplazo...",
+        "success": "Tipo de documento eliminado",
+        "error": "Error al eliminar el tipo de documento"
+      }
+    },
+    "tenants": {
+      "description": "Gestiona las organizaciones tenant y sus configuraciones.",
+      "searchPlaceholder": "Buscar tenants...",
+      "loadError": "Error al cargar los tenants",
+      "noResults": "No hay tenants que coincidan con tu búsqueda",
+      "empty": "No se encontraron tenants",
+      "addTenant": "Agregar Tenant",
+      "system": "Sistema",
+      "statusUpdated": "Estado del tenant actualizado",
+      "statusError": "Error al actualizar el estado del tenant",
+      "columns": {
+        "name": "Nombre",
+        "code": "Código",
+        "status": "Estado",
+        "users": "Usuarios",
+        "created": "Creado",
+        "actions": "Acciones"
+      },
+      "form": {
+        "createTitle": "Nuevo Tenant",
+        "editTitle": "Editar Tenant",
+        "createDescription": "Crear una nueva organización tenant.",
+        "editDescription": "Actualizar los detalles del tenant.",
+        "name": "Nombre",
+        "namePlaceholder": "Nombre del tenant",
+        "nameRequired": "El nombre es requerido",
+        "nameTooLong": "El nombre debe tener 100 caracteres o menos",
+        "code": "Código",
+        "codePlaceholder": "TENANT_CODE",
+        "codeRequired": "El código es requerido",
+        "codeLength": "El código debe tener entre 2 y 10 caracteres",
+        "codeInvalid": "El código solo puede contener letras, números y guiones bajos",
+        "codeHint": "2-10 caracteres en mayúsculas",
+        "codeExists": "Ya existe un tenant con este código",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Descripción opcional",
+        "createSuccess": "Tenant creado",
+        "updateSuccess": "Tenant actualizado",
+        "saveError": "Error al guardar el tenant"
+      },
+      "actions": {
+        "edit": "Editar",
+        "suspend": "Suspender",
+        "activate": "Activar",
+        "archive": "Archivar"
+      },
+      "archive": {
+        "title": "Archivar Tenant",
+        "confirm": "¿Estás seguro de que deseas archivar \"{{name}}\"?",
+        "description": "Esto ocultará el tenant de todos los usuarios. Los datos se conservarán y pueden ser restaurados por un administrador.",
+        "success": "Tenant archivado",
+        "error": "Error al archivar el tenant"
+      }
+    },
+    "workspaces": {
+      "description": "Gestiona los workspaces de este tenant.",
+      "searchPlaceholder": "Buscar workspaces...",
+      "loadError": "Error al cargar los workspaces",
+      "noResults": "No hay workspaces que coincidan con tu búsqueda",
+      "empty": "No se encontraron workspaces",
+      "addWorkspace": "Agregar Workspace",
+      "statusUpdated": "Estado del workspace actualizado",
+      "statusError": "Error al actualizar el estado del workspace",
+      "columns": {
+        "code": "Código",
+        "name": "Nombre",
+        "status": "Estado",
+        "created": "Creado"
+      },
+      "form": {
+        "createTitle": "Crear Workspace",
+        "editTitle": "Editar Workspace",
+        "createDescription": "Crear un nuevo workspace para este tenant.",
+        "editDescription": "Actualizar los detalles del workspace.",
+        "code": "Código",
+        "codePlaceholder": "WS_CODE",
+        "codeRequired": "El código es requerido",
+        "codeLength": "El código debe tener entre 2 y 50 caracteres",
+        "codeInvalid": "El código solo puede contener letras, números y guiones bajos",
+        "codeExists": "Ya existe un workspace con este código",
+        "codeHelper": "2-50 caracteres en mayúscula",
+        "name": "Nombre",
+        "namePlaceholder": "Nombre del workspace",
+        "nameRequired": "El nombre es requerido",
+        "nameTooShort": "El nombre debe tener al menos 3 caracteres",
+        "nameTooLong": "El nombre debe tener 255 caracteres o menos",
+        "createSuccess": "Workspace creado",
+        "updateSuccess": "Workspace actualizado",
+        "saveError": "Error al guardar el workspace",
+        "editContextError": "No se puede editar el workspace fuera de su contexto"
+      },
+      "actions": {
+        "edit": "Editar",
+        "suspend": "Suspender",
+        "activate": "Activar",
+        "archive": "Archivar"
+      },
+      "archive": {
+        "title": "Archivar Workspace",
+        "confirm": "¿Estás seguro de que deseas archivar \"{{name}}\"?",
+        "warning": "Este workspace puede contener plantillas y documentos que quedarán inaccesibles.",
+        "description": "Archivar ocultará este workspace de todos los usuarios. Los datos se conservarán y pueden ser restaurados por un administrador.",
+        "success": "Workspace archivado",
+        "error": "Error al archivar el workspace"
+      },
+      "filter": {
+        "allStatuses": "Todos los Estados",
+        "active": "Activo",
+        "suspended": "Suspendido",
+        "archived": "Archivado"
+      }
+    },
+    "users": {
+      "description": "Gestiona los usuarios del sistema y sus roles.",
+      "columns": {
+        "name": "Nombre",
+        "email": "Correo",
+        "role": "Rol",
+        "status": "Estado"
+      }
+    },
+    "audit": {
+      "description": "Ver actividad del sistema y registros de seguridad.",
+      "columns": {
+        "action": "Acción",
+        "user": "Usuario",
+        "details": "Detalles",
+        "timestamp": "Fecha"
+      }
+    }
+  },
+  "systemInjectables": {
+    "description": "Administra las funciones inyectables del sistema y sus ámbitos de disponibilidad.",
+    "readOnlyWarning": "Tienes acceso de solo lectura. Solo SUPERADMIN puede modificar la configuración.",
+    "loadError": "Error al cargar los inyectables del sistema",
+    "empty": "No hay inyectables del sistema configurados",
+    "scopeAssignments": "Asignaciones de Ámbito",
+    "addScope": "Agregar",
+    "globalAvailability": "Disponible globalmente para todos los workspaces",
+    "globalHint": "Agrega asignaciones para restringir la disponibilidad a ámbitos específicos",
+    "tenantScope": "Tenant",
+    "workspaceScope": "Workspace",
+    "included": "Incluido",
+    "excluded": "Excluido",
+    "include": "Incluir",
+    "exclude": "Excluir",
+    "includeDesc": "Disponible en el ámbito",
+    "excludeDesc": "Restringir acceso en el ámbito",
+    "createAssignment": "Crear Asignación",
+    "createAssignmentDesc": "Asignar este inyectable a un ámbito específico",
+    "addInclusion": "Añadir Inclusión",
+    "addExclusion": "Añadir Exclusión",
+    "scopeType": "Tipo de Ámbito",
+    "public": "Público",
+    "publicDesc": "Global",
+    "tenant": "Tenant",
+    "tenantDesc": "Organización",
+    "workspace": "Workspace",
+    "workspaceDesc": "Específico",
+    "tenantId": "ID del Tenant",
+    "workspaceId": "ID del Workspace",
+    "selectTenant": "Seleccionar Tenant",
+    "selectWorkspace": "Seleccionar Workspace",
+    "assignmentMode": "Modo de Asignación",
+    "searchTenants": "Buscar organizaciones...",
+    "searchWorkspaces": "Buscar workspaces...",
+    "noTenants": "No se encontraron organizaciones",
+    "noWorkspaces": "No se encontraron workspaces",
+    "minChars": "Escribe al menos 3 caracteres",
+    "noResults": "No hay inyectables que coincidan con los filtros",
+    "filters": {
+      "searchPlaceholder": "Buscar por nombre...",
+      "status": "Estado",
+      "statusAll": "Todos",
+      "statusActive": "Activos",
+      "statusInactive": "Inactivos",
+      "sortBy": "Ordenar",
+      "sortName": "Nombre",
+      "sortStatus": "Estado",
+      "sortType": "Tipo"
+    },
+    "visibility": {
+      "public": "Público",
+      "scoped": "Restringido"
+    },
+    "loadingMore": "Cargando más...",
+    "showingOf": "Mostrando {{visible}} de {{total}}",
+    "filterPlaceholder": "Filtrar por nombre...",
+    "noRule": "Sin regla",
+    "workspaces": "workspaces",
+    "workspace": "workspace",
+    "noMatchingAssignments": "No hay asignaciones que coincidan con tu búsqueda",
+    "inheritedFromGlobal": "Heredado de global",
+    "selectOrganization": "Seleccionar Organización",
+    "stepOf": "Paso {{current}} de {{total}}",
+    "change": "Cambiar",
+    "selectMode": "Seleccionar",
+    "bulk": {
+      "selected": "seleccionados",
+      "actions": "Acciones",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "makePublic": "Hacer Público",
+      "removePublic": "Quitar Público",
+      "assignScope": "Asignar Ámbito",
+      "createAssignments": "Crear Asignaciones",
+      "removeAssignments": "Quitar Asignaciones",
+      "confirmActivate": "Activar Inyectables",
+      "confirmActivateDescription": "Los siguientes {{count}} inyectables se activarán globalmente:",
+      "warningActivate": "Los inyectables activados estarán disponibles para asignación a workspaces.",
+      "confirmDeactivate": "Desactivar Inyectables",
+      "confirmDeactivateDescription": "Los siguientes {{count}} inyectables se desactivarán globalmente:",
+      "warningDeactivate": "Los inyectables desactivados no estarán disponibles en ningún workspace, independientemente de sus asignaciones.",
+      "confirmMakePublic": "Hacer Inyectables Públicos",
+      "confirmRemovePublic": "Quitar Acceso Público",
+      "confirmMakePublicDescription": "Los siguientes {{count}} inyectables se harán PÚBLICOS:",
+      "confirmRemovePublicDescription": "Se quitará el acceso PÚBLICO de los siguientes {{count}} inyectables:",
+      "warningMakePublic": "Los inyectables PÚBLICOS están disponibles para TODOS los workspaces sin asignaciones explícitas.",
+      "warningRemovePublic": "Quitar el acceso PÚBLICO restringirá estos inyectables solo a sus asignaciones de ámbito.",
+      "assignScopeTitle": "Asignar Ámbito",
+      "removeScopeTitle": "Quitar Asignación de Ámbito",
+      "assignScopeDescription": "Crear asignaciones de ámbito para {{count}} inyectables seleccionados.",
+      "removeScopeDescription": "Quitar asignaciones de ámbito de {{count}} inyectables seleccionados.",
+      "selectScope": "Seleccionar tipo de ámbito",
+      "selectTenant": "Seleccionar organización",
+      "selectWorkspace": "Seleccionar workspace",
+      "confirmAssignSummary": "Se crearán asignaciones {{scope}} para:",
+      "confirmRemoveSummary": "Se quitarán asignaciones {{scope}} de:",
+      "warningAssign": "Esto hará que los inyectables seleccionados estén disponibles en el ámbito elegido.",
+      "warningRemoveAssign": "Esto quitará las asignaciones, potencialmente restringiendo la disponibilidad de los inyectables.",
+      "confirmAssign": "Crear Asignaciones",
+      "confirmRemoveAssign": "Quitar Asignaciones",
+      "success": "Operación masiva completada",
+      "successDescription": "{{count}} inyectables actualizados",
+      "partialSuccess": "Operación parcialmente completada",
+      "error": "Error al ejecutar la operación masiva"
+    }
+  },
+  "status": {
+    "draft": "Borrador",
+    "published": "Publicado",
+    "archived": "Archivado",
+    "scheduled": "Programado",
+    "finalized": "Finalizado",
+    "signed": "Firmado",
+    "actionRequired": "Acción Requerida"
+  },
+  "time": {
+    "justNow": "Justo ahora",
+    "minutesAgo": "hace {{count}} min",
+    "hoursAgo": "hace {{count}} hora",
+    "hoursAgo_plural": "hace {{count}} horas",
+    "daysAgo": "hace {{count}} día",
+    "daysAgo_plural": "hace {{count}} días",
+    "weeksAgo": "hace {{count}} semana",
+    "weeksAgo_plural": "hace {{count}} semanas",
+    "today": "Hoy"
+  },
+  "version": {
+    "label": "v{{version}}"
+  },
+  "footer": {
+    "secureEnvironment": "Entorno Seguro"
+  }
+}
