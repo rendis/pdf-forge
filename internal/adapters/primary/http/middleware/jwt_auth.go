@@ -1,0 +1,226 @@
+package middleware
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/MicahParks/keyfunc/v3"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/internal/infra/config"
+)
+
+const (
+	// userIDKey is the context key for the authenticated user ID.
+	userIDKey = "user_id"
+	// userEmailKey is the context key for the authenticated user email.
+	userEmailKey = "user_email"
+	// userNameKey is the context key for the authenticated user name.
+	userNameKey = "user_name"
+)
+
+// JWTAuth creates a middleware that validates JWT tokens using JWKS from any OIDC provider.
+func JWTAuth(authCfg *config.AuthConfig) gin.HandlerFunc {
+	jwks := initializeJWKS(authCfg)
+
+	return func(c *gin.Context) {
+		// Skip auth for OPTIONS requests (CORS preflight)
+		if c.Request.Method == http.MethodOptions {
+			c.Next()
+			return
+		}
+
+		tokenString, err := extractBearerToken(c)
+		if err != nil {
+			abortWithError(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		claims, err := validateToken(tokenString, jwks, authCfg)
+		if err != nil {
+			slog.WarnContext(c.Request.Context(), "token validation failed",
+				slog.String("error", err.Error()),
+				slog.String("operation_id", GetOperationID(c)),
+			)
+			abortWithError(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		storeClaims(c, claims)
+		c.Next()
+	}
+}
+
+// initializeJWKS initializes the JWKS keyfunc from the configured URL.
+func initializeJWKS(authCfg *config.AuthConfig) keyfunc.Keyfunc {
+	if authCfg.JWKSURL == "" {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	jwks, err := keyfunc.NewDefaultCtx(ctx, []string{authCfg.JWKSURL})
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to initialize JWKS", slog.String("error", err.Error()))
+		return nil
+	}
+	return jwks
+}
+
+// extractBearerToken extracts the Bearer token from the Authorization header.
+func extractBearerToken(c *gin.Context) (string, error) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return "", entity.ErrMissingToken
+	}
+
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+		return "", entity.ErrInvalidToken
+	}
+	return parts[1], nil
+}
+
+// storeClaims stores user claims in the gin context.
+func storeClaims(c *gin.Context, claims *OIDCClaims) {
+	c.Set(userIDKey, claims.Subject)
+	if claims.Email != "" {
+		c.Set(userEmailKey, claims.Email)
+	}
+	if claims.Name != "" {
+		c.Set(userNameKey, claims.Name)
+	}
+}
+
+// OIDCClaims represents standard OIDC JWT claims.
+type OIDCClaims struct {
+	jwt.RegisteredClaims
+	Email         string `json:"email,omitempty"`
+	EmailVerified bool   `json:"email_verified,omitempty"`
+	Name          string `json:"name,omitempty"`
+	PreferredUser string `json:"preferred_username,omitempty"`
+}
+
+// validateToken validates the JWT token and returns the claims.
+func validateToken(tokenString string, jwks keyfunc.Keyfunc, authCfg *config.AuthConfig) (*OIDCClaims, error) {
+	var claims OIDCClaims
+
+	// Dev mode: parse without validation
+	if jwks == nil {
+		_, _, err := jwt.NewParser().ParseUnverified(tokenString, &claims)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", entity.ErrInvalidToken, err)
+		}
+		return &claims, nil
+	}
+
+	// Production: parse and validate with JWKS
+	if err := parseTokenWithJWKS(tokenString, &claims, jwks); err != nil {
+		return nil, err
+	}
+
+	// Validate custom claims
+	if err := validateIssuer(&claims, authCfg.Issuer); err != nil {
+		return nil, err
+	}
+	if err := validateAudience(&claims, authCfg.Audience); err != nil {
+		return nil, err
+	}
+
+	return &claims, nil
+}
+
+// parseTokenWithJWKS parses and validates the token with JWKS.
+func parseTokenWithJWKS(tokenString string, claims *OIDCClaims, jwks keyfunc.Keyfunc) error {
+	token, err := jwt.ParseWithClaims(tokenString, claims, jwks.Keyfunc,
+		jwt.WithValidMethods([]string{"RS256", "RS384", "RS512"}),
+		jwt.WithExpirationRequired(),
+	)
+	if err != nil {
+		if strings.Contains(err.Error(), "expired") {
+			return entity.ErrTokenExpired
+		}
+		return fmt.Errorf("%w: %v", entity.ErrInvalidToken, err)
+	}
+
+	if !token.Valid {
+		return entity.ErrInvalidToken
+	}
+	return nil
+}
+
+// validateIssuer checks if the token issuer matches the expected value.
+func validateIssuer(claims *OIDCClaims, expectedIssuer string) error {
+	if expectedIssuer == "" {
+		return nil
+	}
+
+	issuer, err := claims.GetIssuer()
+	if err != nil || issuer != expectedIssuer {
+		return entity.ErrInvalidToken
+	}
+	return nil
+}
+
+// validateAudience checks if the token audience contains the expected value.
+func validateAudience(claims *OIDCClaims, expectedAudience string) error {
+	if expectedAudience == "" {
+		return nil
+	}
+
+	audience, err := claims.GetAudience()
+	if err != nil {
+		return entity.ErrInvalidToken
+	}
+
+	for _, aud := range audience {
+		if aud == expectedAudience {
+			return nil
+		}
+	}
+	return entity.ErrInvalidToken
+}
+
+// GetUserID retrieves the authenticated user ID from the Gin context.
+func GetUserID(c *gin.Context) (string, bool) {
+	if val, exists := c.Get(userIDKey); exists {
+		if userID, ok := val.(string); ok && userID != "" {
+			return userID, true
+		}
+	}
+	return "", false
+}
+
+// GetUserEmail retrieves the authenticated user email from the Gin context.
+func GetUserEmail(c *gin.Context) (string, bool) {
+	if val, exists := c.Get(userEmailKey); exists {
+		if email, ok := val.(string); ok && email != "" {
+			return email, true
+		}
+	}
+	return "", false
+}
+
+// GetUserName retrieves the authenticated user name from the Gin context.
+func GetUserName(c *gin.Context) (string, bool) {
+	if val, exists := c.Get(userNameKey); exists {
+		if name, ok := val.(string); ok && name != "" {
+			return name, true
+		}
+	}
+	return "", false
+}
+
+// abortWithError aborts the request with a JSON error response.
+func abortWithError(c *gin.Context, status int, err error) {
+	c.AbortWithStatusJSON(status, gin.H{
+		"error": err.Error(),
+	})
+}
