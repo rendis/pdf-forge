@@ -62,9 +62,10 @@ type ProviderInjectable struct {
 	Description map[string]string `json:"description,omitempty" bson:"description,omitempty"`
 
 	// DataType indicates the type of value this injectable produces.
-	// REQUIRED. One of: ValueTypeString, ValueTypeNumber, ValueTypeBool,
-	// ValueTypeTime, ValueTypeTable, ValueTypeImage, ValueTypeList.
-	DataType entity.ValueType `json:"dataType" bson:"dataType"`
+	// REQUIRED. Use InjectableDataType constants: InjectableDataTypeText,
+	// InjectableDataTypeNumber, InjectableDataTypeDate, InjectableDataTypeBoolean,
+	// InjectableDataTypeImage, InjectableDataTypeTable, InjectableDataTypeList.
+	DataType entity.InjectableDataType `json:"dataType" bson:"dataType"`
 
 	// GroupKey is the key of the group to assign this injectable to (optional).
 	// Can reference groups from ProviderGroups or existing YAML-defined groups.

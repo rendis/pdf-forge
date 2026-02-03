@@ -36,7 +36,7 @@ func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, req *sdk.
 					"es": "Nombre completo del cliente",
 					"en": "Full name of the customer",
 				},
-				DataType: sdk.ValueTypeString,
+				DataType: sdk.InjectableDataTypeText,
 				GroupKey: "custom_data",
 			},
 			{
@@ -49,7 +49,7 @@ func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, req *sdk.
 					"es": "Monto total del pedido",
 					"en": "Total order amount",
 				},
-				DataType: sdk.ValueTypeNumber,
+				DataType: sdk.InjectableDataTypeNumber,
 				GroupKey: "custom_data",
 				Formats: []sdk.ProviderFormat{
 					{Key: "#,##0.00", Label: map[string]string{"es": "1.234,56", "en": "1,234.56"}},

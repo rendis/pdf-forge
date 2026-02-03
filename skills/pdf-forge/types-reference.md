@@ -386,14 +386,17 @@ type GetInjectablesResult struct {
 
 ```go
 type ProviderInjectable struct {
-    Code        string            `json:"code" bson:"code"`                           // REQUIRED: unique identifier
-    Label       map[string]string `json:"label" bson:"label"`                         // REQUIRED: locale → display name
-    Description map[string]string `json:"description,omitempty" bson:"description"`   // Optional: locale → help text
-    DataType    ValueType         `json:"dataType" bson:"dataType"`                   // REQUIRED: value type
-    GroupKey    string            `json:"groupKey,omitempty" bson:"groupKey"`         // Optional: group assignment
-    Formats     []ProviderFormat  `json:"formats,omitempty" bson:"formats"`           // Optional: format options
+    Code        string             `json:"code" bson:"code"`                           // REQUIRED: unique identifier
+    Label       map[string]string  `json:"label" bson:"label"`                         // REQUIRED: locale → display name
+    Description map[string]string  `json:"description,omitempty" bson:"description"`   // Optional: locale → help text
+    DataType    InjectableDataType `json:"dataType" bson:"dataType"`                   // REQUIRED: use InjectableDataType constants
+    GroupKey    string             `json:"groupKey,omitempty" bson:"groupKey"`         // Optional: group assignment
+    Formats     []ProviderFormat   `json:"formats,omitempty" bson:"formats"`           // Optional: format options
 }
 ```
+
+**DataType constants**: `InjectableDataTypeText`, `InjectableDataTypeNumber`, `InjectableDataTypeDate`,
+`InjectableDataTypeBoolean`, `InjectableDataTypeCurrency`, `InjectableDataTypeImage`, `InjectableDataTypeTable`, `InjectableDataTypeList`
 
 ### ProviderFormat
 
@@ -469,7 +472,7 @@ func (p *CRMProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectable
                     "es": "Nombre completo desde CRM",
                     "en": "Full customer name from CRM",
                 },
-                DataType: sdk.ValueTypeString,
+                DataType: sdk.InjectableDataTypeText,
                 GroupKey: "crm_data",
             },
             {
@@ -478,7 +481,7 @@ func (p *CRMProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectable
                     "es": "Saldo de Cuenta",
                     "en": "Account Balance",
                 },
-                DataType: sdk.ValueTypeNumber,
+                DataType: sdk.InjectableDataTypeNumber,
                 GroupKey: "crm_data",
                 Formats: []sdk.ProviderFormat{
                     {Key: "$#,##0.00", Label: map[string]string{"es": "$1.234,56", "en": "$1,234.56"}},

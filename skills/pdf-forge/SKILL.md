@@ -105,6 +105,8 @@ func (i *CustomerNameInjector) Formats() *sdk.FormatConfig         { return nil 
 
 ## Value Types
 
+**For Injectors** (use `ValueType`):
+
 | Need      | Constructor             | Type Constant         |
 | --------- | ----------------------- | --------------------- |
 | Text      | `sdk.StringValue(s)`    | `sdk.ValueTypeString` |
@@ -114,6 +116,21 @@ func (i *CustomerNameInjector) Formats() *sdk.FormatConfig         { return nil 
 | Image     | `sdk.ImageValue(url)`   | `sdk.ValueTypeImage`  |
 | Table     | `sdk.TableValueData(t)` | `sdk.ValueTypeTable`  |
 | List      | `sdk.ListValueData(l)`  | `sdk.ValueTypeList`   |
+
+**For WorkspaceInjectableProvider** (use `InjectableDataType`):
+
+| Type     | Constant                       |
+| -------- | ------------------------------ |
+| Text     | `sdk.InjectableDataTypeText`     |
+| Number   | `sdk.InjectableDataTypeNumber`   |
+| Date     | `sdk.InjectableDataTypeDate`     |
+| Boolean  | `sdk.InjectableDataTypeBoolean`  |
+| Currency | `sdk.InjectableDataTypeCurrency` |
+| Image    | `sdk.InjectableDataTypeImage`    |
+| Table    | `sdk.InjectableDataTypeTable`    |
+| List     | `sdk.InjectableDataTypeList`     |
+
+**Best Practice**: Always use typed constants, never hardcode strings like `"TEXT"` or `"NUMBER"`.
 
 See **types-reference.md** for Tables and Lists API.
 
@@ -281,7 +298,7 @@ func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectables
                     "es": "Nombre desde CRM",
                     "en": "Name from CRM",
                 },
-                DataType: sdk.ValueTypeString,
+                DataType: sdk.InjectableDataTypeText,  // Use InjectableDataType constants
                 GroupKey: "crm_data",
             },
         },

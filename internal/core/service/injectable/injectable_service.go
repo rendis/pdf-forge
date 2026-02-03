@@ -272,7 +272,7 @@ func (s *InjectableService) convertProviderInjectables(injectables []port.Provid
 			Key:         inj.Code,
 			Label:       getLocalizedString(inj.Label, locale, inj.Code),
 			Description: getLocalizedString(inj.Description, locale, ""),
-			DataType:    convertValueTypeToDataType(inj.DataType),
+			DataType:    inj.DataType, // Already InjectableDataType, no conversion needed
 			SourceType:  entity.InjectableSourceTypeExternal,
 			Metadata:    nil,
 			IsActive:    true,

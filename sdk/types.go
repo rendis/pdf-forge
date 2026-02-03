@@ -70,7 +70,7 @@ type (
 	ListSchema = entity.ListSchema
 )
 
-// Value type constants
+// ValueType constants (used by Injectors)
 const (
 	ValueTypeString = entity.ValueTypeString
 	ValueTypeNumber = entity.ValueTypeNumber
@@ -79,6 +79,22 @@ const (
 	ValueTypeTable  = entity.ValueTypeTable
 	ValueTypeImage  = entity.ValueTypeImage
 	ValueTypeList   = entity.ValueTypeList
+)
+
+// InjectableDataType represents the data type sent to frontend.
+// Use these constants for ProviderInjectable.DataType.
+type InjectableDataType = entity.InjectableDataType
+
+// InjectableDataType constants (used by WorkspaceInjectableProvider)
+const (
+	InjectableDataTypeText     = entity.InjectableDataTypeText
+	InjectableDataTypeNumber   = entity.InjectableDataTypeNumber
+	InjectableDataTypeDate     = entity.InjectableDataTypeDate
+	InjectableDataTypeCurrency = entity.InjectableDataTypeCurrency
+	InjectableDataTypeBoolean  = entity.InjectableDataTypeBoolean
+	InjectableDataTypeImage    = entity.InjectableDataTypeImage
+	InjectableDataTypeTable    = entity.InjectableDataTypeTable
+	InjectableDataTypeList     = entity.InjectableDataTypeList
 )
 
 // List symbol constants
