@@ -1,0 +1,55 @@
+example_string:
+  name:
+    en: "Example String"
+    es: "Texto de Ejemplo"
+  description:
+    en: "An example string injectable"
+    es: "Un inyectable de texto de ejemplo"
+
+example_number:
+  name:
+    en: "Example Number"
+    es: "Número de Ejemplo"
+  description:
+    en: "An example number injectable"
+    es: "Un inyectable de número de ejemplo"
+
+example_bool:
+  name:
+    en: "Example Boolean"
+    es: "Booleano de Ejemplo"
+  description:
+    en: "An example boolean injectable"
+    es: "Un inyectable booleano de ejemplo"
+
+example_time:
+  name:
+    en: "Example Time"
+    es: "Tiempo de Ejemplo"
+  description:
+    en: "An example time injectable"
+    es: "Un inyectable de tiempo de ejemplo"
+
+example_image:
+  name:
+    en: "Example Image"
+    es: "Imagen de Ejemplo"
+  description:
+    en: "An example image injectable"
+    es: "Un inyectable de imagen de ejemplo"
+
+example_table:
+  name:
+    en: "Example Table"
+    es: "Tabla de Ejemplo"
+  description:
+    en: "An example table injectable"
+    es: "Un inyectable de tabla de ejemplo"
+
+example_list:
+  name:
+    en: "Example List"
+    es: "Lista de Ejemplo"
+  description:
+    en: "An example list injectable"
+    es: "Un inyectable de lista de ejemplo"

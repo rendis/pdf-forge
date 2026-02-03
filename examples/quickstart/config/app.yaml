@@ -1,0 +1,16 @@
+server:
+  port: "8080"
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  name: pdf_forge
+  ssl_mode: disable
+
+# auth: omitted → dummy mode (no auth needed)
+
+typst:
+  bin_path: typst
+  timeout_seconds: 10

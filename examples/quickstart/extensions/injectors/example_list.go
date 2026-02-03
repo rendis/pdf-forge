@@ -1,0 +1,58 @@
+package injectors
+
+import (
+	"context"
+	"time"
+
+	"github.com/rendis/pdf-forge/sdk"
+)
+
+// ExampleListInjector demonstrates a LIST type injectable.
+type ExampleListInjector struct{}
+
+func (i *ExampleListInjector) Code() string { return "example_list" }
+
+func (i *ExampleListInjector) Resolve() (sdk.ResolveFunc, []string) {
+	return func(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.InjectorResult, error) {
+		list := sdk.NewListValue().
+			WithSymbol(sdk.ListSymbolBullet).
+			WithHeaderLabel(map[string]string{
+				"es": "Requisitos del documento",
+				"en": "Document Requirements",
+			}).
+			AddNestedItem(sdk.StringValue("Identification"),
+				sdk.ListItemValue(sdk.StringValue("Valid government ID")),
+				sdk.ListItemValue(sdk.StringValue("Proof of address")),
+			).
+			AddNestedItem(sdk.StringValue("Financial Information"),
+				sdk.ListItemValue(sdk.StringValue("Last 3 months bank statements")),
+				sdk.ListItemNested(sdk.StringValue("Tax return"),
+					sdk.ListItemValue(sdk.StringValue("Federal")),
+					sdk.ListItemValue(sdk.StringValue("State/Provincial")),
+				),
+			).
+			WithHeaderStyles(sdk.ListStyles{
+				FontWeight: sdk.StringPtr("bold"),
+				FontSize:   sdk.IntPtr(14),
+			})
+
+		return &sdk.InjectorResult{Value: sdk.ListValueData(list)}, nil
+	}, nil
+}
+
+func (i *ExampleListInjector) IsCritical() bool                  { return false }
+func (i *ExampleListInjector) Timeout() time.Duration             { return 0 }
+func (i *ExampleListInjector) DataType() sdk.ValueType            { return sdk.ValueTypeList }
+func (i *ExampleListInjector) DefaultValue() *sdk.InjectableValue { return nil }
+func (i *ExampleListInjector) Formats() *sdk.FormatConfig         { return nil }
+
+// ListSchema implements sdk.ListSchemaProvider.
+func (i *ExampleListInjector) ListSchema() sdk.ListSchema {
+	return sdk.ListSchema{
+		Symbol: sdk.ListSymbolBullet,
+		HeaderLabel: map[string]string{
+			"es": "Requisitos del documento",
+			"en": "Document Requirements",
+		},
+	}
+}
