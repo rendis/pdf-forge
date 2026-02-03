@@ -35,10 +35,6 @@ type GetInjectablesRequest struct {
 
 	// WorkspaceCode is the workspace identifier within the tenant.
 	WorkspaceCode string
-
-	// Locale is the requested locale for translations (e.g., "es", "en").
-	// Provider should return Label, Description, and Group.Name already translated.
-	Locale string
 }
 
 // GetInjectablesResult contains the list of available injectables and groups.
@@ -55,53 +51,53 @@ type GetInjectablesResult struct {
 type ProviderInjectable struct {
 	// Code is the unique identifier for this injectable.
 	// REQUIRED. Must not collide with registry-defined injector codes.
-	Code string
+	Code string `json:"code" bson:"code"`
 
 	// Label is the display name shown in the editor.
-	// REQUIRED. Should be already translated for the requested locale.
-	Label string
+	// REQUIRED. Map of locale → translated label (e.g., {"es": "Nombre", "en": "Name"}).
+	Label map[string]string `json:"label" bson:"label"`
 
 	// Description is optional help text shown in the editor.
-	// Should be already translated for the requested locale.
-	Description string
+	// Map of locale → translated description.
+	Description map[string]string `json:"description,omitempty" bson:"description,omitempty"`
 
 	// DataType indicates the type of value this injectable produces.
 	// REQUIRED. One of: ValueTypeString, ValueTypeNumber, ValueTypeBool,
 	// ValueTypeTime, ValueTypeTable, ValueTypeImage, ValueTypeList.
-	DataType entity.ValueType
+	DataType entity.ValueType `json:"dataType" bson:"dataType"`
 
 	// GroupKey is the key of the group to assign this injectable to (optional).
 	// Can reference groups from ProviderGroups or existing YAML-defined groups.
-	GroupKey string
+	GroupKey string `json:"groupKey,omitempty" bson:"groupKey,omitempty"`
 
 	// Formats defines available format options for this injectable (optional).
 	// If empty, no format selection is shown in the editor.
-	Formats []ProviderFormat
+	Formats []ProviderFormat `json:"formats,omitempty" bson:"formats,omitempty"`
 }
 
 // ProviderFormat represents a format option for an injectable.
 type ProviderFormat struct {
 	// Key is the format identifier (e.g., "DD/MM/YYYY", "HH:mm:ss").
 	// This key is passed back in ResolveInjectablesRequest.SelectedFormats.
-	Key string
+	Key string `json:"key" bson:"key"`
 
 	// Label is the display label shown in the format selector.
-	// Should be already translated for the requested locale.
-	Label string
+	// Map of locale → translated label (e.g., {"es": "1.234,56", "en": "1,234.56"}).
+	Label map[string]string `json:"label" bson:"label"`
 }
 
 // ProviderGroup represents a custom group for organizing injectables.
 type ProviderGroup struct {
 	// Key is the unique group identifier.
 	// REQUIRED. Must be unique across YAML-defined groups.
-	Key string
+	Key string `json:"key" bson:"key"`
 
 	// Name is the display name shown in the editor.
-	// REQUIRED. Should be already translated for the requested locale.
-	Name string
+	// REQUIRED. Map of locale → translated name (e.g., {"es": "Datos", "en": "Data"}).
+	Name map[string]string `json:"name" bson:"name"`
 
 	// Icon is the optional icon name (e.g., "calendar", "user", "database").
-	Icon string
+	Icon string `json:"icon,omitempty" bson:"icon,omitempty"`
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

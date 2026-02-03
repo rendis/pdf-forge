@@ -370,7 +370,6 @@ type WorkspaceInjectableProvider interface {
 type GetInjectablesRequest struct {
     TenantCode    string // e.g., "acme-corp"
     WorkspaceCode string // e.g., "sales-team"
-    Locale        string // e.g., "es", "en"
 }
 ```
 
@@ -387,12 +386,12 @@ type GetInjectablesResult struct {
 
 ```go
 type ProviderInjectable struct {
-    Code        string           // REQUIRED: unique identifier
-    Label       string           // REQUIRED: display name (pre-translated)
-    Description string           // Optional: help text (pre-translated)
-    DataType    ValueType        // REQUIRED: value type
-    GroupKey    string           // Optional: group assignment
-    Formats     []ProviderFormat // Optional: format options
+    Code        string            `json:"code" bson:"code"`                           // REQUIRED: unique identifier
+    Label       map[string]string `json:"label" bson:"label"`                         // REQUIRED: locale → display name
+    Description map[string]string `json:"description,omitempty" bson:"description"`   // Optional: locale → help text
+    DataType    ValueType         `json:"dataType" bson:"dataType"`                   // REQUIRED: value type
+    GroupKey    string            `json:"groupKey,omitempty" bson:"groupKey"`         // Optional: group assignment
+    Formats     []ProviderFormat  `json:"formats,omitempty" bson:"formats"`           // Optional: format options
 }
 ```
 
@@ -400,8 +399,8 @@ type ProviderInjectable struct {
 
 ```go
 type ProviderFormat struct {
-    Key   string // Format identifier (passed back in ResolveInjectablesRequest)
-    Label string // Display label (pre-translated)
+    Key   string            `json:"key" bson:"key"`     // Format identifier (passed back in ResolveInjectablesRequest)
+    Label map[string]string `json:"label" bson:"label"` // locale → display label
 }
 ```
 
@@ -409,11 +408,14 @@ type ProviderFormat struct {
 
 ```go
 type ProviderGroup struct {
-    Key  string // REQUIRED: unique group identifier
-    Name string // REQUIRED: display name (pre-translated)
-    Icon string // Optional: icon name ("calendar", "user", "database")
+    Key  string            `json:"key" bson:"key"`               // REQUIRED: unique group identifier
+    Name map[string]string `json:"name" bson:"name"`             // REQUIRED: locale → display name
+    Icon string            `json:"icon,omitempty" bson:"icon"`   // Optional: icon name
 }
 ```
+
+**i18n**: Return all locales in `map[string]string`. Framework picks based on `?locale=` param.
+Fallback order: requested locale → "en" → code/empty.
 
 ### ResolveInjectablesRequest
 
@@ -454,34 +456,45 @@ type CRMProvider struct {
 }
 
 func (p *CRMProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
-    // Translate based on locale
-    customerLabel := "Nombre del Cliente"
-    if req.Locale == "en" {
-        customerLabel = "Customer Name"
-    }
-
+    // Return ALL locales - framework picks based on request
     return &sdk.GetInjectablesResult{
         Injectables: []sdk.ProviderInjectable{
             {
-                Code:        "crm_customer_name",
-                Label:       customerLabel,
-                Description: "Full customer name from CRM",
-                DataType:    sdk.ValueTypeString,
-                GroupKey:    "crm_data",
+                Code: "crm_customer_name",
+                Label: map[string]string{
+                    "es": "Nombre del Cliente",
+                    "en": "Customer Name",
+                },
+                Description: map[string]string{
+                    "es": "Nombre completo desde CRM",
+                    "en": "Full customer name from CRM",
+                },
+                DataType: sdk.ValueTypeString,
+                GroupKey: "crm_data",
             },
             {
-                Code:     "crm_balance",
-                Label:    "Account Balance",
+                Code: "crm_balance",
+                Label: map[string]string{
+                    "es": "Saldo de Cuenta",
+                    "en": "Account Balance",
+                },
                 DataType: sdk.ValueTypeNumber,
                 GroupKey: "crm_data",
                 Formats: []sdk.ProviderFormat{
-                    {Key: "$#,##0.00", Label: "$1,234.56"},
-                    {Key: "€#,##0.00", Label: "€1,234.56"},
+                    {Key: "$#,##0.00", Label: map[string]string{"es": "$1.234,56", "en": "$1,234.56"}},
+                    {Key: "€#,##0.00", Label: map[string]string{"es": "€1.234,56", "en": "€1,234.56"}},
                 },
             },
         },
         Groups: []sdk.ProviderGroup{
-            {Key: "crm_data", Name: "CRM Data", Icon: "database"},
+            {
+                Key: "crm_data",
+                Name: map[string]string{
+                    "es": "Datos CRM",
+                    "en": "CRM Data",
+                },
+                Icon: "database",
+            },
         },
     }, nil
 }

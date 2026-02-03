@@ -48,6 +48,7 @@ func NewCRMWorkspaceProvider(client CRMClient) *CRMWorkspaceProvider {
 }
 
 // GetInjectables - called when editor opens
+// Return ALL locales - framework picks based on request locale
 func (p *CRMWorkspaceProvider) GetInjectables(
     ctx context.Context,
     req *sdk.GetInjectablesRequest,
@@ -60,14 +61,10 @@ func (p *CRMWorkspaceProvider) GetInjectables(
 
     injectables := make([]sdk.ProviderInjectable, 0, len(fields))
     for _, f := range fields {
-        label := f.Label[req.Locale]
-        if label == "" {
-            label = f.Label["en"] // fallback
-        }
-
+        // Pass through the locale map directly - framework handles locale selection
         injectables = append(injectables, sdk.ProviderInjectable{
             Code:     "crm_" + f.Code,
-            Label:    label,
+            Label:    f.Label, // map[string]string from CRM
             DataType: mapCRMType(f.Type),
             GroupKey: "crm_data",
         })
@@ -77,8 +74,11 @@ func (p *CRMWorkspaceProvider) GetInjectables(
         Injectables: injectables,
         Groups: []sdk.ProviderGroup{
             {
-                Key:  "crm_data",
-                Name: localizedGroupName(req.Locale),
+                Key: "crm_data",
+                Name: map[string]string{
+                    "es": "Datos CRM",
+                    "en": "CRM Data",
+                },
                 Icon: "database",
             },
         },

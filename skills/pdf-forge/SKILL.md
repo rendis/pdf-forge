@@ -268,18 +268,32 @@ For dynamic, workspace-specific injectables (e.g., from CRM, external APIs):
 type MyProvider struct{}
 
 func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
-    // Called when editor opens - return available injectables
+    // Called when editor opens - return ALL locales (framework picks based on request)
     return &sdk.GetInjectablesResult{
         Injectables: []sdk.ProviderInjectable{
             {
-                Code:     "crm_customer_name",
-                Label:    "Customer Name",  // pre-translated for req.Locale
+                Code: "crm_customer_name",
+                Label: map[string]string{
+                    "es": "Nombre del Cliente",
+                    "en": "Customer Name",
+                },
+                Description: map[string]string{
+                    "es": "Nombre desde CRM",
+                    "en": "Name from CRM",
+                },
                 DataType: sdk.ValueTypeString,
                 GroupKey: "crm_data",
             },
         },
         Groups: []sdk.ProviderGroup{
-            {Key: "crm_data", Name: "CRM Data", Icon: "database"},
+            {
+                Key: "crm_data",
+                Name: map[string]string{
+                    "es": "Datos CRM",
+                    "en": "CRM Data",
+                },
+                Icon: "database",
+            },
         },
     }, nil
 }
@@ -298,6 +312,8 @@ func (p *MyProvider) ResolveInjectables(ctx context.Context, req *sdk.ResolveInj
 ```
 
 **Register**: `engine.SetWorkspaceInjectableProvider(&MyProvider{})`
+
+**i18n**: Return all locales in `map[string]string`. Framework picks based on `?locale=` param. Fallback: requested → "en" → code.
 
 See **types-reference.md** for complete interface.
 

@@ -30,6 +30,10 @@ func main() {
 	// Set init function (loads shared data before injectors)
 	engine.SetInitFunc(extensions.ExampleInit())
 
+	// Set workspace injectable provider (dynamic injectables per workspace)
+	// Provider receives req.Locale - you handle i18n internally
+	engine.SetWorkspaceInjectableProvider(&extensions.ExampleWorkspaceProvider{})
+
 	// Auto-apply pending database migrations (idempotent)
 	if err := engine.RunMigrations(); err != nil {
 		log.Fatal("migrations: ", err)
