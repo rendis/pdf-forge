@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"strings"
 	"sync"
 	"time"
 )
@@ -169,6 +170,18 @@ type InjectorContext struct {
 	selectedFormats map[string]string // injector code -> selected format
 }
 
+// normalizeHeaders converts all header keys to lowercase for case-insensitive lookup.
+func normalizeHeaders(headers map[string]string) map[string]string {
+	if headers == nil {
+		return nil
+	}
+	normalized := make(map[string]string, len(headers))
+	for k, v := range headers {
+		normalized[strings.ToLower(k)] = v
+	}
+	return normalized
+}
+
 // NewInjectorContext creates a new InjectorContext instance.
 func NewInjectorContext(
 	externalID, templateID, transactionalID string,
@@ -181,7 +194,7 @@ func NewInjectorContext(
 		templateID:      templateID,
 		transactionalID: transactionalID,
 		operation:       op,
-		headers:         headers,
+		headers:         normalizeHeaders(headers),
 		resolvedValues:  make(map[string]any),
 		requestPayload:  payload,
 	}
@@ -202,7 +215,7 @@ func NewInjectorContextWithCodes(
 		operation:       op,
 		tenantCode:      tenantCode,
 		workspaceCode:   workspaceCode,
-		headers:         headers,
+		headers:         normalizeHeaders(headers),
 		resolvedValues:  make(map[string]any),
 		requestPayload:  payload,
 	}
@@ -264,14 +277,14 @@ func (c *InjectorContext) SetWorkspaceCode(code string) {
 	c.workspaceCode = code
 }
 
-// Header returns the value of a specific header.
+// Header returns the value of a specific header (case-insensitive).
 func (c *InjectorContext) Header(key string) string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if c.headers == nil {
 		return ""
 	}
-	return c.headers[key]
+	return c.headers[strings.ToLower(key)]
 }
 
 // GetResolved returns the resolved value of another injector.
