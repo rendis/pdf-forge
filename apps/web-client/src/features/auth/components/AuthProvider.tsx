@@ -1,31 +1,10 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
-import {
-  refreshAccessToken,
-  getUserInfo,
-  setupTokenRefresh,
-} from '@/lib/oidc'
+import { refreshAccessToken, getUserInfo, setupTokenRefresh, initOIDCConfig } from '@/lib/oidc'
+import { getAuthConfig, getOIDCConfig } from '@/lib/auth-config'
 import { fetchMyRoles } from '@/features/auth/api/auth-api'
 import { initializeTheme } from '@/stores/theme-store'
 import { LoadingOverlay } from '@/components/common/LoadingSpinner'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
-
-interface PanelProvider {
-  name: string
-  issuer: string
-}
-
-interface ClientConfig {
-  dummyAuth: boolean
-  panelProvider?: PanelProvider
-}
-
-async function fetchClientConfig(): Promise<ClientConfig> {
-  const res = await fetch(`${API_BASE_URL}/config`)
-  if (!res.ok) throw new Error('Failed to fetch client config')
-  return res.json()
-}
 
 interface AuthProviderProps {
   children: ReactNode
@@ -68,8 +47,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const init = async () => {
       try {
-        // Check if backend is in dummy auth mode
-        const config = await fetchClientConfig()
+        // Fetch auth config from backend (runtime, not build-time)
+        const config = await getAuthConfig()
+
+        // Initialize OIDC config for all subsequent operations
+        const oidcConfig = getOIDCConfig(config)
+        initOIDCConfig(oidcConfig)
+
         if (config.dummyAuth) {
           console.log('[Auth] Dummy auth mode — auto-login as admin')
           setTokens('dummy-token', 'dummy-refresh', 86400)

@@ -163,16 +163,9 @@ function LoginPage() {
                   </>
                 )}
               </button>
-              {import.meta.env.VITE_OIDC_PASSWORD_RESET_URL && (
-                <a
-                  href={import.meta.env.VITE_OIDC_PASSWORD_RESET_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border-b border-transparent pb-0.5 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-                >
-                  {t('login.recover', 'Recover password access')}
-                </a>
-              )}
+              <span className="font-mono text-xs text-muted-foreground">
+                {t('login.forgotPassword', 'Forgot password? Contact your administrator.')}
+              </span>
             </div>
           </form>
         </div>

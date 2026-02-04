@@ -1,14 +1,36 @@
 import { useAuthStore } from '@/stores/auth-store'
 
 /**
- * OIDC configuration from environment variables.
- * Provide full endpoint URLs — works with any OIDC provider.
+ * OIDC configuration interface.
  */
-const oidcConfig = {
-  tokenUrl: import.meta.env.VITE_OIDC_TOKEN_URL || '',
-  userinfoUrl: import.meta.env.VITE_OIDC_USERINFO_URL || '',
-  logoutUrl: import.meta.env.VITE_OIDC_LOGOUT_URL || '',
-  clientId: import.meta.env.VITE_OIDC_CLIENT_ID || 'web-client',
+export interface OIDCConfig {
+  tokenEndpoint: string
+  userinfoEndpoint: string
+  endSessionEndpoint: string
+  clientId: string
+}
+
+/**
+ * Runtime OIDC config (set by AuthProvider after fetching from backend).
+ */
+let runtimeConfig: OIDCConfig | null = null
+
+/**
+ * Initialize OIDC config from runtime values (called by AuthProvider).
+ */
+export function initOIDCConfig(config: OIDCConfig): void {
+  runtimeConfig = config
+}
+
+/**
+ * Get current OIDC config.
+ * Throws if not initialized (AuthProvider must run first).
+ */
+function getConfig(): OIDCConfig {
+  if (!runtimeConfig) {
+    throw new Error('OIDC config not initialized. AuthProvider must load config first.')
+  }
+  return runtimeConfig
 }
 
 /**
@@ -52,15 +74,17 @@ export async function loginWithCredentials(
   username: string,
   password: string
 ): Promise<TokenResponse> {
+  const config = getConfig()
+
   const params = new URLSearchParams({
     grant_type: 'password',
-    client_id: oidcConfig.clientId,
+    client_id: config.clientId,
     username,
     password,
     scope: 'openid profile email',
   })
 
-  const response = await fetch(oidcConfig.tokenUrl, {
+  const response = await fetch(config.tokenEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -80,6 +104,7 @@ export async function loginWithCredentials(
  * Refresh access token using refresh token
  */
 export async function refreshAccessToken(): Promise<TokenResponse> {
+  const config = getConfig()
   const { refreshToken } = useAuthStore.getState()
 
   if (!refreshToken) {
@@ -88,11 +113,11 @@ export async function refreshAccessToken(): Promise<TokenResponse> {
 
   const params = new URLSearchParams({
     grant_type: 'refresh_token',
-    client_id: oidcConfig.clientId,
+    client_id: config.clientId,
     refresh_token: refreshToken,
   })
 
-  const response = await fetch(oidcConfig.tokenUrl, {
+  const response = await fetch(config.tokenEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -108,11 +133,7 @@ export async function refreshAccessToken(): Promise<TokenResponse> {
   const tokens: TokenResponse = await response.json()
 
   // Update tokens in store
-  useAuthStore.getState().setTokens(
-    tokens.access_token,
-    tokens.refresh_token,
-    tokens.expires_in
-  )
+  useAuthStore.getState().setTokens(tokens.access_token, tokens.refresh_token, tokens.expires_in)
 
   return tokens
 }
@@ -121,13 +142,14 @@ export async function refreshAccessToken(): Promise<TokenResponse> {
  * Get user info from OIDC provider
  */
 export async function getUserInfo(): Promise<OIDCUserInfo> {
+  const config = getConfig()
   const { token } = useAuthStore.getState()
 
   if (!token) {
     throw new Error('No access token available')
   }
 
-  const response = await fetch(oidcConfig.userinfoUrl, {
+  const response = await fetch(config.userinfoEndpoint, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -145,20 +167,21 @@ export async function getUserInfo(): Promise<OIDCUserInfo> {
  * Logout from OIDC provider and clear local auth state
  */
 export async function logout(): Promise<void> {
+  const config = getConfig()
   const { refreshToken, clearAuth } = useAuthStore.getState()
 
   // Clear local auth state first
   clearAuth()
 
   // If we have a refresh token and a logout URL, try to invalidate it
-  if (refreshToken && oidcConfig.logoutUrl) {
+  if (refreshToken && config.endSessionEndpoint) {
     try {
       const params = new URLSearchParams({
-        client_id: oidcConfig.clientId,
+        client_id: config.clientId,
         refresh_token: refreshToken,
       })
 
-      await fetch(oidcConfig.logoutUrl, {
+      await fetch(config.endSessionEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -227,5 +250,3 @@ export function parseJwtPayload(token: string): Record<string, unknown> | null {
     return null
   }
 }
-
-export { oidcConfig }

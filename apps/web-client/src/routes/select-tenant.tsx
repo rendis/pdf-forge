@@ -186,7 +186,7 @@ function SelectTenantPage() {
       setSelectedTenant(tenant)
       recordAccess('TENANT', tenant.id).catch(() => {})
     }
-  }, [tenantsData, selectedTenant, effectiveQuery, setCurrentTenant, setSingleTenant])
+  }, [isSwitching, tenantsData, selectedTenant, effectiveQuery, setCurrentTenant, setSingleTenant])
 
   // Auto-select workspace if only one exists (skip when user intentionally switching)
   useEffect(() => {
@@ -208,7 +208,7 @@ function SelectTenantPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TanStack Router type limitation
       navigate({ to: '/workspace/$workspaceId', params: { workspaceId: workspace.id } as any })
     }
-  }, [workspacesData, selectedTenant, effectiveQuery, setCurrentWorkspace, setSingleWorkspace, navigate])
+  }, [isSwitching, workspacesData, selectedTenant, effectiveQuery, setCurrentWorkspace, setSingleWorkspace, navigate])
 
   // Hide the entire page when auto-selecting (user should not see it)
   const isAutoSelecting = autoSelectedTenantRef.current && !autoSelectedWorkspaceRef.current && !workspacesData
