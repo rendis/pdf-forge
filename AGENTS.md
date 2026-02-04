@@ -273,8 +273,6 @@ auth:
       jwks_url: "https://internal.auth.com/.well-known/jwks.json"
 ```
 
-**Legacy format** (still supported): `oidc_providers` list. First provider → panel, all → render.
-
 **Other key settings**:
 
 - `typst.bin_path` → Typst CLI binary path

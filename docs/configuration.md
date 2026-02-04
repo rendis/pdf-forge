@@ -29,32 +29,59 @@ YAML config file: `settings/app.yaml`. Env var override prefix: `DOC_ENGINE_*` (
 
 Separates OIDC authentication for **panel** (login/UI) vs **render** endpoints. Omit `auth` section entirely = dummy auth mode.
 
-### New Format (Recommended)
+### Configuration Fields
 
-| Key                             | Required | Description                               |
-| ------------------------------- | -------- | ----------------------------------------- |
-| `auth.panel.name`               | Yes      | Human-readable name (for logs)            |
-| `auth.panel.issuer`             | Yes      | Expected JWT issuer (`iss` claim)         |
-| `auth.panel.jwks_url`           | Yes      | JWKS endpoint URL                         |
-| `auth.panel.audience`           | No       | Expected audience (`aud`). Empty = skip   |
-| `auth.render_providers[].name`  | Yes      | Provider name for logs                    |
-| `auth.render_providers[].issuer`| Yes      | JWT issuer                                |
-| `auth.render_providers[].jwks_url`| Yes    | JWKS endpoint                             |
-| `auth.render_providers[].audience`| No     | Audience validation                       |
+| Key                             | Required | Description                                           |
+| ------------------------------- | -------- | ----------------------------------------------------- |
+| `auth.panel.name`               | Yes      | Human-readable name (for logs)                        |
+| `auth.panel.discovery_url`      | No*      | OpenID Connect discovery URL (auto-fetches issuer/jwks) |
+| `auth.panel.issuer`             | No*      | Expected JWT issuer (`iss` claim)                     |
+| `auth.panel.jwks_url`           | No*      | JWKS endpoint URL                                     |
+| `auth.panel.audience`           | No       | Expected audience (`aud`). Empty = skip               |
+| `auth.render_providers[].name`  | Yes      | Provider name for logs                                |
+| `auth.render_providers[].discovery_url` | No* | OpenID Connect discovery URL                      |
+| `auth.render_providers[].issuer`| No*     | JWT issuer                                            |
+| `auth.render_providers[].jwks_url`| No*   | JWKS endpoint                                         |
+| `auth.render_providers[].audience`| No    | Audience validation                                   |
 
-### Example
+\* Either `discovery_url` OR both `issuer` + `jwks_url` must be provided.
+
+### OIDC Discovery
+
+When `discovery_url` is configured, the system automatically fetches `issuer` and `jwks_uri` from the OpenID Connect discovery endpoint at startup. This simplifies configuration and ensures values match the provider's actual configuration.
+
+**Discovery URL format**: If the URL doesn't end with `/.well-known/openid-configuration`, it's appended automatically.
 
 ```yaml
+# Using discovery (recommended)
 auth:
-  # Panel: OIDC for web UI login and management endpoints
+  panel:
+    name: "keycloak"
+    discovery_url: "https://auth.example.com/realms/web"
+    audience: "pdf-forge-web"  # optional, not from discovery
+
+  render_providers:
+    - name: "azure-ad"
+      discovery_url: "https://login.microsoftonline.com/{tenant}/v2.0"
+```
+
+**Startup logs**:
+```
+INFO OIDC discovery started name=keycloak url=https://auth.example.com/realms/web/.well-known/openid-configuration
+INFO OIDC discovery completed name=keycloak issuer=https://auth.example.com/realms/web jwks_uri=https://auth.example.com/realms/web/protocol/openid-connect/certs duration=120ms
+```
+
+### Example (Explicit Configuration)
+
+```yaml
+# Without discovery (explicit values)
+auth:
   panel:
     name: "web-panel"
     issuer: "https://auth.example.com/realms/web"
     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
-    audience: "pdf-forge-web"  # optional
+    audience: "pdf-forge-web"
 
-  # Render providers: Additional OIDC ONLY for render endpoints
-  # Panel is always valid for render too (allows UI preview)
   render_providers:
     - name: "internal-services"
       issuer: "https://auth.internal.com"
@@ -83,18 +110,6 @@ engine.UseAPIMiddleware(func(c *gin.Context) {
     c.Next()
 })
 ```
-
-### Legacy Format (Still Supported)
-
-```yaml
-oidc_providers:
-  - name: "web-clients"
-    issuer: "https://auth.example.com/realms/web"
-    jwks_url: "https://auth.example.com/realms/web/.../certs"
-    audience: "pdf-forge-web"
-```
-
-First provider → panel, all providers → render. Recommended to migrate to new `auth` format.
 
 ### Auth Flow
 

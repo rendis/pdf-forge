@@ -338,7 +338,7 @@ groups:
 | Custom middleware    | ✅      | `UseMiddleware()`, `UseAPIMiddleware()` |
 | Lifecycle hooks      | ✅      | `OnStart()`, `OnShutdown()`             |
 | Custom HTTP routes   | ❌      | Deploy separate service                 |
-| Multi-OIDC providers | ✅      | Config `oidc_providers`                 |
+| Multi-OIDC providers | ✅      | Config `auth.render_providers`          |
 | Database hooks       | ❌      | Use `InitFunc` for pre-load             |
 | Custom env prefix    | ❌      | Use `DOC_ENGINE_*` (hardcoded)          |
 | Request interception | Partial | `SetMapper()` + middleware              |

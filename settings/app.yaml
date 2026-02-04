@@ -23,34 +23,30 @@ database:
 
 # OIDC Authentication Configuration
 #
-# New format (recommended): auth.panel + auth.render_providers
 # - panel: OIDC provider for web panel (login/UI/management endpoints)
 # - render_providers: Additional providers ONLY for render endpoints
 #   (panel is always valid for render too)
+#
+# Option 1: Using discovery_url (recommended - auto-fetches issuer and jwks_url)
+#
+# auth:
+#   panel:
+#     name: "keycloak"
+#     discovery_url: "https://auth.example.com/realms/web"
+#     audience: "pdf-forge-web"  # optional, not from discovery
+#
+#   render_providers:
+#     - name: "azure-ad"
+#       discovery_url: "https://login.microsoftonline.com/{tenant}/v2.0"
+#
+# Option 2: Explicit issuer and jwks_url (no discovery)
 #
 # auth:
 #   panel:
 #     name: "web-panel"
 #     issuer: "https://auth.example.com/realms/web"
 #     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
-#     audience: "pdf-forge-web"   # optional
-#
-#   render_providers:
-#     - name: "internal-services"
-#       issuer: "https://auth.internal.com"
-#       jwks_url: "https://auth.internal.com/.well-known/jwks.json"
-#     - name: "partner-api"
-#       issuer: "https://partner.auth.com"
-#       jwks_url: "https://partner.auth.com/.well-known/jwks.json"
-#
-# Legacy format (still supported): oidc_providers list
-# First provider becomes panel, all providers work for render.
-#
-# oidc_providers:
-#   - name: "web-clients"
-#     issuer: "https://auth.example.com/realms/web"
-#     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
-#     audience: "pdf-forge-web"   # optional
+#     audience: "pdf-forge-web"
 #
 # Empty/missing auth config = dummy auth mode (dev only)
 

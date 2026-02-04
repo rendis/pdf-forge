@@ -571,9 +571,10 @@ database:
   ssl_mode: disable
   max_pool_size: 10
 
-# Multi-OIDC auth (empty list = dummy mode)
-# oidc_providers:
-#   - name: "web-clients"
+# OIDC auth (empty = dummy mode)
+# auth:
+#   panel:
+#     name: "web-panel"
 #     issuer: "https://auth.example.com/realms/web"
 #     jwks_url: "https://auth.example.com/realms/web/.../certs"
 #     audience: "pdf-forge-web"
@@ -607,7 +608,7 @@ pdf-forge uses standard **OIDC/JWKS** for authentication. Supports **multiple OI
 
 ### Dummy Mode (Development)
 
-When `oidc_providers` is empty, dummy mode auto-enables:
+When `auth` is not configured, dummy mode auto-enables:
 
 - Admin user seeded (`admin@pdfforge.local`)
 - No tokens required for API requests
@@ -618,18 +619,22 @@ When `oidc_providers` is empty, dummy mode auto-enables:
 Configure OIDC providers in `config/app.yaml`:
 
 ```yaml
-oidc_providers:
-  - name: "web-clients"
+auth:
+  # Panel: OIDC for web UI login and management endpoints
+  panel:
+    name: "web-panel"
     issuer: "https://auth.example.com/realms/web"
     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
-    audience: "pdf-forge-web"  # optional
+    audience: "pdf-forge-web" # optional
 
-  - name: "internal-services"
-    issuer: "https://auth.example.com/realms/services"
-    jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
+  # Render providers: Additional OIDC ONLY for render endpoints
+  render_providers:
+    - name: "internal-services"
+      issuer: "https://auth.example.com/realms/services"
+      jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
 ```
 
-**How it works**: Token's `iss` claim is matched against configured issuers. Unknown issuer → 401.
+**How it works**: Token's `iss` claim is matched against panel or render providers. Unknown issuer → 401.
 
 The backend validates JWTs using standard claims (`sub`, `email`, `name`) and RS256/384/512 signatures.
 

@@ -51,51 +51,46 @@ engine := sdk.New(
 
 Separates OIDC authentication for panel (login/UI) vs render endpoints. Omit `auth` entirely = dummy auth mode.
 
+**With discovery** (recommended - auto-fetches issuer/jwks_url):
+
 ```yaml
 auth:
-  # Panel: OIDC for web UI login and management endpoints
+  panel:
+    name: "keycloak"
+    discovery_url: "https://auth.example.com/realms/web"
+    audience: "pdf-forge-web"  # optional
+  render_providers:
+    - name: "azure-ad"
+      discovery_url: "https://login.microsoftonline.com/{tenant}/v2.0"
+```
+
+**Without discovery** (explicit values):
+
+```yaml
+auth:
   panel:
     name: "web-panel"
     issuer: "https://auth.example.com/realms/web"
     jwks_url: "https://auth.example.com/realms/web/.../certs"
-    audience: "pdf-forge-web" # optional
-
-  # Render providers: Additional OIDC ONLY for render endpoints
-  # Panel is always valid for render too (UI preview)
-  render_providers:
-    - name: "internal-services"
-      issuer: "https://auth.internal.com"
-      jwks_url: "https://auth.internal.com/.well-known/jwks.json"
+    audience: "pdf-forge-web"
 ```
 
-| Field                              | Required | Description                       |
-| ---------------------------------- | -------- | --------------------------------- |
-| `auth.panel.name`                  | Yes      | Human-readable name (logs)        |
-| `auth.panel.issuer`                | Yes      | Expected JWT issuer (`iss` claim) |
-| `auth.panel.jwks_url`              | Yes      | JWKS endpoint URL                 |
-| `auth.panel.audience`              | No       | Expected audience. Empty = skip   |
-| `auth.render_providers[].name`     | Yes      | Provider name for logs            |
-| `auth.render_providers[].issuer`   | Yes      | JWT issuer for this provider      |
-| `auth.render_providers[].jwks_url` | Yes      | JWKS endpoint                     |
-| `auth.render_providers[].audience` | No       | Audience validation               |
+| Field                | Required | Description                                     |
+| -------------------- | -------- | ----------------------------------------------- |
+| `name`               | Yes      | Human-readable name (logs)                      |
+| `discovery_url`      | No*      | OpenID Connect discovery URL (auto-fetches)     |
+| `issuer`             | No*      | Expected JWT issuer (`iss` claim)               |
+| `jwks_url`           | No*      | JWKS endpoint URL                               |
+| `audience`           | No       | Expected audience. Empty = skip                 |
+
+\* Either `discovery_url` OR both `issuer` + `jwks_url` required.
 
 **Route auth**:
 
-- **Panel routes** (`/api/v1/*` except render): `auth.panel` only, full identity lookup
-- **Render routes** (`/api/v1/workspace/document-types/*/render`): `auth.panel` + `auth.render_providers`, NO identity lookup
+- **Panel routes** (`/api/v1/*` except render): `auth.panel` only
+- **Render routes**: `auth.panel` + `auth.render_providers`
 
-**Legacy format** (still supported):
-
-```yaml
-oidc_providers:
-  - name: "web-clients"
-    issuer: "https://..."
-    jwks_url: "https://..."
-```
-
-First provider → panel, all providers → render.
-
-**Note**: Auth config cannot be set via env vars (YAML only for nested objects).
+**Note**: Auth config cannot be set via env vars (YAML only).
 
 ### Typst (PDF Rendering)
 
@@ -142,9 +137,9 @@ DOC_ENGINE_DATABASE_NAME=pdfforge_prod
 DOC_ENGINE_DATABASE_SSL_MODE=require
 DOC_ENGINE_DATABASE_MAX_POOL_SIZE=20
 
-# Auth: Configure oidc_providers in YAML (cannot be set via env vars)
-# See app.yaml for multi-OIDC configuration
-# Empty oidc_providers = dummy auth mode (dev only)
+# Auth: Configure auth.panel + auth.render_providers in YAML (cannot be set via env vars)
+# See app.yaml for OIDC configuration
+# Empty auth config = dummy auth mode (dev only)
 
 # Typst
 DOC_ENGINE_TYPST_BIN_PATH=/usr/local/bin/typst
