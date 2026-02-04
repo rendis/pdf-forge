@@ -29,6 +29,11 @@ func (e *Engine) preflightChecks(ctx context.Context) error {
 		return err
 	}
 
+	// Run OIDC discovery (populates issuer/jwks_url from discovery_url)
+	if err := e.config.DiscoverAll(ctx); err != nil {
+		return fmt.Errorf("OIDC discovery: %w", err)
+	}
+
 	checkAuth(ctx, e)
 	return nil
 }
@@ -117,23 +122,38 @@ Or programmatically:
 
 // checkAuth checks auth configuration and logs dummy mode warning.
 func checkAuth(ctx context.Context, e *Engine) {
-	providers := e.config.GetOIDCProviders()
+	panel := e.config.GetPanelOIDC()
 
-	if len(providers) == 0 {
+	if panel == nil {
 		slog.WarnContext(ctx, "⚠ OIDC not configured — running in dummy mode (dev only)")
 		e.config.DummyAuth = true
 		return
 	}
 
-	slog.InfoContext(ctx, "OIDC providers configured", slog.Int("count", len(providers)))
-	for _, p := range providers {
+	// Log panel provider
+	if panel.Issuer == "" {
+		slog.WarnContext(ctx, "panel OIDC missing issuer", slog.String("name", panel.Name))
+	}
+	if panel.JWKSURL == "" {
+		slog.WarnContext(ctx, "panel OIDC missing jwks_url", slog.String("name", panel.Name))
+	}
+	slog.InfoContext(ctx, "panel OIDC configured",
+		slog.String("name", panel.Name),
+		slog.String("issuer", panel.Issuer))
+
+	// Log render-only providers
+	renderProviders := e.config.GetRenderOIDCProviders()
+	for _, p := range renderProviders {
+		if p.Issuer == panel.Issuer {
+			continue // skip panel, already logged
+		}
 		if p.Issuer == "" {
-			slog.WarnContext(ctx, "OIDC provider missing issuer", slog.String("name", p.Name))
+			slog.WarnContext(ctx, "render OIDC missing issuer", slog.String("name", p.Name))
 		}
 		if p.JWKSURL == "" {
-			slog.WarnContext(ctx, "OIDC provider missing jwks_url", slog.String("name", p.Name))
+			slog.WarnContext(ctx, "render OIDC missing jwks_url", slog.String("name", p.Name))
 		}
-		slog.InfoContext(ctx, "OIDC provider",
+		slog.InfoContext(ctx, "render OIDC configured",
 			slog.String("name", p.Name),
 			slog.String("issuer", p.Issuer))
 	}

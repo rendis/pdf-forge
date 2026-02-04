@@ -4,13 +4,12 @@ import "time"
 
 // Config represents the complete application configuration.
 type Config struct {
-	Environment   string         `mapstructure:"environment"`
-	Server        ServerConfig   `mapstructure:"server"`
-	Database      DatabaseConfig `mapstructure:"database"`
-	Auth          *AuthConfig    `mapstructure:"auth"`            // New: grouped auth config (panel + render providers)
-	OIDCProviders []OIDCProvider `mapstructure:"oidc_providers"` // Legacy: kept for backward compatibility
-	Logging       LoggingConfig  `mapstructure:"logging"`
-	Typst         TypstConfig    `mapstructure:"typst"`
+	Environment string         `mapstructure:"environment"`
+	Server      ServerConfig   `mapstructure:"server"`
+	Database    DatabaseConfig `mapstructure:"database"`
+	Auth        *AuthConfig    `mapstructure:"auth"`
+	Logging     LoggingConfig  `mapstructure:"logging"`
+	Typst       TypstConfig    `mapstructure:"typst"`
 
 	// DummyAuth is set at runtime when no OIDC providers are configured.
 	// Not loaded from YAML.
@@ -35,48 +34,25 @@ type AuthConfig struct {
 	RenderProviders []OIDCProvider `mapstructure:"render_providers"`
 }
 
-// GetOIDCProviders returns the list of configured OIDC providers.
-// Deprecated: Use GetPanelOIDC() and GetRenderOIDCProviders() instead.
-func (c *Config) GetOIDCProviders() []OIDCProvider {
-	return c.OIDCProviders
-}
-
 // GetPanelOIDC returns the OIDC provider for panel (login/UI) authentication.
-// Falls back to first legacy oidc_provider if auth.panel is not configured.
 func (c *Config) GetPanelOIDC() *OIDCProvider {
-	// New format: auth.panel
 	if c.Auth != nil && c.Auth.Panel != nil {
 		return c.Auth.Panel
-	}
-	// Legacy fallback: first provider from oidc_providers
-	if len(c.OIDCProviders) > 0 {
-		return &c.OIDCProviders[0]
 	}
 	return nil
 }
 
 // GetRenderOIDCProviders returns all OIDC providers valid for render endpoints.
-// Always includes panel provider (if exists) plus any render-specific providers.
+// Includes panel provider (if exists) plus any render-specific providers.
 func (c *Config) GetRenderOIDCProviders() []OIDCProvider {
-	// Legacy fallback: all oidc_providers work for render
 	if c.Auth == nil {
-		return c.OIDCProviders
+		return nil
 	}
-
-	panel := c.GetPanelOIDC()
-	renderProviders := c.Auth.RenderProviders
-
-	// No panel and no render providers
-	if panel == nil && len(renderProviders) == 0 {
-		return c.OIDCProviders
+	result := make([]OIDCProvider, 0, len(c.Auth.RenderProviders)+1)
+	if c.Auth.Panel != nil {
+		result = append(result, *c.Auth.Panel)
 	}
-
-	// Build result: panel (if exists) + render providers
-	result := make([]OIDCProvider, 0, len(renderProviders)+1)
-	if panel != nil {
-		result = append(result, *panel)
-	}
-	result = append(result, renderProviders...)
+	result = append(result, c.Auth.RenderProviders...)
 	return result
 }
 
@@ -129,10 +105,11 @@ func (d DatabaseConfig) MaxIdleTimeDuration() time.Duration {
 
 // OIDCProvider represents a single OIDC identity provider configuration.
 type OIDCProvider struct {
-	Name     string `mapstructure:"name"`     // Human-readable name for logging
-	Issuer   string `mapstructure:"issuer"`   // Expected token issuer (iss claim)
-	JWKSURL  string `mapstructure:"jwks_url"` // JWKS endpoint URL
-	Audience string `mapstructure:"audience"` // Optional audience (aud claim)
+	Name         string `mapstructure:"name"`          // Human-readable name for logging
+	DiscoveryURL string `mapstructure:"discovery_url"` // OpenID Connect discovery URL (optional)
+	Issuer       string `mapstructure:"issuer"`        // Expected token issuer (iss claim)
+	JWKSURL      string `mapstructure:"jwks_url"`      // JWKS endpoint URL
+	Audience     string `mapstructure:"audience"`      // Optional audience (aud claim)
 }
 
 // LoggingConfig holds logging configuration.

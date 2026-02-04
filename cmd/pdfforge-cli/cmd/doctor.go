@@ -73,11 +73,17 @@ func runDoctor(cmd *cobra.Command, args []string) {
 
 	// Check Auth
 	fmt.Print("Auth ... ")
-	providers := cfg.GetOIDCProviders()
-	if len(providers) == 0 {
+	panel := cfg.GetPanelOIDC()
+	renderProviders := cfg.GetRenderOIDCProviders()
+	if panel == nil {
 		printWarning("NOT CONFIGURED (will use dummy mode)")
 	} else {
-		printSuccess(fmt.Sprintf("%d OIDC provider(s) configured", len(providers)))
+		renderOnly := len(renderProviders) - 1 // subtract panel from count
+		if renderOnly > 0 {
+			printSuccess(fmt.Sprintf("panel + %d render provider(s)", renderOnly))
+		} else {
+			printSuccess("panel only")
+		}
 	}
 
 	fmt.Println()
