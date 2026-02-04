@@ -492,13 +492,17 @@ Built-in format presets available for `FormatConfig`:
 The scaffold generates a `Makefile`, `Dockerfile` and `docker-compose.yaml` that packages the full solution by default:
 
 ```bash
-make up                    # App + PostgreSQL (default)
+# Docker
+make up                    # App + PostgreSQL (full containerized)
 make up-db                 # Only PostgreSQL (for local dev)
 make down                  # Stop all containers
 make logs                  # Tail container logs
-make clean                 # Stop + remove volumes
+make clean                 # Stop containers + remove volumes (DB reset)
+
+# Local development
+make build                 # Build Go binary
+make run                   # Build and run locally (requires PG running)
 make migrate               # Apply database migrations
-make run                   # Build and run locally
 make dev                   # Hot reload (requires air)
 make test                  # Run tests
 make fmt                   # Format code
