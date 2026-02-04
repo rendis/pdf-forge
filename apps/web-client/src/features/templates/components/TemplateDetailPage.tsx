@@ -28,7 +28,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DocumentTypeConflictError } from '../api/templates-api'
 import {
     usePublishVersion,
@@ -168,8 +167,9 @@ export function TemplateDetailPage() {
   const hasCachedData = !!template
 
   // Calculate version counts by status
+  const versions = template?.versions
   const versionCounts = useMemo(() => {
-    if (!template?.versions) {
+    if (!versions) {
       return {
         PUBLISHED: 0,
         SCHEDULED: 0,
@@ -177,7 +177,7 @@ export function TemplateDetailPage() {
         ARCHIVED: 0,
       }
     }
-    return template.versions.reduce(
+    return versions.reduce(
       (acc, version) => {
         acc[version.status] = (acc[version.status] || 0) + 1
         return acc
@@ -189,7 +189,7 @@ export function TemplateDetailPage() {
         ARCHIVED: 0,
       } as Record<VersionStatus, number>
     )
-  }, [template?.versions])
+  }, [versions])
 
   // User's filter toggle preferences (true = show, false = hide)
   const [userFilterToggles, setUserFilterToggles] = useState<Record<VersionStatus, boolean>>({
@@ -213,7 +213,6 @@ export function TemplateDetailPage() {
   // 2. Scheduled versions (by scheduledPublishAt ascending)
   // 3. Draft versions (by updatedAt descending)
   // 4. Archived versions (by updatedAt descending)
-  const versions = template?.versions
   const sortedVersions = useMemo(() => {
     if (!versions || versions.length === 0) return []
     
