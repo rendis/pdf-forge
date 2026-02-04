@@ -2,7 +2,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { InjectablesTab } from '@/features/system-injectables'
 import { useAppContextStore } from '@/stores/app-context-store'
 import { useTranslation } from 'react-i18next'
-import { AuditTab } from './AuditTab'
 import { DocumentTypesTab } from './DocumentTypesTab'
 import { TenantsTab } from './TenantsTab'
 import { WorkspacesTab } from './WorkspacesTab'
@@ -42,9 +41,6 @@ export function AdministrationPage(): React.ReactElement {
               <TabsTrigger value="injectables" className={TAB_TRIGGER_CLASS}>
                 {t('administration.tabs.injectables', 'Injectables')}
               </TabsTrigger>
-              <TabsTrigger value="audit" className={TAB_TRIGGER_CLASS}>
-                {t('administration.tabs.audit', 'Audit')}
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="tenants">
@@ -57,10 +53,6 @@ export function AdministrationPage(): React.ReactElement {
 
             <TabsContent value="injectables">
               <InjectablesTab />
-            </TabsContent>
-
-            <TabsContent value="audit">
-              <AuditTab />
             </TabsContent>
           </Tabs>
         )}
