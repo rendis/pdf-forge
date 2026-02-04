@@ -71,7 +71,7 @@ type DocumentTypeResponse struct {
 	Code        string            `json:"code"`
 	Name        map[string]string `json:"name"`
 	Description map[string]string `json:"description,omitempty"`
-	IsGlobal    bool              `json:"isGlobal"`              // True if from SYS tenant (read-only for other tenants)
+	IsGlobal    bool              `json:"isGlobal"` // True if from SYS tenant (read-only for other tenants)
 	CreatedAt   time.Time         `json:"createdAt"`
 	UpdatedAt   *time.Time        `json:"updatedAt,omitempty"`
 }

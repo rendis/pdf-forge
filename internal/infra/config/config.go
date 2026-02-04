@@ -60,39 +60,29 @@ func Load() (*Config, error) {
 // bindEnvVars explicitly binds environment variables to config keys.
 // Required because Viper's AutomaticEnv doesn't work reliably with Unmarshal.
 func bindEnvVars(v *viper.Viper) {
-	// Database
-	v.BindEnv("database.host")
-	v.BindEnv("database.port")
-	v.BindEnv("database.user")
-	v.BindEnv("database.password")
-	v.BindEnv("database.name")
-	v.BindEnv("database.ssl_mode")
-	v.BindEnv("database.max_pool_size")
-	v.BindEnv("database.min_pool_size")
-	v.BindEnv("database.max_idle_time_seconds")
-	// Server
-	v.BindEnv("server.port")
-	v.BindEnv("server.read_timeout")
-	v.BindEnv("server.write_timeout")
-	v.BindEnv("server.shutdown_timeout")
-	v.BindEnv("server.swagger_ui")
-	// Auth
-	v.BindEnv("auth.jwks_url")
-	v.BindEnv("auth.issuer")
-	v.BindEnv("auth.audience")
-	// InternalAPI
-	v.BindEnv("internal_api.enabled")
-	v.BindEnv("internal_api.api_key")
-	// Logging
-	v.BindEnv("logging.level")
-	v.BindEnv("logging.format")
-	// Typst
-	v.BindEnv("typst.bin_path")
-	v.BindEnv("typst.timeout_seconds")
-	v.BindEnv("typst.max_concurrent")
-	v.BindEnv("typst.acquire_timeout_seconds")
-	// Environment
-	v.BindEnv("environment")
+	envKeys := []string{
+		// Database
+		"database.host", "database.port", "database.user", "database.password",
+		"database.name", "database.ssl_mode", "database.max_pool_size",
+		"database.min_pool_size", "database.max_idle_time_seconds",
+		// Server
+		"server.port", "server.read_timeout", "server.write_timeout",
+		"server.shutdown_timeout", "server.swagger_ui",
+		// Auth
+		"auth.jwks_url", "auth.issuer", "auth.audience",
+		// InternalAPI
+		"internal_api.enabled", "internal_api.api_key",
+		// Logging
+		"logging.level", "logging.format",
+		// Typst
+		"typst.bin_path", "typst.timeout_seconds", "typst.max_concurrent",
+		"typst.acquire_timeout_seconds",
+		// Environment
+		"environment",
+	}
+	for _, key := range envKeys {
+		_ = v.BindEnv(key)
+	}
 }
 
 // setDefaults sets default configuration values.

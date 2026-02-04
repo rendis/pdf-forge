@@ -9,7 +9,7 @@ type Config struct {
 	Database    DatabaseConfig    `mapstructure:"database"`
 	Auth        AuthConfig        `mapstructure:"auth"`
 	InternalAPI InternalAPIConfig `mapstructure:"internal_api"`
-	Logging LoggingConfig `mapstructure:"logging"`
+	Logging     LoggingConfig     `mapstructure:"logging"`
 	Typst       TypstConfig       `mapstructure:"typst"`
 
 	// DummyAuth is set at runtime when no auth config is provided.

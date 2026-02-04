@@ -62,15 +62,7 @@ More info: https://github.com/typst/typst#installation`, binPath)
 func checkDatabase(ctx context.Context, e *Engine) (*pgxpool.Pool, error) {
 	pool, err := postgres.NewPool(ctx, &e.config.Database)
 	if err != nil {
-		return nil, fmt.Errorf(`database unreachable: %w
-
-Check your database configuration:
-  host: %s
-  port: %d
-  name: %s
-  user: %s
-
-Make sure PostgreSQL is running and accessible.`,
+		return nil, fmt.Errorf("database unreachable: %w\n\nCheck your database configuration:\n  host: %s\n  port: %d\n  name: %s\n  user: %s\n\nMake sure PostgreSQL is running and accessible",
 			err,
 			e.config.Database.Host,
 			e.config.Database.Port,

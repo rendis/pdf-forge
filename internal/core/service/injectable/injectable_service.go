@@ -96,7 +96,9 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 
 	// Merge groups (registry groups + provider groups)
 	registryGroups := s.injectorRegistry.GetGroups(req.Locale)
-	allGroups := append(registryGroups, providerGroups...)
+	allGroups := make([]port.GroupConfig, 0, len(registryGroups)+len(providerGroups))
+	allGroups = append(allGroups, registryGroups...)
+	allGroups = append(allGroups, providerGroups...)
 
 	return &injectableuc.ListInjectablesResult{
 		Injectables: allInjectables,

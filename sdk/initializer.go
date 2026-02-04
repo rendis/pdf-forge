@@ -119,12 +119,17 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	injReg := registry.NewInjectorRegistry(i18nCfg)
 
 	// Register built-in datetime injectors (useful out of the box)
-	injReg.Register(&datetime.DateNowInjector{})
-	injReg.Register(&datetime.DateTimeNowInjector{})
-	injReg.Register(&datetime.DayNowInjector{})
-	injReg.Register(&datetime.MonthNowInjector{})
-	injReg.Register(&datetime.TimeNowInjector{})
-	injReg.Register(&datetime.YearNowInjector{})
+	builtinInjectors := []Injector{
+		&datetime.DateNowInjector{},
+		&datetime.DateTimeNowInjector{},
+		&datetime.DayNowInjector{},
+		&datetime.MonthNowInjector{},
+		&datetime.TimeNowInjector{},
+		&datetime.YearNowInjector{},
+	}
+	for _, inj := range builtinInjectors {
+		_ = injReg.Register(inj)
+	}
 
 	// Register user-provided extensions
 	for _, inj := range e.injectors {

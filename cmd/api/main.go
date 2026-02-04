@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"log/slog"
+	"os"
 
 	"github.com/rendis/pdf-forge/sdk"
 )
@@ -10,6 +11,7 @@ func main() {
 	engine := sdk.New()
 
 	if err := engine.Run(); err != nil {
-		log.Fatal(err)
+		slog.Error("failed to run engine", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 }
