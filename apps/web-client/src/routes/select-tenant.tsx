@@ -4,6 +4,7 @@ import { Paginator } from '@/components/ui/paginator'
 import { recordAccess } from '@/features/auth'
 import { useMyTenants } from '@/features/tenants'
 import { useWorkspaces } from '@/features/workspaces'
+import { logout } from '@/lib/oidc'
 import { cn } from '@/lib/utils'
 import { useAppContextStore, type TenantWithRole, type WorkspaceWithRole } from '@/stores/app-context-store'
 import { useWorkspaceTransitionStore } from '@/stores/workspace-transition-store'
@@ -250,11 +251,13 @@ function SelectTenantPage() {
     navigate({ to: '/workspace/$workspaceId', params: { workspaceId: workspace.id } as any })
   }
 
-  const handleBack = () => {
+  const handleBack = async () => {
     if (selectedTenant) {
       setSelectedTenant(null)
       setCurrentTenant(null)
     } else {
+      // Logout first to clear auth state, then navigate to login
+      await logout()
       navigate({ to: '/login' })
     }
   }

@@ -67,7 +67,7 @@ interface AuthState {
   setSystemRoles: (roles: SystemRole[]) => void
   setUserProfile: (profile: UserProfile | null) => void
   setAllRoles: (roles: RoleEntry[]) => void
-  clearAuth: () => void
+  clearAuth: (showExpiredToast?: boolean) => void
 
   // Computed
   isAuthenticated: () => boolean
@@ -127,7 +127,7 @@ export const useAuthStore = create<AuthState>()(
         set({ allRoles: roles, systemRoles, rolesLoaded: true })
       },
 
-      clearAuth: () => {
+      clearAuth: (showExpiredToast = true) => {
         // Show notification if user was previously authenticated
         const wasAuthenticated = get().token !== null
 
@@ -142,8 +142,8 @@ export const useAuthStore = create<AuthState>()(
           rolesLoaded: false,
         })
 
-        // Show toast only if session expired (not on initial load)
-        if (wasAuthenticated) {
+        // Show toast only if session expired (not on manual logout or initial load)
+        if (wasAuthenticated && showExpiredToast) {
           toast({
             variant: 'destructive',
             title: 'Session Expired',

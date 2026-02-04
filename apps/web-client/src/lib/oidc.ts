@@ -170,8 +170,8 @@ export async function logout(): Promise<void> {
   const config = getConfig()
   const { refreshToken, clearAuth } = useAuthStore.getState()
 
-  // Clear local auth state first
-  clearAuth()
+  // Clear local auth state first (don't show "session expired" toast on manual logout)
+  clearAuth(false)
 
   // If we have a refresh token and a logout URL, try to invalidate it
   if (refreshToken && config.endSessionEndpoint) {

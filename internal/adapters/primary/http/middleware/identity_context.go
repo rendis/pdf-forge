@@ -66,15 +66,38 @@ func IdentityContext(pool *pgxpool.Pool, bootstrapEnabled bool, userRepo port.Us
 // handleUserNotFound attempts bootstrap when user is not found in the database.
 // Returns (userID, true) on success, ("", false) on failure (response already sent).
 func handleUserNotFound(c *gin.Context, pool *pgxpool.Pool, bootstrapEnabled bool) (string, bool) {
+	ctx := c.Request.Context()
+	email, hasEmail := GetUserEmail(c)
+	externalID, _ := GetUserID(c)
+	fullName, _ := GetUserName(c)
+
+	// Log claims for debugging bootstrap issues
+	slog.DebugContext(ctx, "bootstrap attempt",
+		slog.Bool("bootstrap_enabled", bootstrapEnabled),
+		slog.Bool("has_email", hasEmail),
+		slog.String("email", email),
+		slog.String("external_id", externalID),
+		slog.String("operation_id", GetOperationID(c)),
+	)
+
 	if !bootstrapEnabled {
+		slog.WarnContext(ctx, "bootstrap disabled, rejecting user",
+			slog.String("email", email),
+			slog.String("operation_id", GetOperationID(c)),
+		)
 		abortWithError(c, http.StatusForbidden, entity.ErrUserNotFound)
 		return "", false
 	}
 
-	ctx := c.Request.Context()
-	email, _ := GetUserEmail(c)
-	externalID, _ := GetUserID(c)
-	fullName, _ := GetUserName(c)
+	// Validate email claim exists (required for user creation)
+	if !hasEmail || email == "" {
+		slog.ErrorContext(ctx, "bootstrap failed: JWT missing email claim",
+			slog.String("external_id", externalID),
+			slog.String("operation_id", GetOperationID(c)),
+		)
+		abortWithError(c, http.StatusUnauthorized, errors.New("missing email claim in token"))
+		return "", false
+	}
 
 	userID, bootstrapped, err := tryBootstrapFirstUser(ctx, pool, email, fullName, externalID)
 	if err != nil {
@@ -117,6 +140,7 @@ func tryBootstrapFirstUser(ctx context.Context, pool *pgxpool.Pool, email, fullN
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// Users already exist, bootstrap not applicable
+			slog.InfoContext(ctx, "bootstrap skipped: users already exist in database")
 			return "", false, nil
 		}
 		return "", false, fmt.Errorf("inserting bootstrap user: %w", err)
