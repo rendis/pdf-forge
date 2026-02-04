@@ -298,6 +298,7 @@ func getTemplateNameForFile(path string) string {
 		"extensions/init.go":                     "init.go.tmpl",
 		"extensions/mapper.go":                   "mapper.go.tmpl",
 		"extensions/middleware.go":               "middleware.go.tmpl",
+		"extensions/workspace_provider.go":       "workspace_provider.go.tmpl",
 		"extensions/injectors/example_value.go":  "example_value.go.tmpl",
 		"extensions/injectors/example_number.go": "example_number.go.tmpl",
 		"extensions/injectors/example_bool.go":   "example_bool.go.tmpl",
@@ -309,6 +310,7 @@ func getTemplateNameForFile(path string) string {
 		"Dockerfile":                             "Dockerfile.tmpl",
 		"Makefile":                               "Makefile.tmpl",
 		".env.example":                           "env.tmpl",
+		".golangci.yml":                          "golangci.yml.tmpl",
 	}
 	return mapping[path]
 }

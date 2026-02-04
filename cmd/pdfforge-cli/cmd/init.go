@@ -99,11 +99,68 @@ func runMinimalUpdate(projectDir string, currentLock *project.LockFile) error {
 	printInfo(fmt.Sprintf("Existing pdf-forge project detected (v%s)", currentLock.Version))
 	printInfo(fmt.Sprintf("Updating to v%s", Version))
 
-	// 1. Update lock file version
+	// 1. Check for deleted files that need to be recreated
+	var deletedFiles []string
+	var existingFiles []string
+	for filePath := range currentLock.Files {
+		fullPath := filepath.Join(projectDir, filePath)
+		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+			deletedFiles = append(deletedFiles, filePath)
+		} else {
+			existingFiles = append(existingFiles, filePath)
+		}
+	}
+
+	// 2. Recreate deleted files
+	if len(deletedFiles) > 0 {
+		fmt.Println()
+		printInfo("Recreating deleted files:")
+
+		data := templates.Data{
+			ModuleName:  detectModuleName(projectDir),
+			ProjectName: filepath.Base(projectDir),
+		}
+
+		sort.Strings(deletedFiles)
+		for _, filePath := range deletedFiles {
+			tmplName := getTemplateNameForFile(filePath)
+			if tmplName == "" {
+				printWarning(fmt.Sprintf("  ✗ %s: unknown template", filePath))
+				continue
+			}
+
+			tmpl := templates.Templates.Lookup(tmplName)
+			if tmpl == nil {
+				printWarning(fmt.Sprintf("  ✗ %s: template not found", filePath))
+				continue
+			}
+
+			var buf bytes.Buffer
+			if err := tmpl.Execute(&buf, data); err != nil {
+				printWarning(fmt.Sprintf("  ✗ %s: %v", filePath, err))
+				continue
+			}
+
+			fullPath := filepath.Join(projectDir, filePath)
+			if err := os.MkdirAll(filepath.Dir(fullPath), 0o755); err != nil {
+				printWarning(fmt.Sprintf("  ✗ %s: %v", filePath, err))
+				continue
+			}
+
+			if err := os.WriteFile(fullPath, buf.Bytes(), 0o644); err != nil {
+				printWarning(fmt.Sprintf("  ✗ %s: %v", filePath, err))
+				continue
+			}
+
+			fmt.Printf("  ✓ %s\n", filePath)
+		}
+	}
+
+	// 3. Update lock file version
 	newLock := project.NewLockFile(Version)
 	newLock.Files = currentLock.Files
 
-	// 2. Update go.mod dependency
+	// 4. Update go.mod dependency
 	fmt.Println()
 	printInfo("Updating go.mod dependency...")
 	goGetCmd := exec.Command("go", "get", "-u", "github.com/rendis/pdf-forge/sdk@latest")
@@ -114,22 +171,17 @@ func runMinimalUpdate(projectDir string, currentLock *project.LockFile) error {
 		printWarning(fmt.Sprintf("go get failed: %v", err))
 	}
 
-	// 3. List skipped files
-	if len(currentLock.Files) > 0 {
+	// 5. List skipped files (only existing ones)
+	if len(existingFiles) > 0 {
 		fmt.Println()
 		printInfo("Skipped (already exist):")
-		// Sort for consistent output
-		var files []string
-		for f := range currentLock.Files {
-			files = append(files, f)
-		}
-		sort.Strings(files)
-		for _, f := range files {
+		sort.Strings(existingFiles)
+		for _, f := range existingFiles {
 			fmt.Printf("  - %s\n", f)
 		}
 	}
 
-	// 4. Save updated lock file
+	// 6. Save updated lock file
 	if err := newLock.Save(projectDir); err != nil {
 		printWarning(fmt.Sprintf("lock file update failed: %v", err))
 	}
@@ -138,6 +190,23 @@ func runMinimalUpdate(projectDir string, currentLock *project.LockFile) error {
 	printSuccess("Update complete")
 	printInfo("Run 'go mod tidy' to finalize dependencies")
 	return nil
+}
+
+// detectModuleName reads the module name from go.mod
+func detectModuleName(projectDir string) string {
+	goModPath := filepath.Join(projectDir, "go.mod")
+	content, err := os.ReadFile(goModPath)
+	if err != nil {
+		return filepath.Base(projectDir)
+	}
+
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "module ") {
+			return strings.TrimSpace(strings.TrimPrefix(line, "module "))
+		}
+	}
+	return filepath.Base(projectDir)
 }
 
 // generateNewProject creates a new pdf-forge project from scratch
@@ -446,4 +515,3 @@ func findForgeRoot() string {
 	}
 	return ""
 }
-
