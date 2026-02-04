@@ -68,10 +68,6 @@ func bindEnvVars(v *viper.Viper) {
 		// Server
 		"server.port", "server.read_timeout", "server.write_timeout",
 		"server.shutdown_timeout", "server.swagger_ui",
-		// Auth
-		"auth.jwks_url", "auth.issuer", "auth.audience",
-		// InternalAPI
-		"internal_api.enabled", "internal_api.api_key",
 		// Logging
 		"logging.level", "logging.format",
 		// Typst

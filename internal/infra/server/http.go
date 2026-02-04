@@ -57,7 +57,7 @@ func NewHTTPServer(
 	meController *controller.MeController,
 	tenantController *controller.TenantController,
 	documentTypeController *controller.DocumentTypeController,
-	internalRenderController *controller.InternalRenderController,
+	renderController *controller.RenderController,
 	globalMiddleware []gin.HandlerFunc,
 	apiMiddleware []gin.HandlerFunc,
 ) *HTTPServer {
@@ -94,12 +94,13 @@ func NewHTTPServer(
 	v1 := engine.Group("/api/v1")
 	v1.Use(middleware.Operation())
 
-	if cfg.DummyAuth {
+	if cfg.IsDummyAuth() {
 		// Dummy auth mode: skip JWT, inject fixed superadmin identity
 		v1.Use(middleware.DummyAuth())
 		v1.Use(middleware.DummyIdentityAndRoles(cfg.DummyAuthUserID))
 	} else {
-		v1.Use(middleware.JWTAuth(&cfg.Auth))
+		// Multi-OIDC auth: validates token against configured providers by issuer
+		v1.Use(middleware.MultiOIDCAuth(cfg.GetOIDCProviders()))
 		v1.Use(middlewareProvider.IdentityContext())
 		v1.Use(middlewareProvider.SystemRoleContext())
 	}
@@ -139,18 +140,18 @@ func NewHTTPServer(
 		// =====================================================
 		workspaceController.RegisterRoutes(v1, middlewareProvider)
 
+		// Workspace-scoped render routes (document type render)
+		// No RBAC enforced - users add custom auth via engine.UseAPIMiddleware()
+		workspace := v1.Group("/workspace")
+		workspace.Use(middlewareProvider.WorkspaceContext())
+		renderController.RegisterWorkspaceRoutes(workspace)
+
 		// =====================================================
 		// CONTENT ROUTES - Requires X-Workspace-ID header
 		// =====================================================
 		injectableController.RegisterRoutes(v1, middlewareProvider)
 		templateController.RegisterRoutes(v1, middlewareProvider)
 	}
-
-	// =====================================================
-	// INTERNAL ROUTES - API key authentication only
-	// Service-to-service communication
-	// =====================================================
-	internalRenderController.RegisterRoutes(engine)
 
 	// =====================================================
 	// EMBEDDED FRONTEND (SPA)
@@ -284,14 +285,27 @@ func setupDevProxy(engine *gin.Engine, devURL string) {
 
 // clientConfigHandler returns a handler that exposes non-sensitive config to the frontend.
 func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
+	type providerInfo struct {
+		Name   string `json:"name"`
+		Issuer string `json:"issuer"`
+	}
+
 	type clientConfig struct {
-		DummyAuth  bool   `json:"dummyAuth"`
-		AuthIssuer string `json:"authIssuer,omitempty"`
+		DummyAuth bool           `json:"dummyAuth"`
+		Providers []providerInfo `json:"providers,omitempty"`
+	}
+
+	var providers []providerInfo
+	for _, p := range cfg.GetOIDCProviders() {
+		providers = append(providers, providerInfo{
+			Name:   p.Name,
+			Issuer: p.Issuer,
+		})
 	}
 
 	resp := clientConfig{
-		DummyAuth:  cfg.DummyAuth,
-		AuthIssuer: cfg.Auth.Issuer,
+		DummyAuth: cfg.IsDummyAuth(),
+		Providers: providers,
 	}
 
 	return func(c *gin.Context) {
@@ -304,7 +318,7 @@ func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Workspace-ID, X-Tenant-ID, X-API-Key, X-External-ID, X-Template-ID, X-Transactional-ID")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Workspace-ID, X-Tenant-ID, X-External-ID, X-Template-ID, X-Transactional-ID")
 		c.Header("Access-Control-Expose-Headers", "Content-Length")
 		c.Header("Access-Control-Allow-Credentials", "true")
 

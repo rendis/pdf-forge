@@ -21,15 +21,21 @@ database:
   min_pool_size: 2            # Override via DOC_ENGINE_DATABASE_MIN_POOL_SIZE_COUNT
   max_idle_time_seconds: 300  # Override via DOC_ENGINE_DATABASE_MAX_IDLE_TIME_SECS
 
-auth:
-  jwks_url: ""   # DOC_ENGINE_AUTH_JWKS_URL - OIDC provider JWKS endpoint
-  issuer: ""     # DOC_ENGINE_AUTH_ISSUER - Expected token issuer
-  audience: ""   # DOC_ENGINE_AUTH_AUDIENCE - Expected token audience
-
-# Internal API for service-to-service communication
-internal_api:
-  enabled: true
-  api_key: ""    # DOC_ENGINE_INTERNAL_API_API_KEY - API key for internal service authentication
+# Multi-provider OIDC authentication
+# Tokens are validated against the provider matching the token's issuer claim.
+# If issuer is not in the list, the request is rejected with 401.
+# Empty list = dummy auth mode (dev only)
+#
+# oidc_providers:
+#   - name: "web-clients"
+#     issuer: "https://auth.example.com/realms/web"
+#     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+#     audience: "pdf-forge-web"   # optional
+#
+#   - name: "internal-services"
+#     issuer: "https://auth.example.com/realms/services"
+#     jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
+#     # no audience = skip audience validation
 
 logging:
   level: info   # debug, info, warn, error

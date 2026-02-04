@@ -4,15 +4,14 @@ import "time"
 
 // Config represents the complete application configuration.
 type Config struct {
-	Environment string            `mapstructure:"environment"`
-	Server      ServerConfig      `mapstructure:"server"`
-	Database    DatabaseConfig    `mapstructure:"database"`
-	Auth        AuthConfig        `mapstructure:"auth"`
-	InternalAPI InternalAPIConfig `mapstructure:"internal_api"`
-	Logging     LoggingConfig     `mapstructure:"logging"`
-	Typst       TypstConfig       `mapstructure:"typst"`
+	Environment   string         `mapstructure:"environment"`
+	Server        ServerConfig   `mapstructure:"server"`
+	Database      DatabaseConfig `mapstructure:"database"`
+	OIDCProviders []OIDCProvider `mapstructure:"oidc_providers"` // Multi-provider OIDC config
+	Logging       LoggingConfig  `mapstructure:"logging"`
+	Typst         TypstConfig    `mapstructure:"typst"`
 
-	// DummyAuth is set at runtime when no auth config is provided.
+	// DummyAuth is set at runtime when no OIDC providers are configured.
 	// Not loaded from YAML.
 	DummyAuth bool `mapstructure:"-"`
 
@@ -23,6 +22,16 @@ type Config struct {
 	// DevFrontendURL is the URL of the frontend dev server (e.g., http://localhost:5173).
 	// When set, the backend proxies non-API requests to this URL instead of serving embedded files.
 	DevFrontendURL string `mapstructure:"-"`
+}
+
+// GetOIDCProviders returns the list of configured OIDC providers.
+func (c *Config) GetOIDCProviders() []OIDCProvider {
+	return c.OIDCProviders
+}
+
+// IsDummyAuth returns true if no OIDC providers are configured.
+func (c *Config) IsDummyAuth() bool {
+	return len(c.OIDCProviders) == 0
 }
 
 // ServerConfig holds HTTP server configuration.
@@ -67,17 +76,12 @@ func (d DatabaseConfig) MaxIdleTimeDuration() time.Duration {
 	return time.Duration(d.MaxIdleTimeSeconds) * time.Second
 }
 
-// AuthConfig holds JWT/JWKS authentication configuration.
-type AuthConfig struct {
-	JWKSURL  string `mapstructure:"jwks_url"`
-	Issuer   string `mapstructure:"issuer"`
-	Audience string `mapstructure:"audience"`
-}
-
-// InternalAPIConfig holds configuration for internal service-to-service API.
-type InternalAPIConfig struct {
-	Enabled bool   `mapstructure:"enabled"`
-	APIKey  string `mapstructure:"api_key"`
+// OIDCProvider represents a single OIDC identity provider configuration.
+type OIDCProvider struct {
+	Name     string `mapstructure:"name"`     // Human-readable name for logging
+	Issuer   string `mapstructure:"issuer"`   // Expected token issuer (iss claim)
+	JWKSURL  string `mapstructure:"jwks_url"` // JWKS endpoint URL
+	Audience string `mapstructure:"audience"` // Optional audience (aud claim)
 }
 
 // LoggingConfig holds logging configuration.

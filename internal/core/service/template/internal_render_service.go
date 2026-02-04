@@ -72,6 +72,40 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 	return s.renderVersion(ctx, version, cmd.Injectables, cmd.TenantCode, cmd.WorkspaceCode)
 }
 
+// RenderByWorkspaceID resolves a template using workspace ID and document type code.
+func (s *InternalRenderService) RenderByWorkspaceID(ctx context.Context, cmd templateuc.RenderByWorkspaceCommand) (*port.RenderPreviewResult, error) {
+	// Look up workspace to get codes
+	workspace, err := s.workspaceRepo.FindByID(ctx, cmd.WorkspaceID)
+	if err != nil {
+		return nil, fmt.Errorf("finding workspace: %w", err)
+	}
+
+	// Get tenant code
+	var tenantCode string
+	if workspace.TenantID != nil && *workspace.TenantID != "" {
+		tenant, err := s.tenantRepo.FindByID(ctx, *workspace.TenantID)
+		if err != nil {
+			return nil, fmt.Errorf("finding tenant: %w", err)
+		}
+		tenantCode = tenant.Code
+	} else {
+		// Global workspace - use SYS tenant
+		sysTenant, err := s.tenantRepo.FindSystemTenant(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("finding system tenant: %w", err)
+		}
+		tenantCode = sysTenant.Code
+	}
+
+	// Delegate to existing method
+	return s.RenderByDocumentType(ctx, templateuc.InternalRenderCommand{
+		TenantCode:       tenantCode,
+		WorkspaceCode:    workspace.Code,
+		TemplateTypeCode: cmd.DocumentTypeCode,
+		Injectables:      cmd.Injectables,
+	})
+}
+
 // resolveTemplateVersion walks the fallback chain to find a published template version.
 func (s *InternalRenderService) resolveTemplateVersion(ctx context.Context, cmd templateuc.InternalRenderCommand) (*entity.TemplateVersionWithDetails, error) {
 	tenant, err := s.tenantRepo.FindByCode(ctx, cmd.TenantCode)

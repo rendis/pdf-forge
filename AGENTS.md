@@ -181,7 +181,7 @@ Demo injectors: `example_value`, `example_image`, `example_list`, `example_table
 ### Render Happy Path
 
 ```plaintext
-API Request (POST /internal/render or /api/v1/.../render)
+API Request (POST /api/v1/workspace/document-types/{code}/render)
   │
   ├─ 1. Acquire semaphore slot (max_concurrent, timeout → ErrRendererBusy)
   ├─ 2. Run InitFuncs (shared setup)
@@ -196,15 +196,18 @@ API Request (POST /internal/render or /api/v1/.../render)
 
 ## HTTP Server (`internal/infra/server/http.go`)
 
-| Route               | Purpose                                    | Auth                  |
-| ------------------- | ------------------------------------------ | --------------------- |
-| `/`                 | Embedded React SPA (or dev proxy)          | None                  |
-| `/api/v1/*`         | Public API (templates, workspaces, render) | JWT or dummy          |
-| `/internal/*`       | Service-to-service render API              | API key (`X-API-Key`) |
-| `/swagger/*`        | Swagger UI                                 | None                  |
-| `/health`, `/ready` | Health checks                              | None                  |
+| Route               | Purpose                                    | Auth                      |
+| ------------------- | ------------------------------------------ | ------------------------- |
+| `/`                 | Embedded React SPA (or dev proxy)          | None                      |
+| `/api/v1/*`         | Public API (templates, workspaces, render) | Multi-OIDC (JWT) or dummy |
+| `/swagger/*`        | Swagger UI                                 | None                      |
+| `/health`, `/ready` | Health checks                              | None                      |
+
+**Multi-OIDC Auth**: Supports N OIDC providers. Token's `iss` claim is matched against configured providers. Unknown issuer → 401.
 
 **Multi-Tenant Headers** (all `/api/v1/*`): `X-Tenant-ID` (UUID), `X-Workspace-ID` (UUID), `Authorization` (Bearer JWT, omit in dummy mode).
+
+**Document Type Render**: `POST /api/v1/workspace/document-types/{code}/render` - Uses same auth as other API routes. No RBAC enforced in controller; add custom authorization via `engine.UseAPIMiddleware()`.
 
 ## RBAC
 
@@ -216,10 +219,10 @@ See [docs/authorization-matrix.md](docs/authorization-matrix.md).
 
 YAML (`settings/app.yaml`) + env vars (`DOC_ENGINE_*` prefix). Key settings:
 
-- `auth.jwks_url` empty → dummy auth mode (auto-seeds admin user)
+- `oidc_providers` → multi-OIDC config (list of {name, issuer, jwks_url, audience})
+- Empty `oidc_providers` → dummy auth mode (auto-seeds admin user)
 - `typst.bin_path` → Typst CLI binary path
 - `typst.max_concurrent` → parallel render limit (default: 20)
-- `internal_api.api_key` → API key for `/internal/*` routes
 - `server.port` → HTTP port (default: 8080, also `PORT` env var)
 
 Full reference with all keys, defaults, and performance tuning: [docs/configuration.md](docs/configuration.md).

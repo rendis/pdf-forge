@@ -12,13 +12,8 @@ var (
 	ErrInvalidToken     = errors.New("invalid token")
 	ErrTokenExpired     = errors.New("token expired")
 	ErrMissingToken     = errors.New("missing authorization token")
+	ErrUnknownIssuer    = errors.New("unknown token issuer")
 	ErrInsufficientRole = errors.New("insufficient role permissions")
-)
-
-// API Key errors (for internal service-to-service authentication).
-var (
-	ErrMissingAPIKey = errors.New("missing API key")
-	ErrInvalidAPIKey = errors.New("invalid API key")
 )
 
 // Context errors.

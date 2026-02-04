@@ -23,11 +23,21 @@ const (
 	userEmailKey = "user_email"
 	// userNameKey is the context key for the authenticated user name.
 	userNameKey = "user_name"
+	// oidcProviderKey is the context key for the matched OIDC provider name.
+	oidcProviderKey = "oidc_provider"
 )
 
-// JWTAuth creates a middleware that validates JWT tokens using JWKS from any OIDC provider.
-func JWTAuth(authCfg *config.AuthConfig) gin.HandlerFunc {
-	jwks := initializeJWKS(authCfg)
+// providerKeyfunc holds a keyfunc and its associated config for one provider.
+type providerKeyfunc struct {
+	provider config.OIDCProvider
+	keyfunc  keyfunc.Keyfunc
+}
+
+// MultiOIDCAuth creates middleware supporting multiple OIDC providers.
+// Matches incoming token's issuer against configured providers.
+// Returns 401 if issuer is not in the configured list.
+func MultiOIDCAuth(providers []config.OIDCProvider) gin.HandlerFunc {
+	providerMap := initializeProviders(providers)
 
 	return func(c *gin.Context) {
 		// Skip auth for OPTIONS requests (CORS preflight)
@@ -42,10 +52,30 @@ func JWTAuth(authCfg *config.AuthConfig) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := validateToken(tokenString, jwks, authCfg)
+		// Peek at issuer WITHOUT validating signature
+		issuer, err := peekTokenIssuer(tokenString)
+		if err != nil {
+			abortWithError(c, http.StatusUnauthorized, entity.ErrInvalidToken)
+			return
+		}
+
+		// Find matching provider
+		pf, ok := providerMap[issuer]
+		if !ok {
+			slog.WarnContext(c.Request.Context(), "unknown token issuer",
+				slog.String("issuer", issuer),
+				slog.String("operation_id", GetOperationID(c)),
+			)
+			abortWithError(c, http.StatusUnauthorized, entity.ErrUnknownIssuer)
+			return
+		}
+
+		// Validate token with matched provider's JWKS
+		claims, err := validateTokenWithProvider(tokenString, pf)
 		if err != nil {
 			slog.WarnContext(c.Request.Context(), "token validation failed",
 				slog.String("error", err.Error()),
+				slog.String("provider", pf.provider.Name),
 				slog.String("operation_id", GetOperationID(c)),
 			)
 			abortWithError(c, http.StatusUnauthorized, err)
@@ -53,25 +83,93 @@ func JWTAuth(authCfg *config.AuthConfig) gin.HandlerFunc {
 		}
 
 		storeClaims(c, claims)
+		c.Set(oidcProviderKey, pf.provider.Name)
 		c.Next()
 	}
 }
 
-// initializeJWKS initializes the JWKS keyfunc from the configured URL.
-func initializeJWKS(authCfg *config.AuthConfig) keyfunc.Keyfunc {
-	if authCfg.JWKSURL == "" {
-		return nil
+// initializeProviders creates keyfuncs for each provider, keyed by issuer.
+func initializeProviders(providers []config.OIDCProvider) map[string]*providerKeyfunc {
+	result := make(map[string]*providerKeyfunc, len(providers))
+	ctx := context.Background()
+
+	for _, p := range providers {
+		if p.Issuer == "" || p.JWKSURL == "" {
+			slog.Warn("skipping OIDC provider with missing issuer or jwks_url",
+				slog.String("name", p.Name))
+			continue
+		}
+
+		initCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		kf, err := keyfunc.NewDefaultCtx(initCtx, []string{p.JWKSURL})
+		cancel()
+
+		if err != nil {
+			slog.Error("failed to initialize JWKS for OIDC provider",
+				slog.String("name", p.Name),
+				slog.String("jwks_url", p.JWKSURL),
+				slog.String("error", err.Error()))
+			continue // Skip this provider, don't fail startup
+		}
+
+		result[p.Issuer] = &providerKeyfunc{
+			provider: p,
+			keyfunc:  kf,
+		}
+		slog.Info("initialized OIDC provider",
+			slog.String("name", p.Name),
+			slog.String("issuer", p.Issuer))
 	}
+	return result
+}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	jwks, err := keyfunc.NewDefaultCtx(ctx, []string{authCfg.JWKSURL})
+// peekTokenIssuer extracts issuer from JWT without signature validation.
+func peekTokenIssuer(tokenString string) (string, error) {
+	parser := jwt.NewParser()
+	token, _, err := parser.ParseUnverified(tokenString, jwt.MapClaims{})
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to initialize JWKS", slog.String("error", err.Error()))
-		return nil
+		return "", err
 	}
-	return jwks
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid claims type")
+	}
+	issuer, _ := claims["iss"].(string)
+	if issuer == "" {
+		return "", fmt.Errorf("missing issuer claim")
+	}
+	return issuer, nil
+}
+
+// validateTokenWithProvider validates token against a specific provider.
+func validateTokenWithProvider(tokenString string, pf *providerKeyfunc) (*OIDCClaims, error) {
+	var claims OIDCClaims
+
+	if err := parseTokenWithJWKS(tokenString, &claims, pf.keyfunc); err != nil {
+		return nil, err
+	}
+
+	// Validate issuer (must match exactly)
+	if err := validateIssuer(&claims, pf.provider.Issuer); err != nil {
+		return nil, err
+	}
+
+	// Validate audience (if configured)
+	if err := validateAudience(&claims, pf.provider.Audience); err != nil {
+		return nil, err
+	}
+
+	return &claims, nil
+}
+
+// GetOIDCProvider retrieves the matched OIDC provider name from the Gin context.
+func GetOIDCProvider(c *gin.Context) (string, bool) {
+	if val, exists := c.Get(oidcProviderKey); exists {
+		if name, ok := val.(string); ok && name != "" {
+			return name, true
+		}
+	}
+	return "", false
 }
 
 // extractBearerToken extracts the Bearer token from the Authorization header.
@@ -106,35 +204,6 @@ type OIDCClaims struct {
 	EmailVerified bool   `json:"email_verified,omitempty"`
 	Name          string `json:"name,omitempty"`
 	PreferredUser string `json:"preferred_username,omitempty"`
-}
-
-// validateToken validates the JWT token and returns the claims.
-func validateToken(tokenString string, jwks keyfunc.Keyfunc, authCfg *config.AuthConfig) (*OIDCClaims, error) {
-	var claims OIDCClaims
-
-	// Dev mode: parse without validation
-	if jwks == nil {
-		_, _, err := jwt.NewParser().ParseUnverified(tokenString, &claims)
-		if err != nil {
-			return nil, fmt.Errorf("%w: %v", entity.ErrInvalidToken, err)
-		}
-		return &claims, nil
-	}
-
-	// Production: parse and validate with JWKS
-	if err := parseTokenWithJWKS(tokenString, &claims, jwks); err != nil {
-		return nil, err
-	}
-
-	// Validate custom claims
-	if err := validateIssuer(&claims, authCfg.Issuer); err != nil {
-		return nil, err
-	}
-	if err := validateAudience(&claims, authCfg.Audience); err != nil {
-		return nil, err
-	}
-
-	return &claims, nil
 }
 
 // parseTokenWithJWKS parses and validates the token with JWKS.

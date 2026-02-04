@@ -25,15 +25,47 @@ YAML config file: `settings/app.yaml`. Env var override prefix: `DOC_ENGINE_*` (
 | `database.min_pool_size`         | `2`         | Min idle connections                      |
 | `database.max_idle_time_seconds` | `300`       | Max idle time before closing a connection |
 
-## auth
+## oidc_providers
 
-| Key             | Default | Description                                                            |
-| --------------- | ------- | ---------------------------------------------------------------------- |
-| `auth.jwks_url` | `""`    | JWKS endpoint URL. **Empty = dummy auth mode** (auto-seeds admin user) |
-| `auth.issuer`   | `""`    | Expected JWT issuer                                                    |
-| `auth.audience` | `""`    | Expected JWT audience                                                  |
+Supports N OIDC providers. Tokens are validated against the provider matching the token's `iss` claim. Unknown issuer → 401. Empty list → dummy auth mode.
 
-Auth is generic OIDC/JWKS — works with Keycloak, Auth0, Cognito, or any OIDC provider. Claims struct: `OIDCClaims` in `jwt_auth.go`. Frontend uses generic OIDC (`oidc.ts`) with explicit endpoint URLs.
+| Key                           | Required | Description                                     |
+| ----------------------------- | -------- | ----------------------------------------------- |
+| `oidc_providers[].name`       | Yes      | Human-readable name (for logs)                  |
+| `oidc_providers[].issuer`     | Yes      | Expected JWT issuer (`iss` claim)               |
+| `oidc_providers[].jwks_url`   | Yes      | JWKS endpoint URL                               |
+| `oidc_providers[].audience`   | No       | Expected audience (`aud` claim). Empty = skip   |
+
+### Example
+
+```yaml
+oidc_providers:
+  - name: "web-clients"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+    audience: "pdf-forge-web"
+
+  - name: "internal-services"
+    issuer: "https://auth.example.com/realms/services"
+    jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
+```
+
+### Auth Flow
+
+1. Extract `iss` claim from token (without signature validation)
+2. Find provider by issuer
+3. Validate signature with matched provider's JWKS
+4. Validate audience (if configured)
+5. Reject with 401 if issuer unknown or validation fails
+
+### Provider Startup Behavior
+
+- JWKS endpoints are fetched at startup for each provider
+- If a provider's JWKS is unreachable, that provider is skipped (logged as warning)
+- Other providers continue working
+- keyfunc handles background refresh (default: 1 hour)
+
+Auth is generic OIDC/JWKS — works with Keycloak, Auth0, Cognito, or any OIDC provider. Claims struct: `OIDCClaims` in `jwt_auth.go`.
 
 ## internal_api
 

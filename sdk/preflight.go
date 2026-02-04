@@ -117,10 +117,24 @@ Or programmatically:
 
 // checkAuth checks auth configuration and logs dummy mode warning.
 func checkAuth(ctx context.Context, e *Engine) {
-	if e.config.Auth.JWKSURL == "" {
-		slog.WarnContext(ctx, "⚠ auth not configured — running in dummy mode (dev only)")
+	providers := e.config.GetOIDCProviders()
+
+	if len(providers) == 0 {
+		slog.WarnContext(ctx, "⚠ OIDC not configured — running in dummy mode (dev only)")
 		e.config.DummyAuth = true
-	} else {
-		slog.InfoContext(ctx, "auth configured", slog.String("jwks_url", e.config.Auth.JWKSURL))
+		return
+	}
+
+	slog.InfoContext(ctx, "OIDC providers configured", slog.Int("count", len(providers)))
+	for _, p := range providers {
+		if p.Issuer == "" {
+			slog.WarnContext(ctx, "OIDC provider missing issuer", slog.String("name", p.Name))
+		}
+		if p.JWKSURL == "" {
+			slog.WarnContext(ctx, "OIDC provider missing jwks_url", slog.String("name", p.Name))
+		}
+		slog.InfoContext(ctx, "OIDC provider",
+			slog.String("name", p.Name),
+			slog.String("issuer", p.Issuer))
 	}
 }

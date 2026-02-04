@@ -73,10 +73,11 @@ func runDoctor(cmd *cobra.Command, args []string) {
 
 	// Check Auth
 	fmt.Print("Auth ... ")
-	if cfg.Auth.JWKSURL == "" {
+	providers := cfg.GetOIDCProviders()
+	if len(providers) == 0 {
 		printWarning("NOT CONFIGURED (will use dummy mode)")
 	} else {
-		printSuccess(fmt.Sprintf("JWKS: %s", cfg.Auth.JWKSURL))
+		printSuccess(fmt.Sprintf("%d OIDC provider(s) configured", len(providers)))
 	}
 
 	fmt.Println()

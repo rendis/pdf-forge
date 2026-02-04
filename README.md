@@ -17,6 +17,7 @@ Build document templates in a visual editor, inject dynamic data through a plugi
 - **7 value types** -- String, Number, Bool, Time, Table, Image, List with locale-aware formatting
 - **Typst rendering** -- Fast, reliable PDF generation with concurrent rendering and image caching
 - **Multi-tenant** -- Tenant/workspace isolation with role-based access control (RBAC: system, tenant, and workspace roles)
+- **Multi-OIDC** -- Support N OIDC providers; tokens validated by issuer claim matching
 - **Embedded frontend** -- Ships with a React SPA; no separate frontend deployment needed
 - **Dummy auth mode** -- Start developing immediately without OIDC provider setup
 - **CLI scaffolding** -- `pdfforge-cli init myapp` generates a ready-to-run project
@@ -116,14 +117,15 @@ npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
 
 All services run on a single port (`:8080`):
 
-| Route         | Description                                       | Auth                         |
-| ------------- | ------------------------------------------------- | ---------------------------- |
-| `/`           | Template editor (React SPA)                       | None                         |
-| `/api/v1/*`   | Public API -- templates, workspaces, render, etc. | JWT or dummy                 |
-| `/internal/*` | Internal API -- service-to-service render         | API key (`X-API-Key` header) |
-| `/swagger/*`  | Swagger UI (enabled via `swagger_ui: true`)       | None                         |
-| `/health`     | Health check                                      | None                         |
-| `/ready`      | Readiness check                                   | None                         |
+| Route        | Description                                       | Auth                      |
+| ------------ | ------------------------------------------------- | ------------------------- |
+| `/`          | Template editor (React SPA)                       | None                      |
+| `/api/v1/*`  | Public API -- templates, workspaces, render, etc. | Multi-OIDC (JWT) or dummy |
+| `/swagger/*` | Swagger UI (enabled via `swagger_ui: true`)       | None                      |
+| `/health`    | Health check                                      | None                      |
+| `/ready`     | Readiness check                                   | None                      |
+
+**Document Type Render**: `POST /api/v1/workspace/document-types/{code}/render` - Resolves a template by document type code and renders a PDF. Uses same auth as other API routes. No RBAC enforced in controller; add custom authorization via `engine.UseAPIMiddleware()`.
 
 ## Roles
 
@@ -151,18 +153,6 @@ Three-level RBAC hierarchy with automatic role elevation:
 | VIEWER   | Read-only access                                   |
 
 See [Authorization Matrix](docs/authorization-matrix.md) for full endpoint permissions.
-
-### Internal API
-
-The internal API is designed for service-to-service communication (e.g., your backend triggers PDF renders directly). Enable it in `config/app.yaml`:
-
-```yaml
-internal_api:
-  enabled: true
-  api_key: "your-secret-api-key"
-```
-
-Requests must include the `X-API-Key` header matching the configured key.
 
 ## Minimal Example
 
@@ -581,10 +571,12 @@ database:
   ssl_mode: disable
   max_pool_size: 10
 
-auth:
-  jwks_url: "" # Empty = dummy auth mode
-  issuer: ""
-  audience: ""
+# Multi-OIDC auth (empty list = dummy mode)
+# oidc_providers:
+#   - name: "web-clients"
+#     issuer: "https://auth.example.com/realms/web"
+#     jwks_url: "https://auth.example.com/realms/web/.../certs"
+#     audience: "pdf-forge-web"
 
 typst:
   bin_path: typst
@@ -611,11 +603,11 @@ sdk.New(
 
 ## Authentication
 
-pdf-forge uses standard **OIDC/JWKS** for authentication. The backend works with any provider that exposes a JWKS endpoint.
+pdf-forge uses standard **OIDC/JWKS** for authentication. Supports **multiple OIDC providers** — tokens are validated against the provider matching the token's `iss` claim.
 
 ### Dummy Mode (Development)
 
-When `auth.jwks_url` is empty, dummy mode auto-enables:
+When `oidc_providers` is empty, dummy mode auto-enables:
 
 - Admin user seeded (`admin@pdfforge.local`)
 - No tokens required for API requests
@@ -623,24 +615,21 @@ When `auth.jwks_url` is empty, dummy mode auto-enables:
 
 ### Production Mode
 
-#### Backend Configuration
-
-Set the JWKS URL in `config/app.yaml`:
+Configure OIDC providers in `config/app.yaml`:
 
 ```yaml
-auth:
-  jwks_url: "https://your-provider/.well-known/jwks.json"
-  issuer: "https://your-provider"
-  audience: "your-client-id"
+oidc_providers:
+  - name: "web-clients"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+    audience: "pdf-forge-web"  # optional
+
+  - name: "internal-services"
+    issuer: "https://auth.example.com/realms/services"
+    jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
 ```
 
-Or via environment variables:
-
-```bash
-DOC_ENGINE_AUTH_JWKS_URL=https://your-provider/.well-known/jwks.json
-DOC_ENGINE_AUTH_ISSUER=https://your-provider
-DOC_ENGINE_AUTH_AUDIENCE=your-client-id
-```
+**How it works**: Token's `iss` claim is matched against configured issuers. Unknown issuer → 401.
 
 The backend validates JWTs using standard claims (`sub`, `email`, `name`) and RS256/384/512 signatures.
 

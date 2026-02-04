@@ -1,18 +1,14 @@
 package dto
 
-// RenderPreviewRequest represents the request to generate a preview PDF.
-type RenderPreviewRequest struct {
-	// Injectables contains the values to inject into the document.
-	// Keys are variable IDs, values are the actual values.
+// RenderRequest represents the request body for render endpoints.
+type RenderRequest struct {
 	Injectables map[string]any `json:"injectables"`
 }
 
-// RenderPreviewResponse is empty as the response is the PDF binary.
-// The PDF is returned directly with Content-Type: application/pdf.
-// This struct exists for documentation purposes.
-type RenderPreviewResponse struct {
-	// Response body is the raw PDF bytes
-	// Headers:
-	//   Content-Type: application/pdf
-	//   Content-Disposition: attachment; filename="<document-title>.pdf"
-}
+// RenderPreviewRequest is used for preview rendering.
+// Has the same structure as RenderRequest.
+type RenderPreviewRequest = RenderRequest
+
+// InternalRenderRequest is an alias for RenderRequest for backwards compatibility.
+// Deprecated: Use RenderRequest instead.
+type InternalRenderRequest = RenderRequest

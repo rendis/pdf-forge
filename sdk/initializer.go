@@ -224,7 +224,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		workspaceSvc, folderSvc, tagSvc, workspaceMemberSvc, workspaceInjectableSvc, injectableMapper,
 	)
 	injectableCtrl := controller.NewContentInjectableController(injectableSvc, injectableMapper)
-	renderCtrl := controller.NewRenderController(templateVersionSvc, pdfRenderer)
+	renderCtrl := controller.NewRenderController(templateVersionSvc, internalRenderSvc, pdfRenderer)
 	templateVersionCtrl := controller.NewTemplateVersionController(
 		templateVersionSvc, templateVersionMapper, templateMapper, renderCtrl,
 	)
@@ -233,7 +233,6 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	meCtrl := controller.NewMeController(tenantSvc, tenantMemberRepo, workspaceMemberRepo, userAccessHistorySvc)
 	tenantCtrl := controller.NewTenantController(tenantSvc, workspaceSvc, tenantMemberSvc)
 	documentTypeCtrl := controller.NewDocumentTypeController(documentTypeSvc, templateSvc, templateMapper)
-	internalRenderCtrl := controller.NewInternalRenderController(internalRenderSvc, &cfg.InternalAPI)
 
 	// --- HTTP Server ---
 	httpServer := server.NewHTTPServer(
@@ -246,7 +245,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		meCtrl,
 		tenantCtrl,
 		documentTypeCtrl,
-		internalRenderCtrl,
+		renderCtrl,
 		e.globalMiddleware,
 		e.apiMiddleware,
 	)

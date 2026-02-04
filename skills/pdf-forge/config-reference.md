@@ -47,13 +47,29 @@ engine := sdk.New(
 | `DOC_ENGINE_DATABASE_MIN_POOL_SIZE`         | `database.min_pool_size`         | `2`          | Min idle connections                          |
 | `DOC_ENGINE_DATABASE_MAX_IDLE_TIME_SECONDS` | `database.max_idle_time_seconds` | `300`        | Max idle time before closing                  |
 
-### Auth
+### Auth (Multi-OIDC)
 
-| Env Var                    | YAML Key        | Default | Description                                |
-| -------------------------- | --------------- | ------- | ------------------------------------------ |
-| `DOC_ENGINE_AUTH_JWKS_URL` | `auth.jwks_url` | `""`    | JWKS endpoint. **Empty = dummy auth mode** |
-| `DOC_ENGINE_AUTH_ISSUER`   | `auth.issuer`   | `""`    | Expected JWT issuer                        |
-| `DOC_ENGINE_AUTH_AUDIENCE` | `auth.audience` | `""`    | Expected JWT audience                      |
+Supports N OIDC providers. Tokens validated by matching `iss` claim. Unknown issuer → 401. Empty list → dummy auth mode.
+
+```yaml
+oidc_providers:
+  - name: "web-clients"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/.../certs"
+    audience: "pdf-forge-web"  # optional
+  - name: "internal-services"
+    issuer: "https://auth.example.com/realms/services"
+    jwks_url: "https://auth.example.com/realms/services/.../certs"
+```
+
+| Field                         | Required | Description                                 |
+| ----------------------------- | -------- | ------------------------------------------- |
+| `oidc_providers[].name`       | Yes      | Human-readable name (logs)                  |
+| `oidc_providers[].issuer`     | Yes      | Expected JWT issuer (`iss` claim)           |
+| `oidc_providers[].jwks_url`   | Yes      | JWKS endpoint URL                           |
+| `oidc_providers[].audience`   | No       | Expected audience (`aud`). Empty = skip     |
+
+**Note**: `oidc_providers` cannot be set via env vars (YAML only for arrays).
 
 ### Typst (PDF Rendering)
 
@@ -70,13 +86,6 @@ engine := sdk.New(
 | `DOC_ENGINE_TYPST_IMAGE_CACHE_CLEANUP_INTERVAL_SECONDS` | `typst.image_cache_cleanup_interval_seconds` | `60`    | Auto-cleanup interval                         |
 
 **Note**: `typst.font_dirs` (array) cannot be set via env var, YAML only.
-
-### Internal API
-
-| Env Var                           | YAML Key               | Default | Description                    |
-| --------------------------------- | ---------------------- | ------- | ------------------------------ |
-| `DOC_ENGINE_INTERNAL_API_ENABLED` | `internal_api.enabled` | `true`  | Enable `/internal/*` routes    |
-| `DOC_ENGINE_INTERNAL_API_API_KEY` | `internal_api.api_key` | `""`    | API key for `X-API-Key` header |
 
 ### Logging
 
@@ -107,21 +116,14 @@ DOC_ENGINE_DATABASE_NAME=pdfforge_prod
 DOC_ENGINE_DATABASE_SSL_MODE=require
 DOC_ENGINE_DATABASE_MAX_POOL_SIZE=20
 
-# Auth (production)
-DOC_ENGINE_AUTH_JWKS_URL=https://auth.example.com/.well-known/jwks.json
-DOC_ENGINE_AUTH_ISSUER=https://auth.example.com/
-DOC_ENGINE_AUTH_AUDIENCE=pdfforge-api
-
-# Auth (development - dummy mode)
-# DOC_ENGINE_AUTH_JWKS_URL=
+# Auth: Configure oidc_providers in YAML (cannot be set via env vars)
+# See app.yaml for multi-OIDC configuration
+# Empty oidc_providers = dummy auth mode (dev only)
 
 # Typst
 DOC_ENGINE_TYPST_BIN_PATH=/usr/local/bin/typst
 DOC_ENGINE_TYPST_MAX_CONCURRENT=16
 DOC_ENGINE_TYPST_IMAGE_CACHE_DIR=/var/cache/pdfforge/images
-
-# Internal API
-DOC_ENGINE_INTERNAL_API_API_KEY=your-secret-key
 
 # Logging
 DOC_ENGINE_LOGGING_LEVEL=info
@@ -149,10 +151,12 @@ database:
   min_pool_size: 2
   max_idle_time_seconds: 300
 
-auth:
-  jwks_url: "" # Empty = dummy auth mode
-  issuer: ""
-  audience: ""
+# Multi-OIDC auth (empty list = dummy mode)
+oidc_providers:
+  - name: "web-clients"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/.../certs"
+    audience: "pdf-forge-web"
 
 typst:
   bin_path: typst
@@ -165,10 +169,6 @@ typst:
   image_cache_max_age_seconds: 300
   image_cache_cleanup_interval_seconds: 60
   font_dirs: [] # YAML only, cannot set via env var
-
-internal_api:
-  enabled: true
-  api_key: "your-secret-key"
 
 logging:
   level: info
@@ -217,8 +217,8 @@ sdk.WithDevFrontendURL("http://localhost:5173")
 
 These are NOT configurable via YAML or env vars:
 
-| Setting           | How to Set                      | Description             |
-| ----------------- | ------------------------------- | ----------------------- |
-| `DummyAuth`       | Automatic when `jwks_url` empty | Enables dummy auth mode |
-| `DummyAuthUserID` | Automatic                       | Seeded admin user ID    |
-| `DevFrontendURL`  | `sdk.WithDevFrontendURL()`      | Frontend dev proxy      |
+| Setting           | How to Set                              | Description             |
+| ----------------- | --------------------------------------- | ----------------------- |
+| `DummyAuth`       | Automatic when `oidc_providers` empty   | Enables dummy auth mode |
+| `DummyAuthUserID` | Automatic                               | Seeded admin user ID    |
+| `DevFrontendURL`  | `sdk.WithDevFrontendURL()`              | Frontend dev proxy      |

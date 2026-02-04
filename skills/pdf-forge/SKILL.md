@@ -380,24 +380,34 @@ database:
   host: localhost
   port: 5432
   name: pdfforge
-auth:
-  jwks_url: "" # Empty = dummy auth mode
+
+# Multi-OIDC auth (empty list = dummy mode)
+oidc_providers:
+  - name: "web-clients"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/.../certs"
+    audience: "pdf-forge-web"  # optional
+  - name: "internal-services"
+    issuer: "https://auth.example.com/realms/services"
+    jwks_url: "https://auth.example.com/realms/services/.../certs"
+
 typst:
   bin_path: typst
   max_concurrent: 20
-internal_api:
-  api_key: "your-secret-key"
 ```
+
+**Multi-OIDC**: Tokens validated against provider matching `iss` claim. Unknown issuer → 401.
+
+**Document Type Render**: `POST /api/v1/workspace/document-types/{code}/render` - Resolves template by document type code and renders PDF. Uses same auth. No RBAC in controller; add custom auth via `engine.UseAPIMiddleware()`.
 
 ## Dummy Auth Mode (Development)
 
 For local development without JWT/JWKS setup:
 
-**Enable**: Leave `auth.jwks_url` empty in `config/app.yaml`
+**Enable**: Empty `oidc_providers` list (or omit entirely):
 
 ```yaml
-auth:
-  jwks_url: "" # Empty = dummy mode
+oidc_providers: []  # Empty = dummy mode
 ```
 
 **What happens**:
@@ -406,7 +416,7 @@ auth:
 - Skips JWT validation on all `/api/v1/*` routes
 - `Authorization` header not required
 - Full admin access to all tenants/workspaces
-- Warning logged: `"⚠ auth not configured — running in dummy mode (dev only)"`
+- Warning logged: `"⚠ OIDC not configured — running in dummy mode (dev only)"`
 
 **Headers still required** (for tenant/workspace scoped routes):
 
@@ -529,7 +539,7 @@ pdf-forge is a configured engine, not a plugin system. These are **NOT extensibl
 | Custom middleware    | ✅      | `UseMiddleware()`, `UseAPIMiddleware()`  |
 | Lifecycle hooks      | ✅      | `OnStart()`, `OnShutdown()`              |
 | Custom HTTP routes   | ❌      | Deploy separate service                  |
-| Auth providers       | ❌      | Config `auth.jwks_url` only              |
+| Multi-OIDC providers | ✅      | Config `oidc_providers` (N providers)    |
 | Database hooks       | ❌      | Use `InitFunc` for pre-load              |
 | Custom env prefix    | ❌      | Use `DOC_ENGINE_*` (hardcoded)           |
 | Request interception | Partial | `SetMapper()` (render only) + middleware |
@@ -548,12 +558,11 @@ See **enterprise-scenarios.md** for workarounds and patterns.
 
 ## API Headers
 
-| Header           | Purpose                            |
-| ---------------- | ---------------------------------- |
-| `Authorization`  | `Bearer <JWT>`                     |
-| `X-Tenant-ID`    | Tenant UUID                        |
-| `X-Workspace-ID` | Workspace UUID                     |
-| `X-API-Key`      | Service-to-service (`/internal/*`) |
+| Header           | Purpose                               |
+| ---------------- | ------------------------------------- |
+| `Authorization`  | `Bearer <JWT>` (omit in dummy mode)   |
+| `X-Tenant-ID`    | Tenant UUID                           |
+| `X-Workspace-ID` | Workspace UUID                        |
 
 ## References
 

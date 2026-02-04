@@ -152,9 +152,7 @@ func is403Error(err error) bool {
 
 // is401Error returns true if the error should result in a 401 Unauthorized response.
 func is401Error(err error) bool {
-	return errors.Is(err, entity.ErrUnauthorized) ||
-		errors.Is(err, entity.ErrMissingAPIKey) ||
-		errors.Is(err, entity.ErrInvalidAPIKey)
+	return errors.Is(err, entity.ErrUnauthorized)
 }
 
 // is503Error returns true if the error should result in a 503 Service Unavailable response.
