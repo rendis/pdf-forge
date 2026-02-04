@@ -310,8 +310,12 @@ func setupDevProxy(engine *gin.Engine, devURL string) {
 // clientConfigHandler returns a handler that exposes non-sensitive config to the frontend.
 func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 	type providerInfo struct {
-		Name   string `json:"name"`
-		Issuer string `json:"issuer"`
+		Name               string `json:"name"`
+		Issuer             string `json:"issuer"`
+		TokenEndpoint      string `json:"tokenEndpoint,omitempty"`
+		UserinfoEndpoint   string `json:"userinfoEndpoint,omitempty"`
+		EndSessionEndpoint string `json:"endSessionEndpoint,omitempty"`
+		ClientID           string `json:"clientId,omitempty"`
 	}
 
 	type clientConfig struct {
@@ -322,8 +326,12 @@ func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 	var panelProvider *providerInfo
 	if panel := cfg.GetPanelOIDC(); panel != nil {
 		panelProvider = &providerInfo{
-			Name:   panel.Name,
-			Issuer: panel.Issuer,
+			Name:               panel.Name,
+			Issuer:             panel.Issuer,
+			TokenEndpoint:      panel.TokenEndpoint,
+			UserinfoEndpoint:   panel.UserinfoEndpoint,
+			EndSessionEndpoint: panel.EndSessionEndpoint,
+			ClientID:           panel.ClientID,
 		}
 	}
 

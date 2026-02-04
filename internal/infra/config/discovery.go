@@ -20,8 +20,11 @@ const (
 
 // discoveryResponse represents the OpenID Connect discovery document.
 type discoveryResponse struct {
-	Issuer  string `json:"issuer"`
-	JWKSURI string `json:"jwks_uri"`
+	Issuer             string `json:"issuer"`
+	JWKSURI            string `json:"jwks_uri"`
+	TokenEndpoint      string `json:"token_endpoint"`
+	UserinfoEndpoint   string `json:"userinfo_endpoint"`
+	EndSessionEndpoint string `json:"end_session_endpoint"`
 }
 
 // DiscoverAll runs OIDC discovery for all configured providers.
@@ -88,6 +91,17 @@ func discoverOIDC(ctx context.Context, provider *OIDCProvider) error {
 	// Set JWKS URL if not configured
 	if provider.JWKSURL == "" {
 		provider.JWKSURL = doc.JWKSURI
+	}
+
+	// Set frontend endpoints if not configured
+	if provider.TokenEndpoint == "" {
+		provider.TokenEndpoint = doc.TokenEndpoint
+	}
+	if provider.UserinfoEndpoint == "" {
+		provider.UserinfoEndpoint = doc.UserinfoEndpoint
+	}
+	if provider.EndSessionEndpoint == "" {
+		provider.EndSessionEndpoint = doc.EndSessionEndpoint
 	}
 
 	slog.InfoContext(ctx, "OIDC discovery completed",

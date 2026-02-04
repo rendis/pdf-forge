@@ -27,25 +27,30 @@ database:
 # - render_providers: Additional providers ONLY for render endpoints
 #   (panel is always valid for render too)
 #
-# Option 1: Using discovery_url (recommended - auto-fetches issuer and jwks_url)
+# Option 1: Using discovery_url (recommended - auto-fetches endpoints)
 #
 # auth:
 #   panel:
 #     name: "keycloak"
 #     discovery_url: "https://auth.example.com/realms/web"
-#     audience: "pdf-forge-web"  # optional, not from discovery
+#     client_id: "pdf-forge-web"   # Required for frontend login
+#     audience: "pdf-forge-web"    # Optional, for token validation
 #
 #   render_providers:
 #     - name: "azure-ad"
 #       discovery_url: "https://login.microsoftonline.com/{tenant}/v2.0"
 #
-# Option 2: Explicit issuer and jwks_url (no discovery)
+# Option 2: Explicit endpoints (no discovery)
 #
 # auth:
 #   panel:
 #     name: "web-panel"
 #     issuer: "https://auth.example.com/realms/web"
 #     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+#     token_endpoint: "https://auth.example.com/realms/web/protocol/openid-connect/token"
+#     userinfo_endpoint: "https://auth.example.com/realms/web/protocol/openid-connect/userinfo"
+#     end_session_endpoint: "https://auth.example.com/realms/web/protocol/openid-connect/logout"
+#     client_id: "pdf-forge-web"
 #     audience: "pdf-forge-web"
 #
 # Empty/missing auth config = dummy auth mode (dev only)

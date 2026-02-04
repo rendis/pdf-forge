@@ -110,6 +110,12 @@ type OIDCProvider struct {
 	Issuer       string `mapstructure:"issuer"`        // Expected token issuer (iss claim)
 	JWKSURL      string `mapstructure:"jwks_url"`      // JWKS endpoint URL
 	Audience     string `mapstructure:"audience"`      // Optional audience (aud claim)
+
+	// Frontend OIDC endpoints (populated from discovery or manual config)
+	TokenEndpoint      string `mapstructure:"token_endpoint"`       // Token endpoint URL
+	UserinfoEndpoint   string `mapstructure:"userinfo_endpoint"`    // Userinfo endpoint URL
+	EndSessionEndpoint string `mapstructure:"end_session_endpoint"` // Logout/end session endpoint URL
+	ClientID           string `mapstructure:"client_id"`            // OIDC client ID for frontend
 }
 
 // LoggingConfig holds logging configuration.
