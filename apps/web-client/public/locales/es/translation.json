@@ -895,6 +895,44 @@
       "errors": {
         "roleDeleted": "El rol asociado fue eliminado"
       }
+    },
+    "import": {
+      "title": "Importar Documento",
+      "description": "Importa un documento desde archivo JSON",
+      "tabs": {
+        "file": "Archivo",
+        "paste": "Pegar"
+      },
+      "fileTabDescription": "Haz clic para seleccionar o arrastra un archivo aquí",
+      "acceptedFormat": "Solo archivos .json",
+      "dropzoneText": "Suelta el archivo JSON aquí",
+      "dropHere": "Suelta para importar",
+      "pasteLabel": "Contenido JSON",
+      "pastePlaceholder": "Pega tu documento JSON aquí...",
+      "pasteFromClipboard": "Pegar",
+      "parseButton": "Validar JSON",
+      "invalidJson": "Formato JSON inválido",
+      "invalidFileType": "Tipo de archivo inválido. Solo se aceptan archivos .json",
+      "emptyContent": "No hay contenido para parsear",
+      "jsonValid": "El JSON es válido y está listo para importar",
+      "importDocument": "Importar",
+      "fileSelected": "Archivo listo para importar",
+      "validationErrors": "Errores de Validación",
+      "importWarnings": "Advertencias de Importación",
+      "validationSuccess": "Validación Exitosa",
+      "criticalErrors": "El documento tiene errores críticos que deben corregirse antes de importar.",
+      "nonCriticalWarnings": "El documento tiene advertencias no críticas. Puedes importarlo de todas formas.",
+      "documentValid": "El documento es válido y está listo para importar.",
+      "errors": "Errores",
+      "warnings": "Advertencias",
+      "location": "Ubicación",
+      "code": "Código",
+      "suggestion": "Sugerencia",
+      "documentPassedValidation": "El documento pasó todas las validaciones correctamente.",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "importAnyway": "Importar de todas formas",
+      "import": "Importar"
     }
   },
   "members": {
@@ -1029,7 +1067,6 @@
       "tenants": "Tenants",
       "users": "Usuarios",
       "injectables": "Inyectables",
-      "audit": "Auditoría",
       "documentTypes": "Tipos de Documento",
       "workspaces": "Workspaces"
     },
@@ -1200,15 +1237,6 @@
         "email": "Correo",
         "role": "Rol",
         "status": "Estado"
-      }
-    },
-    "audit": {
-      "description": "Ver actividad del sistema y registros de seguridad.",
-      "columns": {
-        "action": "Acción",
-        "user": "Usuario",
-        "details": "Detalles",
-        "timestamp": "Fecha"
       }
     }
   },

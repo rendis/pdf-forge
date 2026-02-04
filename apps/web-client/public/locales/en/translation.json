@@ -895,6 +895,44 @@
       "errors": {
         "roleDeleted": "The associated role was deleted"
       }
+    },
+    "import": {
+      "title": "Import Document",
+      "description": "Import a document from JSON file",
+      "tabs": {
+        "file": "File",
+        "paste": "Paste"
+      },
+      "fileTabDescription": "Click to select or drag file here",
+      "acceptedFormat": ".json files only",
+      "dropzoneText": "Drop JSON file here",
+      "dropHere": "Drop to import",
+      "pasteLabel": "JSON Content",
+      "pastePlaceholder": "Paste your JSON document here...",
+      "pasteFromClipboard": "Paste",
+      "parseButton": "Validate JSON",
+      "invalidJson": "Invalid JSON format",
+      "invalidFileType": "Invalid file type. Only .json files are accepted",
+      "emptyContent": "No content to parse",
+      "jsonValid": "JSON is valid and ready to import",
+      "importDocument": "Import",
+      "fileSelected": "File ready to import",
+      "validationErrors": "Validation Errors",
+      "importWarnings": "Import Warnings",
+      "validationSuccess": "Validation Successful",
+      "criticalErrors": "The document has critical errors that must be fixed before importing.",
+      "nonCriticalWarnings": "The document has non-critical warnings. You can import it anyway.",
+      "documentValid": "The document is valid and ready to import.",
+      "errors": "Errors",
+      "warnings": "Warnings",
+      "location": "Location",
+      "code": "Code",
+      "suggestion": "Suggestion",
+      "documentPassedValidation": "The document passed all validations successfully.",
+      "close": "Close",
+      "cancel": "Cancel",
+      "importAnyway": "Import Anyway",
+      "import": "Import"
     }
   },
   "members": {
@@ -1029,7 +1067,6 @@
       "tenants": "Tenants",
       "users": "Users",
       "injectables": "Injectables",
-      "audit": "Audit",
       "documentTypes": "Document Types",
       "workspaces": "Workspaces"
     },
@@ -1200,15 +1237,6 @@
         "email": "Email",
         "role": "Role",
         "status": "Status"
-      }
-    },
-    "audit": {
-      "description": "View system activity and security logs.",
-      "columns": {
-        "action": "Action",
-        "user": "User",
-        "details": "Details",
-        "timestamp": "Timestamp"
       }
     }
   },
