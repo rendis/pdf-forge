@@ -243,3 +243,113 @@ func (r *Repository) FindTemplatesByType(ctx context.Context, documentTypeID str
 
 	return result, rows.Err()
 }
+
+// IsSysTenant checks if the given tenant is the system tenant.
+func (r *Repository) IsSysTenant(ctx context.Context, tenantID string) (bool, error) {
+	var isSystem bool
+	err := r.pool.QueryRow(ctx, queryIsSysTenant, tenantID).Scan(&isSystem)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, entity.ErrTenantNotFound
+	}
+	if err != nil {
+		return false, fmt.Errorf("checking if tenant is system: %w", err)
+	}
+	return isSystem, nil
+}
+
+// FindByTenantWithGlobalFallback lists document types including global (SYS tenant) types.
+// Tenant's own types take priority over global types with the same code.
+func (r *Repository) FindByTenantWithGlobalFallback(ctx context.Context, tenantID string, filters port.DocumentTypeFilters) ([]*entity.DocumentType, int64, error) {
+	var total int64
+	err := r.pool.QueryRow(ctx, queryCountByTenantWithGlobalFallback, tenantID, filters.Search).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("counting document types with global: %w", err)
+	}
+
+	rows, err := r.pool.Query(ctx, queryFindByTenantWithGlobalFallback, tenantID, filters.Search, filters.Limit, filters.Offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("querying document types with global: %w", err)
+	}
+	defer rows.Close()
+
+	var result []*entity.DocumentType
+	for rows.Next() {
+		var docType entity.DocumentType
+		err := rows.Scan(
+			&docType.ID,
+			&docType.TenantID,
+			&docType.Code,
+			&docType.Name,
+			&docType.Description,
+			&docType.IsGlobal,
+			&docType.CreatedAt,
+			&docType.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("scanning document type: %w", err)
+		}
+		result = append(result, &docType)
+	}
+
+	return result, total, rows.Err()
+}
+
+// FindByTenantWithTemplateCountAndGlobal lists document types with template count, including global types.
+func (r *Repository) FindByTenantWithTemplateCountAndGlobal(ctx context.Context, tenantID string, filters port.DocumentTypeFilters) ([]*entity.DocumentTypeListItem, int64, error) {
+	var total int64
+	err := r.pool.QueryRow(ctx, queryCountByTenantWithGlobalFallback, tenantID, filters.Search).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("counting document types with global: %w", err)
+	}
+
+	rows, err := r.pool.Query(ctx, queryFindByTenantWithTemplateCountAndGlobal, tenantID, filters.Search, filters.Limit, filters.Offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("querying document types with count and global: %w", err)
+	}
+	defer rows.Close()
+
+	var result []*entity.DocumentTypeListItem
+	for rows.Next() {
+		var item entity.DocumentTypeListItem
+		err := rows.Scan(
+			&item.ID,
+			&item.TenantID,
+			&item.Code,
+			&item.Name,
+			&item.Description,
+			&item.IsGlobal,
+			&item.TemplatesCount,
+			&item.CreatedAt,
+			&item.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("scanning document type list item: %w", err)
+		}
+		result = append(result, &item)
+	}
+
+	return result, total, rows.Err()
+}
+
+// FindByCodeWithGlobalFallback finds a document type by code, checking tenant first then SYS tenant.
+func (r *Repository) FindByCodeWithGlobalFallback(ctx context.Context, tenantID, code string) (*entity.DocumentType, error) {
+	var docType entity.DocumentType
+	err := r.pool.QueryRow(ctx, queryFindByCodeWithGlobalFallback, tenantID, code).Scan(
+		&docType.ID,
+		&docType.TenantID,
+		&docType.Code,
+		&docType.Name,
+		&docType.Description,
+		&docType.IsGlobal,
+		&docType.CreatedAt,
+		&docType.UpdatedAt,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, entity.ErrDocumentTypeNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("querying document type by code with global: %w", err)
+	}
+
+	return &docType, nil
+}

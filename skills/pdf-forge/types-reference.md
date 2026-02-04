@@ -357,19 +357,11 @@ For dynamic, workspace-specific injectables that vary at runtime.
 ```go
 type WorkspaceInjectableProvider interface {
     // Called when editor opens - list available injectables
-    GetInjectables(ctx context.Context, req *GetInjectablesRequest) (*GetInjectablesResult, error)
+    // Use injCtx.TenantCode() and injCtx.WorkspaceCode() to identify workspace
+    GetInjectables(ctx context.Context, injCtx *entity.InjectorContext) (*GetInjectablesResult, error)
 
     // Called during render - resolve values
     ResolveInjectables(ctx context.Context, req *ResolveInjectablesRequest) (*ResolveInjectablesResult, error)
-}
-```
-
-### GetInjectablesRequest
-
-```go
-type GetInjectablesRequest struct {
-    TenantCode    string // e.g., "acme-corp"
-    WorkspaceCode string // e.g., "sales-team"
 }
 ```
 
@@ -458,8 +450,8 @@ type CRMProvider struct {
     client *crmapi.Client
 }
 
-func (p *CRMProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
-    // Return ALL locales - framework picks based on request
+func (p *CRMProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
+    // Use injCtx.TenantCode(), injCtx.WorkspaceCode() - return ALL locales
     return &sdk.GetInjectablesResult{
         Injectables: []sdk.ProviderInjectable{
             {

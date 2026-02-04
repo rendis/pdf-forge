@@ -1,6 +1,7 @@
+import { Badge } from '@/components/ui/badge'
 import { Paginator } from '@/components/ui/paginator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertTriangle, FileType, MoreHorizontal, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { AlertTriangle, FileType, Globe, MoreHorizontal, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDocumentTypes } from '../hooks/useDocumentTypes'
@@ -169,32 +170,46 @@ export function DocumentTypesTab(): React.ReactElement {
                     </span>
                   </td>
                   <td className="p-4 font-medium">
-                    {getLocalizedName(docType.name, i18n.language)}
+                    <div className="flex items-center gap-2">
+                      {getLocalizedName(docType.name, i18n.language)}
+                      {docType.isGlobal && (
+                        <Badge variant="secondary" className="gap-1 text-xs">
+                          <Globe size={10} />
+                          {t('administration.documentTypes.global', 'Global')}
+                        </Badge>
+                      )}
+                    </div>
                   </td>
                   <td className="p-4 font-mono text-sm text-muted-foreground">
                     {docType.templatesCount ?? 0}
                   </td>
                   <td className="p-4">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="rounded-sm p-1 hover:bg-muted">
-                          <MoreHorizontal size={16} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(docType)}>
-                          <Pencil size={14} className="mr-2" />
-                          {t('common.edit', 'Edit')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(docType)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 size={14} className="mr-2" />
-                          {t('common.delete', 'Delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {!docType.isGlobal ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="rounded-sm p-1 hover:bg-muted">
+                            <MoreHorizontal size={16} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEdit(docType)}>
+                            <Pencil size={14} className="mr-2" />
+                            {t('common.edit', 'Edit')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(docType)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 size={14} className="mr-2" />
+                            {t('common.delete', 'Delete')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {t('administration.documentTypes.readOnly', 'Read-only')}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

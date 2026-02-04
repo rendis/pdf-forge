@@ -400,8 +400,8 @@ For dynamic, workspace-specific injectables that are defined at runtime (not at 
 ```go
 type WorkspaceInjectableProvider interface {
     // GetInjectables returns available injectables for a workspace.
-    // Called when editor opens. Provider handles i18n internally.
-    GetInjectables(ctx context.Context, req *GetInjectablesRequest) (*GetInjectablesResult, error)
+    // Called when editor opens. Use injCtx.TenantCode() and injCtx.WorkspaceCode().
+    GetInjectables(ctx context.Context, injCtx *entity.InjectorContext) (*GetInjectablesResult, error)
 
     // ResolveInjectables resolves a batch of injectable codes.
     // Return (nil, error) for CRITICAL failures that stop render.
@@ -415,23 +415,22 @@ type WorkspaceInjectableProvider interface {
 ```go
 type MyProvider struct{}
 
-func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
+func (p *MyProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
     // Fetch available injectables for this workspace from your system
-    // req.TenantCode, req.WorkspaceCode identify the workspace
-    // req.Locale specifies the language for labels/descriptions
+    // injCtx.TenantCode(), injCtx.WorkspaceCode() identify the workspace
 
     return &sdk.GetInjectablesResult{
         Injectables: []sdk.ProviderInjectable{
             {
                 Code:        "customer_name",
-                Label:       "Customer Name", // Already translated
-                Description: "Full name of the customer",
-                DataType:    sdk.ValueTypeString,
+                Label:       map[string]string{"es": "Nombre", "en": "Customer Name"},
+                Description: map[string]string{"es": "Nombre del cliente", "en": "Full name of the customer"},
+                DataType:    sdk.InjectableDataTypeText,
                 GroupKey:    "customer_data",
             },
         },
         Groups: []sdk.ProviderGroup{
-            {Key: "customer_data", Name: "Customer Data", Icon: "user"},
+            {Key: "customer_data", Name: map[string]string{"es": "Datos", "en": "Customer Data"}, Icon: "user"},
         },
     }, nil
 }

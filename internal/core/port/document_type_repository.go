@@ -47,4 +47,17 @@ type DocumentTypeRepository interface {
 
 	// FindTemplatesByType returns templates assigned to this document type.
 	FindTemplatesByType(ctx context.Context, documentTypeID string) ([]*entity.DocumentTypeTemplateInfo, error)
+
+	// IsSysTenant checks if the given tenant is the system tenant.
+	IsSysTenant(ctx context.Context, tenantID string) (bool, error)
+
+	// FindByTenantWithGlobalFallback lists document types including global (SYS tenant) types.
+	// Tenant's own types take priority over global types with the same code.
+	FindByTenantWithGlobalFallback(ctx context.Context, tenantID string, filters DocumentTypeFilters) ([]*entity.DocumentType, int64, error)
+
+	// FindByTenantWithTemplateCountAndGlobal lists document types with template count, including global types.
+	FindByTenantWithTemplateCountAndGlobal(ctx context.Context, tenantID string, filters DocumentTypeFilters) ([]*entity.DocumentTypeListItem, int64, error)
+
+	// FindByCodeWithGlobalFallback finds a document type by code, checking tenant first then SYS tenant.
+	FindByCodeWithGlobalFallback(ctx context.Context, tenantID, code string) (*entity.DocumentType, error)
 }

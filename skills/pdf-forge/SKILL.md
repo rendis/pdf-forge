@@ -284,8 +284,8 @@ For dynamic, workspace-specific injectables (e.g., from CRM, external APIs):
 ```go
 type MyProvider struct{}
 
-func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
-    // Called when editor opens - return ALL locales (framework picks based on request)
+func (p *MyProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
+    // Called when editor opens - use injCtx.TenantCode(), injCtx.WorkspaceCode()
     return &sdk.GetInjectablesResult{
         Injectables: []sdk.ProviderInjectable{
             {

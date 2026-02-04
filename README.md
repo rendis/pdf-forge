@@ -382,22 +382,22 @@ For dynamic injectables that vary per workspace and are defined at runtime (not 
 ```go
 type MyProvider struct{}
 
-func (p *MyProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
-    // req.TenantCode, req.WorkspaceCode identify the workspace
-    // req.Locale for i18n (return pre-translated labels)
+func (p *MyProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
+    // injCtx.TenantCode(), injCtx.WorkspaceCode() identify the workspace
+    // Return all locales - framework picks based on request
 
     return &sdk.GetInjectablesResult{
         Injectables: []sdk.ProviderInjectable{
             {
                 Code:        "customer_name",
-                Label:       "Customer Name", // Already translated
-                Description: "Full name of the customer",
-                DataType:    sdk.ValueTypeString,
+                Label:       map[string]string{"es": "Nombre", "en": "Customer Name"},
+                Description: map[string]string{"es": "Nombre del cliente", "en": "Full name of the customer"},
+                DataType:    sdk.InjectableDataTypeText,
                 GroupKey:    "custom_data",
             },
         },
         Groups: []sdk.ProviderGroup{
-            {Key: "custom_data", Name: "Custom Data", Icon: "user"},
+            {Key: "custom_data", Name: map[string]string{"es": "Datos", "en": "Custom Data"}, Icon: "user"},
         },
     }, nil
 }

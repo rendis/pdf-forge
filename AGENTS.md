@@ -111,8 +111,8 @@ Dynamic workspace-specific injectables. Implement this to provide custom injecta
 ```go
 type WorkspaceInjectableProvider interface {
     // GetInjectables returns available injectables for a workspace.
-    // Called when editor opens. Provider handles i18n internally.
-    GetInjectables(ctx context.Context, req *GetInjectablesRequest) (*GetInjectablesResult, error)
+    // Called when editor opens. Use injCtx.TenantCode() and injCtx.WorkspaceCode().
+    GetInjectables(ctx context.Context, injCtx *entity.InjectorContext) (*GetInjectablesResult, error)
 
     // ResolveInjectables resolves a batch of injectable codes.
     // Return (nil, error) for CRITICAL failures, (result, nil) with result.Errors for non-critical.

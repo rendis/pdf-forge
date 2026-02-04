@@ -143,9 +143,6 @@ type (
 	// WorkspaceInjectableProvider defines the interface for workspace-specific injectables.
 	WorkspaceInjectableProvider = port.WorkspaceInjectableProvider
 
-	// GetInjectablesRequest contains parameters for fetching workspace injectables.
-	GetInjectablesRequest = port.GetInjectablesRequest
-
 	// GetInjectablesResult contains the list of available injectables and groups.
 	GetInjectablesResult = port.GetInjectablesResult
 

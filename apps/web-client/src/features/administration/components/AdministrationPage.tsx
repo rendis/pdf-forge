@@ -36,6 +36,9 @@ export function AdministrationPage(): React.ReactElement {
               <TabsTrigger value="tenants" className={TAB_TRIGGER_CLASS}>
                 {t('administration.tabs.tenants', 'Tenants')}
               </TabsTrigger>
+              <TabsTrigger value="document-types" className={TAB_TRIGGER_CLASS}>
+                {t('administration.tabs.documentTypes', 'Document Types')}
+              </TabsTrigger>
               <TabsTrigger value="injectables" className={TAB_TRIGGER_CLASS}>
                 {t('administration.tabs.injectables', 'Injectables')}
               </TabsTrigger>
@@ -46,6 +49,10 @@ export function AdministrationPage(): React.ReactElement {
 
             <TabsContent value="tenants">
               <TenantsTab />
+            </TabsContent>
+
+            <TabsContent value="document-types">
+              <DocumentTypesTab />
             </TabsContent>
 
             <TabsContent value="injectables">

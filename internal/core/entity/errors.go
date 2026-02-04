@@ -156,6 +156,7 @@ var (
 	ErrDocumentTypeCodeImmutable   = errors.New("document type code cannot be modified")
 	ErrDocumentTypeAlreadyAssigned = errors.New("workspace already has a template for this document type")
 	ErrDocumentTypeHasTemplates    = errors.New("document type is assigned to templates")
+	ErrCannotModifyGlobalType      = errors.New("cannot modify global document type")
 )
 
 // Template errors.

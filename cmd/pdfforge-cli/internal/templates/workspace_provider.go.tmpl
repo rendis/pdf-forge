@@ -16,7 +16,8 @@ type ExampleWorkspaceProvider struct{}
 
 // GetInjectables returns available injectables for a workspace.
 // Called when the template editor opens. Return all locales.
-func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
+// Use injCtx.TenantCode() and injCtx.WorkspaceCode() to identify the workspace.
+func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
 	return &sdk.GetInjectablesResult{
 		Injectables: []sdk.ProviderInjectable{
 			{

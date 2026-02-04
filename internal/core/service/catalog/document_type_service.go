@@ -79,8 +79,25 @@ func (s *DocumentTypeService) GetDocumentType(ctx context.Context, id string) (*
 }
 
 // GetDocumentTypeByCode retrieves a document type by code within a tenant.
+// For non-SYS tenants, also checks global (SYS tenant) types.
 func (s *DocumentTypeService) GetDocumentTypeByCode(ctx context.Context, tenantID, code string) (*entity.DocumentType, error) {
-	docType, err := s.docTypeRepo.FindByCode(ctx, tenantID, code)
+	// Check if this is the SYS tenant
+	isSys, err := s.docTypeRepo.IsSysTenant(ctx, tenantID)
+	if err != nil {
+		return nil, fmt.Errorf("checking tenant type: %w", err)
+	}
+
+	// SYS tenant only sees its own types
+	if isSys {
+		docType, err := s.docTypeRepo.FindByCode(ctx, tenantID, code)
+		if err != nil {
+			return nil, fmt.Errorf("finding document type by code %s: %w", code, err)
+		}
+		return docType, nil
+	}
+
+	// Non-SYS tenants see their types + global types (with priority for own)
+	docType, err := s.docTypeRepo.FindByCodeWithGlobalFallback(ctx, tenantID, code)
 	if err != nil {
 		return nil, fmt.Errorf("finding document type by code %s: %w", code, err)
 	}
@@ -97,19 +114,42 @@ func (s *DocumentTypeService) ListDocumentTypes(ctx context.Context, tenantID st
 }
 
 // ListDocumentTypesWithCount lists document types with template usage count.
+// For non-SYS tenants, includes global (SYS tenant) types with priority for own types.
 func (s *DocumentTypeService) ListDocumentTypesWithCount(ctx context.Context, tenantID string, filters port.DocumentTypeFilters) ([]*entity.DocumentTypeListItem, int64, error) {
-	docTypes, total, err := s.docTypeRepo.FindByTenantWithTemplateCount(ctx, tenantID, filters)
+	// Check if this is the SYS tenant
+	isSys, err := s.docTypeRepo.IsSysTenant(ctx, tenantID)
 	if err != nil {
-		return nil, 0, fmt.Errorf("listing document types with count: %w", err)
+		return nil, 0, fmt.Errorf("checking tenant type: %w", err)
+	}
+
+	// SYS tenant only sees its own types
+	if isSys {
+		docTypes, total, err := s.docTypeRepo.FindByTenantWithTemplateCount(ctx, tenantID, filters)
+		if err != nil {
+			return nil, 0, fmt.Errorf("listing document types with count: %w", err)
+		}
+		return docTypes, total, nil
+	}
+
+	// Non-SYS tenants see their types + global types (with priority for own)
+	docTypes, total, err := s.docTypeRepo.FindByTenantWithTemplateCountAndGlobal(ctx, tenantID, filters)
+	if err != nil {
+		return nil, 0, fmt.Errorf("listing document types with count and global: %w", err)
 	}
 	return docTypes, total, nil
 }
 
 // UpdateDocumentType updates a document type's details (name and description only).
+// Global types (from SYS tenant) cannot be modified by other tenants.
 func (s *DocumentTypeService) UpdateDocumentType(ctx context.Context, cmd cataloguc.UpdateDocumentTypeCommand) (*entity.DocumentType, error) {
 	docType, err := s.docTypeRepo.FindByID(ctx, cmd.ID)
 	if err != nil {
 		return nil, fmt.Errorf("finding document type: %w", err)
+	}
+
+	// Check ownership: cannot modify global types
+	if docType.TenantID != cmd.TenantID {
+		return nil, entity.ErrCannotModifyGlobalType
 	}
 
 	docType.Name = cmd.Name
@@ -134,10 +174,16 @@ func (s *DocumentTypeService) UpdateDocumentType(ctx context.Context, cmd catalo
 }
 
 // DeleteDocumentType attempts to delete a document type.
+// Global types (from SYS tenant) cannot be deleted by other tenants.
 func (s *DocumentTypeService) DeleteDocumentType(ctx context.Context, cmd cataloguc.DeleteDocumentTypeCommand) (*cataloguc.DeleteDocumentTypeResult, error) {
 	docType, err := s.docTypeRepo.FindByID(ctx, cmd.ID)
 	if err != nil {
 		return nil, fmt.Errorf("finding document type: %w", err)
+	}
+
+	// Check ownership: cannot delete global types
+	if docType.TenantID != cmd.TenantID {
+		return nil, entity.ErrCannotModifyGlobalType
 	}
 
 	templates, err := s.docTypeRepo.FindTemplatesByType(ctx, cmd.ID)

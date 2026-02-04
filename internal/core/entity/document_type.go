@@ -17,6 +17,7 @@ type DocumentType struct {
 	Code        string     `json:"code"`        // Immutable, unique per tenant
 	Name        I18nText   `json:"name"`        // {"en": "...", "es": "..."}
 	Description I18nText   `json:"description"` // Optional
+	IsGlobal    bool       `json:"isGlobal"`    // True if from SYS tenant (read-only for other tenants)
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
 }
@@ -97,6 +98,7 @@ type DocumentTypeListItem struct {
 	Code           string     `json:"code"`
 	Name           I18nText   `json:"name"`
 	Description    I18nText   `json:"description"`
+	IsGlobal       bool       `json:"isGlobal"`       // True if from SYS tenant
 	TemplatesCount int        `json:"templatesCount"` // Number of templates using this type
 	CreatedAt      time.Time  `json:"createdAt"`
 	UpdatedAt      *time.Time `json:"updatedAt,omitempty"`

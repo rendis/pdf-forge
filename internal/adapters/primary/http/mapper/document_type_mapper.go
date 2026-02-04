@@ -27,6 +27,7 @@ func (m *DocumentTypeMapper) ToResponse(dt *entity.DocumentType) *dto.DocumentTy
 		Code:        dt.Code,
 		Name:        dt.Name,
 		Description: dt.Description,
+		IsGlobal:    dt.IsGlobal,
 		CreatedAt:   dt.CreatedAt,
 		UpdatedAt:   dt.UpdatedAt,
 	}
@@ -44,6 +45,7 @@ func (m *DocumentTypeMapper) ToListItemResponse(dt *entity.DocumentTypeListItem)
 			Code:        dt.Code,
 			Name:        dt.Name,
 			Description: dt.Description,
+			IsGlobal:    dt.IsGlobal,
 			CreatedAt:   dt.CreatedAt,
 			UpdatedAt:   dt.UpdatedAt,
 		},
@@ -130,6 +132,7 @@ func DocumentTypeToResponse(dt *entity.DocumentType) *dto.DocumentTypeResponse {
 		Code:        dt.Code,
 		Name:        dt.Name,
 		Description: dt.Description,
+		IsGlobal:    dt.IsGlobal,
 		CreatedAt:   dt.CreatedAt,
 		UpdatedAt:   dt.UpdatedAt,
 	}
@@ -146,18 +149,20 @@ func CreateDocumentTypeRequestToCommand(tenantID string, req dto.CreateDocumentT
 }
 
 // UpdateDocumentTypeRequestToCommand converts an update request to a usecase command.
-func UpdateDocumentTypeRequestToCommand(id string, req dto.UpdateDocumentTypeRequest) cataloguc.UpdateDocumentTypeCommand {
+func UpdateDocumentTypeRequestToCommand(id, tenantID string, req dto.UpdateDocumentTypeRequest) cataloguc.UpdateDocumentTypeCommand {
 	return cataloguc.UpdateDocumentTypeCommand{
 		ID:          id,
+		TenantID:    tenantID,
 		Name:        entity.I18nText(req.Name),
 		Description: entity.I18nText(req.Description),
 	}
 }
 
 // DeleteDocumentTypeRequestToCommand converts a delete request to a usecase command.
-func DeleteDocumentTypeRequestToCommand(id string, req dto.DeleteDocumentTypeRequest) cataloguc.DeleteDocumentTypeCommand {
+func DeleteDocumentTypeRequestToCommand(id, tenantID string, req dto.DeleteDocumentTypeRequest) cataloguc.DeleteDocumentTypeCommand {
 	return cataloguc.DeleteDocumentTypeCommand{
 		ID:            id,
+		TenantID:      tenantID,
 		Force:         req.Force,
 		ReplaceWithID: req.ReplaceWithID,
 	}

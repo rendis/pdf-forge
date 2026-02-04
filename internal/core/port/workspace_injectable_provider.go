@@ -13,7 +13,8 @@ type WorkspaceInjectableProvider interface {
 	// GetInjectables returns available injectables for a workspace.
 	// Called when editor opens to populate the injectable list.
 	// Provider is responsible for i18n - return labels/descriptions already translated for the requested locale.
-	GetInjectables(ctx context.Context, req *GetInjectablesRequest) (*GetInjectablesResult, error)
+	// Use injCtx.TenantCode() and injCtx.WorkspaceCode() to identify the workspace.
+	GetInjectables(ctx context.Context, injCtx *entity.InjectorContext) (*GetInjectablesResult, error)
 
 	// ResolveInjectables resolves a batch of injectable codes.
 	// Called during render for workspace-specific injectables.
@@ -27,15 +28,6 @@ type WorkspaceInjectableProvider interface {
 // ─────────────────────────────────────────────────────────────────────────────
 // GET INJECTABLES (listing for editor)
 // ─────────────────────────────────────────────────────────────────────────────
-
-// GetInjectablesRequest contains parameters for fetching workspace injectables.
-type GetInjectablesRequest struct {
-	// TenantCode is the tenant identifier (e.g., "acme-corp").
-	TenantCode string
-
-	// WorkspaceCode is the workspace identifier within the tenant.
-	WorkspaceCode string
-}
 
 // GetInjectablesResult contains the list of available injectables and groups.
 type GetInjectablesResult struct {

@@ -15,12 +15,12 @@ type ExampleWorkspaceProvider struct{}
 // GetInjectables returns available injectables for a workspace.
 // This is called when the editor opens to populate the injectable list.
 // Return all locales - the framework picks the right one based on request locale.
-func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, req *sdk.GetInjectablesRequest) (*sdk.GetInjectablesResult, error) {
+func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
 	// Example: Return different injectables based on workspace
 	// In real usage, you'd query an external system here
 
 	// Only provide custom injectables for specific workspaces
-	if req.WorkspaceCode == "" {
+	if injCtx.WorkspaceCode() == "" {
 		return &sdk.GetInjectablesResult{}, nil
 	}
 

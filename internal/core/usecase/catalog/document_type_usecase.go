@@ -18,6 +18,7 @@ type CreateDocumentTypeCommand struct {
 // UpdateDocumentTypeCommand represents the command to update a document type.
 type UpdateDocumentTypeCommand struct {
 	ID          string
+	TenantID    string // Required to verify ownership (cannot modify global types)
 	Name        entity.I18nText
 	Description entity.I18nText
 }
@@ -25,6 +26,7 @@ type UpdateDocumentTypeCommand struct {
 // DeleteDocumentTypeCommand represents the command to delete a document type.
 type DeleteDocumentTypeCommand struct {
 	ID            string
+	TenantID      string  // Required to verify ownership (cannot delete global types)
 	Force         bool    // If true, delete even if templates are assigned (sets them to NULL)
 	ReplaceWithID *string // If set, replace document_type_id in templates with this type before deleting
 }

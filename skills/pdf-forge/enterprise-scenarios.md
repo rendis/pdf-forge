@@ -48,13 +48,13 @@ func NewCRMWorkspaceProvider(client CRMClient) *CRMWorkspaceProvider {
 }
 
 // GetInjectables - called when editor opens
-// Return ALL locales - framework picks based on request locale
+// Use injCtx.TenantCode(), injCtx.WorkspaceCode() - return ALL locales
 func (p *CRMWorkspaceProvider) GetInjectables(
     ctx context.Context,
-    req *sdk.GetInjectablesRequest,
+    injCtx *sdk.InjectorContext,
 ) (*sdk.GetInjectablesResult, error) {
 
-    fields, err := p.crmClient.GetCustomerFields(ctx, req.WorkspaceCode)
+    fields, err := p.crmClient.GetCustomerFields(ctx, injCtx.WorkspaceCode())
     if err != nil {
         return nil, fmt.Errorf("fetch CRM fields: %w", err)
     }
