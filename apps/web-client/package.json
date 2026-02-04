@@ -106,6 +106,10 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
-    ]
+    ],
+    "overrides": {
+      "lodash": "^4.17.23",
+      "diff": "^8.0.3"
+    }
   }
 }
