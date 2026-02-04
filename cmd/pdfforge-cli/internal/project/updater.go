@@ -22,19 +22,19 @@ type UpdateResult struct {
 
 // UpdateOptions configures how the update should behave
 type UpdateOptions struct {
-	BackupModified bool              // Backup modified files before overwriting
-	SkipModified   bool              // Skip modified files entirely
-	ForceOverwrite bool              // Overwrite everything without backup
-	FilesToUpdate  map[string]bool   // If set, only update these files
+	BackupModified bool            // Backup modified files before overwriting
+	SkipModified   bool            // Skip modified files entirely
+	ForceOverwrite bool            // Overwrite everything without backup
+	FilesToUpdate  map[string]bool // If set, only update these files
 }
 
 // Updater handles project updates
 type Updater struct {
-	projectDir    string
-	templateData  templates.Data
-	version       string
-	currentLock   *LockFile
-	options       UpdateOptions
+	projectDir   string
+	templateData templates.Data
+	version      string
+	currentLock  *LockFile
+	options      UpdateOptions
 }
 
 // NewUpdater creates a new updater for a project
@@ -148,7 +148,7 @@ func (u *Updater) backupFile(relativePath string) error {
 		return err
 	}
 
-	return os.WriteFile(backupPath, content, 0o644)
+	return os.WriteFile(backupPath, content, 0o600)
 }
 
 // writeFile writes content to a file, creating directories as needed
@@ -159,7 +159,7 @@ func (u *Updater) writeFile(relativePath string, content []byte) error {
 		return err
 	}
 
-	return os.WriteFile(fullPath, content, 0o644)
+	return os.WriteFile(fullPath, content, 0o600)
 }
 
 // renderTemplate renders a template with the current data
@@ -204,6 +204,7 @@ func getTemplateFiles() []TemplateFile {
 		{TemplateName: "docker-compose.yaml.tmpl", OutputPath: "docker-compose.yaml", Optional: true},
 		{TemplateName: "Dockerfile.tmpl", OutputPath: "Dockerfile", Optional: true},
 		{TemplateName: "Makefile.tmpl", OutputPath: "Makefile", Optional: true},
+		{TemplateName: "golangci.yml.tmpl", OutputPath: ".golangci.yml"},
 		{TemplateName: "env.tmpl", OutputPath: ".env.example", Optional: true},
 	}
 }

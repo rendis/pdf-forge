@@ -8,14 +8,14 @@ import (
 
 // ProjectInfo contains information about a detected project
 type ProjectInfo struct {
-	Path            string
-	IsProject       bool
-	HasLockFile     bool
-	CurrentVersion  string
-	LockFile        *LockFile
-	GeneratedFiles  []string
-	ModifiedFiles   []string
-	UnchangedFiles  []string
+	Path           string
+	IsProject      bool
+	HasLockFile    bool
+	CurrentVersion string
+	LockFile       *LockFile
+	GeneratedFiles []string
+	ModifiedFiles  []string
+	UnchangedFiles []string
 }
 
 // DetectProject analyzes a directory to determine if it's a pdf-forge project

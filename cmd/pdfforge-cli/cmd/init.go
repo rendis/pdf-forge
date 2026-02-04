@@ -16,7 +16,7 @@ import (
 
 var (
 	// Flags
-	initModuleName     string
+	initModuleName      string
 	initIncludeExamples bool
 	initIncludeDocker   bool
 	initGitInit         bool
@@ -121,15 +121,15 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	// Generate files
 	files := map[string]string{
-		projectName + "/main.go":                    "main.go.tmpl",
-		projectName + "/config/app.yaml":            "app.yaml.tmpl",
-		projectName + "/config/injectors.i18n.yaml": "i18n.yaml.tmpl",
+		projectName + "/main.go":                          "main.go.tmpl",
+		projectName + "/config/app.yaml":                  "app.yaml.tmpl",
+		projectName + "/config/injectors.i18n.yaml":       "i18n.yaml.tmpl",
 		projectName + "/extensions/mapper.go":             "mapper.go.tmpl",
 		projectName + "/extensions/init.go":               "init.go.tmpl",
 		projectName + "/extensions/middleware.go":         "middleware.go.tmpl",
 		projectName + "/extensions/workspace_provider.go": "workspace_provider.go.tmpl",
-		projectName + "/scripts/README.md":          "scripts_readme.md.tmpl",
-		projectName + "/go.mod":                     "go.mod.tmpl",
+		projectName + "/scripts/README.md":                "scripts_readme.md.tmpl",
+		projectName + "/go.mod":                           "go.mod.tmpl",
 	}
 
 	if initIncludeExamples {
@@ -147,6 +147,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		files[projectName+"/Dockerfile"] = "Dockerfile.tmpl"
 		files[projectName+"/Makefile"] = "Makefile.tmpl"
 		files[projectName+"/.env.example"] = "env.tmpl"
+		files[projectName+"/.golangci.yml"] = "golangci.yml.tmpl"
 	}
 
 	// Create lock file to track generated files

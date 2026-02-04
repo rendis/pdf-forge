@@ -170,11 +170,14 @@ func runProjectUpdate(info *project.ProjectInfo) error {
 	if info.HasLockFile && info.LockFile != nil {
 		statusMap := info.LockFile.CheckAllFiles(".")
 		for path, status := range statusMap {
-			action := "update"
-			if status == project.FileStatusModified {
+			var action string
+			switch status {
+			case project.FileStatusModified:
 				action = "needs decision"
-			} else if status == project.FileStatusUnchanged {
+			case project.FileStatusUnchanged:
 				action = "will update"
+			default:
+				action = "update"
 			}
 			fileStatuses = append(fileStatuses, tui.FileStatusDisplay{
 				Path:   path,
@@ -288,13 +291,13 @@ func runProjectUpdate(info *project.ProjectInfo) error {
 // getTemplateNameForFile maps a file path to its template name
 func getTemplateNameForFile(path string) string {
 	mapping := map[string]string{
-		"main.go":                              "main.go.tmpl",
-		"go.mod":                               "go.mod.tmpl",
-		"config/app.yaml":                      "app.yaml.tmpl",
-		"config/injectors.i18n.yaml":           "i18n.yaml.tmpl",
-		"extensions/init.go":                   "init.go.tmpl",
-		"extensions/mapper.go":                 "mapper.go.tmpl",
-		"extensions/middleware.go":             "middleware.go.tmpl",
+		"main.go":                                "main.go.tmpl",
+		"go.mod":                                 "go.mod.tmpl",
+		"config/app.yaml":                        "app.yaml.tmpl",
+		"config/injectors.i18n.yaml":             "i18n.yaml.tmpl",
+		"extensions/init.go":                     "init.go.tmpl",
+		"extensions/mapper.go":                   "mapper.go.tmpl",
+		"extensions/middleware.go":               "middleware.go.tmpl",
 		"extensions/injectors/example_value.go":  "example_value.go.tmpl",
 		"extensions/injectors/example_number.go": "example_number.go.tmpl",
 		"extensions/injectors/example_bool.go":   "example_bool.go.tmpl",
@@ -302,10 +305,10 @@ func getTemplateNameForFile(path string) string {
 		"extensions/injectors/example_image.go":  "example_image.go.tmpl",
 		"extensions/injectors/example_table.go":  "example_table.go.tmpl",
 		"extensions/injectors/example_list.go":   "example_list.go.tmpl",
-		"docker-compose.yaml":                  "docker-compose.yaml.tmpl",
-		"Dockerfile":                           "Dockerfile.tmpl",
-		"Makefile":                             "Makefile.tmpl",
-		".env.example":                         "env.tmpl",
+		"docker-compose.yaml":                    "docker-compose.yaml.tmpl",
+		"Dockerfile":                             "Dockerfile.tmpl",
+		"Makefile":                               "Makefile.tmpl",
+		".env.example":                           "env.tmpl",
 	}
 	return mapping[path]
 }

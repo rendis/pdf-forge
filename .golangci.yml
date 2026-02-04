@@ -1,0 +1,114 @@
+version: "2"
+run:
+  go: 1.25.1
+  tests: true
+linters:
+  enable:
+    - depguard
+    - funlen
+    - gocognit
+    - gocritic
+    - gocyclo
+    - gosec
+    - misspell
+    - nestif
+    - nilerr
+    - prealloc
+    - unconvert
+  settings:
+    depguard:
+      rules:
+        main:
+          list-mode: lax
+          allow:
+            - log/slog
+          deny:
+            - pkg: "log"
+              desc: "Use log/slog instead of the log package"
+    funlen:
+      lines: 60
+      statements: 40
+      ignore-comments: true
+    gocognit:
+      min-complexity: 15
+    gocritic:
+      disabled-checks:
+        - sprintfQuotedString
+        - ifElseChain
+      enabled-tags:
+        - diagnostic
+    gocyclo:
+      min-complexity: 15
+    gosec:
+      excludes:
+        - G104
+        - G115
+    nestif:
+      min-complexity: 4
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+          - funlen
+          - gocognit
+          - gosec
+        path: _test\.go
+      # AllNodesRecursive: Recursive iterator using iter.Seq[Node] to traverse
+      # document tree structure. Complexity is inherent to recursive tree
+      # traversal pattern - cannot be simplified without losing functionality.
+      - linters:
+          - gocognit
+        path: iterator\.go
+      # is400Error: Classifies HTTP 400 error types using errors.Is() checks.
+      # High cyclomatic complexity is intentional - consolidates all Bad Request
+      # error mappings in one place for maintainability and readability.
+      - linters:
+          - gocyclo
+        path: error_handler\.go
+        text: is400Error
+      # CLI commands: Interactive TUI flows with multiple user prompts and
+      # conditional paths. Complexity is inherent to CLI UX - not worth splitting.
+      - linters:
+          - funlen
+          - gocognit
+          - gocyclo
+          - gosec
+          - nestif
+        path: cmd/pdfforge-cli/
+      # HTTP server setup: Wires many controllers and middleware.
+      # Long but straightforward initialization code.
+      - linters:
+          - funlen
+        path: internal/infra/server/http\.go
+      # Engine initialize: Manual DI wiring mirrors wire_gen.go pattern.
+      # Sequential setup of 15+ components - complexity is structural.
+      - linters:
+          - funlen
+          - gocognit
+          - gocyclo
+        path: sdk/initializer\.go
+      # Injectable service: Provider integration requires nested null checks.
+      # Business logic flow with external provider - complexity is necessary.
+      - linters:
+          - nestif
+        path: injectable_service\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

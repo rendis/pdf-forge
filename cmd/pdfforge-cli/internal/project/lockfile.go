@@ -66,7 +66,7 @@ func (l *LockFile) Save(dir string) error {
 	}
 
 	path := filepath.Join(dir, LockFileName)
-	return os.WriteFile(path, data, 0o644)
+	return os.WriteFile(path, data, 0o600)
 }
 
 // AddFile adds a file record to the lock file
@@ -92,11 +92,11 @@ func (l *LockFile) AddFileFromDisk(baseDir, relativePath, templateVersion string
 type FileStatus int
 
 const (
-	FileStatusUnknown    FileStatus = iota // Not in lock file
-	FileStatusUnchanged                    // Matches lock file hash
-	FileStatusModified                     // Different from lock file hash
-	FileStatusDeleted                      // In lock but not on disk
-	FileStatusNew                          // On disk but not in lock
+	FileStatusUnknown   FileStatus = iota // Not in lock file
+	FileStatusUnchanged                   // Matches lock file hash
+	FileStatusModified                    // Different from lock file hash
+	FileStatusDeleted                     // In lock but not on disk
+	FileStatusNew                         // On disk but not in lock
 )
 
 func (s FileStatus) String() string {
