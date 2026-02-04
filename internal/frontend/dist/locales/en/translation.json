@@ -609,6 +609,7 @@
       "noVariables": "This document has no variables. Generate preview with default values?",
       "generateTestData": "Generate Test Data",
       "generateRandom": "Generate random value",
+      "fillAllRandom": "Fill All Random",
       "resetToEmulated": "Reset to automatic value",
       "auto": "Auto",
       "errors": {
