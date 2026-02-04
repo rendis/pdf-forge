@@ -3,6 +3,7 @@ import { motion, type Transition } from 'framer-motion'
 import { ChevronRight, FolderOpen, type LucideIcon } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { InjectableGroup } from '../types/injectable-group'
 import type { Variable } from '../types/variables'
 import type { VariableDragData } from '../types/drag'
@@ -156,7 +157,12 @@ export function VariableGroup({
         <DynamicIcon iconName={group.icon} className="h-3 w-3" />
 
         {/* Group name */}
-        <span>{group.name}</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="truncate flex-1 min-w-0 text-left">{group.name}</span>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{group.name}</TooltipContent>
+        </Tooltip>
 
         {/* Variable count badge */}
         <span
