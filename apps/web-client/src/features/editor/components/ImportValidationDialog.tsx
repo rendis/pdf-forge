@@ -32,7 +32,7 @@ export function ImportValidationDialog({
   validation,
   onConfirm,
 }: ImportValidationDialogProps) {
-  const { t: _t } = useTranslation()
+  const { t } = useTranslation()
 
   const hasErrors = validation.errors.length > 0
   const hasWarnings = validation.warnings.length > 0
@@ -45,26 +45,26 @@ export function ImportValidationDialog({
             {hasErrors ? (
               <>
                 <AlertCircle className="h-5 w-5 text-destructive" />
-                Errores de Validación
+                {t('editor.import.validationErrors')}
               </>
             ) : hasWarnings ? (
               <>
                 <AlertTriangle className="h-5 w-5 text-warning" />
-                Advertencias de Importación
+                {t('editor.import.importWarnings')}
               </>
             ) : (
               <>
                 <CheckCircle2 className="h-5 w-5 text-success" />
-                Validación Exitosa
+                {t('editor.import.validationSuccess')}
               </>
             )}
           </DialogTitle>
           <DialogDescription>
             {hasErrors
-              ? 'El documento tiene errores críticos que deben corregirse antes de importar.'
+              ? t('editor.import.criticalErrors')
               : hasWarnings
-                ? 'El documento tiene advertencias no críticas. Puedes importarlo de todas formas.'
-                : 'El documento es válido y está listo para importar.'}
+                ? t('editor.import.nonCriticalWarnings')
+                : t('editor.import.documentValid')}
           </DialogDescription>
         </DialogHeader>
 
@@ -75,7 +75,7 @@ export function ImportValidationDialog({
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold text-destructive flex items-center gap-2">
                   <AlertCircle className="h-4 w-4" />
-                  Errores ({validation.errors.length})
+                  {t('editor.import.errors')} ({validation.errors.length})
                 </h4>
                 <div className="space-y-2">
                   {validation.errors.map((error, index) => (
@@ -91,11 +91,11 @@ export function ImportValidationDialog({
                           </p>
                           {error.path && (
                             <p className="text-xs text-muted-foreground mt-1 font-mono">
-                              Ubicación: {error.path}
+                              {t('editor.import.location')}: {error.path}
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
-                            Código: {error.code}
+                            {t('editor.import.code')}: {error.code}
                           </p>
                         </div>
                       </div>
@@ -108,9 +108,9 @@ export function ImportValidationDialog({
             {/* Warnings Section */}
             {hasWarnings && (
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-yellow-600 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-yellow-600 dark:text-yellow-500 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
-                  Advertencias ({validation.warnings.length})
+                  {t('editor.import.warnings')} ({validation.warnings.length})
                 </h4>
                 <div className="space-y-2">
                   {validation.warnings.map((warning, index) => (
@@ -119,23 +119,23 @@ export function ImportValidationDialog({
                       className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-md"
                     >
                       <div className="flex items-start gap-2">
-                        <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                        <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
                             {warning.message}
                           </p>
                           {warning.path && (
                             <p className="text-xs text-muted-foreground mt-1 font-mono">
-                              Ubicación: {warning.path}
+                              {t('editor.import.location')}: {warning.path}
                             </p>
                           )}
                           {warning.suggestion && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              💡 {warning.suggestion}
+                              {t('editor.import.suggestion')}: {warning.suggestion}
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
-                            Código: {warning.code}
+                            {t('editor.import.code')}: {warning.code}
                           </p>
                         </div>
                       </div>
@@ -151,7 +151,7 @@ export function ImportValidationDialog({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-success" />
                   <p className="text-sm text-success-foreground">
-                    El documento pasó todas las validaciones correctamente.
+                    {t('editor.import.documentPassedValidation')}
                   </p>
                 </div>
               </div>
@@ -164,11 +164,11 @@ export function ImportValidationDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            {hasErrors ? 'Cerrar' : 'Cancelar'}
+            {hasErrors ? t('editor.import.close') : t('editor.import.cancel')}
           </Button>
           {!hasErrors && (
             <Button onClick={onConfirm}>
-              {hasWarnings ? 'Importar de todas formas' : 'Importar'}
+              {hasWarnings ? t('editor.import.importAnyway') : t('editor.import.import')}
             </Button>
           )}
         </DialogFooter>

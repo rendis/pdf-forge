@@ -3,14 +3,20 @@ import { ArrowLeft, AlertCircle, Save, RefreshCw, Lock } from 'lucide-react'
 import { DocumentEditor } from '@/features/editor/components/DocumentEditor'
 import { DocumentPreparationOverlay } from '@/features/editor/components/DocumentPreparationOverlay'
 import { SaveStatusIndicator } from '@/features/editor/components/SaveStatusIndicator'
+import { ImportValidationDialog } from '@/features/editor/components/ImportValidationDialog'
+import { ImportDocumentModal } from '@/features/editor/components/ImportDocumentModal'
 import { useInjectables } from '@/features/editor/hooks/useInjectables'
 import { useAutoSave } from '@/features/editor/hooks/useAutoSave'
 import { useNavigationGuard } from '@/features/editor/hooks/useNavigationGuard'
-import { importDocument } from '@/features/editor/services/document-import'
+import {
+  importDocument,
+  validateDocumentForImport,
+} from '@/features/editor/services/document-import'
+import { exportAndDownload } from '@/features/editor/services/document-export'
 import { usePaginationStore } from '@/features/editor/stores'
 import { versionsApi, isVersionEditable } from '@/features/templates'
 import type { TemplateVersionDetail } from '@/features/templates/types'
-import type { PortableDocument } from '@/features/editor/types/document-format'
+import type { PortableDocument, ValidationResult, DocumentMeta } from '@/features/editor/types/document-format'
 import { Button } from '@/components/ui/button'
 import type { Editor } from '@tiptap/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -41,6 +47,14 @@ function EditorPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<Error | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
+
+  // Import modal state
+  const [showImportModal, setShowImportModal] = useState(false)
+
+  // Import validation dialog state
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
+  const [pendingDocument, setPendingDocument] = useState<PortableDocument | null>(null)
+  const [showValidationDialog, setShowValidationDialog] = useState(false)
 
   // Preparation overlay state - stays visible until editor is fully ready AND minimum time elapsed
   const [isPreparingDocument, setIsPreparingDocument] = useState(true)
@@ -85,6 +99,94 @@ function EditorPage() {
   // Check if version is editable
   const isEditable = isVersionEditable(version)
 
+  // Helper to map variables to backend format
+  const getBackendVariables = useCallback(() => {
+    return variables.map((v) => ({
+      id: v.id,
+      variableId: v.variableId,
+      type: v.type,
+      label: v.label,
+    }))
+  }, [variables])
+
+  // Helper to create store actions for import
+  const createStoreActions = useCallback(() => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic config type
+    setPaginationConfig: (config: any) => {
+      const { pageSize, margins } = config
+      if (pageSize) usePaginationStore.getState().setPageSize(pageSize)
+      if (margins) usePaginationStore.getState().setMargins(margins)
+    },
+  }), [])
+
+  // Execute import into editor
+  const executeImport = useCallback((doc: PortableDocument) => {
+    if (!editorInstance) return
+
+    const result = importDocument(
+      doc,
+      editorInstance,
+      createStoreActions(),
+      getBackendVariables()
+    )
+
+    if (!result.success) {
+      console.error('Import failed:', result.validation.errors)
+    }
+
+    setShowValidationDialog(false)
+    setPendingDocument(null)
+    setValidationResult(null)
+  }, [editorInstance, createStoreActions, getBackendVariables])
+
+  // Export handler
+  const handleExport = useCallback(() => {
+    if (!editorInstance) return
+
+    const storeData = {
+      pagination: {
+        pageSize: usePaginationStore.getState().pageSize,
+        margins: usePaginationStore.getState().margins,
+      },
+    }
+
+    const meta: DocumentMeta = {
+      title: version?.name || 'Document',
+      language: 'es',
+    }
+
+    const filename = `${version?.name || 'document'}.json`
+    exportAndDownload(editorInstance, storeData, meta, filename)
+  }, [editorInstance, version])
+
+  // Import handler - opens the import modal
+  const handleImport = useCallback(() => {
+    if (!editorInstance) return
+    setShowImportModal(true)
+  }, [editorInstance])
+
+  // Handle document from import modal
+  const handleImportDocument = useCallback((doc: PortableDocument) => {
+    const validation = validateDocumentForImport(doc, getBackendVariables())
+
+    if (!validation.valid || validation.warnings.length > 0) {
+      setValidationResult(validation)
+      setPendingDocument(doc)
+      setShowValidationDialog(true)
+      return
+    }
+
+    // No errors or warnings - import directly
+    executeImport(doc)
+  }, [getBackendVariables, executeImport])
+
+  // Confirm import from dialog (when there are warnings but no errors)
+  const handleConfirmImport = useCallback(() => {
+    if (pendingDocument) {
+      executeImport(pendingDocument)
+    }
+  }, [pendingDocument, executeImport])
+
   // Load content into editor when both are ready
   useEffect(() => {
     if (!editorRef.current || !version || contentLoadedRef.current) return
@@ -100,29 +202,14 @@ function EditorPage() {
       return
     }
 
-    // Create store actions adapter
-    const storeActions = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic config type
-      setPaginationConfig: (config: any) => {
-        const { pageSize, margins } = config
-        if (pageSize) usePaginationStore.getState().setPageSize(pageSize)
-        if (margins) usePaginationStore.getState().setMargins(margins)
-      },
-    }
-
     // Import document using contentStructure
     // contentStructure is already a PortableDocument object, not a string
     const portableDoc = version.contentStructure as unknown as PortableDocument
     const result = importDocument(
       portableDoc,
       editor,
-      storeActions,
-      variables.map((v) => ({
-        id: v.id,
-        variableId: v.variableId,
-        type: v.type,
-        label: v.label,
-      }))
+      createStoreActions(),
+      getBackendVariables()
     )
 
     if (!result.success) {
@@ -137,7 +224,7 @@ function EditorPage() {
 
     contentLoadedRef.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps -- t is stable, editorRef.current triggers on editor ready
-  }, [version, editorRef.current, variables])
+  }, [version, editorRef.current, getBackendVariables, createStoreActions])
 
   // Auto-save hook
   const autoSave = useAutoSave({
@@ -296,12 +383,31 @@ function EditorPage() {
               editorRef={editorRef}
               onEditorReady={setEditorInstance}
               onFullyReady={handleEditorFullyReady}
+              onExport={isEditable ? handleExport : undefined}
+              onImport={isEditable ? handleImport : undefined}
               templateId={templateId}
               versionId={versionId}
             />
           )}
         </div>
       </div>
+
+      {/* Import Document Modal */}
+      <ImportDocumentModal
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onImport={handleImportDocument}
+      />
+
+      {/* Import Validation Dialog */}
+      {validationResult && (
+        <ImportValidationDialog
+          open={showValidationDialog}
+          onOpenChange={setShowValidationDialog}
+          validation={validationResult}
+          onConfirm={handleConfirmImport}
+        />
+      )}
     </>
   )
 }

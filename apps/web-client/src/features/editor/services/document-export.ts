@@ -55,7 +55,13 @@ function findInjectorNodes(content: ProseMirrorNode[]): Set<string> {
 
   function traverse(nodes: ProseMirrorNode[]) {
     for (const node of nodes) {
-      if (node.type === 'injector' && node.attrs?.variableId) {
+      // Check for all injectable node types: inline injector, table injector, list injector
+      if (
+        (node.type === 'injector' ||
+          node.type === 'tableInjector' ||
+          node.type === 'listInjector') &&
+        node.attrs?.variableId
+      ) {
         variableIds.add(node.attrs.variableId as string)
       }
 
