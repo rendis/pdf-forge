@@ -12,6 +12,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <a href="https://pkg.go.dev/github.com/rendis/pdf-forge"><img src="https://pkg.go.dev/badge/github.com/rendis/pdf-forge.svg" alt="Go Reference"></a>
   <a href="#ai-agent-skill"><img src="https://img.shields.io/badge/AI_Agents-Skill_Available-8A2BE2?style=flat" alt="AI Agent Skill"></a>
+  <a href="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL"></a>
+  <a href="https://github.com/rendis/pdf-forge/security/dependabot"><img src="https://img.shields.io/badge/Dependabot-enabled-brightgreen" alt="Dependabot"></a>
+  <a href="https://deepwiki.com/rendis/pdf-forge"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </p>
 
 <p align="center">
