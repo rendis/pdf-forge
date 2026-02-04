@@ -609,6 +609,7 @@
       "noVariables": "Este documento no tiene variables. ¿Generar vista previa con valores por defecto?",
       "generateTestData": "Generar Datos de Prueba",
       "generateRandom": "Generar valor aleatorio",
+      "fillAllRandom": "Llenar Todo",
       "resetToEmulated": "Restablecer valor automático",
       "auto": "Auto",
       "errors": {
