@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/charmbracelet/huh"
@@ -69,13 +70,78 @@ func runInit(cmd *cobra.Command, args []string) error {
 		initGitInit = config.GitInit
 	}
 
-	// Validate project doesn't exist (skip for "." which always exists)
+	// CASE 1: init my-project (subdirectory)
 	if projectName != "." {
-		if _, err := os.Stat(projectName); err == nil {
-			return fmt.Errorf("directory %q already exists", projectName)
+		if info, err := os.Stat(projectName); err == nil && info.IsDir() {
+			entries, _ := os.ReadDir(projectName)
+			if len(entries) > 0 {
+				return fmt.Errorf("directory %q already has content.\nTo update an existing project, run:\n  cd %s && pdfforge-cli init .", projectName, projectName)
+			}
 		}
 	}
 
+	// CASE 2: init . (current directory) - check for existing project
+	if projectName == "." {
+		lockFile, err := project.LoadLockFile(".")
+		if err == nil && lockFile != nil {
+			// Project exists - use minimal update mode
+			return runMinimalUpdate(".", lockFile)
+		}
+	}
+
+	// Generate new project
+	return generateNewProject(projectName)
+}
+
+// runMinimalUpdate updates an existing project without touching user files
+func runMinimalUpdate(projectDir string, currentLock *project.LockFile) error {
+	fmt.Println()
+	printInfo(fmt.Sprintf("Existing pdf-forge project detected (v%s)", currentLock.Version))
+	printInfo(fmt.Sprintf("Updating to v%s", Version))
+
+	// 1. Update lock file version
+	newLock := project.NewLockFile(Version)
+	newLock.Files = currentLock.Files
+
+	// 2. Update go.mod dependency
+	fmt.Println()
+	printInfo("Updating go.mod dependency...")
+	goGetCmd := exec.Command("go", "get", "-u", "github.com/rendis/pdf-forge/sdk@latest")
+	goGetCmd.Dir = projectDir
+	goGetCmd.Stdout = os.Stdout
+	goGetCmd.Stderr = os.Stderr
+	if err := goGetCmd.Run(); err != nil {
+		printWarning(fmt.Sprintf("go get failed: %v", err))
+	}
+
+	// 3. List skipped files
+	if len(currentLock.Files) > 0 {
+		fmt.Println()
+		printInfo("Skipped (already exist):")
+		// Sort for consistent output
+		var files []string
+		for f := range currentLock.Files {
+			files = append(files, f)
+		}
+		sort.Strings(files)
+		for _, f := range files {
+			fmt.Printf("  - %s\n", f)
+		}
+	}
+
+	// 4. Save updated lock file
+	if err := newLock.Save(projectDir); err != nil {
+		printWarning(fmt.Sprintf("lock file update failed: %v", err))
+	}
+
+	fmt.Println()
+	printSuccess("Update complete")
+	printInfo("Run 'go mod tidy' to finalize dependencies")
+	return nil
+}
+
+// generateNewProject creates a new pdf-forge project from scratch
+func generateNewProject(projectName string) error {
 	// Use base name as module if not specified
 	moduleName := initModuleName
 	if moduleName == "" {
@@ -153,6 +219,38 @@ func runInit(cmd *cobra.Command, args []string) error {
 	// Create lock file to track generated files
 	lockFile := project.NewLockFile(Version)
 
+	// Check for existing files that would be overwritten
+	var existingFiles []string
+	for path := range files {
+		if _, err := os.Stat(path); err == nil {
+			existingFiles = append(existingFiles, path)
+		}
+	}
+
+	// If there are existing files, warn and ask for confirmation
+	if len(existingFiles) > 0 && !initNonInteractive {
+		fmt.Println()
+		printWarning(fmt.Sprintf("Found %d existing files that will be overwritten:", len(existingFiles)))
+		for _, f := range existingFiles {
+			fmt.Printf("  - %s\n", f)
+		}
+		fmt.Println()
+
+		var confirm bool
+		err := huh.NewConfirm().
+			Title("Continue with init?").
+			Description("Existing files will be overwritten.").
+			Value(&confirm).
+			Run()
+		if err != nil {
+			return err
+		}
+		if !confirm {
+			printInfo("Init cancelled")
+			return nil
+		}
+	}
+
 	// Write files from templates
 	for path, tmplName := range files {
 		content, err := renderTemplate(tmplName, data)
@@ -164,7 +262,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("error writing %s: %w", path, err)
 		}
 
-		// Track in lock file (use relative path from project root)
+		// Track in lock file
 		relPath := strings.TrimPrefix(path, projectName+"/")
 		lockFile.AddFile(relPath, Version, content)
 		printInfo("Created " + path)
@@ -348,3 +446,4 @@ func findForgeRoot() string {
 	}
 	return ""
 }
+

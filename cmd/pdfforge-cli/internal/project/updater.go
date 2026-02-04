@@ -105,7 +105,7 @@ func (u *Updater) Update() (*UpdateResult, error) {
 			result.FilesCreated = append(result.FilesCreated, tf.OutputPath)
 		}
 
-		// Generate and write file
+		// Generate template content
 		content, err := u.renderTemplate(tf.TemplateName)
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Errorf("render %s: %w", tf.OutputPath, err))
@@ -194,6 +194,7 @@ func getTemplateFiles() []TemplateFile {
 		{TemplateName: "init.go.tmpl", OutputPath: "extensions/init.go"},
 		{TemplateName: "mapper.go.tmpl", OutputPath: "extensions/mapper.go"},
 		{TemplateName: "middleware.go.tmpl", OutputPath: "extensions/middleware.go"},
+		{TemplateName: "workspace_provider.go.tmpl", OutputPath: "extensions/workspace_provider.go"},
 		{TemplateName: "example_value.go.tmpl", OutputPath: "extensions/injectors/example_value.go", Optional: true},
 		{TemplateName: "example_number.go.tmpl", OutputPath: "extensions/injectors/example_number.go", Optional: true},
 		{TemplateName: "example_bool.go.tmpl", OutputPath: "extensions/injectors/example_bool.go", Optional: true},

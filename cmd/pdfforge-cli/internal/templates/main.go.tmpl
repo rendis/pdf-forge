@@ -47,7 +47,7 @@ func main() {
 // registerInjectors registers all custom injectors.
 // Group related injectors together for clarity.
 func registerInjectors(engine *sdk.Engine) {
-	// One example injector per ValueType
+	// Example injectors (one per ValueType) - replace with your own
 	engine.RegisterInjector(&injectors.ExampleValueInjector{})
 	engine.RegisterInjector(&injectors.ExampleNumberInjector{})
 	engine.RegisterInjector(&injectors.ExampleBoolInjector{})
