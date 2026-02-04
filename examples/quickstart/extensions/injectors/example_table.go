@@ -43,7 +43,7 @@ func (i *ExampleTableInjector) Resolve() (sdk.ResolveFunc, []string) {
 	}, nil
 }
 
-func (i *ExampleTableInjector) IsCritical() bool                  { return false }
+func (i *ExampleTableInjector) IsCritical() bool                   { return false }
 func (i *ExampleTableInjector) Timeout() time.Duration             { return 0 }
 func (i *ExampleTableInjector) DataType() sdk.ValueType            { return sdk.ValueTypeTable }
 func (i *ExampleTableInjector) DefaultValue() *sdk.InjectableValue { return nil }

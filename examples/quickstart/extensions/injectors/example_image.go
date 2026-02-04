@@ -21,9 +21,9 @@ func (i *ExampleImageInjector) Resolve() (sdk.ResolveFunc, []string) {
 	}, nil
 }
 
-func (i *ExampleImageInjector) IsCritical() bool                  { return false }
-func (i *ExampleImageInjector) Timeout() time.Duration             { return 0 }
-func (i *ExampleImageInjector) DataType() sdk.ValueType            { return sdk.ValueTypeImage }
+func (i *ExampleImageInjector) IsCritical() bool        { return false }
+func (i *ExampleImageInjector) Timeout() time.Duration  { return 0 }
+func (i *ExampleImageInjector) DataType() sdk.ValueType { return sdk.ValueTypeImage }
 func (i *ExampleImageInjector) DefaultValue() *sdk.InjectableValue {
 	v := sdk.ImageValue("https://picsum.photos/400/300")
 	return &v

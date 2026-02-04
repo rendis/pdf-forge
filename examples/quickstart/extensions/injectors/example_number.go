@@ -20,7 +20,7 @@ func (i *ExampleNumberInjector) Resolve() (sdk.ResolveFunc, []string) {
 	}, nil
 }
 
-func (i *ExampleNumberInjector) IsCritical() bool                  { return false }
+func (i *ExampleNumberInjector) IsCritical() bool                   { return false }
 func (i *ExampleNumberInjector) Timeout() time.Duration             { return 0 }
 func (i *ExampleNumberInjector) DataType() sdk.ValueType            { return sdk.ValueTypeNumber }
 func (i *ExampleNumberInjector) DefaultValue() *sdk.InjectableValue { return nil }

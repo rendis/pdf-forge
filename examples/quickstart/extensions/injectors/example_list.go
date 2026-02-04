@@ -40,7 +40,7 @@ func (i *ExampleListInjector) Resolve() (sdk.ResolveFunc, []string) {
 	}, nil
 }
 
-func (i *ExampleListInjector) IsCritical() bool                  { return false }
+func (i *ExampleListInjector) IsCritical() bool                   { return false }
 func (i *ExampleListInjector) Timeout() time.Duration             { return 0 }
 func (i *ExampleListInjector) DataType() sdk.ValueType            { return sdk.ValueTypeList }
 func (i *ExampleListInjector) DefaultValue() *sdk.InjectableValue { return nil }
