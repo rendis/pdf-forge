@@ -47,29 +47,55 @@ engine := sdk.New(
 | `DOC_ENGINE_DATABASE_MIN_POOL_SIZE`         | `database.min_pool_size`         | `2`          | Min idle connections                          |
 | `DOC_ENGINE_DATABASE_MAX_IDLE_TIME_SECONDS` | `database.max_idle_time_seconds` | `300`        | Max idle time before closing                  |
 
-### Auth (Multi-OIDC)
+### Auth (Panel vs Render)
 
-Supports N OIDC providers. Tokens validated by matching `iss` claim. Unknown issuer → 401. Empty list → dummy auth mode.
+Separates OIDC authentication for panel (login/UI) vs render endpoints. Omit `auth` entirely = dummy auth mode.
+
+```yaml
+auth:
+  # Panel: OIDC for web UI login and management endpoints
+  panel:
+    name: "web-panel"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/.../certs"
+    audience: "pdf-forge-web" # optional
+
+  # Render providers: Additional OIDC ONLY for render endpoints
+  # Panel is always valid for render too (UI preview)
+  render_providers:
+    - name: "internal-services"
+      issuer: "https://auth.internal.com"
+      jwks_url: "https://auth.internal.com/.well-known/jwks.json"
+```
+
+| Field                              | Required | Description                       |
+| ---------------------------------- | -------- | --------------------------------- |
+| `auth.panel.name`                  | Yes      | Human-readable name (logs)        |
+| `auth.panel.issuer`                | Yes      | Expected JWT issuer (`iss` claim) |
+| `auth.panel.jwks_url`              | Yes      | JWKS endpoint URL                 |
+| `auth.panel.audience`              | No       | Expected audience. Empty = skip   |
+| `auth.render_providers[].name`     | Yes      | Provider name for logs            |
+| `auth.render_providers[].issuer`   | Yes      | JWT issuer for this provider      |
+| `auth.render_providers[].jwks_url` | Yes      | JWKS endpoint                     |
+| `auth.render_providers[].audience` | No       | Audience validation               |
+
+**Route auth**:
+
+- **Panel routes** (`/api/v1/*` except render): `auth.panel` only, full identity lookup
+- **Render routes** (`/api/v1/workspace/document-types/*/render`): `auth.panel` + `auth.render_providers`, NO identity lookup
+
+**Legacy format** (still supported):
 
 ```yaml
 oidc_providers:
   - name: "web-clients"
-    issuer: "https://auth.example.com/realms/web"
-    jwks_url: "https://auth.example.com/realms/web/.../certs"
-    audience: "pdf-forge-web"  # optional
-  - name: "internal-services"
-    issuer: "https://auth.example.com/realms/services"
-    jwks_url: "https://auth.example.com/realms/services/.../certs"
+    issuer: "https://..."
+    jwks_url: "https://..."
 ```
 
-| Field                         | Required | Description                                 |
-| ----------------------------- | -------- | ------------------------------------------- |
-| `oidc_providers[].name`       | Yes      | Human-readable name (logs)                  |
-| `oidc_providers[].issuer`     | Yes      | Expected JWT issuer (`iss` claim)           |
-| `oidc_providers[].jwks_url`   | Yes      | JWKS endpoint URL                           |
-| `oidc_providers[].audience`   | No       | Expected audience (`aud`). Empty = skip     |
+First provider → panel, all providers → render.
 
-**Note**: `oidc_providers` cannot be set via env vars (YAML only for arrays).
+**Note**: Auth config cannot be set via env vars (YAML only for nested objects).
 
 ### Typst (PDF Rendering)
 
@@ -151,12 +177,14 @@ database:
   min_pool_size: 2
   max_idle_time_seconds: 300
 
-# Multi-OIDC auth (empty list = dummy mode)
-oidc_providers:
-  - name: "web-clients"
+# Auth config (omit for dummy mode)
+auth:
+  panel:
+    name: "web-panel"
     issuer: "https://auth.example.com/realms/web"
     jwks_url: "https://auth.example.com/realms/web/.../certs"
     audience: "pdf-forge-web"
+  # render_providers: []  # Optional: additional OIDC for render only
 
 typst:
   bin_path: typst
@@ -217,8 +245,8 @@ sdk.WithDevFrontendURL("http://localhost:5173")
 
 These are NOT configurable via YAML or env vars:
 
-| Setting           | How to Set                              | Description             |
-| ----------------- | --------------------------------------- | ----------------------- |
-| `DummyAuth`       | Automatic when `oidc_providers` empty   | Enables dummy auth mode |
-| `DummyAuthUserID` | Automatic                               | Seeded admin user ID    |
-| `DevFrontendURL`  | `sdk.WithDevFrontendURL()`              | Frontend dev proxy      |
+| Setting           | How to Set                      | Description             |
+| ----------------- | ------------------------------- | ----------------------- |
+| `DummyAuth`       | Automatic when no `auth` config | Enables dummy auth mode |
+| `DummyAuthUserID` | Automatic                       | Seeded admin user ID    |
+| `DevFrontendURL`  | `sdk.WithDevFrontendURL()`      | Frontend dev proxy      |

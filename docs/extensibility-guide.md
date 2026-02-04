@@ -461,3 +461,169 @@ engine.SetWorkspaceInjectableProvider(&MyProvider{})
 - **Code Collisions**: Provider codes must not conflict with registry injector codes (error on collision)
 - **Groups**: Provider can define custom groups that merge with YAML-defined groups
 - **Error Handling**: Return `(nil, error)` for critical failures; use `result.Errors` for non-critical
+
+---
+
+## Custom Render Authentication
+
+By default, render endpoints use OIDC authentication (panel provider + render_providers). For custom authentication (API keys, custom JWT, etc.), implement `RenderAuthenticator`.
+
+### When to Use
+
+- API key authentication for service-to-service calls
+- Custom JWT validation (different from configured OIDC)
+- Hybrid authentication (try OIDC, fallback to API key)
+- Custom authorization logic before standard auth
+
+### Interface
+
+```go
+type RenderAuthenticator interface {
+    // Authenticate validates the request and returns claims.
+    // Return (claims, nil) if valid.
+    // Return (nil, error) to reject with 401.
+    Authenticate(c *gin.Context) (*RenderAuthClaims, error)
+}
+
+type RenderAuthClaims struct {
+    UserID   string         // Caller identifier (required for audit/tracing)
+    Email    string         // Email (optional)
+    Name     string         // Name (optional)
+    Provider string         // Name of the auth provider/method used
+    Extra    map[string]any // Additional custom claims
+}
+```
+
+### Behavior
+
+| Custom Auth Registered | Render Endpoints                          | Panel Endpoints           |
+|------------------------|-------------------------------------------|---------------------------|
+| NO                     | Uses OIDC (panel + render_providers)      | Uses panel OIDC           |
+| YES                    | Uses custom auth, ignores OIDC for render | Panel OIDC still works    |
+
+**Panel OIDC always works** for login/UI, independent of custom render auth.
+
+### API Key Authentication Example
+
+```go
+type APIKeyAuthenticator struct {
+    validKeys map[string]string // key → userID
+}
+
+func (a *APIKeyAuthenticator) Authenticate(c *gin.Context) (*sdk.RenderAuthClaims, error) {
+    apiKey := c.GetHeader("X-API-Key")
+    if apiKey == "" {
+        return nil, errors.New("missing API key")
+    }
+
+    userID, ok := a.validKeys[apiKey]
+    if !ok {
+        return nil, errors.New("invalid API key")
+    }
+
+    return &sdk.RenderAuthClaims{
+        UserID:   userID,
+        Provider: "api-key",
+        Extra:    map[string]any{"api_key_prefix": apiKey[:8]},
+    }, nil
+}
+
+// Registration
+engine.SetRenderAuthenticator(&APIKeyAuthenticator{
+    validKeys: map[string]string{
+        "sk_live_xxx": "service-account-1",
+        "sk_live_yyy": "service-account-2",
+    },
+})
+```
+
+### Custom JWT Example
+
+```go
+type CustomJWTAuth struct {
+    secret []byte
+}
+
+func (a *CustomJWTAuth) Authenticate(c *gin.Context) (*sdk.RenderAuthClaims, error) {
+    tokenStr := extractBearerToken(c)
+    if tokenStr == "" {
+        return nil, errors.New("missing token")
+    }
+
+    claims, err := jwt.Parse(tokenStr, a.secret)
+    if err != nil {
+        return nil, err
+    }
+
+    return &sdk.RenderAuthClaims{
+        UserID:   claims["sub"].(string),
+        Email:    claims["email"].(string),
+        Provider: "custom-jwt",
+    }, nil
+}
+```
+
+### Hybrid Authentication Example
+
+Try Bearer token first, fallback to API key:
+
+```go
+type HybridAuth struct {
+    oidcValidator *OIDCValidator
+    apiKeys       map[string]string
+}
+
+func (a *HybridAuth) Authenticate(c *gin.Context) (*sdk.RenderAuthClaims, error) {
+    // Try Bearer token first
+    if token := c.GetHeader("Authorization"); strings.HasPrefix(token, "Bearer ") {
+        claims, err := a.oidcValidator.Validate(token[7:])
+        if err == nil {
+            return &sdk.RenderAuthClaims{
+                UserID:   claims.Subject,
+                Email:    claims.Email,
+                Provider: "oidc",
+            }, nil
+        }
+    }
+
+    // Fallback to API key
+    if key := c.GetHeader("X-API-Key"); key != "" {
+        if userID, ok := a.apiKeys[key]; ok {
+            return &sdk.RenderAuthClaims{
+                UserID:   userID,
+                Provider: "api-key",
+            }, nil
+        }
+    }
+
+    return nil, errors.New("no valid credentials")
+}
+```
+
+### Accessing Claims in Middleware/Controllers
+
+Claims are stored in gin context with same keys as OIDC:
+
+```go
+// In custom middleware or controller
+userID, _ := c.Get("user_id")
+email, _ := c.Get("user_email")
+name, _ := c.Get("user_name")
+provider, _ := c.Get("oidc_provider") // contains custom Provider name
+
+// Extra claims from RenderAuthClaims.Extra
+extra := middleware.GetRenderAuthExtra(c) // returns map[string]any or nil
+```
+
+### Registration
+
+```go
+engine.SetRenderAuthenticator(&MyAuthenticator{})
+```
+
+### Key Points
+
+- **Replaces OIDC for render**: When registered, OIDC render_providers are ignored
+- **Panel unaffected**: Panel OIDC always works for login/UI
+- **Same context keys**: Claims stored using same keys as OIDC for compatibility
+- **Extra claims**: Use `Extra` map for custom claims, access via `middleware.GetRenderAuthExtra(c)`

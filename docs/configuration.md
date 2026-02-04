@@ -25,35 +25,81 @@ YAML config file: `settings/app.yaml`. Env var override prefix: `DOC_ENGINE_*` (
 | `database.min_pool_size`         | `2`         | Min idle connections                      |
 | `database.max_idle_time_seconds` | `300`       | Max idle time before closing a connection |
 
-## oidc_providers
+## auth
 
-Supports N OIDC providers. Tokens are validated against the provider matching the token's `iss` claim. Unknown issuer → 401. Empty list → dummy auth mode.
+Separates OIDC authentication for **panel** (login/UI) vs **render** endpoints. Omit `auth` section entirely = dummy auth mode.
 
-| Key                           | Required | Description                                     |
-| ----------------------------- | -------- | ----------------------------------------------- |
-| `oidc_providers[].name`       | Yes      | Human-readable name (for logs)                  |
-| `oidc_providers[].issuer`     | Yes      | Expected JWT issuer (`iss` claim)               |
-| `oidc_providers[].jwks_url`   | Yes      | JWKS endpoint URL                               |
-| `oidc_providers[].audience`   | No       | Expected audience (`aud` claim). Empty = skip   |
+### New Format (Recommended)
+
+| Key                             | Required | Description                               |
+| ------------------------------- | -------- | ----------------------------------------- |
+| `auth.panel.name`               | Yes      | Human-readable name (for logs)            |
+| `auth.panel.issuer`             | Yes      | Expected JWT issuer (`iss` claim)         |
+| `auth.panel.jwks_url`           | Yes      | JWKS endpoint URL                         |
+| `auth.panel.audience`           | No       | Expected audience (`aud`). Empty = skip   |
+| `auth.render_providers[].name`  | Yes      | Provider name for logs                    |
+| `auth.render_providers[].issuer`| Yes      | JWT issuer                                |
+| `auth.render_providers[].jwks_url`| Yes    | JWKS endpoint                             |
+| `auth.render_providers[].audience`| No     | Audience validation                       |
 
 ### Example
+
+```yaml
+auth:
+  # Panel: OIDC for web UI login and management endpoints
+  panel:
+    name: "web-panel"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+    audience: "pdf-forge-web"  # optional
+
+  # Render providers: Additional OIDC ONLY for render endpoints
+  # Panel is always valid for render too (allows UI preview)
+  render_providers:
+    - name: "internal-services"
+      issuer: "https://auth.internal.com"
+      jwks_url: "https://auth.internal.com/.well-known/jwks.json"
+```
+
+### Route Authentication
+
+| Route Type | Providers Accepted | Identity Context |
+| ---------- | ------------------ | ---------------- |
+| Panel routes (`/api/v1/*` except render) | `auth.panel` only | Full DB lookup |
+| Render routes (`/api/v1/workspace/document-types/*/render`) | `auth.panel` + `auth.render_providers` | None (token claims only) |
+
+### Render Endpoint Security
+
+The render endpoint is **public by design**:
+- Only validates OIDC token is valid (signature, expiration)
+- Does NOT validate workspace membership or roles
+- Custom authorization via `engine.UseAPIMiddleware()`
+
+```go
+engine.UseAPIMiddleware(func(c *gin.Context) {
+    if strings.HasPrefix(c.Request.URL.Path, "/api/v1/workspace/document-types") {
+        // Your custom validation (API key, claims, etc.)
+    }
+    c.Next()
+})
+```
+
+### Legacy Format (Still Supported)
 
 ```yaml
 oidc_providers:
   - name: "web-clients"
     issuer: "https://auth.example.com/realms/web"
-    jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+    jwks_url: "https://auth.example.com/realms/web/.../certs"
     audience: "pdf-forge-web"
-
-  - name: "internal-services"
-    issuer: "https://auth.example.com/realms/services"
-    jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
 ```
+
+First provider → panel, all providers → render. Recommended to migrate to new `auth` format.
 
 ### Auth Flow
 
 1. Extract `iss` claim from token (without signature validation)
-2. Find provider by issuer
+2. Find provider by issuer (panel-only for panel routes, all for render)
 3. Validate signature with matched provider's JWKS
 4. Validate audience (if configured)
 5. Reject with 401 if issuer unknown or validation fails
@@ -66,6 +112,80 @@ oidc_providers:
 - keyfunc handles background refresh (default: 1 hour)
 
 Auth is generic OIDC/JWKS — works with Keycloak, Auth0, Cognito, or any OIDC provider. Claims struct: `OIDCClaims` in `jwt_auth.go`.
+
+### Custom Render Authentication (Programmatic)
+
+For non-OIDC authentication (API keys, custom JWT, service tokens), implement `RenderAuthenticator`:
+
+```go
+type RenderAuthenticator interface {
+    Authenticate(c *gin.Context) (*RenderAuthClaims, error)
+}
+
+type RenderAuthClaims struct {
+    UserID   string         // Required: caller identifier
+    Email    string         // Optional
+    Name     string         // Optional
+    Provider string         // Auth method name (for logs)
+    Extra    map[string]any // Custom claims
+}
+```
+
+#### Registration
+
+```go
+engine.SetRenderAuthenticator(&MyAuthenticator{})
+```
+
+#### Behavior
+
+| Custom Auth Registered | Render Endpoints                     | Panel Endpoints      |
+|------------------------|--------------------------------------|----------------------|
+| NO                     | OIDC (panel + render_providers)      | Panel OIDC           |
+| YES                    | Custom auth (OIDC render ignored)    | Panel OIDC unchanged |
+
+#### API Key Example
+
+```go
+type APIKeyAuth struct {
+    keys map[string]string // apiKey → userID
+}
+
+func (a *APIKeyAuth) Authenticate(c *gin.Context) (*sdk.RenderAuthClaims, error) {
+    key := c.GetHeader("X-API-Key")
+    if key == "" {
+        return nil, errors.New("missing X-API-Key header")
+    }
+    userID, ok := a.keys[key]
+    if !ok {
+        return nil, errors.New("invalid API key")
+    }
+    return &sdk.RenderAuthClaims{
+        UserID:   userID,
+        Provider: "api-key",
+    }, nil
+}
+
+// Register
+engine.SetRenderAuthenticator(&APIKeyAuth{
+    keys: map[string]string{"sk_live_xxx": "service-1"},
+})
+```
+
+#### Accessing Claims
+
+Claims are stored in gin context with same keys as OIDC:
+
+```go
+userID, _ := c.Get("user_id")      // RenderAuthClaims.UserID
+email, _ := c.Get("user_email")    // RenderAuthClaims.Email
+provider, _ := c.Get("oidc_provider") // RenderAuthClaims.Provider
+
+// Extra claims
+extra := middleware.GetRenderAuthExtra(c) // map[string]any or nil
+```
+
+See [extensibility-guide.md](extensibility-guide.md#custom-render-authentication) for more examples (custom JWT, hybrid auth).
 
 ## internal_api
 

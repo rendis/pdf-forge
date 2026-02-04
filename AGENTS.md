@@ -66,13 +66,13 @@ make dev                  # Hot reload (air)
 
 The only importable package for consumers. Everything else is `internal/`.
 
-| File             | Contents                                                                                                         |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `engine.go`      | `Engine`, `New()`, `Run()`, `RunMigrations()`, `SetWorkspaceInjectableProvider()`                                |
-| `options.go`     | `WithConfigFile()`, `WithConfig()`, `WithI18nFile()`, `WithDevFrontendURL()`                                     |
-| `types.go`       | Re-exported types: `Injector`, `ResolveFunc`, `InitFunc`, `RequestMapper`, `WorkspaceInjectableProvider`, values |
-| `initializer.go` | Runtime DI wiring (replaces Wire)                                                                                |
-| `preflight.go`   | Startup checks: Typst CLI, DB, schema, auth                                                                      |
+| File             | Contents                                                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `engine.go`      | `Engine`, `New()`, `Run()`, `RunMigrations()`, `SetWorkspaceInjectableProvider()`, `SetRenderAuthenticator()`                   |
+| `options.go`     | `WithConfigFile()`, `WithConfig()`, `WithI18nFile()`, `WithDevFrontendURL()`                                                    |
+| `types.go`       | Re-exported types: `Injector`, `ResolveFunc`, `InitFunc`, `RequestMapper`, `WorkspaceInjectableProvider`, `RenderAuthenticator` |
+| `initializer.go` | Runtime DI wiring (replaces Wire)                                                                                               |
+| `preflight.go`   | Startup checks: Typst CLI, DB, schema, auth                                                                                     |
 
 ## Key Interfaces (Extension Points)
 
@@ -121,6 +121,28 @@ type WorkspaceInjectableProvider interface {
 ```
 
 Register via `engine.SetWorkspaceInjectableProvider(provider)`. See `examples/quickstart/extensions/workspace_provider.go`.
+
+### RenderAuthenticator (`internal/core/port/render_authenticator.go`)
+
+Custom authentication for render endpoints. If registered, replaces OIDC for render (panel OIDC continues working).
+
+```go
+type RenderAuthenticator interface {
+    // Authenticate validates the request and returns claims.
+    // Return (claims, nil) if valid, (nil, error) to reject with 401.
+    Authenticate(c *gin.Context) (*RenderAuthClaims, error)
+}
+
+type RenderAuthClaims struct {
+    UserID   string         // Caller identifier (required)
+    Email    string         // Optional
+    Name     string         // Optional
+    Provider string         // Auth provider name
+    Extra    map[string]any // Custom claims
+}
+```
+
+Register via `engine.SetRenderAuthenticator(auth)`. See [docs/extensibility-guide.md](docs/extensibility-guide.md#custom-render-authentication).
 
 ### Middleware (`sdk/types.go`)
 
@@ -196,18 +218,35 @@ API Request (POST /api/v1/workspace/document-types/{code}/render)
 
 ## HTTP Server (`internal/infra/server/http.go`)
 
-| Route               | Purpose                                    | Auth                      |
-| ------------------- | ------------------------------------------ | ------------------------- |
-| `/`                 | Embedded React SPA (or dev proxy)          | None                      |
-| `/api/v1/*`         | Public API (templates, workspaces, render) | Multi-OIDC (JWT) or dummy |
-| `/swagger/*`        | Swagger UI                                 | None                      |
-| `/health`, `/ready` | Health checks                              | None                      |
+| Route                                       | Purpose                        | Auth                     |
+| ------------------------------------------- | ------------------------------ | ------------------------ |
+| `/`                                         | Embedded React SPA (dev proxy) | None                     |
+| `/api/v1/*` (except render)                 | Panel API (UI/management)      | Panel OIDC + Identity    |
+| `/api/v1/workspace/document-types/*/render` | Render API                     | Panel + Render providers |
+| `/swagger/*`                                | Swagger UI                     | None                     |
+| `/health`, `/ready`                         | Health checks                  | None                     |
 
-**Multi-OIDC Auth**: Supports N OIDC providers. Token's `iss` claim is matched against configured providers. Unknown issuer → 401.
+**Panel vs Render Auth**:
 
-**Multi-Tenant Headers** (all `/api/v1/*`): `X-Tenant-ID` (UUID), `X-Workspace-ID` (UUID), `Authorization` (Bearer JWT, omit in dummy mode).
+- **Panel routes**: Use `auth.panel` provider only. Full identity context (DB user lookup).
+- **Render routes**: Accept `auth.panel` + `auth.render_providers`. NO identity lookup, NO membership validation.
 
-**Document Type Render**: `POST /api/v1/workspace/document-types/{code}/render` - Uses same auth as other API routes. No RBAC enforced in controller; add custom authorization via `engine.UseAPIMiddleware()`.
+**Multi-Tenant Headers**: `X-Tenant-ID` (UUID), `X-Workspace-ID` (UUID), `Authorization` (Bearer JWT, omit in dummy mode).
+
+**Render Endpoint Security**: `POST /api/v1/workspace/document-types/{code}/render` is **public by design**:
+
+- Only validates OIDC token (panel or render provider)
+- Does NOT validate workspace membership or roles
+- Custom authorization via `engine.UseAPIMiddleware()`
+
+```go
+engine.UseAPIMiddleware(func(c *gin.Context) {
+    if strings.HasPrefix(c.Request.URL.Path, "/api/v1/workspace/document-types") {
+        // Custom validation here (API key, claims, etc.)
+    }
+    c.Next()
+})
+```
 
 ## RBAC
 
@@ -217,15 +256,32 @@ See [docs/authorization-matrix.md](docs/authorization-matrix.md).
 
 ## Configuration
 
-YAML (`settings/app.yaml`) + env vars (`DOC_ENGINE_*` prefix). Key settings:
+YAML (`settings/app.yaml`) + env vars (`DOC_ENGINE_*` prefix).
 
-- `oidc_providers` → multi-OIDC config (list of {name, issuer, jwks_url, audience})
-- Empty `oidc_providers` → dummy auth mode (auto-seeds admin user)
+**Auth config (new format)**:
+
+```yaml
+auth:
+  panel: # OIDC for web panel (login/UI)
+    name: "web-panel"
+    issuer: "https://auth.example.com/realms/web"
+    jwks_url: "https://auth.example.com/.../certs"
+    audience: "pdf-forge" # optional
+  render_providers: # Additional OIDC for render only
+    - name: "services"
+      issuer: "https://internal.auth.com"
+      jwks_url: "https://internal.auth.com/.well-known/jwks.json"
+```
+
+**Legacy format** (still supported): `oidc_providers` list. First provider → panel, all → render.
+
+**Other key settings**:
+
 - `typst.bin_path` → Typst CLI binary path
 - `typst.max_concurrent` → parallel render limit (default: 20)
 - `server.port` → HTTP port (default: 8080, also `PORT` env var)
 
-Full reference with all keys, defaults, and performance tuning: [docs/configuration.md](docs/configuration.md).
+Full reference: [docs/configuration.md](docs/configuration.md).
 
 ## Database
 

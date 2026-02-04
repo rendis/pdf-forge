@@ -1,5 +1,29 @@
 # Types Reference
 
+## InjectorContext Methods
+
+Available in `Resolve()` function:
+
+```go
+// Request identification
+injCtx.ExternalID()           // External request ID
+injCtx.TemplateID()           // Template being rendered
+injCtx.TransactionalID()      // Traceability ID
+
+// Multi-tenant context
+injCtx.TenantCode()           // Tenant code
+injCtx.WorkspaceCode()        // Workspace code
+
+// Data access
+injCtx.GetResolved("code")    // Get dependency value (any, bool)
+injCtx.RequestPayload()       // Data from RequestMapper (any)
+injCtx.InitData()             // Data from InitFunc (any)
+injCtx.SelectedFormat("code") // User-selected format (string)
+injCtx.Header("X-Custom")     // HTTP header value
+```
+
+---
+
 ## InjectableValue
 
 Type-safe wrapper for injectable values.

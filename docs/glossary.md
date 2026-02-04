@@ -73,6 +73,41 @@ A function executed once at render start, before injectors run. Used for shared 
 type InitFunc func(ctx context.Context, injCtx *InjectorContext) (any, error)
 ```
 
+### RenderAuthenticator
+
+Go interface for custom authentication on render endpoints. When registered, replaces OIDC authentication for render routes (panel OIDC continues working for login/UI). Use for API keys, custom JWT, service tokens, or hybrid auth.
+
+```go
+type RenderAuthenticator interface {
+    Authenticate(c *gin.Context) (*RenderAuthClaims, error)
+}
+
+type RenderAuthClaims struct {
+    UserID   string         // Required: caller identifier
+    Email    string         // Optional
+    Name     string         // Optional
+    Provider string         // Auth method name
+    Extra    map[string]any // Custom claims
+}
+```
+
+**Register**: `engine.SetRenderAuthenticator(auth)`
+
+**Behavior**: Custom auth registered → replaces OIDC for render; not registered → uses OIDC (panel + render_providers).
+
+### WorkspaceInjectableProvider
+
+Go interface for dynamic, workspace-specific injectables fetched at runtime (when editor opens) rather than at startup. Used for CRM integrations, external APIs, or workspace-specific data sources.
+
+```go
+type WorkspaceInjectableProvider interface {
+    GetInjectables(ctx, injCtx) (*GetInjectablesResult, error)
+    ResolveInjectables(ctx, req) (*ResolveInjectablesResult, error)
+}
+```
+
+**Register**: `engine.SetWorkspaceInjectableProvider(provider)`
+
 ## Technical Concepts
 
 ### PortableDoc

@@ -8,12 +8,12 @@ pdf-forge projects include a scripts system for custom tasks. Scripts are self-c
 
 ## Commands
 
-| Command                            | Description                             |
-| ---------------------------------- | --------------------------------------- |
-| `pdfforge-cli run-script`          | Interactive selector (↑↓, q to quit)    |
-| `pdfforge-cli run-script <name>`   | Run script directly                     |
-| `make run-script`                  | Same as CLI (invokes pdfforge-cli)      |
-| `make run-script <name>`           | Run script directly via make            |
+| Command                          | Description                          |
+| -------------------------------- | ------------------------------------ |
+| `pdfforge-cli run-script`        | Interactive selector (↑↓, q to quit) |
+| `pdfforge-cli run-script <name>` | Run script directly                  |
+| `make run-script`                | Same as CLI (invokes pdfforge-cli)   |
+| `make run-script <name>`         | Run script directly via make         |
 
 ## Interactive Selector
 
@@ -34,7 +34,7 @@ make run-script
 
 ### Directory Structure
 
-```
+```plaintext
 scripts/
   <script-name>/
     Makefile         # REQUIRED: must have `run` target
@@ -49,7 +49,7 @@ Every script MUST have a Makefile with a `run` target:
 .PHONY: run
 
 run:
-	# your command here
+    # your command here
 ```
 
 ## Language Templates
@@ -60,7 +60,7 @@ run:
 .PHONY: run
 
 run:
-	python main.py $(ARGS)
+    python main.py $(ARGS)
 ```
 
 ### Go
@@ -69,7 +69,7 @@ run:
 .PHONY: run
 
 run:
-	go run . $(ARGS)
+    go run . $(ARGS)
 ```
 
 ### TypeScript (Bun)
@@ -78,7 +78,7 @@ run:
 .PHONY: run
 
 run:
-	bun run index.ts $(ARGS)
+    bun run index.ts $(ARGS)
 ```
 
 ### TypeScript (Node)
@@ -87,7 +87,7 @@ run:
 .PHONY: run
 
 run:
-	npx tsx index.ts $(ARGS)
+    npx tsx index.ts $(ARGS)
 ```
 
 ### Shell
@@ -96,7 +96,7 @@ run:
 .PHONY: run
 
 run:
-	./script.sh $(ARGS)
+    ./script.sh $(ARGS)
 ```
 
 ## Passing Arguments
@@ -129,7 +129,7 @@ fmt.Println(os.Args)
 
 ## Example
 
-```
+```plaintext
 scripts/
   migrate-data/
     Makefile
@@ -142,7 +142,7 @@ scripts/
 .PHONY: run
 
 run:
-	go run . $(ARGS)
+    go run . $(ARGS)
 ```
 
 **Usage:**
