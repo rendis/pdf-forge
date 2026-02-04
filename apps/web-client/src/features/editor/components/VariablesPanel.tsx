@@ -86,12 +86,12 @@ export function VariablesPanel({
 
   // Track if all sections are expanded (for toggle button)
   const allSectionsExpanded = useMemo(() => {
-    const hasExternal = globalVariables.some(v => v.sourceType === 'EXTERNAL')
+    const hasUngroupedExternal = globalVariables.some(v => v.sourceType === 'EXTERNAL' && !v.group)
     const hasUngroupedInternal = globalVariables.some(v => v.sourceType === 'INTERNAL' && !v.group)
     const groupKeys = groups.map(g => g.key)
 
     const sectionsOpen = [
-      !hasExternal || externalSectionOpen,
+      !hasUngroupedExternal || externalSectionOpen,
       !hasUngroupedInternal || internalSectionOpen,
       ...groupKeys.map(key => groupOpenStates[key] ?? false),
     ]
@@ -164,7 +164,7 @@ export function VariablesPanel({
 
   const lowerSearchQuery = searchQuery.toLowerCase().trim()
 
-  const { groupedInternalVariables, ungroupedInternalVariables, externalVariables } = useMemo(() => {
+  const { groupedVariables, ungroupedInternal, ungroupedExternal } = useMemo(() => {
     // Filter variables by source type and search query
     const filterBySourceType = (sourceType: 'INTERNAL' | 'EXTERNAL', excludeFilter: 'internal' | 'external'): Variable[] => {
       if (variablesFilter === excludeFilter) return []
@@ -178,17 +178,22 @@ export function VariablesPanel({
     }
 
     const internalVars = filterBySourceType('INTERNAL', 'external')
+    const externalVars = filterBySourceType('EXTERNAL', 'internal')
+    const allVars = [...internalVars, ...externalVars]
 
-    // Separate grouped and ungrouped internal variables
+    // Group ALL variables (INTERNAL + EXTERNAL) by their group field
     const grouped = new Map<string, Variable[]>()
-    const ungrouped: Variable[] = []
+    const ungroupedInternal: Variable[] = []
+    const ungroupedExternal: Variable[] = []
 
-    for (const variable of internalVars) {
+    for (const variable of allVars) {
       if (variable.group) {
         const existing = grouped.get(variable.group) || []
         grouped.set(variable.group, [...existing, variable])
+      } else if (variable.sourceType === 'INTERNAL') {
+        ungroupedInternal.push(variable)
       } else {
-        ungrouped.push(variable)
+        ungroupedExternal.push(variable)
       }
     }
 
@@ -201,9 +206,9 @@ export function VariablesPanel({
       })
 
     return {
-      groupedInternalVariables: sortedGrouped,
-      ungroupedInternalVariables: ungrouped,
-      externalVariables: filterBySourceType('EXTERNAL', 'internal'),
+      groupedVariables: sortedGrouped,
+      ungroupedInternal,
+      ungroupedExternal,
     }
   }, [globalVariables, groups, variablesFilter, lowerSearchQuery])
 
@@ -220,8 +225,8 @@ export function VariablesPanel({
   })
 
   // Total count for badge
-  const totalInternalGrouped = groupedInternalVariables.reduce((acc, [, vars]) => acc + vars.length, 0)
-  const totalCount = totalInternalGrouped + ungroupedInternalVariables.length + externalVariables.length
+  const totalGrouped = groupedVariables.reduce((acc, [, vars]) => acc + vars.length, 0)
+  const totalCount = totalGrouped + ungroupedInternal.length + ungroupedExternal.length
 
   return (
     <motion.aside
@@ -415,9 +420,9 @@ export function VariablesPanel({
 
                  {/* Empty state */}
                  {!isLoading &&
-                   groupedInternalVariables.length === 0 &&
-                   ungroupedInternalVariables.length === 0 &&
-                   externalVariables.length === 0 && (
+                   groupedVariables.length === 0 &&
+                   ungroupedInternal.length === 0 &&
+                   ungroupedExternal.length === 0 && (
                      <div className="flex flex-col items-center justify-center py-8 text-center">
                        <VariableIcon className="h-8 w-8 text-muted-foreground/40 mb-2" />
                       <p className="text-sm text-muted-foreground">
@@ -431,8 +436,8 @@ export function VariablesPanel({
                     </div>
                   )}
 
-                  {/* 1. External Variables Section (user-defined) */}
-                  {!isLoading && externalVariables.length > 0 && (
+                  {/* 1. Ungrouped External Variables Section */}
+                  {!isLoading && ungroupedExternal.length > 0 && (
                     <div className="space-y-2 min-w-0">
                       <button
                         onClick={() => setExternalSectionOpen(!externalSectionOpen)}
@@ -447,7 +452,7 @@ export function VariablesPanel({
                         <Database className="h-3 w-3" />
                         <span>{t('editor.variablesPanel.sections.externalVariables')}</span>
                         <span className="ml-auto text-[9px] bg-external-muted/50 text-external-foreground px-1.5 rounded">
-                          {externalVariables.length}
+                          {ungroupedExternal.length}
                         </span>
                       </button>
 
@@ -464,7 +469,7 @@ export function VariablesPanel({
                         style={{ overflow: 'hidden' }}
                       >
                         <div className="space-y-2 pt-2 min-w-0">
-                          {externalVariables.map((v) => (
+                          {ungroupedExternal.map((v) => (
                             <DraggableVariable
                               key={v.variableId}
                               data={mapVariableToDragData(v)}
@@ -477,8 +482,8 @@ export function VariablesPanel({
                     </div>
                   )}
 
-                  {/* 3. Ungrouped Internal Variables Section (system without group) */}
-                  {!isLoading && ungroupedInternalVariables.length > 0 && (
+                  {/* 2. Ungrouped Internal Variables Section (system without group) */}
+                  {!isLoading && ungroupedInternal.length > 0 && (
                     <div className="space-y-2 min-w-0">
                       <button
                         onClick={() => setInternalSectionOpen(!internalSectionOpen)}
@@ -493,7 +498,7 @@ export function VariablesPanel({
                         <Clock className="h-3 w-3" />
                         <span>{t('editor.variablesPanel.sections.internalVariables')}</span>
                         <span className="ml-auto text-[9px] bg-internal-muted/50 text-internal-foreground px-1.5 rounded">
-                          {ungroupedInternalVariables.length}
+                          {ungroupedInternal.length}
                         </span>
                       </button>
 
@@ -510,7 +515,7 @@ export function VariablesPanel({
                         style={{ overflow: 'hidden' }}
                       >
                         <div className="space-y-2 pt-2 min-w-0">
-                          {ungroupedInternalVariables.map((v) => (
+                          {ungroupedInternal.map((v) => (
                             <DraggableVariable
                               key={v.variableId}
                               data={mapVariableToDragData(v)}
@@ -523,8 +528,8 @@ export function VariablesPanel({
                     </div>
                   )}
 
-                  {/* 4. Grouped Internal Variables - Each group as its own collapsible section (system with group) */}
-                  {!isLoading && groupedInternalVariables.map(([groupKey, variables]) => {
+                  {/* 3. Grouped Variables - Each group as its own collapsible section (INTERNAL + EXTERNAL mixed) */}
+                  {!isLoading && groupedVariables.map(([groupKey, variables]) => {
                     const group = groups.find(g => g.key === groupKey)
                     if (!group) return null
 
