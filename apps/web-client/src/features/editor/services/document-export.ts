@@ -290,3 +290,13 @@ function hasNodeType(content: ProseMirrorNode[], nodeType: string): boolean {
   }
   return false
 }
+
+/**
+ * Extracts variable IDs directly from an editor instance
+ * Used by preview to determine which variables are actually used in the document
+ */
+export function extractVariableIdsFromEditor(editor: Editor): string[] {
+  const json = editor.getJSON() as JSONContent
+  const content = (json.content || []) as ProseMirrorNode[]
+  return Array.from(findInjectorNodes(content))
+}

@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useInjectables } from '../../hooks/useInjectables'
 import { usePreviewPDF } from '../../hooks/usePreviewPDF'
 import { useEmulatedValues } from '../../hooks/useEmulatedValues'
-import { emulateValue } from '../../services/injectable-emulator'
+import { emulateValue, emulateByType } from '../../services/injectable-emulator'
 import { StandardInjectablesSection } from './StandardInjectablesSection'
 import { SystemInjectablesSection } from './SystemInjectablesSection'
 import { TableInjectablesSection } from './TableInjectablesSection'
@@ -26,6 +26,8 @@ interface InjectablesFormModalProps {
   onOpenChange: (open: boolean) => void
   templateId: string
   versionId: string
+  /** Variable IDs actually used in the document. If provided, only shows these variables */
+  usedVariableIds?: string[]
 }
 
 export function InjectablesFormModal({
@@ -33,6 +35,7 @@ export function InjectablesFormModal({
   onOpenChange,
   templateId,
   versionId,
+  usedVariableIds,
 }: InjectablesFormModalProps) {
   const { t } = useTranslation()
   const { variables, isLoading: isLoadingVariables } = useInjectables()
@@ -55,9 +58,16 @@ export function InjectablesFormModal({
   const [showPDFModal, setShowPDFModal] = useState(false)
   const hasEmulatedRef = useRef(false)
 
+  // Filter variables by those actually used in the document
+  const filteredVariables = useMemo(() => {
+    if (!usedVariableIds?.length) return variables
+    const usedSet = new Set(usedVariableIds)
+    return variables.filter((v) => usedSet.has(v.variableId))
+  }, [variables, usedVariableIds])
+
   const standardVariables = useMemo(
-    () => variables,
-    [variables]
+    () => filteredVariables,
+    [filteredVariables]
   )
 
   // Separar variables de sistema de las normales
@@ -181,6 +191,32 @@ export function InjectablesFormModal({
     },
     [getEmulatedValue]
   )
+
+  // Generate random value for a single variable
+  const handleGenerateRandom = useCallback(
+    (variableId: string) => {
+      const variable = documentVariables.find((v) => v.variableId === variableId)
+      if (!variable) return
+
+      const randomValue = emulateByType(variable.type)
+      if (randomValue !== null) {
+        setValues((prev) => ({ ...prev, [variableId]: randomValue }))
+      }
+    },
+    [documentVariables]
+  )
+
+  // Fill all document variables with random values
+  const handleFillAllRandom = useCallback(() => {
+    const newValues: Record<string, unknown> = {}
+    documentVariables.forEach((v) => {
+      const val = emulateByType(v.type)
+      if (val !== null) {
+        newValues[v.variableId] = val
+      }
+    })
+    setValues((prev) => ({ ...prev, ...newValues }))
+  }, [documentVariables])
 
   const validateForm = useCallback((): boolean => {
     const newErrors: InjectableFormErrors = {}
@@ -372,6 +408,8 @@ export function InjectablesFormModal({
                       values={values}
                       errors={errors}
                       onChange={handleChange}
+                      onGenerate={handleGenerateRandom}
+                      onFillAll={handleFillAllRandom}
                       disabled={isGenerating}
                     />
                   </div>

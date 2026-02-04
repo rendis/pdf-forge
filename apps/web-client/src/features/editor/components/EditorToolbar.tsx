@@ -368,6 +368,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
                 <PreviewButton
                   templateId={templateId}
                   versionId={versionId}
+                  editor={editor}
                 />
               )}
             </>

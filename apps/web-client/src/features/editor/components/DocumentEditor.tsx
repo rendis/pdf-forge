@@ -510,7 +510,7 @@ export function DocumentEditor({
               )}
               <div className="flex items-center gap-1 pr-2">
                 {!editable && templateId && versionId && (
-                  <PreviewButton templateId={templateId} versionId={versionId} />
+                  <PreviewButton templateId={templateId} versionId={versionId} editor={editor} />
                 )}
                 <PageSettings disabled={!editable} />
               </div>

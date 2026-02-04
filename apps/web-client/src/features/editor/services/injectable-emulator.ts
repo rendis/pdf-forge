@@ -85,3 +85,81 @@ export function registerEmulator(
 ): void {
   emulators.set(key, emulatorFn)
 }
+
+// =============================================================================
+// Emuladores por tipo (para variables no-sistema)
+// =============================================================================
+
+const TEXT_SAMPLES = [
+  'Lorem ipsum',
+  'John Doe',
+  'Acme Corp',
+  'Sample text',
+  '123 Main St',
+  'Jane Smith',
+  'Example Inc.',
+  'Test value',
+]
+
+const NAME_SAMPLES = [
+  'John Doe',
+  'Jane Smith',
+  'Carlos García',
+  'María López',
+  'Robert Johnson',
+  'Emily Davis',
+]
+
+function generateRandomText(): string {
+  return TEXT_SAMPLES[Math.floor(Math.random() * TEXT_SAMPLES.length)]
+}
+
+function generateRandomNumber(): number {
+  return Math.floor(Math.random() * 1000)
+}
+
+function generateRandomCurrency(): number {
+  return Math.round(Math.random() * 10000 * 100) / 100
+}
+
+function generateRandomDate(): string {
+  const now = new Date()
+  const offset = Math.floor(Math.random() * 365) - 180 // ±6 months
+  now.setDate(now.getDate() + offset)
+  return now.toISOString().split('T')[0]
+}
+
+function generateRandomBoolean(): boolean {
+  return Math.random() > 0.5
+}
+
+/**
+ * Genera un valor random basado en el tipo de variable
+ *
+ * @param type - Tipo de injectable (TEXT, NUMBER, DATE, etc.)
+ * @returns Valor emulado o null si el tipo no es soportado
+ */
+export function emulateByType(type: string): unknown {
+  switch (type) {
+    case 'TEXT':
+    case 'ROLE_TEXT':
+      return generateRandomText()
+    case 'NUMBER':
+      return generateRandomNumber()
+    case 'CURRENCY':
+      return generateRandomCurrency()
+    case 'DATE':
+      return generateRandomDate()
+    case 'BOOLEAN':
+      return generateRandomBoolean()
+    default:
+      return null
+  }
+}
+
+/**
+ * Genera un nombre random (útil para campos de nombre)
+ */
+export function emulateRandomName(): string {
+  return NAME_SAMPLES[Math.floor(Math.random() * NAME_SAMPLES.length)]
+}

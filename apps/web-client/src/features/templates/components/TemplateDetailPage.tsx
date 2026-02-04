@@ -464,7 +464,7 @@ export function TemplateDetailPage() {
       {/* Warning: published but no document type — overlay, no layout shift */}
       <div className="sticky top-0 z-40 h-0">
         <AnimatePresence initial={false}>
-          {template.versions.some((v) => v.status === 'PUBLISHED') && !template.documentTypeId && (
+          {template.versions?.some((v) => v.status === 'PUBLISHED') && !template.documentTypeId && (
             <motion.div
               key="no-type-warning"
               initial={{ y: -40, opacity: 0 }}
@@ -589,7 +589,7 @@ export function TemplateDetailPage() {
                     <span className="shrink-0">{t('templates.detail.documentType', 'Document Type')}</span>
                     <motion.span
                       animate={
-                        template.versions.some((v) => v.status === 'PUBLISHED') && !template.documentTypeId
+                        template.versions?.some((v) => v.status === 'PUBLISHED') && !template.documentTypeId
                           ? { opacity: 1, x: 0, width: 'auto', marginLeft: 4 }
                           : { opacity: 0, x: -20, width: 0, marginLeft: 0 }
                       }

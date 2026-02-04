@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import type { Variable } from '../../types/variables'
 import type {
   InjectableFormValues,
@@ -11,6 +14,8 @@ interface StandardInjectablesSectionProps {
   values: InjectableFormValues
   errors: InjectableFormErrors
   onChange: (variableId: string, value: unknown) => void
+  onGenerate?: (variableId: string) => void
+  onFillAll?: () => void
   disabled?: boolean
 }
 
@@ -19,8 +24,12 @@ export function StandardInjectablesSection({
   values,
   errors,
   onChange,
+  onGenerate,
+  onFillAll,
   disabled = false,
 }: StandardInjectablesSectionProps) {
+  const { t } = useTranslation()
+
   // Filtrar inyectables de sistema para que NO aparezcan en esta seccion
   const nonSystemVariables = variables.filter(
     (v) =>
@@ -35,6 +44,22 @@ export function StandardInjectablesSection({
 
   return (
     <div className="space-y-4">
+      {/* Header with Fill All button */}
+      {onFillAll && nonSystemVariables.length > 1 && (
+        <div className="flex items-center justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onFillAll}
+            disabled={disabled}
+            className="h-7 text-xs gap-1.5"
+          >
+            <Sparkles className="h-3 w-3" />
+            {t('editor.preview.fillAllRandom')}
+          </Button>
+        </div>
+      )}
+
       {nonSystemVariables.map((variable) => (
         <InjectableInput
           key={variable.variableId}
@@ -44,6 +69,7 @@ export function StandardInjectablesSection({
           value={values[variable.variableId]}
           error={errors[variable.variableId]}
           onChange={(value) => onChange(variable.variableId, value)}
+          onGenerate={onGenerate ? () => onGenerate(variable.variableId) : undefined}
           disabled={disabled}
         />
       ))}
