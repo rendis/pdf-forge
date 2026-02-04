@@ -4,12 +4,13 @@ import "time"
 
 // Config represents the complete application configuration.
 type Config struct {
-	Environment string         `mapstructure:"environment"`
-	Server      ServerConfig   `mapstructure:"server"`
-	Database    DatabaseConfig `mapstructure:"database"`
-	Auth        *AuthConfig    `mapstructure:"auth"`
-	Logging     LoggingConfig  `mapstructure:"logging"`
-	Typst       TypstConfig    `mapstructure:"typst"`
+	Environment string          `mapstructure:"environment"`
+	Server      ServerConfig    `mapstructure:"server"`
+	Database    DatabaseConfig  `mapstructure:"database"`
+	Auth        *AuthConfig     `mapstructure:"auth"`
+	Logging     LoggingConfig   `mapstructure:"logging"`
+	Typst       TypstConfig     `mapstructure:"typst"`
+	Bootstrap   BootstrapConfig `mapstructure:"bootstrap"`
 
 	// DummyAuth is set at runtime when no OIDC providers are configured.
 	// Not loaded from YAML.
@@ -146,4 +147,12 @@ func (t TypstConfig) TimeoutDuration() time.Duration {
 // AcquireTimeoutDuration returns the acquire timeout as time.Duration.
 func (t TypstConfig) AcquireTimeoutDuration() time.Duration {
 	return time.Duration(t.AcquireTimeoutSeconds) * time.Second
+}
+
+// BootstrapConfig holds first-user bootstrap configuration.
+type BootstrapConfig struct {
+	// Enabled controls whether the first user to login is auto-created as SUPERADMIN.
+	// Only takes effect when the database has zero users.
+	// Default: true
+	Enabled bool `mapstructure:"enabled"`
 }

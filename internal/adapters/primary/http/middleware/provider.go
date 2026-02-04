@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/rendis/pdf-forge/internal/core/port"
 )
@@ -9,6 +10,8 @@ import (
 // Provider centralizes middleware construction with their required dependencies.
 // This avoids passing repositories through multiple layers just to initialize middlewares.
 type Provider struct {
+	pool                *pgxpool.Pool
+	bootstrapEnabled    bool
 	userRepo            port.UserRepository
 	systemRoleRepo      port.SystemRoleRepository
 	workspaceRepo       port.WorkspaceRepository
@@ -18,6 +21,8 @@ type Provider struct {
 
 // NewProvider creates a new middleware provider with all required repositories.
 func NewProvider(
+	pool *pgxpool.Pool,
+	bootstrapEnabled bool,
 	userRepo port.UserRepository,
 	systemRoleRepo port.SystemRoleRepository,
 	workspaceRepo port.WorkspaceRepository,
@@ -25,6 +30,8 @@ func NewProvider(
 	tenantMemberRepo port.TenantMemberRepository,
 ) *Provider {
 	return &Provider{
+		pool:                pool,
+		bootstrapEnabled:    bootstrapEnabled,
 		userRepo:            userRepo,
 		systemRoleRepo:      systemRoleRepo,
 		workspaceRepo:       workspaceRepo,
@@ -34,8 +41,9 @@ func NewProvider(
 }
 
 // IdentityContext returns a middleware that loads user identity from the database.
+// If bootstrap is enabled and no users exist, creates the first user as SUPERADMIN.
 func (p *Provider) IdentityContext() gin.HandlerFunc {
-	return IdentityContext(p.userRepo)
+	return IdentityContext(p.pool, p.bootstrapEnabled, p.userRepo)
 }
 
 // SystemRoleContext returns a middleware that loads the user's system role if they have one.

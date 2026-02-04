@@ -96,6 +96,8 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 
 	// --- Middleware ---
 	middlewareProvider := middleware.NewProvider(
+		pool,
+		cfg.Bootstrap.Enabled,
 		userRepo, systemRoleRepo, workspaceRepo, workspaceMemberRepo, tenantMemberRepo,
 	)
 

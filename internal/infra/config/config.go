@@ -73,6 +73,8 @@ func bindEnvVars(v *viper.Viper) {
 		// Typst
 		"typst.bin_path", "typst.timeout_seconds", "typst.max_concurrent",
 		"typst.acquire_timeout_seconds",
+		// Bootstrap
+		"bootstrap.enabled",
 		// Environment
 		"environment",
 	}
@@ -107,6 +109,9 @@ func setDefaults(v *viper.Viper) {
 	// Typst defaults
 	v.SetDefault("typst.bin_path", "typst")
 	v.SetDefault("typst.timeout_seconds", 10)
+
+	// Bootstrap defaults
+	v.SetDefault("bootstrap.enabled", true)
 
 	// Environment default
 	v.SetDefault("environment", "development")

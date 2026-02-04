@@ -59,6 +59,12 @@ logging:
   level: info   # debug, info, warn, error
   format: json  # json, text
 
+# First-user bootstrap configuration
+# When enabled, the first user to login via OIDC becomes SUPERADMIN automatically.
+# This only happens when the database has zero users.
+bootstrap:
+  enabled: true  # DOC_ENGINE_BOOTSTRAP_ENABLED - Set false to require manual user setup
+
 # Typst PDF renderer configuration
 typst:
   bin_path: typst              # DOC_ENGINE_TYPST_BIN_PATH - Path to typst binary
