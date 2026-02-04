@@ -24,10 +24,11 @@ type Engine struct {
 	i18nFilePath   string
 	devFrontendURL string
 
-	injectors         []port.Injector
-	mapper            port.RequestMapper
-	initFunc          port.InitFunc
-	workspaceProvider port.WorkspaceInjectableProvider
+	injectors           []port.Injector
+	mapper              port.RequestMapper
+	initFunc            port.InitFunc
+	workspaceProvider   port.WorkspaceInjectableProvider
+	renderAuthenticator port.RenderAuthenticator
 
 	// Middleware
 	globalMiddleware []gin.HandlerFunc // Applied to all routes (after CORS, before auth)
@@ -79,6 +80,18 @@ func (e *Engine) SetInitFunc(fn port.InitFunc) *Engine {
 func (e *Engine) SetWorkspaceInjectableProvider(p port.WorkspaceInjectableProvider) *Engine {
 	e.workspaceProvider = p
 	return e
+}
+
+// SetRenderAuthenticator sets custom authentication for render endpoints.
+// When set, it replaces OIDC auth for render while panel OIDC continues working.
+func (e *Engine) SetRenderAuthenticator(auth port.RenderAuthenticator) *Engine {
+	e.renderAuthenticator = auth
+	return e
+}
+
+// GetRenderAuthenticator returns the registered render authenticator, or nil if not set.
+func (e *Engine) GetRenderAuthenticator() port.RenderAuthenticator {
+	return e.renderAuthenticator
 }
 
 // UseMiddleware adds middleware to be applied globally to all routes.

@@ -248,6 +248,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		renderCtrl,
 		e.globalMiddleware,
 		e.apiMiddleware,
+		e.renderAuthenticator,
 	)
 
 	return &appComponents{

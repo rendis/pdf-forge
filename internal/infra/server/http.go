@@ -16,6 +16,7 @@ import (
 
 	"github.com/rendis/pdf-forge/internal/adapters/primary/http/controller"
 	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
+	"github.com/rendis/pdf-forge/internal/core/port"
 	"github.com/rendis/pdf-forge/internal/frontend"
 	"github.com/rendis/pdf-forge/internal/infra/config"
 
@@ -60,6 +61,7 @@ func NewHTTPServer(
 	renderController *controller.RenderController,
 	globalMiddleware []gin.HandlerFunc,
 	apiMiddleware []gin.HandlerFunc,
+	renderAuthenticator port.RenderAuthenticator,
 ) *HTTPServer {
 	// Set Gin mode based on environment
 	if cfg.Environment == "production" {
@@ -90,7 +92,10 @@ func NewHTTPServer(
 		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
-	// API v1 routes with authentication
+	// =====================================================
+	// PANEL ROUTES - Full auth with identity lookup
+	// Uses auth.panel provider for login/UI/management
+	// =====================================================
 	v1 := engine.Group("/api/v1")
 	v1.Use(middleware.Operation())
 
@@ -99,8 +104,8 @@ func NewHTTPServer(
 		v1.Use(middleware.DummyAuth())
 		v1.Use(middleware.DummyIdentityAndRoles(cfg.DummyAuthUserID))
 	} else {
-		// Multi-OIDC auth: validates token against configured providers by issuer
-		v1.Use(middleware.MultiOIDCAuth(cfg.GetOIDCProviders()))
+		// Panel auth: validates token against panel OIDC provider only
+		v1.Use(middleware.PanelAuth(cfg))
 		v1.Use(middlewareProvider.IdentityContext())
 		v1.Use(middlewareProvider.SystemRoleContext())
 	}
@@ -136,15 +141,9 @@ func NewHTTPServer(
 
 		// =====================================================
 		// WORKSPACE ROUTES - Requires X-Workspace-ID header
-		// Operations within a specific workspace
+		// Operations within a specific workspace (panel auth)
 		// =====================================================
 		workspaceController.RegisterRoutes(v1, middlewareProvider)
-
-		// Workspace-scoped render routes (document type render)
-		// No RBAC enforced - users add custom auth via engine.UseAPIMiddleware()
-		workspace := v1.Group("/workspace")
-		workspace.Use(middlewareProvider.WorkspaceContext())
-		renderController.RegisterWorkspaceRoutes(workspace)
 
 		// =====================================================
 		// CONTENT ROUTES - Requires X-Workspace-ID header
@@ -152,6 +151,31 @@ func NewHTTPServer(
 		injectableController.RegisterRoutes(v1, middlewareProvider)
 		templateController.RegisterRoutes(v1, middlewareProvider)
 	}
+
+	// =====================================================
+	// RENDER ROUTES - Separate auth, no identity lookup
+	// Auth priority: dummy > custom RenderAuthenticator > OIDC
+	// Custom authorization via engine.UseAPIMiddleware().
+	// =====================================================
+	renderGroup := engine.Group("/api/v1/workspace")
+	renderGroup.Use(middleware.Operation())
+
+	switch {
+	case cfg.IsDummyAuth():
+		renderGroup.Use(middleware.DummyAuth())
+	case renderAuthenticator != nil:
+		renderGroup.Use(middleware.CustomRenderAuth(renderAuthenticator))
+	default:
+		renderGroup.Use(middleware.RenderAuth(cfg))
+		renderGroup.Use(middleware.RenderClaimsContext())
+	}
+
+	// User-provided API middleware for render routes
+	for _, mw := range apiMiddleware {
+		renderGroup.Use(mw)
+	}
+
+	renderController.RegisterWorkspaceRoutes(renderGroup)
 
 	// =====================================================
 	// EMBEDDED FRONTEND (SPA)
@@ -291,21 +315,21 @@ func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 	}
 
 	type clientConfig struct {
-		DummyAuth bool           `json:"dummyAuth"`
-		Providers []providerInfo `json:"providers,omitempty"`
+		DummyAuth     bool          `json:"dummyAuth"`
+		PanelProvider *providerInfo `json:"panelProvider,omitempty"`
 	}
 
-	var providers []providerInfo
-	for _, p := range cfg.GetOIDCProviders() {
-		providers = append(providers, providerInfo{
-			Name:   p.Name,
-			Issuer: p.Issuer,
-		})
+	var panelProvider *providerInfo
+	if panel := cfg.GetPanelOIDC(); panel != nil {
+		panelProvider = &providerInfo{
+			Name:   panel.Name,
+			Issuer: panel.Issuer,
+		}
 	}
 
 	resp := clientConfig{
-		DummyAuth: cfg.IsDummyAuth(),
-		Providers: providers,
+		DummyAuth:     cfg.IsDummyAuth(),
+		PanelProvider: panelProvider,
 	}
 
 	return func(c *gin.Context) {

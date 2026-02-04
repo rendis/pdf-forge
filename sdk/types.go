@@ -161,3 +161,9 @@ type (
 	// ResolveInjectablesResult contains the resolved values and any non-critical errors.
 	ResolveInjectablesResult = port.ResolveInjectablesResult
 )
+
+// RenderAuthenticator types for custom render endpoint authentication.
+type (
+	RenderAuthenticator = port.RenderAuthenticator
+	RenderAuthClaims    = port.RenderAuthClaims
+)

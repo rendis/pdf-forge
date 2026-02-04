@@ -21,10 +21,30 @@ database:
   min_pool_size: 2            # Override via DOC_ENGINE_DATABASE_MIN_POOL_SIZE_COUNT
   max_idle_time_seconds: 300  # Override via DOC_ENGINE_DATABASE_MAX_IDLE_TIME_SECS
 
-# Multi-provider OIDC authentication
-# Tokens are validated against the provider matching the token's issuer claim.
-# If issuer is not in the list, the request is rejected with 401.
-# Empty list = dummy auth mode (dev only)
+# OIDC Authentication Configuration
+#
+# New format (recommended): auth.panel + auth.render_providers
+# - panel: OIDC provider for web panel (login/UI/management endpoints)
+# - render_providers: Additional providers ONLY for render endpoints
+#   (panel is always valid for render too)
+#
+# auth:
+#   panel:
+#     name: "web-panel"
+#     issuer: "https://auth.example.com/realms/web"
+#     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+#     audience: "pdf-forge-web"   # optional
+#
+#   render_providers:
+#     - name: "internal-services"
+#       issuer: "https://auth.internal.com"
+#       jwks_url: "https://auth.internal.com/.well-known/jwks.json"
+#     - name: "partner-api"
+#       issuer: "https://partner.auth.com"
+#       jwks_url: "https://partner.auth.com/.well-known/jwks.json"
+#
+# Legacy format (still supported): oidc_providers list
+# First provider becomes panel, all providers work for render.
 #
 # oidc_providers:
 #   - name: "web-clients"
@@ -32,10 +52,7 @@ database:
 #     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
 #     audience: "pdf-forge-web"   # optional
 #
-#   - name: "internal-services"
-#     issuer: "https://auth.example.com/realms/services"
-#     jwks_url: "https://auth.example.com/realms/services/protocol/openid-connect/certs"
-#     # no audience = skip audience validation
+# Empty/missing auth config = dummy auth mode (dev only)
 
 logging:
   level: info   # debug, info, warn, error

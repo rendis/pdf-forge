@@ -11,9 +11,14 @@ import { LoadingOverlay } from '@/components/common/LoadingSpinner'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
 
+interface PanelProvider {
+  name: string
+  issuer: string
+}
+
 interface ClientConfig {
   dummyAuth: boolean
-  authIssuer?: string
+  panelProvider?: PanelProvider
 }
 
 async function fetchClientConfig(): Promise<ClientConfig> {

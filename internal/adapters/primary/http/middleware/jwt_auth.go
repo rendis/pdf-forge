@@ -33,6 +33,40 @@ type providerKeyfunc struct {
 	keyfunc  keyfunc.Keyfunc
 }
 
+// PanelAuth creates middleware for panel (login/UI) authentication.
+// Uses only the panel OIDC provider configured in auth.panel.
+func PanelAuth(cfg *config.Config) gin.HandlerFunc {
+	panel := cfg.GetPanelOIDC()
+	if panel == nil {
+		return func(c *gin.Context) {
+			slog.ErrorContext(c.Request.Context(), "no panel OIDC provider configured")
+			abortWithError(c, http.StatusInternalServerError, entity.ErrInvalidToken)
+		}
+	}
+	return MultiOIDCAuth([]config.OIDCProvider{*panel})
+}
+
+// RenderAuth creates middleware for render endpoint authentication.
+// Accepts panel provider plus any additional render-only providers.
+func RenderAuth(cfg *config.Config) gin.HandlerFunc {
+	providers := cfg.GetRenderOIDCProviders()
+	if len(providers) == 0 {
+		return func(c *gin.Context) {
+			slog.ErrorContext(c.Request.Context(), "no render OIDC providers configured")
+			abortWithError(c, http.StatusInternalServerError, entity.ErrInvalidToken)
+		}
+	}
+	return MultiOIDCAuth(providers)
+}
+
+// RenderClaimsContext is a pass-through middleware for render endpoints.
+// Claims are already set by RenderAuth; this skips DB identity lookup.
+func RenderClaimsContext() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+	}
+}
+
 // MultiOIDCAuth creates middleware supporting multiple OIDC providers.
 // Matches incoming token's issuer against configured providers.
 // Returns 401 if issuer is not in the configured list.
@@ -164,12 +198,7 @@ func validateTokenWithProvider(tokenString string, pf *providerKeyfunc) (*OIDCCl
 
 // GetOIDCProvider retrieves the matched OIDC provider name from the Gin context.
 func GetOIDCProvider(c *gin.Context) (string, bool) {
-	if val, exists := c.Get(oidcProviderKey); exists {
-		if name, ok := val.(string); ok && name != "" {
-			return name, true
-		}
-	}
-	return "", false
+	return getStringFromContext(c, oidcProviderKey)
 }
 
 // extractBearerToken extracts the Bearer token from the Authorization header.
@@ -259,29 +288,24 @@ func validateAudience(claims *OIDCClaims, expectedAudience string) error {
 
 // GetUserID retrieves the authenticated user ID from the Gin context.
 func GetUserID(c *gin.Context) (string, bool) {
-	if val, exists := c.Get(userIDKey); exists {
-		if userID, ok := val.(string); ok && userID != "" {
-			return userID, true
-		}
-	}
-	return "", false
+	return getStringFromContext(c, userIDKey)
 }
 
 // GetUserEmail retrieves the authenticated user email from the Gin context.
 func GetUserEmail(c *gin.Context) (string, bool) {
-	if val, exists := c.Get(userEmailKey); exists {
-		if email, ok := val.(string); ok && email != "" {
-			return email, true
-		}
-	}
-	return "", false
+	return getStringFromContext(c, userEmailKey)
 }
 
 // GetUserName retrieves the authenticated user name from the Gin context.
 func GetUserName(c *gin.Context) (string, bool) {
-	if val, exists := c.Get(userNameKey); exists {
-		if name, ok := val.(string); ok && name != "" {
-			return name, true
+	return getStringFromContext(c, userNameKey)
+}
+
+// getStringFromContext retrieves a non-empty string value from the Gin context.
+func getStringFromContext(c *gin.Context, key string) (string, bool) {
+	if val, exists := c.Get(key); exists {
+		if str, ok := val.(string); ok && str != "" {
+			return str, true
 		}
 	}
 	return "", false

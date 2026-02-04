@@ -7,7 +7,8 @@ type Config struct {
 	Environment   string         `mapstructure:"environment"`
 	Server        ServerConfig   `mapstructure:"server"`
 	Database      DatabaseConfig `mapstructure:"database"`
-	OIDCProviders []OIDCProvider `mapstructure:"oidc_providers"` // Multi-provider OIDC config
+	Auth          *AuthConfig    `mapstructure:"auth"`            // New: grouped auth config (panel + render providers)
+	OIDCProviders []OIDCProvider `mapstructure:"oidc_providers"` // Legacy: kept for backward compatibility
 	Logging       LoggingConfig  `mapstructure:"logging"`
 	Typst         TypstConfig    `mapstructure:"typst"`
 
@@ -24,14 +25,64 @@ type Config struct {
 	DevFrontendURL string `mapstructure:"-"`
 }
 
+// AuthConfig groups authentication configuration.
+// Separates panel (login/UI) auth from render-only providers.
+type AuthConfig struct {
+	// Panel is the OIDC provider for web panel login and all non-render routes.
+	Panel *OIDCProvider `mapstructure:"panel"`
+	// RenderProviders are additional OIDC providers accepted ONLY for render endpoints.
+	// Panel provider is always valid for render too (allows UI preview).
+	RenderProviders []OIDCProvider `mapstructure:"render_providers"`
+}
+
 // GetOIDCProviders returns the list of configured OIDC providers.
+// Deprecated: Use GetPanelOIDC() and GetRenderOIDCProviders() instead.
 func (c *Config) GetOIDCProviders() []OIDCProvider {
 	return c.OIDCProviders
 }
 
+// GetPanelOIDC returns the OIDC provider for panel (login/UI) authentication.
+// Falls back to first legacy oidc_provider if auth.panel is not configured.
+func (c *Config) GetPanelOIDC() *OIDCProvider {
+	// New format: auth.panel
+	if c.Auth != nil && c.Auth.Panel != nil {
+		return c.Auth.Panel
+	}
+	// Legacy fallback: first provider from oidc_providers
+	if len(c.OIDCProviders) > 0 {
+		return &c.OIDCProviders[0]
+	}
+	return nil
+}
+
+// GetRenderOIDCProviders returns all OIDC providers valid for render endpoints.
+// Always includes panel provider (if exists) plus any render-specific providers.
+func (c *Config) GetRenderOIDCProviders() []OIDCProvider {
+	// Legacy fallback: all oidc_providers work for render
+	if c.Auth == nil {
+		return c.OIDCProviders
+	}
+
+	panel := c.GetPanelOIDC()
+	renderProviders := c.Auth.RenderProviders
+
+	// No panel and no render providers
+	if panel == nil && len(renderProviders) == 0 {
+		return c.OIDCProviders
+	}
+
+	// Build result: panel (if exists) + render providers
+	result := make([]OIDCProvider, 0, len(renderProviders)+1)
+	if panel != nil {
+		result = append(result, *panel)
+	}
+	result = append(result, renderProviders...)
+	return result
+}
+
 // IsDummyAuth returns true if no OIDC providers are configured.
 func (c *Config) IsDummyAuth() bool {
-	return len(c.OIDCProviders) == 0
+	return c.GetPanelOIDC() == nil
 }
 
 // ServerConfig holds HTTP server configuration.
