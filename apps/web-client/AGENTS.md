@@ -33,7 +33,8 @@ This is a React 19 + TypeScript SPA for a multi-tenant document assembly platfor
 
 ### Authentication & Authorization
 
-- **Generic OIDC** via native `fetch` (no external auth library) — see `src/lib/oidc.ts`
+- **OIDC config fetched at runtime** from backend `/api/v1/config` — see `src/lib/auth-config.ts`
+- OIDC operations in `src/lib/oidc.ts` (no external auth library)
 - Mock auth mode: Set `VITE_USE_MOCK_AUTH=true` to bypass OIDC
 - **RBAC system** in `src/features/auth/rbac/`:
   - Three role levels: System (SUPERADMIN), Tenant (OWNER/ADMIN), Workspace (OWNER/ADMIN/EDITOR/OPERATOR/VIEWER)
@@ -92,14 +93,11 @@ Current features: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 ## Environment Variables
 
 ```plaintext
-VITE_API_URL              # Backend API base URL
-VITE_OIDC_TOKEN_URL       # Full URL to OIDC token endpoint
-VITE_OIDC_USERINFO_URL    # Full URL to OIDC userinfo endpoint
-VITE_OIDC_LOGOUT_URL      # Full URL to OIDC logout endpoint (optional)
-VITE_OIDC_CLIENT_ID       # OIDC client ID
-VITE_USE_MOCK_AUTH            # Set to "true" to skip OIDC (dev only)
-VITE_OIDC_PASSWORD_RESET_URL  # OIDC provider's password reset URL (optional, hides link if unset)
+VITE_API_URL        # Backend API base URL (default: /api/v1)
+VITE_USE_MOCK_AUTH  # Set to "true" to skip OIDC (dev only)
 ```
+
+> **Note**: OIDC configuration (token endpoint, userinfo, logout, client_id) is fetched at runtime from the backend `/api/v1/config` endpoint. Configure OIDC in the backend's `app.yaml` instead.
 
 ## Path Aliases
 

@@ -640,16 +640,19 @@ The backend validates JWTs using standard claims (`sub`, `email`, `name`) and RS
 
 #### Frontend Configuration
 
-The embedded frontend uses Direct Access Grant (Resource Owner Password) flow with explicit OIDC endpoint URLs. Configure via environment variables **before building** the frontend:
+The embedded frontend fetches OIDC configuration from the backend at runtime via `GET /api/v1/config`. No frontend environment variables needed for OIDC.
 
-```bash
-VITE_OIDC_TOKEN_URL=https://your-auth-server/token-endpoint
-VITE_OIDC_USERINFO_URL=https://your-auth-server/userinfo-endpoint
-VITE_OIDC_LOGOUT_URL=https://your-auth-server/logout-endpoint
-VITE_OIDC_CLIENT_ID=your-client-id
+Configure `client_id` in the backend's `app.yaml`:
+
+```yaml
+auth:
+  panel:
+    name: "keycloak"
+    discovery_url: "https://auth.example.com/realms/web"
+    client_id: "pdf-forge-web"  # Used by frontend for login
 ```
 
-> The frontend is provider-agnostic — just provide the full OIDC endpoint URLs for your provider.
+> **Zero rebuilds**: Changing OIDC provider only requires updating backend config and restarting — no frontend rebuild needed.
 
 #### Supported Providers
 

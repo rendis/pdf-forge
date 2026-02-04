@@ -349,12 +349,10 @@ export function cn(...inputs: ClassValue[]) {
 ```bash
 # .env.example
 VITE_API_URL=http://localhost:8080/api/v1
-VITE_OIDC_TOKEN_URL=http://localhost:8180/realms/doc-assembly/protocol/openid-connect/token
-VITE_OIDC_USERINFO_URL=http://localhost:8180/realms/doc-assembly/protocol/openid-connect/userinfo
-VITE_OIDC_LOGOUT_URL=http://localhost:8180/realms/doc-assembly/protocol/openid-connect/logout
-VITE_OIDC_CLIENT_ID=web-client
 VITE_USE_MOCK_AUTH=false
 ```
+
+> **Nota**: La configuración OIDC (token endpoint, userinfo, logout, client_id) se obtiene en runtime desde el backend vía `GET /api/v1/config`. Configura OIDC en el `app.yaml` del backend.
 
 ---
 
