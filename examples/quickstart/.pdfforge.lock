@@ -1,0 +1,66 @@
+version: 0.2.0
+generated_at: 2026-02-05T11:08:45.472861-03:00
+files:
+    .env.example:
+        hash: sha256:dcfea4ce55a2979bc211aedc945aa46a68776c3d859e762368aadb4d65d5f14d
+        template_version: 0.2.0
+    .golangci.yml:
+        hash: sha256:461b6721821ea261aa4a46b2d994345a81d46fa1d2a3cbe1b724b50940d41c77
+        template_version: 0.2.0
+    Dockerfile:
+        hash: sha256:1069623c87af750782224c6bedbff3c59fb5b2dbb0501271038bcbad86a98806
+        template_version: 0.2.0
+    Makefile:
+        hash: sha256:a8f26c4613855633da6134597684c9ecf7ae38106b408e374f01949de5201a1c
+        template_version: 0.2.0
+    config/app.yaml:
+        hash: sha256:285372ff9cda5b3c9942bc4b41132d8c382e2aa5e94b722d780ae78431d1bd4a
+        template_version: 0.2.0
+    config/injectors.i18n.yaml:
+        hash: sha256:9fb4cb30f611ed0cdcfd357c3c07bfc1018123fba53893de721c3def81969302
+        template_version: 0.2.0
+    docker-compose.yaml:
+        hash: sha256:3e81962d5d457a739941f735d6084e0917b063bf7a3e74784713ca0371176f83
+        template_version: 0.2.0
+    extensions/init.go:
+        hash: sha256:d4897d61b73d0b5d69dc220fbccd6c0db17d2bf27d45366453b41bc16d3805a2
+        template_version: 0.2.0
+    extensions/injectors/example_bool.go:
+        hash: sha256:f035fbab1f8382f5097b98b59d2ae0a5d4654a3cbff141becb9c3e2e2731823c
+        template_version: 0.2.0
+    extensions/injectors/example_image.go:
+        hash: sha256:0a2fa348c2da285fdc885a5ad07cbb3d57f8d9089d670a0391e67d6a1ada9919
+        template_version: 0.2.0
+    extensions/injectors/example_list.go:
+        hash: sha256:f27dfea5dbdaee5e22a960d19cdeb33398968e8277207e04e78ce16972fbb40c
+        template_version: 0.2.0
+    extensions/injectors/example_number.go:
+        hash: sha256:8e1612815affcac3ab353fc7a213da67abd646255816cb14cb2b8adf799a8b48
+        template_version: 0.2.0
+    extensions/injectors/example_table.go:
+        hash: sha256:7e6a9407b5f966e6f45b817bf3e6bd411886947b3c8595a90546cce165382fb2
+        template_version: 0.2.0
+    extensions/injectors/example_time.go:
+        hash: sha256:8cc992417b5e933b8084efb5e98e10d9be82472f97204bb88e59569d04fe80fc
+        template_version: 0.2.0
+    extensions/injectors/example_value.go:
+        hash: sha256:44d1c355b8a42c8747705eaf2277318b587c22f5b1051e113b7d98c795254f8a
+        template_version: 0.2.0
+    extensions/mapper.go:
+        hash: sha256:056ebdbb71b57a027d4b42ae678d208974b8d52c3b1d27c22c49cc88b425072d
+        template_version: 0.2.0
+    extensions/middleware.go:
+        hash: sha256:1b5e442632b12fa592065077dad46ba638d38807689baae1156940c6b2107c82
+        template_version: 0.2.0
+    extensions/workspace_provider.go:
+        hash: sha256:5dc06915554fe5fd16734ccd547328ea7b8a29fb62c40e178dd1012f21362e92
+        template_version: 0.2.0
+    go.mod:
+        hash: sha256:052a6f1b7aafd7f83fe15570ef073d5d482861065b25c2a898b4937ad4d32acf
+        template_version: 0.2.0
+    main.go:
+        hash: sha256:b7c4847d29e48d15cb00def27772cec62400aff9fb023c763b42a9624d8f83b1
+        template_version: 0.2.0
+    scripts/README.md:
+        hash: sha256:7a1a3657498bea8093f104e0d6f41bc43d56d70493b594a240303f8b6bb4d174
+        template_version: 0.2.0

@@ -7,23 +7,17 @@ import (
 	"github.com/rendis/pdf-forge/sdk"
 )
 
-// ExampleWorkspaceProvider demonstrates a WorkspaceInjectableProvider implementation.
-// In real usage, this would fetch injectables from an external system (API, database, etc.)
-// based on the tenant and workspace.
+// ExampleWorkspaceProvider demonstrates dynamic injectables per workspace.
+// These injectables are loaded at runtime (when editor opens), not from YAML.
+//
+// i18n: Return all locales in map[string]string. The framework picks the right
+// one based on the request locale. Fallback order: requested locale → "en" → code.
 type ExampleWorkspaceProvider struct{}
 
 // GetInjectables returns available injectables for a workspace.
-// This is called when the editor opens to populate the injectable list.
-// Return all locales - the framework picks the right one based on request locale.
+// Called when the template editor opens. Return all locales.
+// Use injCtx.TenantCode() and injCtx.WorkspaceCode() to identify the workspace.
 func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
-	// Example: Return different injectables based on workspace
-	// In real usage, you'd query an external system here
-
-	// Only provide custom injectables for specific workspaces
-	if injCtx.WorkspaceCode() == "" {
-		return &sdk.GetInjectablesResult{}, nil
-	}
-
 	return &sdk.GetInjectablesResult{
 		Injectables: []sdk.ProviderInjectable{
 			{
@@ -34,7 +28,7 @@ func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, injCtx *s
 				},
 				Description: map[string]string{
 					"es": "Nombre completo del cliente",
-					"en": "Full name of the customer",
+					"en": "Full customer name",
 				},
 				DataType: sdk.InjectableDataTypeText,
 				GroupKey: "custom_data",
@@ -61,17 +55,17 @@ func (p *ExampleWorkspaceProvider) GetInjectables(ctx context.Context, injCtx *s
 			{
 				Key: "custom_data",
 				Name: map[string]string{
-					"es": "Datos del Cliente",
-					"en": "Customer Data",
+					"es": "Datos Personalizados",
+					"en": "Custom Data",
 				},
-				Icon: "user",
+				Icon: "database",
 			},
 		},
 	}, nil
 }
 
-// ResolveInjectables resolves a batch of injectable codes.
-// This is called during render for workspace-specific injectables.
+// ResolveInjectables resolves injectable values during render.
+// Called when a template is rendered and contains workspace-specific injectables.
 func (p *ExampleWorkspaceProvider) ResolveInjectables(ctx context.Context, req *sdk.ResolveInjectablesRequest) (*sdk.ResolveInjectablesResult, error) {
 	values := make(map[string]*sdk.InjectableValue)
 	errors := make(map[string]string)
@@ -79,23 +73,23 @@ func (p *ExampleWorkspaceProvider) ResolveInjectables(ctx context.Context, req *
 	for _, code := range req.Codes {
 		switch code {
 		case "customer_name":
-			// In real usage, fetch from external system using req.Payload or req.Headers
+			// In real usage: fetch from req.Payload, req.Headers, or external API
 			val := sdk.StringValue("John Doe")
 			values[code] = &val
 
 		case "order_total":
-			// Example: get from payload if available
+			// req.SelectedFormats[code] contains the user-selected format key
 			val := sdk.NumberValue(1234.56)
 			values[code] = &val
 
 		default:
-			// Unknown code - non-critical error
-			errors[code] = fmt.Sprintf("unknown injectable code: %s", code)
+			// Unknown code - non-critical error (render continues with default)
+			errors[code] = fmt.Sprintf("unknown injectable: %s", code)
 		}
 	}
 
 	return &sdk.ResolveInjectablesResult{
 		Values: values,
-		Errors: errors,
+		Errors: errors, // Non-critical errors. For critical: return nil, err
 	}, nil
 }
