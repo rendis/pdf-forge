@@ -93,11 +93,11 @@ Current features: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 ## Environment Variables
 
 ```plaintext
-VITE_API_URL        # Backend API base URL (default: /api/v1)
+VITE_BASE_PATH      # Base path for SPA routing (must match backend's server.base_path)
 VITE_USE_MOCK_AUTH  # Set to "true" to skip OIDC (dev only)
 ```
 
-> **Note**: OIDC configuration (token endpoint, userinfo, logout, client_id) is fetched at runtime from the backend `/api/v1/config` endpoint. Configure OIDC in the backend's `app.yaml` instead.
+> **Note**: The API URL is automatically derived from `VITE_BASE_PATH` (via Vite's `BASE_URL`). Users only need to configure `server.base_path` in the backend's `app.yaml` - the frontend adapts automatically. OIDC configuration is fetched at runtime from `/api/v1/config`.
 
 ## Path Aliases
 

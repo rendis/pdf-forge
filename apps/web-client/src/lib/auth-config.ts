@@ -2,7 +2,9 @@
  * Runtime auth configuration fetched from backend.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
+// API Base URL derived from Vite's BASE_URL (auto-configured via VITE_BASE_PATH)
+const basePath = import.meta.env.BASE_URL?.replace(/\/$/, '') || ''
+const API_BASE_URL = `${basePath}/api/v1`
 
 export interface PanelProvider {
   name: string

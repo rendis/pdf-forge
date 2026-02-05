@@ -4,8 +4,10 @@ import { useAppContextStore } from '@/stores/app-context-store'
 
 import { refreshAccessToken } from '@/lib/oidc'
 
-// API Base URL from environment (default: relative URL for embedded frontend)
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
+// API Base URL derived from Vite's BASE_URL (auto-configured via VITE_BASE_PATH)
+// This makes the frontend plug-and-play: it adapts to wherever it's deployed
+const basePath = import.meta.env.BASE_URL?.replace(/\/$/, '') || ''
+const API_BASE_URL = `${basePath}/api/v1`
 
 // Flag to prevent multiple simultaneous refresh attempts
 let isRefreshing = false
