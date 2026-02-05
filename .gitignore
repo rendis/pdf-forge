@@ -10,6 +10,7 @@
 *.dylib
 bin/
 dist/
+!internal/frontend/dist/
 
 pdfforge-cli
 api
