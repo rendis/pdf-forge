@@ -9,9 +9,13 @@ import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import './index.css'
 
-// Create a new router instance
+// Get basepath from Vite's BASE_URL (set via VITE_BASE_PATH env var)
+// Remove trailing slash for TanStack Router compatibility
+const basepath = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
+
+// Create a new router instance with basepath
 // @ts-expect-error - TanStack Router requires strictNullChecks but we have it disabled
-const router = createRouter({ routeTree })
+const router = createRouter({ routeTree, basepath })
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
