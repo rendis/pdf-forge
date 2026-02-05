@@ -266,6 +266,9 @@ func setupEmbeddedFrontend(engine *gin.Engine) {
 
 	fileServer := http.FileServer(http.FS(distFS))
 
+	// Base path used in frontend build (VITE_BASE_PATH)
+	const basePath = "/pdf-forge"
+
 	engine.NoRoute(func(c *gin.Context) {
 		path := c.Request.URL.Path
 
@@ -275,8 +278,19 @@ func setupEmbeddedFrontend(engine *gin.Engine) {
 			return
 		}
 
+		// Strip base path prefix for file lookup
+		lookupPath := path
+		if strings.HasPrefix(path, basePath) {
+			lookupPath = strings.TrimPrefix(path, basePath)
+			if lookupPath == "" {
+				lookupPath = "/"
+			}
+		}
+
 		// Try to serve the file directly
-		if f, err := fs.Stat(distFS, strings.TrimPrefix(path, "/")); err == nil && !f.IsDir() {
+		if f, err := fs.Stat(distFS, strings.TrimPrefix(lookupPath, "/")); err == nil && !f.IsDir() {
+			// Rewrite the request path for the file server
+			c.Request.URL.Path = lookupPath
 			fileServer.ServeHTTP(c.Writer, c.Request)
 			return
 		}
