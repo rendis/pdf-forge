@@ -65,6 +65,7 @@ func (c *Config) IsDummyAuth() bool {
 // ServerConfig holds HTTP server configuration.
 type ServerConfig struct {
 	Port            string `mapstructure:"port"`
+	BasePath        string `mapstructure:"base_path"` // URL prefix for all routes, e.g., "/pdf-forge"
 	ReadTimeout     int    `mapstructure:"read_timeout"`
 	WriteTimeout    int    `mapstructure:"write_timeout"`
 	ShutdownTimeout int    `mapstructure:"shutdown_timeout"`

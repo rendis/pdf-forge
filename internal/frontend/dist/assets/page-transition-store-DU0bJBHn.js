@@ -1,0 +1,1 @@
+import{k as r}from"./index-BPYvQwlQ.js";const t=r(i=>({isTransitioning:!1,direction:null,startTransition:n=>i({isTransitioning:!0,direction:n}),endTransition:()=>i({isTransitioning:!1,direction:null})}));export{t as u};

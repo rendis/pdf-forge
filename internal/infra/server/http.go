@@ -34,7 +34,7 @@ import (
 // @license.url     https://opensource.org/licenses/MIT
 
 // @host            localhost:8080
-// @BasePath        /api/v1
+// @BasePath        /pdf-forge/api/v1
 
 // @securityDefinitions.apikey BearerAuth
 // @in              header
@@ -80,23 +80,26 @@ func NewHTTPServer(
 		engine.Use(mw)
 	}
 
+	// Base path for all routes (e.g., "/pdf-forge")
+	basePath := cfg.Server.BasePath
+
 	// Health check endpoint (no auth required)
-	engine.GET("/health", healthHandler)
-	engine.GET("/ready", readyHandler)
+	engine.GET(basePath+"/health", healthHandler)
+	engine.GET(basePath+"/ready", readyHandler)
 
 	// Client config endpoint (no auth required)
-	engine.GET("/api/v1/config", clientConfigHandler(cfg))
+	engine.GET(basePath+"/api/v1/config", clientConfigHandler(cfg))
 
 	// Swagger UI (enabled via DOC_ENGINE_SERVER_SWAGGER_UI=true)
 	if cfg.Server.SwaggerUI {
-		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		engine.GET(basePath+"/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	// =====================================================
 	// PANEL ROUTES - Full auth with identity lookup
 	// Uses auth.panel provider for login/UI/management
 	// =====================================================
-	v1 := engine.Group("/api/v1")
+	v1 := engine.Group(basePath + "/api/v1")
 	v1.Use(middleware.Operation())
 
 	if cfg.IsDummyAuth() {
@@ -157,7 +160,7 @@ func NewHTTPServer(
 	// Auth priority: dummy > custom RenderAuthenticator > OIDC
 	// Custom authorization via engine.UseAPIMiddleware().
 	// =====================================================
-	renderGroup := engine.Group("/api/v1/workspace")
+	renderGroup := engine.Group(basePath + "/api/v1/workspace")
 	renderGroup.Use(middleware.Operation())
 
 	switch {
@@ -183,9 +186,9 @@ func NewHTTPServer(
 	// In dev mode, proxies to the frontend dev server.
 	// =====================================================
 	if cfg.DevFrontendURL != "" {
-		setupDevProxy(engine, cfg.DevFrontendURL)
+		setupDevProxy(engine, cfg.DevFrontendURL, basePath)
 	} else {
-		setupEmbeddedFrontend(engine)
+		setupEmbeddedFrontend(engine, basePath)
 	}
 
 	return &HTTPServer{
@@ -257,7 +260,7 @@ func readyHandler(c *gin.Context) {
 }
 
 // setupEmbeddedFrontend serves the embedded React SPA for all non-API routes.
-func setupEmbeddedFrontend(engine *gin.Engine) {
+func setupEmbeddedFrontend(engine *gin.Engine, basePath string) {
 	distFS, err := frontend.DistFS()
 	if err != nil {
 		slog.Warn("failed to load embedded frontend", slog.String("error", err.Error()))
@@ -266,21 +269,18 @@ func setupEmbeddedFrontend(engine *gin.Engine) {
 
 	fileServer := http.FileServer(http.FS(distFS))
 
-	// Base path used in frontend build (VITE_BASE_PATH)
-	const basePath = "/pdf-forge"
-
 	engine.NoRoute(func(c *gin.Context) {
 		path := c.Request.URL.Path
 
-		// Skip API routes
-		if strings.HasPrefix(path, "/api/") {
+		// Skip API routes (under base path)
+		if strings.HasPrefix(path, basePath+"/api/") {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
 
 		// Strip base path prefix for file lookup
 		lookupPath := path
-		if strings.HasPrefix(path, basePath) {
+		if basePath != "" && strings.HasPrefix(path, basePath) {
 			lookupPath = strings.TrimPrefix(path, basePath)
 			if lookupPath == "" {
 				lookupPath = "/"
@@ -302,7 +302,7 @@ func setupEmbeddedFrontend(engine *gin.Engine) {
 }
 
 // setupDevProxy proxies non-API requests to the frontend dev server.
-func setupDevProxy(engine *gin.Engine, devURL string) {
+func setupDevProxy(engine *gin.Engine, devURL string, basePath string) {
 	target, err := url.Parse(devURL)
 	if err != nil {
 		slog.Warn("invalid dev frontend URL", slog.String("url", devURL), slog.String("error", err.Error()))
@@ -313,7 +313,7 @@ func setupDevProxy(engine *gin.Engine, devURL string) {
 	slog.Info("proxying frontend to dev server", slog.String("url", devURL))
 
 	engine.NoRoute(func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+		if strings.HasPrefix(c.Request.URL.Path, basePath+"/api/") {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
