@@ -3,6 +3,7 @@
 
 server:
   port: "8080"
+  base_path: "/pdf-forge"
   swagger_ui: true
   # read_timeout: 30
   # write_timeout: 30
