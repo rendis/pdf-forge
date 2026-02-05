@@ -9,9 +9,8 @@ import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import './index.css'
 
-// Get basepath from Vite's BASE_URL (set via VITE_BASE_PATH env var)
-// Remove trailing slash for TanStack Router compatibility
-const basepath = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
+// Get basepath from VITE_BASE_PATH env var (set at build time via .env files)
+const basepath = (import.meta.env.VITE_BASE_PATH || '/').replace(/\/$/, '') || '/'
 
 // Create a new router instance with basepath
 // @ts-expect-error - TanStack Router requires strictNullChecks but we have it disabled

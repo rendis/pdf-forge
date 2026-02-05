@@ -1,10 +1,8 @@
 .PHONY: build-frontend build run test lint fmt swagger dev clean help
 
 # Frontend
-# VITE_BASE_PATH: Set to deploy path (e.g., /pdf-forge/). Defaults to /
 build-frontend:
-	cd apps/web-client && pnpm install && \
-	VITE_API_URL=/api/v1 VITE_BASE_PATH=$${VITE_BASE_PATH:-/} pnpm build
+	cd apps/web-client && pnpm install && pnpm build --mode production
 	rm -rf internal/frontend/dist
 	cp -r apps/web-client/dist internal/frontend/
 
