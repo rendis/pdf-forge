@@ -16,6 +16,7 @@ import {
   type AssignDocumentTypeRequest,
 } from '../api/templates-api'
 import { templateDetailKeys } from './useTemplateDetail'
+import { useAppContextStore } from '@/stores/app-context-store'
 import type { CreateTemplateRequest, UpdateTemplateRequest } from '@/types/api'
 
 export const templateKeys = {
@@ -25,12 +26,15 @@ export const templateKeys = {
 }
 
 export function useTemplates(params: TemplatesListParams = {}) {
+  const currentWorkspace = useAppContextStore((s) => s.currentWorkspace)
+
   return useQuery({
     queryKey: templateKeys.list(params),
     queryFn: () => fetchTemplates(params),
     staleTime: 0,
     gcTime: 0,
     placeholderData: keepPreviousData,
+    enabled: !!currentWorkspace,
   })
 }
 
