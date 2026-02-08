@@ -622,6 +622,7 @@ body {
 /* Editor ProseMirror content */
 .ProseMirror {
   background: hsl(var(--card));
+  font-family: "Helvetica Neue", "Arial", sans-serif;
   font-size: 12pt;
   line-height: 1.75;
   hyphens: auto;
@@ -640,6 +641,25 @@ body {
 .ProseMirror h4 { font-size: 14pt; font-weight: 600; }
 .ProseMirror h5 { font-size: 12pt; font-weight: 600; }
 .ProseMirror h6 { font-size: 11pt; font-weight: 600; }
+
+/* Blockquote matching Typst output (typst_converter.go) */
+.ProseMirror blockquote {
+  border-left: 2px solid hsl(var(--border));
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  padding: 0.5em 1em;
+  margin: 0.75em 0;
+  font-style: italic;
+}
+
+.ProseMirror blockquote p {
+  margin: 0;
+}
+
+.ProseMirror blockquote p::before,
+.ProseMirror blockquote p::after {
+  content: none;
+}
 
 /* Dark mode: make ProseMirror transparent to inherit container background */
 .dark .ProseMirror {

@@ -162,7 +162,7 @@ func (c *TypstConverter) parseHeadingLevel(attrs map[string]any) int {
 
 func (c *TypstConverter) blockquote(node portabledoc.Node) string {
 	content := c.ConvertNodes(node.Content)
-	return fmt.Sprintf("#block(inset: (left: 1em), stroke: (left: 2pt + luma(200)), fill: rgb(\"#f9f9f9\"))[#emph[%s]]\n", content)
+	return fmt.Sprintf("#block(width: 100%%, inset: (left: 1em, top: 0.5em, bottom: 0.5em, right: 1em), stroke: (left: 2pt + luma(200)), fill: rgb(\"#f9f9f9\"), above: 0.75em, below: 0.75em)[#emph[%s]]\n", content)
 }
 
 func (c *TypstConverter) codeBlock(node portabledoc.Node) string {
@@ -568,9 +568,9 @@ func (c *TypstConverter) text(node portabledoc.Node) string {
 func (c *TypstConverter) applyMark(text string, mark portabledoc.Mark) string {
 	switch mark.Type {
 	case portabledoc.MarkTypeBold:
-		return fmt.Sprintf("*%s*", text)
+		return fmt.Sprintf("#strong[%s]", text)
 	case portabledoc.MarkTypeItalic:
-		return fmt.Sprintf("_%s_", text)
+		return fmt.Sprintf("#emph[%s]", text)
 	case portabledoc.MarkTypeStrike:
 		return fmt.Sprintf("#strike[%s]", text)
 	case portabledoc.MarkTypeCode:

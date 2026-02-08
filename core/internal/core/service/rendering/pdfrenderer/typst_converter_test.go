@@ -71,16 +71,16 @@ func TestTypstConverter_TextEscaping(t *testing.T) {
 func TestTypstConverter_MarkBold(t *testing.T) {
 	c := newConverter(nil, nil)
 	got := c.ConvertNode(markedTextNode("hello", mark(portabledoc.MarkTypeBold)))
-	if got != "*hello*" {
-		t.Errorf("got %q, want %q", got, "*hello*")
+	if got != "#strong[hello]" {
+		t.Errorf("got %q, want %q", got, "#strong[hello]")
 	}
 }
 
 func TestTypstConverter_MarkItalic(t *testing.T) {
 	c := newConverter(nil, nil)
 	got := c.ConvertNode(markedTextNode("hello", mark(portabledoc.MarkTypeItalic)))
-	if got != "_hello_" {
-		t.Errorf("got %q, want %q", got, "_hello_")
+	if got != "#emph[hello]" {
+		t.Errorf("got %q, want %q", got, "#emph[hello]")
 	}
 }
 
@@ -144,8 +144,8 @@ func TestTypstConverter_MarkLinkEmptyHref(t *testing.T) {
 func TestTypstConverter_NestedMarks(t *testing.T) {
 	c := newConverter(nil, nil)
 	got := c.ConvertNode(markedTextNode("hello", mark(portabledoc.MarkTypeBold), mark(portabledoc.MarkTypeItalic)))
-	if got != "_*hello*_" {
-		t.Errorf("got %q, want %q", got, "_*hello*_")
+	if got != "#emph[#strong[hello]]" {
+		t.Errorf("got %q, want %q", got, "#emph[#strong[hello]]")
 	}
 }
 
