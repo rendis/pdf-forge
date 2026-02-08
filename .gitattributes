@@ -1,0 +1,6 @@
+# User customization zone — keep user's version on merge conflicts
+core/extensions/** merge=ours
+core/settings/app.yaml merge=ours
+
+# Lockfiles — union merge (auto-resolve by combining both sides)
+core/go.sum merge=union
