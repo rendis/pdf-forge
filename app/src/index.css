@@ -623,8 +623,14 @@ body {
 .ProseMirror {
   background: hsl(var(--card));
   font-size: 12pt;
+  line-height: 1.75;
   hyphens: auto;
   overflow-wrap: break-word;
+}
+
+.ProseMirror p {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
 }
 
 /* Heading sizes matching Typst output (typst_builder.go) */

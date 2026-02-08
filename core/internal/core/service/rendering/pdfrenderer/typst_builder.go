@@ -100,7 +100,7 @@ func (b *TypstBuilder) typographySetup() string {
   hyphenate: true,
 )
 
-#set par(leading: 0.75em, spacing: 0.75em)
+#set par(leading: 0.75em, spacing: 1.5em)
 
 `
 }
