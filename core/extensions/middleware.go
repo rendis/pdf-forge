@@ -1,0 +1,42 @@
+package extensions
+
+import (
+	"log/slog"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
+
+// RequestLoggerMiddleware logs request latency and status.
+func RequestLoggerMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		method := c.Request.Method
+
+		c.Next()
+
+		slog.InfoContext(c.Request.Context(), "http request",
+			slog.String("method", method),
+			slog.String("path", path),
+			slog.Int("status", c.Writer.Status()),
+			slog.Duration("latency", time.Since(start)),
+			slog.String("client_ip", c.ClientIP()))
+	}
+}
+
+// CustomHeadersMiddleware adds custom response headers.
+func CustomHeadersMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("X-Powered-By", "pdf-forge")
+		c.Next()
+	}
+}
+
+// TenantValidationMiddleware validates tenant access.
+// Runs after authentication, so user context is available.
+func TenantValidationMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+	}
+}

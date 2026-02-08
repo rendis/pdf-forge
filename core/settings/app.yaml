@@ -1,0 +1,87 @@
+# Doc Engine Configuration
+# Override values using environment variables with prefix DOC_ENGINE_
+# Example: DOC_ENGINE_SERVER_PORT=9000
+
+environment: development
+
+server:
+  port: "8080"
+  read_timeout: 30    # seconds
+  write_timeout: 30   # seconds
+  shutdown_timeout: 10 # seconds
+  cors:
+    allowed_origins:
+      - "*"
+
+database:
+  host: localhost             # Override via DOC_ENGINE_DATABASE_HOST
+  port: 5432                  # Override via DOC_ENGINE_DATABASE_PORT
+  user: postgres              # Override via DOC_ENGINE_DATABASE_USER
+  password: ""                # Override via DOC_ENGINE_DATABASE_PASSWORD
+  name: pdf_forge             # Override via DOC_ENGINE_DATABASE_NAME
+  ssl_mode: disable           # Override via DOC_ENGINE_DATABASE_SSL_MODE
+  max_pool_size: 10           # Override via DOC_ENGINE_DATABASE_MAX_POOL_SIZE_COUNT
+  min_pool_size: 2            # Override via DOC_ENGINE_DATABASE_MIN_POOL_SIZE_COUNT
+  max_idle_time_seconds: 300  # Override via DOC_ENGINE_DATABASE_MAX_IDLE_TIME_SECS
+
+# OIDC Authentication Configuration
+#
+# - panel: OIDC provider for web panel (login/UI/management endpoints)
+# - render_providers: Additional providers ONLY for render endpoints
+#   (panel is always valid for render too)
+#
+# Option 1: Using discovery_url (recommended - auto-fetches endpoints)
+#
+# auth:
+#   panel:
+#     name: "keycloak"
+#     discovery_url: "https://auth.example.com/realms/web"
+#     client_id: "pdf-forge-web"   # Required for frontend login
+#     audience: "pdf-forge-web"    # Optional, for token validation
+#
+#   render_providers:
+#     - name: "azure-ad"
+#       discovery_url: "https://login.microsoftonline.com/{tenant}/v2.0"
+#
+# Option 2: Explicit endpoints (no discovery)
+#
+# auth:
+#   panel:
+#     name: "web-panel"
+#     issuer: "https://auth.example.com/realms/web"
+#     jwks_url: "https://auth.example.com/realms/web/protocol/openid-connect/certs"
+#     token_endpoint: "https://auth.example.com/realms/web/protocol/openid-connect/token"
+#     userinfo_endpoint: "https://auth.example.com/realms/web/protocol/openid-connect/userinfo"
+#     end_session_endpoint: "https://auth.example.com/realms/web/protocol/openid-connect/logout"
+#     client_id: "pdf-forge-web"
+#     audience: "pdf-forge-web"
+#
+# Empty/missing auth config = dummy auth mode (dev only)
+# auth:
+#   panel:
+#     name: "keycloak"
+#     discovery_url: "https://auth.example.com/realms/web"
+#     client_id: "pdf-forge-web"
+
+logging:
+  level: info   # debug, info, warn, error
+  format: json  # json, text
+
+# First-user bootstrap configuration
+# When enabled, the first user to login via OIDC becomes SUPERADMIN automatically.
+# This only happens when the database has zero users.
+bootstrap:
+  enabled: true  # DOC_ENGINE_BOOTSTRAP_ENABLED - Set false to require manual user setup
+
+# Typst PDF renderer configuration
+typst:
+  bin_path: typst              # DOC_ENGINE_TYPST_BIN_PATH - Path to typst binary
+  timeout_seconds: 10          # DOC_ENGINE_TYPST_TIMEOUT_SECONDS - Max time per PDF generation
+  font_dirs: []                # DOC_ENGINE_TYPST_FONT_DIRS - Additional font directories
+  max_concurrent: 20           # DOC_ENGINE_TYPST_MAX_CONCURRENT - Max simultaneous renders (0 = unlimited)
+  acquire_timeout_seconds: 5   # DOC_ENGINE_TYPST_ACQUIRE_TIMEOUT_SECONDS - Max wait for render slot
+  template_cache_ttl_seconds: 60    # DOC_ENGINE_TYPST_TEMPLATE_CACHE_TTL_SECONDS - Template cache TTL
+  template_cache_max_entries: 1000  # DOC_ENGINE_TYPST_TEMPLATE_CACHE_MAX_ENTRIES - Max cached templates
+  image_cache_dir: ""                          # DOC_ENGINE_TYPST_IMAGE_CACHE_DIR - Shared image cache dir (empty = temp per request)
+  image_cache_max_age_seconds: 300             # DOC_ENGINE_TYPST_IMAGE_CACHE_MAX_AGE_SECONDS - Max age before cleanup
+  image_cache_cleanup_interval_seconds: 60     # DOC_ENGINE_TYPST_IMAGE_CACHE_CLEANUP_INTERVAL_SECONDS - Cleanup frequency

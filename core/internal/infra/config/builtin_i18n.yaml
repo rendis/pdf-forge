@@ -1,0 +1,77 @@
+# Traducciones i18n para inyectores
+# Estructura: code → name/description → locale → texto
+#
+# El sistema carga este archivo automáticamente al iniciar.
+# No es necesario reiniciar el servidor para ver cambios (hot reload en desarrollo).
+
+# ============================================================================
+# Group Definitions
+# ============================================================================
+# Define injectable groups with i18n names and icons.
+# Groups allow organizing injectables in the editor panel.
+# Order is determined by position in this array (first = order 0).
+
+groups:
+  - key: datetime
+    name:
+      en: "Date/Time"
+      es: "Fecha/Hora"
+    icon: "calendar"
+
+# ============================================================================
+# Date/Time Injectors (built-in)
+# ============================================================================
+
+date_time_now:
+  group: datetime
+  name:
+    en: "Current Date and Time"
+    es: "Fecha y Hora Actual"
+  description:
+    en: "Date and time at document generation"
+    es: "Fecha y hora al momento de generar el documento"
+
+date_now:
+  group: datetime
+  name:
+    en: "Current Date"
+    es: "Fecha Actual"
+  description:
+    en: "Date at document generation"
+    es: "Fecha al momento de generar el documento"
+
+time_now:
+  group: datetime
+  name:
+    en: "Current Time"
+    es: "Hora Actual"
+  description:
+    en: "Time at document generation"
+    es: "Hora al momento de generar el documento"
+
+year_now:
+  group: datetime
+  name:
+    en: "Current Year"
+    es: "Año Actual"
+  description:
+    en: "Year at document generation"
+    es: "Año al momento de generar el documento"
+
+month_now:
+  group: datetime
+  name:
+    en: "Current Month"
+    es: "Mes Actual"
+  description:
+    en: "Month at document generation"
+    es: "Mes al momento de generar el documento"
+
+day_now:
+  group: datetime
+  name:
+    en: "Current Day"
+    es: "Día Actual"
+  description:
+    en: "Day of month at document generation"
+    es: "Día del mes al momento de generar el documento"
