@@ -1,6 +1,0 @@
-export { Editor } from './components/Editor'
-export { DocumentEditor } from './components/DocumentEditor'
-export { EditorToolbar } from './components/EditorToolbar'
-export { PageSettings } from './components/PageSettings'
-export { PAGE_SIZES, DEFAULT_MARGINS } from './types'
-export type { PageSize, PageMargins, PageSettings as PageSettingsType } from './types'

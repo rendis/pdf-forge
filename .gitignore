@@ -10,12 +10,6 @@
 *.dylib
 bin/
 dist/
-!internal/frontend/dist/
-
-pdfforge-cli
-api
-!cmd/pdfforge-cli
-!cmd/api
 
 # Test binary
 *.test
@@ -117,6 +111,8 @@ Desktop.ini
 # Docker
 # =========================
 .docker/
+docker-compose.override.yaml
+docker-compose.override.yml
 
 # =========================
 # Misc

@@ -72,15 +72,6 @@ linters:
           - gocyclo
         path: error_handler\.go
         text: is400Error
-      # CLI commands: Interactive TUI flows with multiple user prompts and
-      # conditional paths. Complexity is inherent to CLI UX - not worth splitting.
-      - linters:
-          - funlen
-          - gocognit
-          - gocyclo
-          - gosec
-          - nestif
-        path: cmd/pdfforge-cli/
       # HTTP server setup: Wires many controllers and middleware.
       # Long but straightforward initialization code.
       - linters:
@@ -92,7 +83,7 @@ linters:
           - funlen
           - gocognit
           - gocyclo
-        path: sdk/initializer\.go
+        path: cmd/api/bootstrap/initializer\.go
       # Injectable service: Provider integration requires nested null checks.
       # Business logic flow with external provider - complexity is necessary.
       - linters:

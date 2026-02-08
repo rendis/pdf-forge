@@ -1,24 +1,22 @@
 <p align="center">
-  <img src="docs/assets/logo.svg" alt="pdf-forge" width="320">
+  <img src="core/docs/assets/logo.svg" alt="pdf-forge" width="320">
 </p>
 
 <p align="center">
   <strong>Multi-tenant PDF template engine powered by Typst</strong><br>
-  <sub>Agent-Friendly · Extensible · Production-Ready</sub>
+  <sub>Forkeable · Agent-Friendly · Extensible · Production-Ready</sub>
 </p>
 
 <p align="center">
   <a href="https://go.dev"><img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go" alt="Go Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
-  <a href="https://pkg.go.dev/github.com/rendis/pdf-forge"><img src="https://pkg.go.dev/badge/github.com/rendis/pdf-forge.svg" alt="Go Reference"></a>
   <a href="#ai-agent-skill"><img src="https://img.shields.io/badge/AI_Agents-Skill_Available-8A2BE2?style=flat" alt="AI Agent Skill"></a>
   <a href="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL"></a>
-  <a href="https://github.com/rendis/pdf-forge/security/dependabot"><img src="https://img.shields.io/badge/Dependabot-enabled-brightgreen" alt="Dependabot"></a>
   <a href="https://deepwiki.com/rendis/pdf-forge"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </p>
 
 <p align="center">
-  <img src="docs/assets/hero-screenshot.png" alt="pdf-forge Editor" width="800">
+  <img src="core/docs/assets/hero-screenshot.png" alt="pdf-forge Editor" width="800">
 </p>
 
 ---
@@ -30,12 +28,12 @@ Build document templates visually, inject dynamic data through plugins, generate
 <p align="center">
 <table>
   <tr>
-    <td align="center"><img src="docs/assets/templates-list-thumb.png" alt="Templates" width="400"><br><sub>Template Management</sub></td>
-    <td align="center"><img src="docs/assets/editor-variables-thumb.png" alt="Variables" width="400"><br><sub>Variable Injection</sub></td>
+    <td align="center"><img src="core/docs/assets/templates-list-thumb.png" alt="Templates" width="400"><br><sub>Template Management</sub></td>
+    <td align="center"><img src="core/docs/assets/editor-variables-thumb.png" alt="Variables" width="400"><br><sub>Variable Injection</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/assets/preview-pdf-thumb.png" alt="Preview" width="400"><br><sub>PDF Preview</sub></td>
-    <td align="center"><img src="docs/assets/admin-dashboard-thumb.png" alt="Admin" width="400"><br><sub>Administration</sub></td>
+    <td align="center"><img src="core/docs/assets/preview-pdf-thumb.png" alt="Preview" width="400"><br><sub>PDF Preview</sub></td>
+    <td align="center"><img src="core/docs/assets/admin-dashboard-thumb.png" alt="Admin" width="400"><br><sub>Administration</sub></td>
   </tr>
 </table>
 </p>
@@ -60,73 +58,208 @@ pdf-forge follows a **plugin-based architecture**:
 └──────────────────┘      └──────────────────┘      └──────────────────┘
 ```
 
-The engine handles dependency resolution, concurrent rendering, image caching, and multi-tenant isolation automatically.
-
 ## Features
 
-| Feature                 | Description                                          |
-| ----------------------- | ---------------------------------------------------- |
-| **Visual Editor**       | TipTap-based rich text with live PDF preview         |
-| **Plugin Architecture** | Custom injectors for any data source (CRM, DB, API)  |
-| **7 Value Types**       | String, Number, Bool, Time, Table, Image, List       |
-| **Typst Rendering**     | Fast concurrent PDF generation with image caching    |
-| **Multi-Tenant**        | Tenant/workspace isolation with 3-level RBAC         |
-| **Multi-OIDC**          | Support N identity providers (Keycloak, Auth0, etc.) |
-| **Embedded Frontend**   | React 19 SPA ships with engine - no separate deploy  |
-| **CLI Scaffolding**     | `pdfforge-cli init` generates ready-to-run project   |
-| **Lifecycle Hooks**     | `OnStart()` / `OnShutdown()` for background workers  |
-| **Custom Middleware**   | Global + API-only middleware chains                  |
-| **Dummy Auth**          | Dev mode without OIDC provider setup                 |
-| **Dynamic Injectables** | Per-workspace runtime plugins via provider           |
+| Feature                  | Description                                          |
+| ------------------------ | ---------------------------------------------------- |
+| **Visual Editor**        | TipTap-based rich text with live PDF preview         |
+| **Plugin Architecture**  | Custom injectors for any data source (CRM, DB, API)  |
+| **7 Value Types**        | String, Number, Bool, Time, Table, Image, List       |
+| **Typst Rendering**      | Fast concurrent PDF generation with image caching    |
+| **Multi-Tenant**         | Tenant/workspace isolation with 3-level RBAC         |
+| **Multi-OIDC**           | Support N identity providers (Keycloak, Auth0, etc.) |
+| **Independent Frontend** | React 19 SPA with nginx, separately deployable       |
+| **Forkeable**            | Fork, customize `core/extensions/`, deploy           |
+| **Lifecycle Hooks**      | `OnStart()` / `OnShutdown()` for background workers  |
+| **Custom Middleware**    | Global + API-only middleware chains                  |
+| **Dummy Auth**           | Dev mode without OIDC provider setup                 |
+| **Upgrade Doctor**       | `make check-upgrade` verifies safety before merging  |
 
 ## Quick Start
 
 ```bash
-# Install CLI
-go install github.com/rendis/pdf-forge/cmd/pdfforge-cli@latest
+# 1. Fork on GitHub: click "Fork" at github.com/rendis/pdf-forge
 
-# Scaffold project
-pdfforge-cli init myapp && cd myapp
+# 2. Clone your fork
+git clone https://github.com/<you>/pdf-forge.git
+cd pdf-forge
 
-# Run (app + PostgreSQL)
-make up
+# 3. Set up upstream tracking
+make init-fork
+
+# 4. Start everything (PostgreSQL + API + Frontend)
+docker compose up --build
 ```
 
-Open [http://localhost:8080](http://localhost:8080)
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- API: [http://localhost:8080](http://localhost:8080)
+- Swagger: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
 <details>
-<summary><strong>Prerequisites</strong></summary>
+<summary><strong>Prerequisites (local dev without Docker)</strong></summary>
 
 | Dependency | Version | Install                                   |
 | ---------- | ------- | ----------------------------------------- |
 | Go         | 1.25+   | [go.dev/dl](https://go.dev/dl/)           |
 | PostgreSQL | 16+     | `brew install postgresql@16` or Docker    |
 | Typst      | latest  | `brew install typst` (included in Docker) |
-
-</details>
-
-<details>
-<summary><strong>Manual Setup</strong></summary>
+| Node.js    | 22+     | [nodejs.org](https://nodejs.org/)         |
+| pnpm       | latest  | `npm install -g pnpm`                     |
 
 ```bash
-# Start PostgreSQL only
-make up-db
+# Apply migrations
+make migrate
 
-# Run locally (migrations auto-apply)
-make run
+# Run backend
+make dev
 
-# Custom PG port
-PG_PORT=5433 make up
+# Run frontend (separate terminal)
+make dev-app
 ```
 
 </details>
 
+## Fork Workflow
+
+pdf-forge is designed to be forked and customized. You only modify `core/extensions/` — the engine handles the rest.
+
+```plaintext
+┌─────────────────────────────────────────────────────────────────┐
+│                        SETUP (once)                             │
+│                                                                 │
+│  Fork on GitHub → git clone → make init-fork                    │
+│                                                                 │
+│  Customize:                                                     │
+│    core/extensions/     ← Your injectors, mapper, middleware    │
+│    core/settings/       ← Your config (DB, auth, CORS)          │
+│                                                                 │
+│  Deploy: docker compose up --build                              │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    UPGRADE (per release)                        │
+│                                                                 │
+│  1. make check-upgrade VERSION=v1.2.0                           │
+│     ✓ Merge conflicts....... ok                                 │
+│     ✓ Build after merge..... ok                                 │
+│     ✓ Interface changes..... ok                                 │
+│     ✓ New migrations........ 2 new                              │
+│                                                                 │
+│  2. make sync-upstream VERSION=v1.2.0                           │
+│  3. make build && make test                                     │
+│  4. make migrate  (if new migrations)                           │
+│  5. docker compose up --build                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Your extensions are safe**: `.gitattributes` ensures your code in `core/extensions/` takes priority on merge conflicts. `check-upgrade` simulates the merge and verifies your code still compiles before you commit.
+
+See **[FORKING.md](FORKING.md)** for the complete guide: Docker customization, Go module FAQ, alternative clone workflow, and contributing back.
+
+## Project Structure
+
+```plaintext
+core/                            ← Backend Go
+  cmd/api/                       ← Server entrypoint + bootstrap
+  extensions/                    ← YOUR CODE: injectors, mapper, middleware, hooks
+  internal/                      ← Engine internals (don't modify)
+  settings/                      ← Default configuration
+  docs/                          ← Documentation
+  Makefile                       ← Backend-specific
+  Dockerfile                     ← Backend Docker image
+app/                             ← Frontend React SPA (independent service)
+  src/                           ← React source
+  Makefile                       ← Frontend-specific
+  Dockerfile                     ← Frontend Docker image
+  nginx.conf                     ← SPA + API proxy
+Makefile                         ← Root orchestrator (delegates to core/ and app/)
+docker-compose.yaml              ← Full stack: postgres + api + web
+```
+
+**You only need to modify `core/extensions/`** to customize the engine.
+
+## Customizing (`core/extensions/`)
+
+All user customization lives in `core/extensions/register.go`:
+
+```go
+package extensions
+
+import (
+    "github.com/rendis/pdf-forge/cmd/api/bootstrap"
+    "github.com/rendis/pdf-forge/extensions/injectors"
+)
+
+func Register(engine *bootstrap.Engine) {
+    // Register custom injectors
+    engine.RegisterInjector(&injectors.MyInjector{})
+
+    // Set request mapper
+    engine.SetMapper(&MyMapper{})
+
+    // Set init function (runs before injectors on each render)
+    engine.SetInitFunc(MyInit())
+
+    // Add middleware
+    engine.UseMiddleware(RequestLoggerMiddleware())
+    engine.UseAPIMiddleware(TenantValidationMiddleware())
+
+    // Lifecycle hooks
+    engine.OnStart(func(ctx context.Context) error { return nil })
+    engine.OnShutdown(func(ctx context.Context) error { return nil })
+}
+```
+
+See the stub files in `core/extensions/` for documented examples of each extension point.
+
+## Writing an Injector
+
+Injectors resolve dynamic values for template placeholders:
+
+```go
+package injectors
+
+import (
+    "context"
+    "time"
+
+    "github.com/rendis/pdf-forge/internal/core/entity"
+    "github.com/rendis/pdf-forge/internal/core/port"
+)
+
+type CustomerNameInjector struct{}
+
+func (i *CustomerNameInjector) Code() string { return "customer_name" }
+
+func (i *CustomerNameInjector) DataType() entity.ValueType {
+    return entity.ValueTypeString
+}
+
+func (i *CustomerNameInjector) Resolve() (port.ResolveFunc, []string) {
+    return func(ctx context.Context, injCtx *entity.InjectorContext) (*entity.InjectorResult, error) {
+        payload := injCtx.RequestPayload().(*MyPayload)
+        return &entity.InjectorResult{
+            Value: entity.StringValue(payload.CustomerName),
+        }, nil
+    }, nil // no dependencies
+}
+
+func (i *CustomerNameInjector) IsCritical() bool                       { return true }
+func (i *CustomerNameInjector) Timeout() time.Duration                 { return 5 * time.Second }
+func (i *CustomerNameInjector) DefaultValue() *entity.InjectableValue  { return nil }
+func (i *CustomerNameInjector) Formats() *entity.FormatConfig          { return nil }
+```
+
+See [Extensibility Guide](core/docs/extensibility-guide.md) for tables, images, lists, dependencies, and request mappers.
+
 ## Configuration
 
 ```yaml
-# config/app.yaml
+# core/settings/app.yaml
 server:
   port: "8080"
+  cors:
+    allowed_origins: ["*"]
 
 database:
   host: localhost
@@ -148,59 +281,60 @@ Environment variables override YAML with `DOC_ENGINE_` prefix:
 | `DOC_ENGINE_DATABASE_PASSWORD` | Database password |
 | `DOC_ENGINE_SERVER_PORT`       | Server port       |
 
-See [Configuration Guide](docs/configuration.md) for OIDC, logging, and advanced options.
+See [Configuration Guide](core/docs/configuration.md) for OIDC, logging, and advanced options.
 
 ## Docker
 
-The scaffolded project includes Docker support:
-
 ```bash
-# Full stack (app + PostgreSQL)
-make up
+# Full stack (API + Frontend + PostgreSQL)
+docker compose up --build
 
 # Only database (for local dev)
-make up-db
+docker compose up postgres
 
-# Build image manually
-docker build -t myapp .
-
-# Use external PostgreSQL
-docker compose up --scale postgres=0
+# Run migrations
+make migrate
 ```
 
-The multi-stage `Dockerfile` includes Go 1.25 and Typst CLI.
+The stack runs three services:
 
-## AI Agent Skill
+- **postgres** (port 5432) - Database
+- **api** (port 8080) - Go backend with Typst
+- **web** (port 3000) - React frontend with nginx
 
-pdf-forge is **agent-friendly**. Install the skill to let AI agents (Claude Code, Cursor, etc.) build and extend your project with full context:
+Use `docker-compose.override.yaml` for local overrides (gitignored). See [FORKING.md](FORKING.md#docker-customization) for examples.
 
-```bash
-npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
+## Authentication
+
+**Development (Dummy Mode)**: Omit `auth` in config - auto-seeds admin user, no tokens required.
+
+**Production (OIDC)**: Configure providers in `core/settings/app.yaml`:
+
+```yaml
+auth:
+  panel:
+    name: "keycloak"
+    discovery_url: "https://auth.example.com/realms/web"
+    client_id: "pdf-forge-web"
+
+  render_providers: # Additional providers for render API only
+    - name: "internal-services"
+      discovery_url: "https://auth.example.com/realms/services"
 ```
 
-The skill provides:
+**Supported providers**: Keycloak, Auth0, Okta, Azure AD, AWS Cognito, Firebase.
 
-- Architecture patterns and coding conventions
-- API reference and endpoint documentation
-- Injector, mapper, and extension patterns
-- Database schema and migration guidance
+## Roles
 
-## Use Cases
+Three-level RBAC: **System** > **Tenant** > **Workspace**
 
-| Use Case                    | Example                                              |
-| --------------------------- | ---------------------------------------------------- |
-| **Invoices & Billing**      | Dynamic line items, totals, customer data            |
-| **Certificates & Diplomas** | Names, dates, achievements                           |
-| **Reports**                 | HR summaries, analytics dashboards, insurance claims |
-| **Personalized Marketing**  | Customer-specific offers, localized content          |
+| Level     | Roles                                            |
+| --------- | ------------------------------------------------ |
+| System    | `SUPERADMIN`, `PLATFORM_ADMIN`                   |
+| Tenant    | `TENANT_OWNER`, `TENANT_ADMIN`                   |
+| Workspace | `OWNER`, `ADMIN`, `EDITOR`, `OPERATOR`, `VIEWER` |
 
-## When NOT to Use
-
-- WYSIWYG editor (Word-like) - this is template-based
-- CMS or content management
-- E-signature platform
-- BI dashboards or reporting tools
-- One-off documents without templates
+See [Authorization Matrix](core/docs/authorization-matrix.md) for full permissions.
 
 ## Architecture
 
@@ -221,128 +355,72 @@ POST /api/v1/workspace/document-types/{code}/render
 
 ## Endpoints
 
-| Route               | Description                 | Auth             |
-| ------------------- | --------------------------- | ---------------- |
-| `/`                 | Template editor (React SPA) | None             |
-| `/api/v1/*`         | Management + render API     | OIDC JWT / Dummy |
-| `/swagger/*`        | API documentation           | None             |
-| `/health`, `/ready` | Health checks               | None             |
+| Route               | Description             | Auth             |
+| ------------------- | ----------------------- | ---------------- |
+| `/api/v1/*`         | Management + render API | OIDC JWT / Dummy |
+| `/swagger/*`        | API documentation       | None             |
+| `/health`, `/ready` | Health checks           | None             |
 
-## Authentication
+Frontend is served independently on port 3000 (nginx).
 
-**Development (Dummy Mode)**: Omit `auth` in config - auto-seeds admin user, no tokens required.
+## Commands
 
-**Production (OIDC)**: Configure providers in `app.yaml`:
+```bash
+# Build & Development
+make build            # Build backend + frontend
+make build-core       # Build Go backend only
+make build-app        # Build React frontend only
+make run              # Run API server
+make dev              # Hot reload backend (air)
+make dev-app          # Start Vite dev server
+make migrate          # Apply database migrations
+make test             # Run Go tests
+make lint             # Run golangci-lint
+make swagger          # Regenerate OpenAPI spec
 
-```yaml
-auth:
-  panel:
-    name: "keycloak"
-    discovery_url: "https://auth.example.com/realms/web"
-    client_id: "pdf-forge-web"
+# Docker
+make docker-up        # Start all services with Docker Compose
+make docker-down      # Stop all services
 
-  render_providers: # Additional providers for render API only
-    - name: "internal-services"
-      discovery_url: "https://auth.example.com/realms/services"
+# Fork Workflow
+make init-fork        # Set up upstream remote + merge drivers
+make doctor           # Check system dependencies and build health
+make check-upgrade    # Check if VERSION is safe to merge
+make sync-upstream    # Merge upstream VERSION into current branch
+
+make clean            # Remove all build artifacts
 ```
-
-**Supported providers**: Keycloak, Auth0, Okta, Azure AD, AWS Cognito, Firebase.
-
-Token validation uses standard OIDC/JWKS - the `iss` claim determines which provider validates each request.
-
-## Roles
-
-Three-level RBAC: **System** > **Tenant** > **Workspace**
-
-| Level     | Roles                                            |
-| --------- | ------------------------------------------------ |
-| System    | `SUPERADMIN`, `PLATFORM_ADMIN`                   |
-| Tenant    | `TENANT_OWNER`, `TENANT_ADMIN`                   |
-| Workspace | `OWNER`, `ADMIN`, `EDITOR`, `OPERATOR`, `VIEWER` |
-
-See [Authorization Matrix](docs/authorization-matrix.md) for full permissions.
 
 ## Documentation
 
-| Document                                             | Description                           |
-| ---------------------------------------------------- | ------------------------------------- |
-| [Architecture](docs/architecture.md)                 | Hexagonal design, domain organization |
-| [Extensibility Guide](docs/extensibility-guide.md)   | Injectors, mappers, init functions    |
-| [Configuration](docs/configuration.md)               | YAML config, OIDC setup               |
-| [Value Types](docs/value-types.md)                   | String, Number, Table, Image, List    |
-| [Authorization Matrix](docs/authorization-matrix.md) | RBAC roles and permissions            |
-| [Database Schema](docs/database.md)                  | Multi-tenant model, ER diagrams       |
-| [Deployment](docs/deployment.md)                     | Docker, Kubernetes patterns           |
-| [Troubleshooting](docs/troubleshooting.md)           | Common issues and solutions           |
+| Document                                                  | Description                           |
+| --------------------------------------------------------- | ------------------------------------- |
+| **[FORKING.md](FORKING.md)**                              | **Fork workflow, upgrading, FAQ**     |
+| [Architecture](core/docs/architecture.md)                 | Hexagonal design, domain organization |
+| [Extensibility Guide](core/docs/extensibility-guide.md)   | Injectors, mappers, init functions    |
+| [Configuration](core/docs/configuration.md)               | YAML config, OIDC setup               |
+| [Value Types](core/docs/value-types.md)                   | String, Number, Table, Image, List    |
+| [Authorization Matrix](core/docs/authorization-matrix.md) | RBAC roles and permissions            |
+| [Database Schema](core/docs/database.md)                  | Multi-tenant model, ER diagrams       |
+| [Deployment](core/docs/deployment.md)                     | Docker, Kubernetes patterns           |
+| [Troubleshooting](core/docs/troubleshooting.md)           | Common issues and solutions           |
 
-## Minimal Example
+## AI Agent Skill
 
-```go
-package main
-
-import (
-    "log"
-    "github.com/rendis/pdf-forge/sdk"
-)
-
-func main() {
-    engine := sdk.New(sdk.WithConfigFile("config/app.yaml"))
-    engine.RegisterInjector(&CustomerNameInjector{})
-    if err := engine.Run(); err != nil {
-        log.Fatal(err)
-    }
-}
-```
-
-## Writing an Injector
-
-Injectors resolve dynamic values for template placeholders:
-
-```go
-type CustomerNameInjector struct{}
-
-func (i *CustomerNameInjector) Code() string { return "customer_name" }
-
-func (i *CustomerNameInjector) DataType() sdk.ValueType {
-    return sdk.ValueTypeString
-}
-
-func (i *CustomerNameInjector) Resolve() (sdk.ResolveFunc, []string) {
-    return func(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.InjectorResult, error) {
-        // Get data from your source (DB, API, request payload)
-        payload := injCtx.RequestPayload().(*MyPayload)
-        return &sdk.InjectorResult{
-            Value: sdk.StringValue(payload.CustomerName),
-        }, nil
-    }, nil // no dependencies (return codes here if this depends on other injectors)
-}
-
-// Required interface methods
-func (i *CustomerNameInjector) IsCritical() bool            { return true }
-func (i *CustomerNameInjector) Timeout() time.Duration     { return 5 * time.Second }
-func (i *CustomerNameInjector) DefaultValue() *sdk.InjectableValue { return nil }
-func (i *CustomerNameInjector) Formats() *sdk.FormatConfig { return nil }
-```
-
-See [Extensibility Guide](docs/extensibility-guide.md) for tables, images, lists, dependencies, and request mappers.
-
-## CLI Reference
+pdf-forge is **agent-friendly**. Install the skill to let AI agents (Claude Code, Cursor, etc.) build and extend your project with full context:
 
 ```bash
-pdfforge-cli              # Interactive mode
-pdfforge-cli init <name>  # Scaffold project
-pdfforge-cli migrate      # Apply migrations
-pdfforge-cli doctor       # Check prerequisites
+npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
 ```
 
 ## Contributing
 
 ```bash
-make build    # Build
-make test     # Tests
-make lint     # Linter
-make swagger  # Regenerate OpenAPI
+make build && make test && make lint
+make swagger  # if API changed
 ```
+
+See [FORKING.md](FORKING.md#contributing-back) for the PR workflow.
 
 ## License
 
