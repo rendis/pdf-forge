@@ -46,22 +46,45 @@ func (c *TypstConverter) RemoteImages() map[string]string {
 	return c.remoteImages
 }
 
-// registerRemoteImage registers a remote URL and returns a local filename.
+// registerRemoteImage registers a remote URL or data URL and returns a local filename.
 func (c *TypstConverter) registerRemoteImage(url string) string {
 	if existing, ok := c.remoteImages[url]; ok {
 		return existing
 	}
 	c.imageCounter++
-	ext := ".png"
-	for _, candidate := range []string{".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp"} {
-		if strings.Contains(strings.ToLower(url), candidate) {
-			ext = candidate
-			break
-		}
-	}
+	ext := detectExtFromURL(url)
 	filename := fmt.Sprintf("img_%d%s", c.imageCounter, ext)
 	c.remoteImages[url] = filename
 	return filename
+}
+
+// detectExtFromURL detects the image extension from a URL or data URL.
+func detectExtFromURL(url string) string {
+	if strings.HasPrefix(url, "data:image/") {
+		mimeEnd := strings.Index(url, ";")
+		if mimeEnd > 0 {
+			mime := url[11:mimeEnd] // after "data:image/"
+			switch {
+			case strings.Contains(mime, "jpeg"), strings.Contains(mime, "jpg"):
+				return ".jpg"
+			case strings.Contains(mime, "png"):
+				return ".png"
+			case strings.Contains(mime, "gif"):
+				return ".gif"
+			case strings.Contains(mime, "svg"):
+				return ".svg"
+			case strings.Contains(mime, "webp"):
+				return ".webp"
+			}
+		}
+		return ".png"
+	}
+	for _, candidate := range []string{".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp"} {
+		if strings.Contains(strings.ToLower(url), candidate) {
+			return candidate
+		}
+	}
+	return ".png"
 }
 
 // ConvertNodes converts a slice of nodes to Typst markup.
@@ -494,11 +517,12 @@ func (c *TypstConverter) pageBreak(_ portabledoc.Node) string {
 
 // --- Image Nodes ---
 
-func (c *TypstConverter) image(node portabledoc.Node) string {
-	src, _ := node.Attrs["src"].(string)
+// resolveImagePath resolves the final local image path from node attributes.
+// Handles injectable bindings, remote URLs, and data URLs.
+func (c *TypstConverter) resolveImagePath(attrs map[string]any) string {
+	src, _ := attrs["src"].(string)
 
-	// Check for injectable binding
-	if injectableId, ok := node.Attrs["injectableId"].(string); ok && injectableId != "" {
+	if injectableId, ok := attrs["injectableId"].(string); ok && injectableId != "" {
 		if resolved, exists := c.injectables[injectableId]; exists {
 			src = fmt.Sprintf("%v", resolved)
 		} else if defaultVal, exists := c.injectableDefaults[injectableId]; exists {
@@ -510,10 +534,16 @@ func (c *TypstConverter) image(node portabledoc.Node) string {
 		return ""
 	}
 
-	// Remote images need to be downloaded; use local filename
-	imgPath := src
-	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
-		imgPath = c.registerRemoteImage(src)
+	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") || strings.HasPrefix(src, "data:") {
+		return c.registerRemoteImage(src)
+	}
+	return src
+}
+
+func (c *TypstConverter) image(node portabledoc.Node) string {
+	imgPath := c.resolveImagePath(node.Attrs)
+	if imgPath == "" {
+		return ""
 	}
 
 	width, _ := node.Attrs["width"].(float64)

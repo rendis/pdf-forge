@@ -3,6 +3,7 @@ package pdfrenderer
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"image"
 	"image/color"
@@ -176,9 +177,14 @@ func getPlaceholderPNG() []byte {
 }
 
 // downloadFile downloads a URL to a local file with the correct extension based on content type.
+// Also handles data: URLs by decoding base64 content directly.
 // Returns the actual filename (basename) used, which may differ from destPath's basename if the
 // extension was corrected to match the real image type.
 func (s *Service) downloadFile(ctx context.Context, url, destPath string) (string, error) {
+	if strings.HasPrefix(url, "data:") {
+		return s.writeDataURL(url, destPath)
+	}
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", fmt.Errorf("creating request: %w", err)
@@ -216,6 +222,33 @@ func (s *Service) downloadFile(ctx context.Context, url, destPath string) (strin
 
 	if err := os.WriteFile(actualPath, data, 0o600); err != nil {
 		return "", fmt.Errorf("writing file: %w", err)
+	}
+	return actualName, nil
+}
+
+// writeDataURL decodes a base64 data URL and writes the image to disk.
+func (s *Service) writeDataURL(dataURL, destPath string) (string, error) {
+	commaIdx := strings.Index(dataURL, ",")
+	if commaIdx < 0 {
+		return "", fmt.Errorf("invalid data URL: missing comma separator")
+	}
+
+	data, err := base64.StdEncoding.DecodeString(dataURL[commaIdx+1:])
+	if err != nil {
+		return "", fmt.Errorf("decoding base64 data URL: %w", err)
+	}
+
+	realExt := detectImageExt(data)
+	if realExt == "" {
+		return "", fmt.Errorf("data URL does not contain a valid image")
+	}
+
+	base := strings.TrimSuffix(filepath.Base(destPath), filepath.Ext(destPath))
+	actualName := base + realExt
+	actualPath := filepath.Join(filepath.Dir(destPath), actualName)
+
+	if err := os.WriteFile(actualPath, data, 0o600); err != nil {
+		return "", fmt.Errorf("writing data URL file: %w", err)
 	}
 	return actualName, nil
 }
