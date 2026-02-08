@@ -642,6 +642,14 @@ body {
 .ProseMirror h5 { font-size: 12pt; font-weight: 600; }
 .ProseMirror h6 { font-size: 11pt; font-weight: 600; }
 
+/* Horizontal rule selection indicator */
+.ProseMirror hr.ProseMirror-selectednode {
+  border-color: hsl(var(--primary));
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Blockquote matching Typst output (typst_converter.go) */
 .ProseMirror blockquote {
   border-left: 2px solid hsl(var(--border));
