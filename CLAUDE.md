@@ -58,6 +58,7 @@ make -C core fmt
 
 ```plaintext
 core/                            ← Backend Go (module: github.com/rendis/pdf-forge)
+  sdk/                           ← PUBLIC API for external consumers (type aliases)
   cmd/api/
     main.go                      ← Entrypoint (run server / migrate)
     bootstrap/
@@ -95,9 +96,10 @@ Called from `core/cmd/api/main.go`. Users never modify `core/internal/` or `core
 
 Types imported from:
 
-- `github.com/rendis/pdf-forge/internal/core/port` — interfaces
-- `github.com/rendis/pdf-forge/internal/core/entity` — domain types
-- `github.com/rendis/pdf-forge/cmd/api/bootstrap` — Engine type
+- `github.com/rendis/pdf-forge/sdk` — **public API** (Engine, interfaces, entity types, constructors)
+- `github.com/rendis/pdf-forge/internal/core/port` — interfaces (internal, use `sdk` instead for external consumers)
+- `github.com/rendis/pdf-forge/internal/core/entity` — domain types (internal, use `sdk` instead for external consumers)
+- `github.com/rendis/pdf-forge/cmd/api/bootstrap` — Engine type (internal, use `sdk` instead for external consumers)
 
 ## Extension Points
 
