@@ -1,0 +1,42 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Frontend dist (built via Docker, not committed)
+frontend-dist/*
+!frontend-dist/.gitkeep
+
+# Test / coverage
+*.test
+*.out
+coverage.html
+
+# Dependencies
+vendor/
+
+# Air (hot reload)
+tmp/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Docker overrides
+docker-compose.override.yaml
+docker-compose.override.yml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

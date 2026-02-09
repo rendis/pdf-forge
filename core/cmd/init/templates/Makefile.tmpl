@@ -1,0 +1,59 @@
+-include .env
+export
+
+.DEFAULT_GOAL := help
+
+# ── Development ──────────────────────────────────────────────
+
+run: .env           ## Run the server (API only, no frontend)
+	go run .
+
+dev: .env           ## Hot reload with air
+	air
+
+migrate:            ## Apply database migrations
+	go run . migrate
+
+# ── Build ────────────────────────────────────────────────────
+
+build:              ## Build production binary (API only)
+	CGO_ENABLED=0 go build -o bin/server .
+
+test:               ## Run tests
+	go test ./...
+
+lint:               ## Run golangci-lint
+	golangci-lint run
+
+# ── Docker (full stack with frontend) ────────────────────────
+
+docker-up:          ## Start postgres + api (with embedded frontend)
+	docker compose up --build
+
+docker-down:        ## Stop all services
+	docker compose down
+
+# ── Utilities ────────────────────────────────────────────────
+
+doctor:             ## Check system dependencies
+	@echo "=== pdf-forge doctor ==="
+	@echo ""
+	@printf "Go.............. " && go version > /dev/null 2>&1 && echo "ok" || echo "MISSING"
+	@printf "Typst........... " && typst --version > /dev/null 2>&1 && echo "ok" || echo "MISSING"
+	@printf "PostgreSQL...... " && pg_isready > /dev/null 2>&1 && echo "ok" || echo "not running"
+	@printf "Go build........ " && go build ./... > /dev/null 2>&1 && echo "ok" || echo "FAIL"
+	@printf "Go modules...... " && go mod verify > /dev/null 2>&1 && echo "ok" || echo "FAIL"
+	@echo ""
+	@echo "Done."
+
+clean:              ## Remove build artifacts
+	rm -rf bin/ tmp/
+
+# ── Internal ─────────────────────────────────────────────────
+
+.env:
+	@cp .env.example .env
+	@echo "Created .env from .env.example"
+
+help:               ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'

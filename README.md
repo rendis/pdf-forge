@@ -98,6 +98,31 @@ pdf-forge follows a **plugin-based architecture**:
 
 ## Quick Start
 
+### Option A: Scaffold (recommended)
+
+Create a new project using the SDK — no fork needed:
+
+```bash
+# 1. Scaffold a new project
+go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
+
+# 2. Set up
+cd my-project
+go mod tidy
+
+# 3. Start everything (PostgreSQL + API + Frontend)
+docker compose up --build
+```
+
+Local development (API only, no frontend):
+
+```bash
+make migrate
+make dev
+```
+
+### Option B: Fork
+
 ```bash
 # 1. Fork on GitHub: click "Fork" at github.com/rendis/pdf-forge
 
@@ -112,8 +137,10 @@ make init-fork
 docker compose up --build
 ```
 
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- API: [http://localhost:8080](http://localhost:8080)
+**Endpoints**:
+
+- Frontend: [http://localhost:8080](http://localhost:8080)
+- API: [http://localhost:8080/api/v1](http://localhost:8080/api/v1)
 - Swagger: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
 ### Local Development

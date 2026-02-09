@@ -1,0 +1,41 @@
+package main
+
+import (
+	"embed"
+	"io/fs"
+	"log/slog"
+	"os"
+
+	"github.com/rendis/pdf-forge/sdk"
+	"{{.Module}}/extensions"
+)
+
+//go:embed all:frontend-dist
+var frontendDist embed.FS
+
+func main() {
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+		engine := sdk.New()
+		if err := engine.RunMigrations(); err != nil {
+			slog.Error("migration failed", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+		return
+	}
+
+	engine := sdk.New()
+
+	// Embed frontend if available (built via Docker or locally)
+	if sub, err := fs.Sub(frontendDist, "frontend-dist"); err == nil {
+		if _, statErr := fs.Stat(sub, "index.html"); statErr == nil {
+			engine.SetFrontendFS(sub)
+		}
+	}
+
+	extensions.Register(engine)
+
+	if err := engine.Run(); err != nil {
+		slog.Error("failed to run engine", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+}

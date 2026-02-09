@@ -91,18 +91,35 @@ Dockerfile                       ← Unified build: frontend + backend → singl
 docker-compose.yaml              ← Full stack: postgres + api (with embedded frontend)
 ```
 
+## Scaffold (External Consumers)
+
+End users create new projects via scaffold command — no fork needed:
+
+```bash
+go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
+cd my-project && go mod tidy
+```
+
+Generates: `main.go`, `extensions/`, `settings/app.yaml`, `Makefile`, `Dockerfile`, `docker-compose.yaml`.
+
+- API-only via `go run .` (no frontend embedded locally)
+- Full stack (frontend + API) via `docker compose up --build` (Dockerfile clones and builds SPA)
+- Generated `main.go` uses `//go:embed all:frontend-dist` + `engine.SetFrontendFS()` for optional local embedding
+
+Scaffold source: `core/cmd/init/` (templates in `core/cmd/init/templates/`)
+
 ## User Customization (`core/extensions/`)
 
-All user code goes in `core/extensions/`. Entry point: `core/extensions/register.go`.
+**Fork model**: All user code goes in `core/extensions/`. Entry point: `core/extensions/register.go`. Called from `core/cmd/api/main.go`. Users never modify `core/internal/` or `core/cmd/api/bootstrap/`.
 
-Called from `core/cmd/api/main.go`. Users never modify `core/internal/` or `core/cmd/api/bootstrap/`.
+**SDK model** (scaffold): External projects import only `github.com/rendis/pdf-forge/sdk`. Same extension pattern, all types come from `sdk` package.
 
 Types imported from:
 
-- `github.com/rendis/pdf-forge/sdk` — **public API** (Engine, interfaces, entity types, constructors)
-- `github.com/rendis/pdf-forge/internal/core/port` — interfaces (internal, use `sdk` instead for external consumers)
-- `github.com/rendis/pdf-forge/internal/core/entity` — domain types (internal, use `sdk` instead for external consumers)
-- `github.com/rendis/pdf-forge/cmd/api/bootstrap` — Engine type (internal, use `sdk` instead for external consumers)
+- `github.com/rendis/pdf-forge/sdk` — **public API** (Engine, interfaces, entity types, constructors) — **use this for external consumers**
+- `github.com/rendis/pdf-forge/internal/core/port` — interfaces (internal, fork-only)
+- `github.com/rendis/pdf-forge/internal/core/entity` — domain types (internal, fork-only)
+- `github.com/rendis/pdf-forge/cmd/api/bootstrap` — Engine type (internal, fork-only)
 
 ## Extension Points
 

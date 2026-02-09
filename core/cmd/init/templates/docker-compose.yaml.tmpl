@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pdf_forge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DOC_ENGINE_DATABASE_HOST: postgres
+      DOC_ENGINE_DATABASE_PORT: "5432"
+      DOC_ENGINE_DATABASE_USER: postgres
+      DOC_ENGINE_DATABASE_PASSWORD: postgres
+      DOC_ENGINE_DATABASE_NAME: pdf_forge
+
+volumes:
+  pgdata:

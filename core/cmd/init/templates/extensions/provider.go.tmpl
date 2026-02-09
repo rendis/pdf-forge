@@ -1,0 +1,25 @@
+package extensions
+
+import (
+	"context"
+
+	"github.com/rendis/pdf-forge/sdk"
+)
+
+// ExampleWorkspaceProvider implements sdk.WorkspaceInjectableProvider.
+// Replace this with your own logic to provide dynamic, workspace-specific injectables
+// (e.g., from an external database or API).
+type ExampleWorkspaceProvider struct{}
+
+// GetInjectables returns available injectables for a workspace.
+// Called when the editor opens to populate the injectable list.
+func (p *ExampleWorkspaceProvider) GetInjectables(_ context.Context, _ *sdk.InjectorContext) (*sdk.GetInjectablesResult, error) {
+	return &sdk.GetInjectablesResult{}, nil
+}
+
+// ResolveInjectables resolves a batch of injectable codes during render.
+func (p *ExampleWorkspaceProvider) ResolveInjectables(_ context.Context, _ *sdk.ResolveInjectablesRequest) (*sdk.ResolveInjectablesResult, error) {
+	return &sdk.ResolveInjectablesResult{
+		Values: make(map[string]*sdk.InjectableValue),
+	}, nil
+}

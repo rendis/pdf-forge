@@ -1,0 +1,29 @@
+package injectors
+
+import (
+	"context"
+	"time"
+
+	"github.com/rendis/pdf-forge/sdk"
+)
+
+// ExampleValueInjector demonstrates a string ValueType injector.
+// It returns a greeting that includes the request's external ID.
+//
+// To use in templates, insert the injectable with code "my_example_value".
+type ExampleValueInjector struct{}
+
+func (i *ExampleValueInjector) Code() string { return "my_example_value" }
+
+func (i *ExampleValueInjector) Resolve() (sdk.ResolveFunc, []string) {
+	return func(_ context.Context, injCtx *sdk.InjectorContext) (*sdk.InjectorResult, error) {
+		v := sdk.StringValue("Hello from " + injCtx.ExternalID())
+		return &sdk.InjectorResult{Value: v}, nil
+	}, nil // no dependencies
+}
+
+func (i *ExampleValueInjector) IsCritical() bool                  { return false }
+func (i *ExampleValueInjector) Timeout() time.Duration            { return 0 }
+func (i *ExampleValueInjector) DataType() sdk.ValueType           { return sdk.ValueTypeString }
+func (i *ExampleValueInjector) DefaultValue() *sdk.InjectableValue { return nil }
+func (i *ExampleValueInjector) Formats() *sdk.FormatConfig        { return nil }

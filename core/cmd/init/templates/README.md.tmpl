@@ -1,0 +1,81 @@
+# {{.ProjectName}}
+
+Built with [pdf-forge](https://github.com/rendis/pdf-forge) — multi-tenant PDF template engine powered by Typst.
+
+## Quick Start
+
+```bash
+# Check dependencies
+make doctor
+
+# Start with Docker (full stack with frontend)
+docker compose up --build
+
+# Or run locally (API only, no frontend)
+make migrate
+make dev
+```
+
+- **API**: http://localhost:8080
+- **Frontend** (Docker only): http://localhost:8080
+
+## Commands
+
+```bash
+make help         # Show all available commands
+make dev          # Hot reload with air
+make run          # Run the server
+make migrate      # Apply database migrations
+make build        # Build production binary
+make test         # Run tests
+make docker-up    # Start full stack (postgres + api + frontend)
+make doctor       # Check system dependencies
+```
+
+## Project Structure
+
+```
+├── main.go                 # Entrypoint (sdk.New + extensions.Register + engine.Run)
+├── extensions/
+│   ├── register.go         # Register your injectors, mapper, middleware, hooks
+│   ├── injectors/          # Custom injector implementations
+│   ├── mapper.go           # Transform render request payloads
+│   ├── init.go             # Shared setup before injectors run
+│   ├── provider.go         # Dynamic workspace-specific injectables
+│   ├── auth.go             # Custom render endpoint authentication
+│   └── middleware.go       # HTTP middleware
+├── settings/
+│   └── app.yaml            # Configuration (override with DOC_ENGINE_* env vars)
+├── Makefile                # Development commands
+├── Dockerfile              # Multi-stage build (frontend + backend)
+└── docker-compose.yaml     # Full stack: postgres + api
+```
+
+## Frontend
+
+The frontend React SPA is included automatically when building with Docker.
+For local development without Docker, the server runs in API-only mode.
+
+To embed the frontend locally (requires Node.js + pnpm):
+
+```bash
+git clone --depth 1 https://github.com/rendis/pdf-forge.git /tmp/pdf-forge
+cd /tmp/pdf-forge/app && pnpm install && pnpm build
+cp -r /tmp/pdf-forge/app/dist/* ./frontend-dist/
+```
+
+## Configuration
+
+All settings in `settings/app.yaml` can be overridden with `DOC_ENGINE_*` environment variables.
+
+Key settings:
+- `server.port` (default: 8080)
+- `database.*` — PostgreSQL connection
+- `auth.panel` — OIDC provider (omit for dummy auth)
+- `typst.max_concurrent` (default: 20)
+
+## Documentation
+
+- [pdf-forge docs](https://github.com/rendis/pdf-forge/tree/main/core/docs)
+- [Extensibility guide](https://github.com/rendis/pdf-forge/blob/main/core/docs/extensibility-guide.md)
+- [Configuration reference](https://github.com/rendis/pdf-forge/blob/main/core/docs/configuration.md)

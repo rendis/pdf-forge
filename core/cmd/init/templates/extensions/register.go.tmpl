@@ -1,0 +1,31 @@
+package extensions
+
+import (
+	"github.com/rendis/pdf-forge/sdk"
+	"{{.Module}}/extensions/injectors"
+)
+
+// Register configures all custom extensions for the pdf-forge engine.
+// Add your injectors, mapper, middleware, and other customizations here.
+func Register(engine *sdk.Engine) {
+	// --- Injectors ---
+	engine.RegisterInjector(&injectors.ExampleValueInjector{})
+
+	// --- Request Mapper ---
+	engine.SetMapper(&ExampleMapper{})
+
+	// --- Init Function ---
+	engine.SetInitFunc(ExampleInit())
+
+	// --- Workspace Injectable Provider ---
+	engine.SetWorkspaceInjectableProvider(&ExampleWorkspaceProvider{})
+
+	// --- Render Authenticator ---
+	// engine.SetRenderAuthenticator(&ExampleRenderAuth{})
+
+	// --- Global Middleware ---
+	// engine.UseMiddleware(RequestLoggerMiddleware())
+
+	// --- API Middleware ---
+	// engine.UseAPIMiddleware(TenantValidationMiddleware())
+}
