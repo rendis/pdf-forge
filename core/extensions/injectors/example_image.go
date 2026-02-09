@@ -22,8 +22,8 @@ func (i *ExampleImageInjector) Resolve() (port.ResolveFunc, []string) {
 	}, nil
 }
 
-func (i *ExampleImageInjector) IsCritical() bool        { return false }
-func (i *ExampleImageInjector) Timeout() time.Duration  { return 0 }
+func (i *ExampleImageInjector) IsCritical() bool           { return false }
+func (i *ExampleImageInjector) Timeout() time.Duration     { return 0 }
 func (i *ExampleImageInjector) DataType() entity.ValueType { return entity.ValueTypeImage }
 func (i *ExampleImageInjector) DefaultValue() *entity.InjectableValue {
 	v := entity.ImageValue("https://picsum.photos/400/300")

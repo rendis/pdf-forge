@@ -61,70 +61,83 @@ func registerLifecycle(engine *bootstrap.Engine) {
 
 	engine.OnStart(func(ctx context.Context) error {
 		slog.InfoContext(ctx, "running OnStart hook")
-
-		var err error
-		mongoDevClient, err = mongodb.NewClient(ctx, os.Getenv("PDF_FORGE_MONGO_DEV_URI"), toolsDB)
-		if err != nil {
-			slog.WarnContext(ctx, "MongoDB dev not configured", slog.Any("error", err))
-		}
-
-		mongoProdClient, err = mongodb.NewClient(ctx, os.Getenv("PDF_FORGE_MONGO_PROD_URI"), toolsDB)
-		if err != nil {
-			slog.WarnContext(ctx, "MongoDB prod not configured", slog.Any("error", err))
-		}
-
-		var devRepo, prodRepo *mongodb.DynamicInjectorRepository
-		if mongoDevClient != nil {
-			devRepo = mongodb.NewDynamicInjectorRepository(mongoDevClient.Database().Collection(toolsCollDynamicInjectors))
-		}
-		if mongoProdClient != nil {
-			prodRepo = mongodb.NewDynamicInjectorRepository(mongoProdClient.Database().Collection(toolsCollDynamicInjectors))
-		}
-
-		SetDynamicInjectorFactory(factory.NewDynamicInjectorRepoFactory(devRepo, prodRepo))
-		slog.InfoContext(ctx, "dynamic injector factory initialized")
-
-		// Survey repositories (tools DB — reuse existing clients)
-		var devSurveyRepo, prodSurveyRepo *mongodb.SurveyRepository
-		if mongoDevClient != nil {
-			devSurveyRepo = mongodb.NewSurveyRepository(mongoDevClient.Database().Collection(toolsCollSurveys))
-		}
-		if mongoProdClient != nil {
-			prodSurveyRepo = mongodb.NewSurveyRepository(mongoProdClient.Database().Collection(toolsCollSurveys))
-		}
-		SetSurveyFactory(factory.NewSurveyRepoFactory(devSurveyRepo, prodSurveyRepo))
-		slog.InfoContext(ctx, "survey factory initialized")
-
-		// Application repositories (crm DB — reuse connection, different database)
-		var devAppRepo, prodAppRepo *mongodb.ApplicationRepository
-		if mongoDevClient != nil {
-			devAppRepo = mongodb.NewApplicationRepository(mongoDevClient.DatabaseByName(crmDB).Collection(crmCollApplications))
-		}
-		if mongoProdClient != nil {
-			prodAppRepo = mongodb.NewApplicationRepository(mongoProdClient.DatabaseByName(crmDB).Collection(crmCollApplications))
-		}
-		SetApplicationFactory(factory.NewApplicationRepoFactory(devAppRepo, prodAppRepo))
-		slog.InfoContext(ctx, "application factory initialized")
-
-		// Initialize auth client factory for render authentication
-		devAuthClient := api.NewAuthClient("https://staging.api.tether.education")
-		prodAuthClient := api.NewAuthClient("https://api.tether.education")
-		SetAuthFactory(factory.NewAuthClientFactory(devAuthClient, prodAuthClient))
-		slog.InfoContext(ctx, "auth client factory initialized")
-
+		mongoDevClient, mongoProdClient = connectMongo(ctx)
+		initFactories(ctx, mongoDevClient, mongoProdClient)
 		return nil
 	})
 
 	engine.OnShutdown(func(ctx context.Context) error {
 		slog.InfoContext(ctx, "running OnShutdown hook")
-
 		if mongoDevClient != nil {
 			mongoDevClient.Close(ctx)
 		}
 		if mongoProdClient != nil {
 			mongoProdClient.Close(ctx)
 		}
-
 		return nil
 	})
+}
+
+// connectMongo creates dev and prod MongoDB clients, logging warnings on failure.
+func connectMongo(ctx context.Context) (*mongodb.Client, *mongodb.Client) {
+	devClient, err := mongodb.NewClient(ctx, os.Getenv("PDF_FORGE_MONGO_DEV_URI"), toolsDB)
+	if err != nil {
+		slog.WarnContext(ctx, "MongoDB dev not configured", slog.Any("error", err))
+	}
+	prodClient, err := mongodb.NewClient(ctx, os.Getenv("PDF_FORGE_MONGO_PROD_URI"), toolsDB)
+	if err != nil {
+		slog.WarnContext(ctx, "MongoDB prod not configured", slog.Any("error", err))
+	}
+	return devClient, prodClient
+}
+
+// initFactories sets up all data-source factories from the MongoDB clients.
+func initFactories(ctx context.Context, dev, prod *mongodb.Client) {
+	initDynamicInjectorFactory(ctx, dev, prod)
+	initSurveyFactory(ctx, dev, prod)
+	initApplicationFactory(ctx, dev, prod)
+	initAuthFactory(ctx)
+}
+
+func initDynamicInjectorFactory(ctx context.Context, dev, prod *mongodb.Client) {
+	var devRepo, prodRepo *mongodb.DynamicInjectorRepository
+	if dev != nil {
+		devRepo = mongodb.NewDynamicInjectorRepository(dev.Database().Collection(toolsCollDynamicInjectors))
+	}
+	if prod != nil {
+		prodRepo = mongodb.NewDynamicInjectorRepository(prod.Database().Collection(toolsCollDynamicInjectors))
+	}
+	SetDynamicInjectorFactory(factory.NewDynamicInjectorRepoFactory(devRepo, prodRepo))
+	slog.InfoContext(ctx, "dynamic injector factory initialized")
+}
+
+func initSurveyFactory(ctx context.Context, dev, prod *mongodb.Client) {
+	var devRepo, prodRepo *mongodb.SurveyRepository
+	if dev != nil {
+		devRepo = mongodb.NewSurveyRepository(dev.Database().Collection(toolsCollSurveys))
+	}
+	if prod != nil {
+		prodRepo = mongodb.NewSurveyRepository(prod.Database().Collection(toolsCollSurveys))
+	}
+	SetSurveyFactory(factory.NewSurveyRepoFactory(devRepo, prodRepo))
+	slog.InfoContext(ctx, "survey factory initialized")
+}
+
+func initApplicationFactory(ctx context.Context, dev, prod *mongodb.Client) {
+	var devRepo, prodRepo *mongodb.ApplicationRepository
+	if dev != nil {
+		devRepo = mongodb.NewApplicationRepository(dev.DatabaseByName(crmDB).Collection(crmCollApplications))
+	}
+	if prod != nil {
+		prodRepo = mongodb.NewApplicationRepository(prod.DatabaseByName(crmDB).Collection(crmCollApplications))
+	}
+	SetApplicationFactory(factory.NewApplicationRepoFactory(devRepo, prodRepo))
+	slog.InfoContext(ctx, "application factory initialized")
+}
+
+func initAuthFactory(ctx context.Context) {
+	devAuthClient := api.NewAuthClient("https://staging.api.tether.education")
+	prodAuthClient := api.NewAuthClient("https://api.tether.education")
+	SetAuthFactory(factory.NewAuthClientFactory(devAuthClient, prodAuthClient))
+	slog.InfoContext(ctx, "auth client factory initialized")
 }
