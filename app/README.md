@@ -1,11 +1,12 @@
-# AGENTS.md
+# pdf-forge / app
 
-This file provides guidance to AI Agents when working with the frontend application.
+Frontend React SPA for the pdf-forge multi-tenant PDF template engine.
+
+In production, this SPA is **embedded in the Go binary** via `go:embed` for single binary deployment.
 
 ## Commands
 
 ```bash
-# Development
 pnpm dev          # Start dev server on port 3000
 pnpm build        # Production build (outputs to dist/)
 pnpm lint         # ESLint for TS/TSX files
@@ -14,22 +15,21 @@ pnpm preview      # Preview production build
 
 ## Architecture
 
-This is a React 19 + TypeScript SPA for a multi-tenant document assembly platform. In production, it is **embedded in the Go binary** via `go:embed` (single binary deployment). Uses Vite for bundling.
+React 19 + TypeScript SPA. Uses Vite for bundling.
 
-- **Architecture guide**: `docs/architecture.md` (stack, folder structure, code patterns, configuration)
+- **Architecture guide**: [docs/architecture.md](docs/architecture.md)
 
 ### Deployment
 
 - **Development**: `pnpm dev` starts Vite on port 3000, API requests proxy to `VITE_API_URL` (default: `http://localhost:8080`)
-- **Production**: `make build` embeds the SPA into the Go binary. The backend serves both API and frontend on a single port.
+- **Production**: `make build` (from root) embeds the SPA into the Go binary. Backend serves both API and frontend on a single port.
 - **Build pipeline**: `make embed-app` builds the SPA and copies output to `core/internal/frontend/dist/` for `go:embed`
 
 ### Routing
 
 - **TanStack Router** with file-based routing in `src/routes/`
-- Routes are auto-generated to `src/routeTree.gen.ts` by `@tanstack/router-vite-plugin`
+- Routes auto-generated to `src/routeTree.gen.ts` by `@tanstack/router-vite-plugin`
 - Root route (`__root.tsx`) enforces tenant selection before navigation
-- Router basepath is `/` (root)
 
 ### State Management
 
@@ -47,33 +47,23 @@ This is a React 19 + TypeScript SPA for a multi-tenant document assembly platfor
   - Three role levels: System (SUPERADMIN), Tenant (OWNER/ADMIN), Workspace (OWNER/ADMIN/EDITOR/OPERATOR/VIEWER)
   - `usePermission()` hook checks permissions against current context
   - `<PermissionGuard>` component for declarative UI permission control
-- **Permission Matrix**: Detailed docs at `docs/authorization-matrix.md` (project root)
-
-> **IMPORTANT**: Before implementing permission validations, access controls, or using `<PermissionGuard>` / `usePermission()`, **ALWAYS** check the authorization matrix (`docs/authorization-matrix.md`) for exact per-endpoint permissions and minimum required roles.
+- **Permission Matrix**: See [docs/authorization-matrix.md](../core/docs/authorization-matrix.md)
 
 ### API Layer
 
 - Axios client (`src/lib/api-client.ts`) auto-attaches:
   - `Authorization` header (Bearer token)
   - `X-Tenant-ID` and `X-Workspace-ID` headers from context
-- Base URL: `${VITE_API_URL}/v1` (e.g., `http://localhost:8080/v1`)
-
-> **IMPORTANT**: Before implementing or interacting with any API component, **ALWAYS** check the OpenAPI spec:
->
-> 1. **MCP `pdf-forge-api` (Recommended)**: Use `mcp__pdf-forge-api__*` tools for interactive swagger queries.
->
->    If MCP is unavailable, suggest installing it via: `docs/mcp_setup.md`
->
-> 2. **YAML file (Fallback)**: Only if MCP is unavailable, check `docs/swagger.yaml` directly. Warning: the swagger file is very large (~3000+ lines).
+- Base URL: `${VITE_API_URL}/v1`
 
 ### Feature Structure
 
 Features are organized in `src/features/` with consistent structure:
 
-- `api/` - API calls
-- `components/` - Feature-specific components
-- `hooks/` - Feature hooks
-- `types/` - TypeScript interfaces
+- `api/` — API calls
+- `components/` — Feature-specific components
+- `hooks/` — Feature hooks
+- `types/` — TypeScript interfaces
 
 Current features: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 
@@ -82,9 +72,7 @@ Current features: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 - **Tailwind CSS** with shadcn/ui-style CSS variables
 - Dark mode via `class` strategy
 - Colors defined as HSL CSS variables in `index.css`
-- **Design System**: Full docs at `docs/design_system.md`
-
-> **IMPORTANT**: Before creating or modifying UI components, **ALWAYS** check the Design System (`docs/design_system.md`) for visual consistency. Covers design philosophy, color palette, typography, border radius, spacing, and component patterns.
+- **Design System**: [docs/design_system.md](docs/design_system.md)
 
 ### Rich Text Editor
 
@@ -95,7 +83,7 @@ Current features: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 
 - **i18next** with browser detection
 - Translation files in `public/locales/{lng}/translation.json`
-- Currently supports: `en`, `es`
+- Supports: `en`, `es`
 
 ## Environment Variables
 
@@ -110,8 +98,8 @@ Env files:
 - `.env.production` — Used by `pnpm build` (`VITE_API_URL=/api`)
 - `.env.local` — Local overrides (not committed)
 
-> **Note**: OIDC configuration is fetched at runtime from `{VITE_API_URL}/v1/config`. Configure OIDC in the backend's `settings/app.yaml`.
+> OIDC configuration is fetched at runtime from `{VITE_API_URL}/v1/config`. Configure OIDC in the backend's `settings/app.yaml`.
 
 ## Path Aliases
 
-`@/` maps to `./src/` (configured in vite.config.ts)
+`@/` maps to `./src/` (configured in `vite.config.ts`)

@@ -198,12 +198,58 @@ Config: `.golangci.yml` (project root). Key enforced limits:
 
 ## Frontend
 
-See [app/AGENTS.md](app/AGENTS.md) for detailed frontend guidance. Key points:
+React 19 + TypeScript SPA. Embedded in Go binary via `go:embed` (single binary deployment). Vite bundler.
 
-- React 19 + TanStack Router (file-based) + Zustand + Tailwind CSS + Radix UI
-- API client: Axios with auto-attached JWT + tenant/workspace headers
-- Design system: [app/docs/design_system.md](app/docs/design_system.md)
-- Env: `VITE_API_URL` (dev: `http://localhost:8080`, prod: `/api`)
+```bash
+pnpm --dir app dev       # Vite on port 3000
+pnpm --dir app build     # Production build → app/dist/
+pnpm --dir app lint      # ESLint
+```
+
+### Routing & State
+
+- **TanStack Router** — file-based in `app/src/routes/`, auto-generated `routeTree.gen.ts`
+- **Zustand** stores: `auth-store.ts` (JWT + roles), `app-context-store.ts` (tenant/workspace), `theme-store.ts`
+
+### Auth & RBAC
+
+- OIDC config fetched at runtime from backend `{VITE_API_URL}/v1/config` — `src/lib/auth-config.ts`
+- Mock auth: `VITE_USE_MOCK_AUTH=true`
+- RBAC: `usePermission()` hook + `<PermissionGuard>` component — **always check** [core/docs/authorization-matrix.md](core/docs/authorization-matrix.md) before implementing permissions
+
+### API Layer
+
+- Axios client (`src/lib/api-client.ts`) auto-attaches `Authorization`, `X-Tenant-ID`, `X-Workspace-ID`
+- Base URL: `${VITE_API_URL}/v1`
+- **Always check** OpenAPI spec before implementing API calls: MCP `pdf-forge-api` tools or `app/docs/swagger.yaml`
+
+### Feature Structure
+
+`app/src/features/{name}/` → `api/`, `components/`, `hooks/`, `types/`
+
+Current: `auth`, `tenants`, `workspaces`, `documents`, `editor`
+
+### Styling
+
+- **Tailwind CSS** + shadcn/ui CSS variables — dark mode via `class` strategy
+- HSL CSS variables in `index.css`
+- **Design system**: [app/docs/design_system.md](app/docs/design_system.md) — **always check** before creating/modifying UI
+
+### Rich Text & i18n
+
+- **TipTap** editor with StarterKit in `src/features/editor/`, prose styling via `@tailwindcss/typography`
+- **i18next** — `public/locales/{lng}/translation.json`, supports `en`, `es`
+
+### Frontend Environment
+
+```plaintext
+VITE_API_URL        # Backend base URL (dev: http://localhost:8080, prod: /api)
+VITE_USE_MOCK_AUTH  # "true" to skip OIDC (dev only)
+```
+
+Env files: `.env.development`, `.env.production`, `.env.local` (not committed)
+
+Path alias: `@/` → `./src/` (vite.config.ts)
 
 ## Documentation
 
@@ -216,7 +262,7 @@ See [app/AGENTS.md](app/AGENTS.md) for detailed frontend guidance. Key points:
 | Extending       | [core/docs/extensibility-guide.md](core/docs/extensibility-guide.md)                                         |
 | Auth & RBAC     | [core/docs/authorization-matrix.md](core/docs/authorization-matrix.md)                                       |
 | Architecture    | [core/docs/architecture.md](core/docs/architecture.md), [core/docs/decisions.md](core/docs/decisions.md)     |
-| Frontend        | [app/AGENTS.md](app/AGENTS.md)                                                                               |
+| Frontend        | [app/README.md](app/README.md)                                                                               |
 | Design system   | [app/docs/design_system.md](app/docs/design_system.md)                                                       |
 | Fork workflow   | [FORKING.md](FORKING.md)                                                                                     |
 

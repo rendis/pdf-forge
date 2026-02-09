@@ -414,7 +414,7 @@ VITE_USE_MOCK_AUTH=false
 | ----------------------- | --------------------------------------------------------------- |
 | `docs/design_system.md` | Filosofía visual, colores, tipografía, componentes, espaciado   |
 | `src/components/ui/`    | Componentes base reutilizables (Button, Input, Card, Dialog...) |
-| `AGENTS.md`             | Instrucciones para agentes IA                                   |
+| `README.md`             | Documentación del frontend                                      |
 
 ### Proceso para Crear Componentes
 
