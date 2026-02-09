@@ -23,6 +23,15 @@
 
 Build document templates visually, inject dynamic data through plugins, generate PDFs on demand. Ships with React editor, multi-tenant RBAC, and OIDC auth.
 
+## Table of Contents
+
+- [Screenshots](#screenshots) · [How It Works](#how-it-works) · [Features](#features) · [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start) · [Local Development](#local-development) · [Fork Workflow](#fork-workflow)
+- [Project Structure](#project-structure) · [SDK (Public API)](#sdk-public-api) · [Customizing](#customizing-coreextensions) · [Writing an Injector](#writing-an-injector)
+- [Configuration](#configuration) · [Environment Variables](#environment-variables) · [Docker](#docker) · [Authentication](#authentication) · [Roles](#roles)
+- [Architecture](#architecture) · [Endpoints](#endpoints) · [Commands](#commands)
+- [Documentation](#documentation) · [AI Agent Skill](#ai-agent-skill) · [Contributing](#contributing) · [License](#license)
+
 ## Screenshots
 
 <p align="center">
@@ -75,6 +84,18 @@ pdf-forge follows a **plugin-based architecture**:
 | **Dummy Auth**           | Dev mode without OIDC provider setup                 |
 | **Upgrade Doctor**       | `make check-upgrade` verifies safety before merging  |
 
+## Tech Stack
+
+| Layer     | Technology                                           |
+| --------- | ---------------------------------------------------- |
+| Backend   | Go 1.25, Gin, PostgreSQL 16, golang-migrate          |
+| Rendering | Typst (concurrent PDF generation with image caching) |
+| Frontend  | React 19, TypeScript, TanStack Router, Zustand       |
+| UI        | Tailwind CSS, Radix UI, TipTap (rich text editor)    |
+| Auth      | OIDC/JWKS (Keycloak, Auth0, Okta, Azure AD, etc.)    |
+| Serving   | nginx (SPA + API reverse proxy)                      |
+| Infra     | Docker Compose, multi-stage builds                   |
+
 ## Quick Start
 
 ```bash
@@ -95,8 +116,9 @@ docker compose up --build
 - API: [http://localhost:8080](http://localhost:8080)
 - Swagger: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
-<details>
-<summary><strong>Prerequisites (local dev without Docker)</strong></summary>
+### Local Development
+
+**Prerequisites**:
 
 | Dependency | Version | Install                                   |
 | ---------- | ------- | ----------------------------------------- |
@@ -107,17 +129,23 @@ docker compose up --build
 | pnpm       | latest  | `npm install -g pnpm`                     |
 
 ```bash
-# Apply migrations
+# Start only PostgreSQL via Docker
+docker compose up postgres -d
+
+# Apply database migrations
 make migrate
 
-# Run backend
+# Run backend with hot reload (terminal 1)
 make dev
 
-# Run frontend (separate terminal)
+# Run frontend dev server (terminal 2)
 make dev-app
+
+# Verify system deps and build health
+make doctor
 ```
 
-</details>
+Dev mode uses **dummy auth** (no OIDC setup needed) — auto-seeds an admin user on first run.
 
 ## Fork Workflow
 
@@ -159,24 +187,53 @@ See **[FORKING.md](FORKING.md)** for the complete guide: Docker customization, G
 ## Project Structure
 
 ```plaintext
-core/                            ← Backend Go
+core/                            ← Backend Go (module: github.com/rendis/pdf-forge)
+  sdk/                           ← PUBLIC API for external consumers (type aliases)
   cmd/api/                       ← Server entrypoint + bootstrap
   extensions/                    ← YOUR CODE: injectors, mapper, middleware, hooks
   internal/                      ← Engine internals (don't modify)
   settings/                      ← Default configuration
-  docs/                          ← Documentation
-  Makefile                       ← Backend-specific
+  docs/                          ← Architecture, auth, extensibility docs
+  Makefile                       ← Backend-specific targets
   Dockerfile                     ← Backend Docker image
 app/                             ← Frontend React SPA (independent service)
-  src/                           ← React source
-  Makefile                       ← Frontend-specific
-  Dockerfile                     ← Frontend Docker image
-  nginx.conf                     ← SPA + API proxy
+  src/                           ← React 19 + TypeScript + TanStack Router
+  Makefile                       ← Frontend-specific targets
+  Dockerfile                     ← Frontend Docker image (multi-stage: node + nginx)
+  nginx.conf                     ← SPA fallback + API reverse proxy
 Makefile                         ← Root orchestrator (delegates to core/ and app/)
 docker-compose.yaml              ← Full stack: postgres + api + web
 ```
 
 **You only need to modify `core/extensions/`** to customize the engine.
+
+## SDK (Public API)
+
+External consumers import `github.com/rendis/pdf-forge/sdk` — a single package that re-exports all extension types without exposing internal implementation:
+
+```go
+import "github.com/rendis/pdf-forge/sdk"
+
+engine := sdk.New()
+engine.RegisterInjector(&MyInjector{})
+engine.SetMapper(&MyMapper{})
+engine.Run()
+```
+
+The SDK exposes:
+
+| Category       | Types                                                                                   |
+| -------------- | --------------------------------------------------------------------------------------- |
+| **Engine**     | `Engine`, `New()`, `NewWithConfig()`                                                    |
+| **Interfaces** | `Injector`, `RequestMapper`, `WorkspaceInjectableProvider`, `RenderAuthenticator`       |
+| **Types**      | `InjectorContext`, `InjectorResult`, `InjectableValue`, `MapperContext`, `FormatConfig` |
+| **Values**     | `StringValue()`, `NumberValue()`, `BoolValue()`, `TimeValue()`, `ImageValue()`          |
+| **Tables**     | `TableValue`, `TableColumn`, `Cell()`, `NewTableValue()`                                |
+| **Lists**      | `ListValue`, `ListSchema`, `NewListValue()`, `ListItemValue()`                          |
+| **Design**     | `TypstDesignTokens`, `DefaultDesignTokens()`                                            |
+| **Constants**  | `ValueType*`, `InjectableDataType*`, `ListSymbol*`                                      |
+
+> **Note**: Code inside `core/extensions/` (within the module) can import `internal/` directly. The `sdk` package is for external module consumers and forks.
 
 ## Customizing (`core/extensions/`)
 
@@ -223,31 +280,30 @@ import (
     "context"
     "time"
 
-    "github.com/rendis/pdf-forge/internal/core/entity"
-    "github.com/rendis/pdf-forge/internal/core/port"
+    "github.com/rendis/pdf-forge/sdk"
 )
 
 type CustomerNameInjector struct{}
 
 func (i *CustomerNameInjector) Code() string { return "customer_name" }
 
-func (i *CustomerNameInjector) DataType() entity.ValueType {
-    return entity.ValueTypeString
+func (i *CustomerNameInjector) DataType() sdk.ValueType {
+    return sdk.ValueTypeString
 }
 
-func (i *CustomerNameInjector) Resolve() (port.ResolveFunc, []string) {
-    return func(ctx context.Context, injCtx *entity.InjectorContext) (*entity.InjectorResult, error) {
+func (i *CustomerNameInjector) Resolve() (sdk.ResolveFunc, []string) {
+    return func(ctx context.Context, injCtx *sdk.InjectorContext) (*sdk.InjectorResult, error) {
         payload := injCtx.RequestPayload().(*MyPayload)
-        return &entity.InjectorResult{
-            Value: entity.StringValue(payload.CustomerName),
+        return &sdk.InjectorResult{
+            Value: sdk.StringValue(payload.CustomerName),
         }, nil
     }, nil // no dependencies
 }
 
-func (i *CustomerNameInjector) IsCritical() bool                       { return true }
-func (i *CustomerNameInjector) Timeout() time.Duration                 { return 5 * time.Second }
-func (i *CustomerNameInjector) DefaultValue() *entity.InjectableValue  { return nil }
-func (i *CustomerNameInjector) Formats() *entity.FormatConfig          { return nil }
+func (i *CustomerNameInjector) IsCritical() bool                      { return true }
+func (i *CustomerNameInjector) Timeout() time.Duration                { return 5 * time.Second }
+func (i *CustomerNameInjector) DefaultValue() *sdk.InjectableValue    { return nil }
+func (i *CustomerNameInjector) Formats() *sdk.FormatConfig            { return nil }
 ```
 
 See [Extensibility Guide](core/docs/extensibility-guide.md) for tables, images, lists, dependencies, and request mappers.
@@ -273,15 +329,42 @@ typst:
 # auth: omit for dummy mode (dev)
 ```
 
-Environment variables override YAML with `DOC_ENGINE_` prefix:
+### Environment Variables
 
-| Variable                       | Description       |
-| ------------------------------ | ----------------- |
-| `DOC_ENGINE_DATABASE_HOST`     | Database hostname |
-| `DOC_ENGINE_DATABASE_PASSWORD` | Database password |
-| `DOC_ENGINE_SERVER_PORT`       | Server port       |
+Override any YAML key with `DOC_ENGINE_` prefix (e.g., `database.host` → `DOC_ENGINE_DATABASE_HOST`):
 
-See [Configuration Guide](core/docs/configuration.md) for OIDC, logging, and advanced options.
+**Server**
+
+| Variable                             | Default | Description                 |
+| ------------------------------------ | ------- | --------------------------- |
+| `DOC_ENGINE_SERVER_PORT`             | `8080`  | HTTP port                   |
+| `DOC_ENGINE_SERVER_READ_TIMEOUT`     | `30`    | Read timeout (seconds)      |
+| `DOC_ENGINE_SERVER_WRITE_TIMEOUT`    | `30`    | Write timeout (seconds)     |
+| `DOC_ENGINE_SERVER_SHUTDOWN_TIMEOUT` | `10`    | Graceful shutdown (seconds) |
+
+**Database**
+
+| Variable                            | Default     | Description          |
+| ----------------------------------- | ----------- | -------------------- |
+| `DOC_ENGINE_DATABASE_HOST`          | `localhost` | PostgreSQL host      |
+| `DOC_ENGINE_DATABASE_PORT`          | `5432`      | PostgreSQL port      |
+| `DOC_ENGINE_DATABASE_USER`          | `postgres`  | DB user              |
+| `DOC_ENGINE_DATABASE_PASSWORD`      | `""`        | DB password          |
+| `DOC_ENGINE_DATABASE_NAME`          | `pdf_forge` | DB name              |
+| `DOC_ENGINE_DATABASE_SSL_MODE`      | `disable`   | SSL mode             |
+| `DOC_ENGINE_DATABASE_MAX_POOL_SIZE` | `10`        | Max open connections |
+
+**Typst (Rendering)**
+
+| Variable                                   | Default | Description                      |
+| ------------------------------------------ | ------- | -------------------------------- |
+| `DOC_ENGINE_TYPST_BIN_PATH`                | `typst` | Path to Typst binary             |
+| `DOC_ENGINE_TYPST_MAX_CONCURRENT`          | `20`    | Max parallel renders             |
+| `DOC_ENGINE_TYPST_TIMEOUT_SECONDS`         | `10`    | Max time per render              |
+| `DOC_ENGINE_TYPST_ACQUIRE_TIMEOUT_SECONDS` | `5`     | Wait time for render slot        |
+| `DOC_ENGINE_TYPST_IMAGE_CACHE_DIR`         | `""`    | Persistent image cache directory |
+
+See [Configuration Guide](core/docs/configuration.md) for OIDC, logging, performance tuning, and all options.
 
 ## Docker
 
@@ -403,7 +486,7 @@ make clean            # Remove all build artifacts
 | [Authorization Matrix](core/docs/authorization-matrix.md) | RBAC roles and permissions            |
 | [Database Schema](core/docs/database.md)                  | Multi-tenant model, ER diagrams       |
 | [Deployment](core/docs/deployment.md)                     | Docker, Kubernetes patterns           |
-| [Troubleshooting](core/docs/troubleshooting.md)           | Common issues and solutions           |
+| [Troubleshooting](core/docs/troubleshooting.md)           | Rendering, auth, DB, frontend issues  |
 
 ## AI Agent Skill
 

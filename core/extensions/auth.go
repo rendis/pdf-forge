@@ -2,76 +2,44 @@ package extensions
 
 import (
 	"errors"
-	"log/slog"
+	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rendis/pdf-forge/extensions/tether/datasource"
-	"github.com/rendis/pdf-forge/extensions/tether/datasource/factory"
-	"github.com/rendis/pdf-forge/extensions/tether/shared"
 	"github.com/rendis/pdf-forge/internal/core/port"
 )
 
-var authFactory *factory.AuthClientFactory
+// ExampleRenderAuth implements port.RenderAuthenticator.
+// Replace this with your own authentication logic (e.g., API key validation, JWT verification).
+type ExampleRenderAuth struct{}
 
-// SetAuthFactory sets the auth client factory for render authentication.
-// Must be called in OnStart before the server starts.
-func SetAuthFactory(f *factory.AuthClientFactory) {
-	authFactory = f
-}
-
-// TetherRenderAuth implements port.RenderAuthenticator for Tether API token verification.
-type TetherRenderAuth struct{}
-
-// Authenticate validates the Bearer token against Tether API.
-func (a *TetherRenderAuth) Authenticate(c *gin.Context) (*port.RenderAuthClaims, error) {
-	ctx := c.Request.Context()
-
-	// 1. Extract Bearer token
-	token, err := shared.ExtractBearerToken(c.GetHeader("Authorization"))
+// Authenticate extracts the Bearer token from the Authorization header and returns example claims.
+func (a *ExampleRenderAuth) Authenticate(c *gin.Context) (*port.RenderAuthClaims, error) {
+	token, err := extractBearerToken(c.GetHeader("Authorization"))
 	if err != nil {
 		return nil, err
 	}
 
-	// 2. Decode JWT claims (fail-fast for malformed tokens)
-	claims, err := shared.DecodeJWTClaims(token)
-	if err != nil {
-		slog.WarnContext(ctx, "failed to decode token claims",
-			slog.String("error", err.Error()),
-		)
-		return nil, errors.New("invalid token format")
-	}
-
-	// 3. Determine environment from header
-	envStr := c.GetHeader("x-environment")
-	env := datasource.ParseEnv(envStr)
-
-	// 4. Verify token with Tether API
-	if authFactory == nil {
-		slog.ErrorContext(ctx, "auth factory not initialized")
-		return nil, errors.New("authentication not configured")
-	}
-
-	authClient := authFactory.Get(env)
-	if err := authClient.VerifyToken(ctx, token); err != nil {
-		slog.WarnContext(ctx, "token verification failed",
-			slog.String("error", err.Error()),
-			slog.String("environment", env.String()),
-		)
-		return nil, errors.New("invalid token")
-	}
-
-	slog.InfoContext(ctx, "render auth successful",
-		slog.String("user_id", claims.UserID),
-		slog.String("email", claims.Email),
-		slog.String("environment", env.String()),
-	)
+	// TODO: Replace with your own token verification logic.
+	_ = token
 
 	return &port.RenderAuthClaims{
-		UserID:   claims.UserID,
-		Email:    claims.Email,
-		Provider: "tether-api",
-		Extra: map[string]any{
-			"environment": env.String(),
-		},
+		UserID:   "example-user",
+		Provider: "example",
 	}, nil
+}
+
+// extractBearerToken extracts the token from a "Bearer <token>" header value.
+func extractBearerToken(header string) (string, error) {
+	if header == "" {
+		return "", errors.New("missing Authorization header")
+	}
+	parts := strings.SplitN(header, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "bearer") {
+		return "", errors.New("invalid Authorization header format")
+	}
+	token := strings.TrimSpace(parts[1])
+	if token == "" {
+		return "", errors.New("empty bearer token")
+	}
+	return token, nil
 }

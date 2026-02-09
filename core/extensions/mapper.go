@@ -7,10 +7,12 @@ import (
 	"github.com/rendis/pdf-forge/internal/core/port"
 )
 
-// TetherMapper parses incoming render requests.
-type TetherMapper struct{}
+// ExampleMapper implements port.RequestMapper.
+// Parses the raw render request body as a JSON object.
+// Replace this with your own parsing logic if your payload has a different structure.
+type ExampleMapper struct{}
 
-func (m *TetherMapper) Map(ctx context.Context, mapCtx *port.MapperContext) (any, error) {
+func (m *ExampleMapper) Map(_ context.Context, mapCtx *port.MapperContext) (any, error) {
 	var payload map[string]any
 	if err := json.Unmarshal(mapCtx.RawBody, &payload); err != nil {
 		return nil, err
