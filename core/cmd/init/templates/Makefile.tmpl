@@ -3,18 +3,21 @@ export
 
 .DEFAULT_GOAL := help
 
-# ── Development ──────────────────────────────────────────────
+# Auth: settings/app.yaml has no auth section = dummy auth (auto-login, no OIDC).
+# To enable OIDC, uncomment the auth section in settings/app.yaml.
 
-run: .env           ## Run the server (API only, no frontend)
+# ── Development (no auth) ────────────────────────────────
+
+run: .env           ## Run server (dummy auth, no OIDC)
 	go run .
 
-dev: .env           ## Hot reload with air
+dev: .env           ## Hot reload (dummy auth, no OIDC)
 	air
 
 migrate:            ## Apply database migrations
 	go run . migrate
 
-# ── Build ────────────────────────────────────────────────────
+# ── Build ────────────────────────────────────────────────
 
 build:              ## Build production binary (API only)
 	CGO_ENABLED=0 go build -o bin/server .
@@ -25,7 +28,7 @@ test:               ## Run tests
 lint:               ## Run golangci-lint
 	golangci-lint run
 
-# ── Docker (full stack with frontend) ────────────────────────
+# ── Docker (full stack with frontend) ────────────────────
 
 docker-up:          ## Start postgres + api (with embedded frontend)
 	docker compose up --build
@@ -33,7 +36,7 @@ docker-up:          ## Start postgres + api (with embedded frontend)
 docker-down:        ## Stop all services
 	docker compose down
 
-# ── Utilities ────────────────────────────────────────────────
+# ── Utilities ────────────────────────────────────────────
 
 doctor:             ## Check system dependencies
 	@echo "=== pdf-forge doctor ==="
@@ -49,7 +52,7 @@ doctor:             ## Check system dependencies
 clean:              ## Remove build artifacts
 	rm -rf bin/ tmp/
 
-# ── Internal ─────────────────────────────────────────────────
+# ── Internal ─────────────────────────────────────────────
 
 .env:
 	@cp .env.example .env
