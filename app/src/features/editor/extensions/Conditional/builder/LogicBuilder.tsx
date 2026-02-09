@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
 import {
   DndContext,
@@ -11,10 +10,7 @@ import {
 } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { snapCenterToCursor } from '@dnd-kit/modifiers'
-import { useDraggable } from '@dnd-kit/core'
-import { GripVertical, Variable, Search, Loader2 } from 'lucide-react'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Input } from '@/components/ui/input'
+import { GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type {
   LogicGroup,
@@ -25,28 +21,11 @@ import type {
 import { LogicBuilderContext } from './LogicBuilderContext'
 import { LogicGroupItem } from './LogicGroup'
 import { FormulaSummary } from './FormulaSummary'
+import { LogicBuilderVariablesPanel } from './LogicBuilderVariablesPanel'
 import type { InjectorType } from '../../../types/variables'
+import type { VariableDragData } from '../../../types/drag'
 import { useInjectablesStore } from '../../../stores/injectables-store'
-import {
-  Calendar,
-  CheckSquare,
-  Coins,
-  Hash,
-  Image as ImageIcon,
-  Table,
-  Type,
-} from 'lucide-react'
-
-const ICONS: Record<InjectorType, typeof Type> = {
-  TEXT: Type,
-  NUMBER: Hash,
-  DATE: Calendar,
-  CURRENCY: Coins,
-  BOOLEAN: CheckSquare,
-  IMAGE: ImageIcon,
-  TABLE: Table,
-  ROLE_TEXT: Type,
-}
+import { VARIABLE_ICONS } from '../../Mentions/variables'
 
 const ALLOWED_TYPES: InjectorType[] = [
   'TEXT',
@@ -55,6 +34,12 @@ const ALLOWED_TYPES: InjectorType[] = [
   'DATE',
   'BOOLEAN',
 ]
+
+const SOURCE_TYPE_STYLES: Record<string, string> = {
+  INTERNAL: 'border-internal-border/50 bg-internal-muted/30 text-internal-foreground',
+  EXTERNAL: 'border-external-border/50 bg-external-muted/30 text-external-foreground',
+  default: 'border-border bg-card text-foreground',
+}
 
 // Pure function - moved outside component for better memoization
 const updateNodeRecursively = (
@@ -85,7 +70,6 @@ interface LogicBuilderProps {
 }
 
 export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
-  const { t } = useTranslation()
   const [data, setData] = useState<ConditionalSchema>(
     initialData || {
       id: 'root',
@@ -94,19 +78,17 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
       children: [],
     }
   )
-  const [activeDragId, setActiveDragId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [activeDragData, setActiveDragData] = useState<VariableDragData | null>(null)
 
   // Get variables from store
   const storeVariables = useInjectablesStore((s) => s.variables)
-  const isLoading = useInjectablesStore((s) => s.isLoading)
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor)
   )
 
-  // Map store variables to LogicBuilder format and filter by allowed types
+  // Map store variables to LogicBuilder context format (used by rule components)
   const allVariables = useMemo(() => {
     return storeVariables
       .filter((v) => ALLOWED_TYPES.includes(v.type))
@@ -116,14 +98,6 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
         type: v.type,
       }))
   }, [storeVariables])
-
-  const filteredVariables = useMemo(() => {
-    if (!searchQuery.trim()) return allVariables
-    const lowerQuery = searchQuery.toLowerCase()
-    return allVariables.filter((v) =>
-      v.label.toLowerCase().includes(lowerQuery)
-    )
-  }, [allVariables, searchQuery])
 
   // --- ACTIONS ---
 
@@ -145,7 +119,6 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
         operator: 'eq',
         value: { mode: 'text', value: '' } as RuleValue,
       }
-      // Helper to insert
       const insertInto = (group: LogicGroup): LogicGroup => {
         if (group.id === parentId) {
           return { ...group, children: [...group.children, newRule] }
@@ -215,12 +188,13 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
 
   // --- DRAG HANDLERS ---
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveDragId(event.active.id as string)
+    const dragData = event.active.data.current as VariableDragData | undefined
+    setActiveDragData(dragData ?? null)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-    setActiveDragId(null)
+    setActiveDragData(null)
 
     if (!over) return
 
@@ -233,7 +207,7 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
         variableId,
         value: { mode: 'text', value: '' } as RuleValue,
         operator: 'eq',
-      }) // Reset value/op on change
+      })
     }
   }
 
@@ -254,50 +228,8 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
         }}
       >
         <div className="flex flex-row h-full bg-background overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-52 border-r border-border bg-muted flex flex-col shrink-0">
-            <div className="p-3 border-b border-border font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <Variable className="h-3.5 w-3.5" /> Variables
-            </div>
-
-            {/* Search Bar */}
-            <div className="p-3 pb-0">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={t('editor.conditional.search')}
-                  className="pl-8 h-9 border-input"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <ScrollArea className="flex-1 p-3">
-              <div className="space-y-2">
-                {isLoading && (
-                  <div className="flex items-center justify-center py-4 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    <span className="text-xs">{t('editor.conditional.loading')}</span>
-                  </div>
-                )}
-                {!isLoading &&
-                  filteredVariables.map((v) => (
-                    <DraggableVar
-                      key={v.id}
-                      id={v.id}
-                      label={v.label}
-                      type={v.type}
-                    />
-                  ))}
-                {!isLoading && filteredVariables.length === 0 && (
-                  <div className="text-xs text-muted-foreground text-center py-4">
-                    {t('editor.conditional.noVariablesFound')}
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </div>
+          {/* Variables Sidebar */}
+          <LogicBuilderVariablesPanel className="w-72" />
 
           {/* Builder Area */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -313,8 +245,8 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
         </div>
 
         <DragOverlay zIndex={100} dropAnimation={null}>
-          {activeDragId ? (
-            <DraggingItem id={activeDragId} variables={allVariables} />
+          {activeDragData ? (
+            <DragOverlayItem data={activeDragData} />
           ) : null}
         </DragOverlay>
       </LogicBuilderContext.Provider>
@@ -322,54 +254,23 @@ export const LogicBuilder = ({ initialData, onChange }: LogicBuilderProps) => {
   )
 }
 
-interface DraggingItemProps {
-  id: string
-  variables: { id: string; label: string; type: InjectorType }[]
-}
-
-const DraggingItem = ({ id, variables }: DraggingItemProps) => {
-  const v = variables.find((v) => v.id === id)
-  if (!v) return null
-  const Icon = ICONS[v.type] || Type
-
-  return (
-    <div className="flex items-center gap-2 p-2 text-xs border border-border rounded-sm bg-card shadow-md cursor-grabbing z-[100]">
-      <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-      <span>{v.label}</span>
-    </div>
-  )
-}
-
-const DraggableVar = ({
-  id,
-  label,
-  type,
-}: {
-  id: string
-  label: string
-  type: InjectorType
-}) => {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: id,
-    data: { type: 'variable', id },
-  })
-
-  const Icon = ICONS[type] || Type
+const DragOverlayItem = ({ data }: { data: VariableDragData }) => {
+  const Icon = VARIABLE_ICONS[data.injectorType] || VARIABLE_ICONS.TEXT
+  const style = SOURCE_TYPE_STYLES[data.sourceType ?? 'default'] || SOURCE_TYPE_STYLES.default
 
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
       className={cn(
-        'flex items-center gap-2 p-2 text-xs border border-border rounded-sm bg-card cursor-grab hover:bg-muted transition-colors group select-none',
-        isDragging ? 'opacity-30' : ''
+        'flex items-center gap-2 px-3 py-2 text-sm border rounded-md bg-card shadow-lg cursor-grabbing select-none',
+        style
       )}
     >
-      <GripVertical className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground" />
-      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-      <span>{label}</span>
+      <GripVertical className="h-3.5 w-3.5" />
+      <Icon className="h-3.5 w-3.5" />
+      <span className="truncate font-medium">{data.label}</span>
+      <span className="text-[10px] font-mono uppercase tracking-wider opacity-70 whitespace-nowrap">
+        {data.injectorType}
+      </span>
     </div>
   )
 }

@@ -77,7 +77,7 @@ export function RuleValueInput({
           value={value.value}
           onChange={(e) => handleValueChange(e.target.value)}
           disabled={disabled}
-          className="flex-1 h-8 border-input"
+          className="flex-1 h-8 border-input dark:[color-scheme:dark]"
         />
       )
     }
