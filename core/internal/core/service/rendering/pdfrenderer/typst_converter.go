@@ -15,6 +15,7 @@ import (
 type TypstConverter struct {
 	injectables              map[string]any
 	injectableDefaults       map[string]string
+	tokens                   TypstDesignTokens
 	currentPage              int
 	currentTableHeaderStyles *entity.TableStyles
 	currentTableBodyStyles   *entity.TableStyles
@@ -27,10 +28,12 @@ type TypstConverter struct {
 func NewTypstConverter(
 	injectables map[string]any,
 	injectableDefaults map[string]string,
+	tokens TypstDesignTokens,
 ) *TypstConverter {
 	return &TypstConverter{
 		injectables:        injectables,
 		injectableDefaults: injectableDefaults,
+		tokens:             tokens,
 		currentPage:        1,
 		remoteImages:       make(map[string]string),
 	}
@@ -56,35 +59,6 @@ func (c *TypstConverter) registerRemoteImage(url string) string {
 	filename := fmt.Sprintf("img_%d%s", c.imageCounter, ext)
 	c.remoteImages[url] = filename
 	return filename
-}
-
-// detectExtFromURL detects the image extension from a URL or data URL.
-func detectExtFromURL(url string) string {
-	if strings.HasPrefix(url, "data:image/") {
-		mimeEnd := strings.Index(url, ";")
-		if mimeEnd > 0 {
-			mime := url[11:mimeEnd] // after "data:image/"
-			switch {
-			case strings.Contains(mime, "jpeg"), strings.Contains(mime, "jpg"):
-				return ".jpg"
-			case strings.Contains(mime, "png"):
-				return ".png"
-			case strings.Contains(mime, "gif"):
-				return ".gif"
-			case strings.Contains(mime, "svg"):
-				return ".svg"
-			case strings.Contains(mime, "webp"):
-				return ".webp"
-			}
-		}
-		return ".png"
-	}
-	for _, candidate := range []string{".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp"} {
-		if strings.Contains(strings.ToLower(url), candidate) {
-			return candidate
-		}
-	}
-	return ".png"
 }
 
 // ConvertNodes converts a slice of nodes to Typst markup.
@@ -185,7 +159,7 @@ func (c *TypstConverter) parseHeadingLevel(attrs map[string]any) int {
 
 func (c *TypstConverter) blockquote(node portabledoc.Node) string {
 	content := c.ConvertNodes(node.Content)
-	return fmt.Sprintf("#block(width: 100%%, inset: (left: 1em, top: 0.5em, bottom: 0.5em, right: 1em), stroke: (left: 2pt + luma(200)), fill: rgb(\"#f9f9f9\"), above: 0.75em, below: 0.75em)[#emph[%s]]\n", content)
+	return fmt.Sprintf("#block(width: 100%%, inset: (left: 1em, top: 0.5em, bottom: 0.5em, right: 1em), stroke: (left: 2pt + %s), fill: rgb(\"%s\"), above: 0.75em, below: 0.75em)[#emph[%s]]\n", c.tokens.BlockquoteStrokeColor, c.tokens.BlockquoteFill, content)
 }
 
 func (c *TypstConverter) codeBlock(node portabledoc.Node) string {
@@ -199,7 +173,7 @@ func (c *TypstConverter) codeBlock(node portabledoc.Node) string {
 }
 
 func (c *TypstConverter) horizontalRule(_ portabledoc.Node) string {
-	return "#line(length: 100%, stroke: 0.5pt + luma(200))\n"
+	return fmt.Sprintf("#line(length: 100%%, stroke: 0.5pt + %s)\n", c.tokens.HRStrokeColor)
 }
 
 // --- List Nodes ---
@@ -373,143 +347,6 @@ func (c *TypstConverter) conditional(node portabledoc.Node) string {
 	return ""
 }
 
-// evaluateCondition and all comparison logic is identical to NodeConverter.
-func (c *TypstConverter) evaluateCondition(attrs map[string]any) bool {
-	conditionsRaw, ok := attrs["conditions"]
-	if !ok {
-		return true
-	}
-	conditionsMap, ok := conditionsRaw.(map[string]any)
-	if !ok {
-		return true
-	}
-	return c.evaluateLogicGroup(conditionsMap)
-}
-
-func (c *TypstConverter) evaluateLogicGroup(group map[string]any) bool {
-	logic, _ := group["logic"].(string)
-	childrenRaw, _ := group["children"].([]any)
-
-	if len(childrenRaw) == 0 {
-		return true
-	}
-
-	for _, childRaw := range childrenRaw {
-		child, ok := childRaw.(map[string]any)
-		if !ok {
-			continue
-		}
-
-		result := c.evaluateChild(child)
-
-		if logic == portabledoc.LogicAND && !result {
-			return false
-		}
-		if logic == portabledoc.LogicOR && result {
-			return true
-		}
-	}
-
-	return logic == portabledoc.LogicAND
-}
-
-func (c *TypstConverter) evaluateChild(child map[string]any) bool {
-	childType, _ := child["type"].(string)
-	switch childType {
-	case portabledoc.LogicTypeGroup:
-		return c.evaluateLogicGroup(child)
-	case portabledoc.LogicTypeRule:
-		return c.evaluateRule(child)
-	default:
-		return false
-	}
-}
-
-func (c *TypstConverter) evaluateRule(rule map[string]any) bool {
-	variableID, _ := rule["variableId"].(string)
-	operator, _ := rule["operator"].(string)
-	valueObj, _ := rule["value"].(map[string]any)
-
-	actualValue := c.injectables[variableID]
-	compareValue := c.resolveCompareValue(valueObj)
-
-	return c.compareValues(actualValue, compareValue, operator)
-}
-
-func (c *TypstConverter) resolveCompareValue(valueObj map[string]any) any {
-	valueMode, _ := valueObj["mode"].(string)
-	compareValue := valueObj["value"]
-
-	if valueMode == portabledoc.RuleModeVariable {
-		compareVarID, _ := compareValue.(string)
-		return c.injectables[compareVarID]
-	}
-	return compareValue
-}
-
-func (c *TypstConverter) compareValues(actual, compare any, operator string) bool {
-	actualStr := fmt.Sprintf("%v", actual)
-	compareStr := fmt.Sprintf("%v", compare)
-
-	if result, ok := c.compareStringOps(actualStr, compareStr, actual, operator); ok {
-		return result
-	}
-	return c.compareNumericOps(actual, compare, operator)
-}
-
-func (c *TypstConverter) compareStringOps(actualStr, compareStr string, actual any, operator string) (bool, bool) {
-	switch operator {
-	case portabledoc.OpEqual:
-		return actualStr == compareStr, true
-	case portabledoc.OpNotEqual:
-		return actualStr != compareStr, true
-	case portabledoc.OpEmpty:
-		return actual == nil || actualStr == "", true
-	case portabledoc.OpNotEmpty:
-		return actual != nil && actualStr != "", true
-	case portabledoc.OpStartsWith:
-		return strings.HasPrefix(actualStr, compareStr), true
-	case portabledoc.OpEndsWith:
-		return strings.HasSuffix(actualStr, compareStr), true
-	case portabledoc.OpContains:
-		return strings.Contains(actualStr, compareStr), true
-	case portabledoc.OpIsTrue:
-		return actualStr == "true" || actualStr == "1", true
-	case portabledoc.OpIsFalse:
-		return actualStr == "false" || actualStr == "0" || actualStr == "", true
-	default:
-		return false, false
-	}
-}
-
-func (c *TypstConverter) compareNumericOps(actual, compare any, operator string) bool {
-	switch operator {
-	case portabledoc.OpGreater, portabledoc.OpAfter:
-		return c.compareNumeric(actual, compare) > 0
-	case portabledoc.OpLess, portabledoc.OpBefore:
-		return c.compareNumeric(actual, compare) < 0
-	case portabledoc.OpGreaterEq:
-		return c.compareNumeric(actual, compare) >= 0
-	case portabledoc.OpLessEq:
-		return c.compareNumeric(actual, compare) <= 0
-	default:
-		return false
-	}
-}
-
-func (c *TypstConverter) compareNumeric(a, b any) int {
-	aNum := toFloat64(a)
-	bNum := toFloat64(b)
-
-	if aNum < bNum {
-		return -1
-	}
-	if aNum > bNum {
-		return 1
-	}
-	return 0
-}
-
 func (c *TypstConverter) pageBreak(_ portabledoc.Node) string {
 	c.currentPage++
 	return "#pagebreak()\n"
@@ -620,7 +457,7 @@ func (c *TypstConverter) applyMark(text string, mark portabledoc.Mark) string {
 }
 
 func (c *TypstConverter) applyHighlightMark(text string, mark portabledoc.Mark) string {
-	color := "#ffeb3b"
+	color := c.tokens.HighlightDefaultColor
 	if clr, ok := mark.Attrs["color"].(string); ok && clr != "" {
 		color = clr
 	}
@@ -676,7 +513,7 @@ func (c *TypstConverter) listInjector(node portabledoc.Node) string {
 		if label == "" {
 			label = variableID
 		}
-		return fmt.Sprintf("#block(fill: rgb(\"#fff3cd\"), stroke: (dash: \"dashed\", paint: rgb(\"#ffc107\")), inset: 1em, width: 100%%)[#text(fill: rgb(\"#856404\"), style: \"italic\")[\\[List: %s\\]]]\n", escapeTypst(label))
+		return fmt.Sprintf("#block(fill: rgb(\"%s\"), stroke: (dash: \"dashed\", paint: rgb(\"%s\")), inset: 1em, width: 100%%)[#text(fill: rgb(\"%s\"), style: \"italic\")[\\[List: %s\\]]]\n", c.tokens.PlaceholderFillBg, c.tokens.PlaceholderStroke, c.tokens.PlaceholderTextColor, escapeTypst(label))
 	}
 
 	// Override symbol from editor attrs
@@ -762,22 +599,6 @@ func (c *TypstConverter) parseListItemFromMap(m map[string]any) entity.ListItem 
 	return item
 }
 
-// typstListConfig returns whether the symbol maps to an enum (vs list) and the #set rule.
-func typstListConfig(symbol entity.ListSymbol) (isEnum bool, config string) {
-	switch symbol {
-	case entity.ListSymbolNumber:
-		return true, "#set enum(numbering: \"1.\")\n"
-	case entity.ListSymbolRoman:
-		return true, "#set enum(numbering: \"i.\")\n"
-	case entity.ListSymbolLetter:
-		return true, "#set enum(numbering: \"a)\")\n"
-	case entity.ListSymbolDash:
-		return false, "#set list(marker: [–])\n"
-	default: // bullet
-		return false, ""
-	}
-}
-
 func (c *TypstConverter) renderTypstList(listData *entity.ListValue, lang string, headerStyles, itemStyles *entity.ListStyles) string {
 	var sb strings.Builder
 	sb.WriteString("#block[\n") // content block to scope #set rules
@@ -826,26 +647,6 @@ func (c *TypstConverter) renderListHeader(label string, styles *entity.ListStyle
 	return sb.String()
 }
 
-func (c *TypstConverter) collectListStyleParts(styles *entity.ListStyles) []string {
-	parts := make([]string, 0)
-	if styles == nil {
-		return parts
-	}
-	if styles.FontSize != nil {
-		parts = append(parts, fmt.Sprintf("size: %dpt", *styles.FontSize))
-	}
-	if styles.FontWeight != nil && *styles.FontWeight == "bold" {
-		parts = append(parts, "weight: \"bold\"")
-	}
-	if styles.TextColor != nil {
-		parts = append(parts, fmt.Sprintf("fill: rgb(\"%s\")", *styles.TextColor))
-	}
-	if styles.FontFamily != nil {
-		parts = append(parts, fmt.Sprintf("font: \"%s\"", *styles.FontFamily))
-	}
-	return parts
-}
-
 func (c *TypstConverter) renderListItem(sb *strings.Builder, item entity.ListItem, isEnum bool, depth int) {
 	indent := strings.Repeat("  ", depth)
 	marker := "- "
@@ -878,85 +679,6 @@ func (c *TypstConverter) getListHeaderLabel(labels map[string]string, lang strin
 	return ""
 }
 
-func (c *TypstConverter) buildListTextSetRule(styles *entity.ListStyles) string {
-	parts := make([]string, 0)
-	if styles.FontSize != nil {
-		parts = append(parts, fmt.Sprintf("size: %dpt", *styles.FontSize))
-	}
-	if styles.FontWeight != nil && *styles.FontWeight == "bold" {
-		parts = append(parts, "weight: \"bold\"")
-	}
-	if styles.TextColor != nil {
-		parts = append(parts, fmt.Sprintf("fill: rgb(\"%s\")", *styles.TextColor))
-	}
-	if styles.FontFamily != nil {
-		parts = append(parts, fmt.Sprintf("font: \"%s\"", *styles.FontFamily))
-	}
-	if len(parts) == 0 {
-		return ""
-	}
-	return fmt.Sprintf("#set text(%s)\n", strings.Join(parts, ", "))
-}
-
-func (c *TypstConverter) parseListStylesFromAttrs(attrs map[string]any, prefix string) *entity.ListStyles {
-	styles := &entity.ListStyles{}
-	hasValue := false
-
-	if v, ok := attrs[prefix+"FontFamily"].(string); ok && v != "" {
-		styles.FontFamily = &v
-		hasValue = true
-	}
-	if v, ok := attrs[prefix+"FontSize"].(float64); ok && v > 0 {
-		intVal := int(v)
-		styles.FontSize = &intVal
-		hasValue = true
-	}
-	if v, ok := attrs[prefix+"FontWeight"].(string); ok && v != "" {
-		styles.FontWeight = &v
-		hasValue = true
-	}
-	if v, ok := attrs[prefix+"TextColor"].(string); ok && v != "" {
-		styles.TextColor = &v
-		hasValue = true
-	}
-	if v, ok := attrs[prefix+"TextAlign"].(string); ok && v != "" {
-		styles.TextAlign = &v
-		hasValue = true
-	}
-
-	if !hasValue {
-		return nil
-	}
-	return styles
-}
-
-func (c *TypstConverter) mergeListStyles(base, override *entity.ListStyles) *entity.ListStyles {
-	if base == nil {
-		return override
-	}
-	if override == nil {
-		return base
-	}
-
-	result := *base
-	if override.FontFamily != nil {
-		result.FontFamily = override.FontFamily
-	}
-	if override.FontSize != nil {
-		result.FontSize = override.FontSize
-	}
-	if override.FontWeight != nil {
-		result.FontWeight = override.FontWeight
-	}
-	if override.TextColor != nil {
-		result.TextColor = override.TextColor
-	}
-	if override.TextAlign != nil {
-		result.TextAlign = override.TextAlign
-	}
-	return &result
-}
-
 // --- Table Nodes ---
 
 func (c *TypstConverter) tableCellData(node portabledoc.Node) string {
@@ -980,7 +702,7 @@ func (c *TypstConverter) tableInjector(node portabledoc.Node) string {
 		if label == "" {
 			label = variableID
 		}
-		return fmt.Sprintf("#block(fill: rgb(\"#fff3cd\"), stroke: (dash: \"dashed\", paint: rgb(\"#ffc107\")), inset: 1em, width: 100%%)[#text(fill: rgb(\"#856404\"), style: \"italic\")[\\[Table: %s\\]]]\n", escapeTypst(label))
+		return fmt.Sprintf("#block(fill: rgb(\"%s\"), stroke: (dash: \"dashed\", paint: rgb(\"%s\")), inset: 1em, width: 100%%)[#text(fill: rgb(\"%s\"), style: \"italic\")[\\[Table: %s\\]]]\n", c.tokens.PlaceholderFillBg, c.tokens.PlaceholderStroke, c.tokens.PlaceholderTextColor, escapeTypst(label))
 	}
 
 	headerStyles := c.parseTableStylesFromAttrs(node.Attrs, "header")
@@ -1176,7 +898,7 @@ func (c *TypstConverter) renderTypstTable(tableData *entity.TableValue, lang str
 
 	colWidths := c.buildTypstColumnWidths(tableData.Columns)
 	headerFill := c.getTableHeaderFillColor(headerStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  stroke: 0.5pt + luma(200),\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, headerFill))
+	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableStrokeColor, headerFill))
 	sb.WriteString(c.buildTableAlignParam(headerStyles, bodyStyles))
 	sb.WriteString(c.renderTypstTableHeader(tableData.Columns, lang))
 	sb.WriteString(c.renderTypstTableRows(tableData))
@@ -1252,84 +974,6 @@ func (c *TypstConverter) convertColumnWidth(width *string) string {
 		return "1fr"
 	default:
 		return "1fr"
-	}
-}
-
-func (c *TypstConverter) getTableHeaderFillColor(styles *entity.TableStyles) string {
-	if styles != nil && styles.Background != nil {
-		return *styles.Background
-	}
-	return "#f5f5f5"
-}
-
-// buildTableStyleRules generates Typst show rules for header text styling.
-func (c *TypstConverter) buildTableStyleRules(headerStyles *entity.TableStyles) string {
-	if headerStyles == nil {
-		return ""
-	}
-
-	var sb strings.Builder
-
-	if headerStyles.FontWeight != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(weight: \"%s\")\n", *headerStyles.FontWeight))
-	}
-	if headerStyles.TextColor != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(fill: rgb(\"%s\"))\n", *headerStyles.TextColor))
-	}
-	if headerStyles.FontSize != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(size: %dpt)\n", *headerStyles.FontSize))
-	}
-	if headerStyles.FontFamily != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(font: \"%s\")\n", *headerStyles.FontFamily))
-	}
-
-	return sb.String()
-}
-
-// buildTableAlignParam generates the align parameter for a Typst table.
-func (c *TypstConverter) buildTableAlignParam(headerStyles, bodyStyles *entity.TableStyles) string {
-	headerAlign := getTypstAlignment(headerStyles)
-	bodyAlign := getTypstAlignment(bodyStyles)
-
-	if headerAlign != "" && bodyAlign != "" {
-		return fmt.Sprintf("  align: (x, y) => if y == 0 { %s } else { %s },\n", headerAlign, bodyAlign)
-	}
-	if headerAlign != "" {
-		return fmt.Sprintf("  align: (x, y) => if y == 0 { %s } else { auto },\n", headerAlign)
-	}
-	if bodyAlign != "" {
-		return fmt.Sprintf("  align: %s,\n", bodyAlign)
-	}
-	return ""
-}
-
-// toTypstAlign maps a ProseMirror textAlign value to a Typst align value.
-// Returns "" for values that don't need explicit alignment (left, justify).
-func toTypstAlign(align string) string {
-	switch align {
-	case "center":
-		return "center"
-	case "right":
-		return "right"
-	default:
-		return ""
-	}
-}
-
-// getTypstAlignment converts a CSS text-align value to Typst alignment.
-func getTypstAlignment(styles *entity.TableStyles) string {
-	if styles == nil || styles.TextAlign == nil {
-		return ""
-	}
-	switch *styles.TextAlign {
-	case "left":
-		return "left"
-	case "center":
-		return "center"
-	case "right":
-		return "right"
-	default:
-		return ""
 	}
 }
 
@@ -1412,7 +1056,7 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	sb.WriteString(c.buildTableStyleRules(c.currentTableHeaderStyles))
 
 	headerFill := c.getTableHeaderFillColor(c.currentTableHeaderStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  stroke: 0.5pt + luma(200),\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", strings.Join(colSpec, ", "), headerFill))
+	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", strings.Join(colSpec, ", "), c.tokens.TableStrokeColor, headerFill))
 	sb.WriteString(c.buildTableAlignParam(c.currentTableHeaderStyles, c.currentTableBodyStyles))
 
 	isFirstRow := true
@@ -1480,169 +1124,4 @@ func (c *TypstConverter) tableCell(node portabledoc.Node, _ bool) string {
 		content = " "
 	}
 	return fmt.Sprintf("[%s], ", strings.TrimSpace(content))
-}
-
-// --- Style helpers (shared with NodeConverter) ---
-
-func (c *TypstConverter) parseTableStylesFromAttrs(attrs map[string]any, prefix string) *entity.TableStyles {
-	styles := &entity.TableStyles{}
-	hasStyles := false
-
-	if v, ok := attrs[prefix+"FontFamily"].(string); ok && v != "" {
-		styles.FontFamily = &v
-		hasStyles = true
-	}
-	if v, ok := attrs[prefix+"FontSize"].(float64); ok && v > 0 {
-		i := int(v)
-		styles.FontSize = &i
-		hasStyles = true
-	}
-	if v, ok := attrs[prefix+"FontWeight"].(string); ok && v != "" {
-		styles.FontWeight = &v
-		hasStyles = true
-	}
-	if v, ok := attrs[prefix+"TextColor"].(string); ok && v != "" {
-		styles.TextColor = &v
-		hasStyles = true
-	}
-	if v, ok := attrs[prefix+"TextAlign"].(string); ok && v != "" {
-		styles.TextAlign = &v
-		hasStyles = true
-	}
-	if v, ok := attrs[prefix+"Background"].(string); ok && v != "" {
-		styles.Background = &v
-		hasStyles = true
-	}
-
-	if !hasStyles {
-		return nil
-	}
-	return styles
-}
-
-func (c *TypstConverter) mergeTableStyles(base, override *entity.TableStyles) *entity.TableStyles {
-	if base == nil {
-		return override
-	}
-	if override == nil {
-		return base
-	}
-
-	result := *base
-	if override.FontFamily != nil {
-		result.FontFamily = override.FontFamily
-	}
-	if override.FontSize != nil {
-		result.FontSize = override.FontSize
-	}
-	if override.FontWeight != nil {
-		result.FontWeight = override.FontWeight
-	}
-	if override.TextColor != nil {
-		result.TextColor = override.TextColor
-	}
-	if override.TextAlign != nil {
-		result.TextAlign = override.TextAlign
-	}
-	if override.Background != nil {
-		result.Background = override.Background
-	}
-	return &result
-}
-
-// --- Typst escaping ---
-
-// escapeTypst escapes special Typst characters in content text.
-func escapeTypst(s string) string {
-	replacer := strings.NewReplacer(
-		"\\", "\\\\",
-		"#", "\\#",
-		"*", "\\*",
-		"_", "\\_",
-		"@", "\\@",
-		"$", "\\$",
-		"<", "\\<",
-		">", "\\>",
-		"[", "\\[",
-		"]", "\\]",
-	)
-	return replacer.Replace(s)
-}
-
-// unescapeTypst reverses escapeTypst (used for code blocks where we want raw content).
-func unescapeTypst(s string) string {
-	replacer := strings.NewReplacer(
-		"\\\\", "\\",
-		"\\#", "#",
-		"\\*", "*",
-		"\\_", "_",
-		"\\@", "@",
-		"\\$", "$",
-		"\\<", "<",
-		"\\>", ">",
-		"\\[", "[",
-		"\\]", "]",
-	)
-	return replacer.Replace(s)
-}
-
-// escapeTypstString escapes a string for use inside Typst string literals (double-quoted).
-func escapeTypstString(s string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(s, "\\", "\\\\"), "\"", "\\\"")
-}
-
-// clamp restricts a value to the range [min, max].
-func clamp(v, min, max int) int {
-	if v < min {
-		return min
-	}
-	if v > max {
-		return max
-	}
-	return v
-}
-
-// formatBool returns a localized string for a boolean value.
-func formatBool(v bool) string {
-	if v {
-		return "Sí"
-	}
-	return "No"
-}
-
-// toFloat64 converts a value to float64, returning 0 on failure.
-func toFloat64(v any) float64 {
-	switch n := v.(type) {
-	case float64:
-		return n
-	case float32:
-		return float64(n)
-	case int:
-		return float64(n)
-	case int64:
-		return float64(n)
-	case string:
-		f, _ := strconv.ParseFloat(n, 64)
-		return f
-	default:
-		return 0
-	}
-}
-
-// getIntAttr extracts an integer attribute from a map, returning defaultVal if not found.
-func getIntAttr(attrs map[string]any, key string, defaultVal int) int {
-	v, ok := attrs[key]
-	if !ok {
-		return defaultVal
-	}
-	switch n := v.(type) {
-	case float64:
-		return int(n)
-	case int:
-		return n
-	case int64:
-		return int(n)
-	default:
-		return defaultVal
-	}
 }

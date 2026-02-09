@@ -28,13 +28,19 @@ type Service struct {
 	sem            chan struct{}
 	acquireTimeout time.Duration
 	imageCache     *ImageCache
+	designTokens   TypstDesignTokens
 }
 
 // NewService creates a new PDF renderer service.
-func NewService(opts TypstOptions, imageCache *ImageCache) (*Service, error) {
+func NewService(opts TypstOptions, imageCache *ImageCache, tokens *TypstDesignTokens) (*Service, error) {
 	typst, err := NewTypstRenderer(opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create typst renderer: %w", err)
+	}
+
+	dt := DefaultDesignTokens()
+	if tokens != nil {
+		dt = *tokens
 	}
 
 	s := &Service{
@@ -44,6 +50,7 @@ func NewService(opts TypstOptions, imageCache *ImageCache) (*Service, error) {
 		},
 		acquireTimeout: opts.AcquireTimeout,
 		imageCache:     imageCache,
+		designTokens:   dt,
 	}
 
 	if opts.MaxConcurrent > 0 {
@@ -72,7 +79,7 @@ func (s *Service) RenderPreview(ctx context.Context, req *port.RenderPreviewRequ
 		injectableDefaults = make(map[string]string)
 	}
 
-	builder := NewTypstBuilder(req.Injectables, injectableDefaults)
+	builder := NewTypstBuilder(req.Injectables, injectableDefaults, s.designTokens)
 	typstSource := builder.Build(req.Document)
 	pageCount := builder.GetPageCount()
 

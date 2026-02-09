@@ -14,6 +14,7 @@ import {
   type DragStartEvent,
   type DragMoveEvent,
 } from '@dnd-kit/core'
+import { HEADING_LEVELS } from '../config'
 import { EditorToolbar } from './EditorToolbar'
 import { PreviewButton } from './preview/PreviewButton'
 import { PageSettings } from './PageSettings'
@@ -120,7 +121,7 @@ export function DocumentEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3],
+          levels: [...HEADING_LEVELS],
         },
       }),
       TextStyle,

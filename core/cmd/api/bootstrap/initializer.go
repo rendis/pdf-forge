@@ -195,7 +195,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		FontDirs:       cfg.Typst.FontDirs,
 		MaxConcurrent:  cfg.Typst.MaxConcurrent,
 		AcquireTimeout: cfg.Typst.AcquireTimeoutDuration(),
-	}, imageCache)
+	}, imageCache, e.designTokens)
 	if err != nil {
 		return nil, err
 	}

@@ -13,15 +13,18 @@ const pxToPt = 0.75 // 1px at 96 DPI = 0.75pt
 // TypstBuilder constructs complete Typst documents from portable documents.
 type TypstBuilder struct {
 	converter *TypstConverter
+	tokens    TypstDesignTokens
 }
 
 // NewTypstBuilder creates a new Typst builder.
 func NewTypstBuilder(
 	injectables map[string]any,
 	injectableDefaults map[string]string,
+	tokens TypstDesignTokens,
 ) *TypstBuilder {
 	return &TypstBuilder{
-		converter: NewTypstConverter(injectables, injectableDefaults),
+		converter: NewTypstConverter(injectables, injectableDefaults, tokens),
+		tokens:    tokens,
 	}
 }
 
@@ -93,28 +96,27 @@ func (b *TypstBuilder) detectPaperSize(formatID string) string {
 
 // typographySetup generates base text and paragraph settings.
 func (b *TypstBuilder) typographySetup() string {
-	return `#set text(
-  font: ("Helvetica Neue", "Arial", "Libertinus Serif"),
-  size: 12pt,
-  fill: rgb("#333333"),
-  hyphenate: true,
-)
+	quoted := make([]string, len(b.tokens.FontStack))
+	for i, f := range b.tokens.FontStack {
+		quoted[i] = fmt.Sprintf("%q", f)
+	}
+	fontList := "(" + strings.Join(quoted, ", ") + ")"
 
-#set par(leading: 0.75em, spacing: 1.5em)
-
-`
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("#set text(\n  font: %s,\n  size: %s,\n  fill: rgb(\"%s\"),\n  hyphenate: true,\n)\n\n",
+		fontList, b.tokens.BaseFontSize, b.tokens.BaseTextColor))
+	sb.WriteString(fmt.Sprintf("#set par(leading: %s, spacing: %s)\n\n", b.tokens.ParagraphLeading, b.tokens.ParagraphSpacing))
+	return sb.String()
 }
 
 // headingStyles generates show rules for heading sizes matching the CSS styles.
 func (b *TypstBuilder) headingStyles() string {
-	return `#show heading.where(level: 1): set text(size: 24pt, weight: 600)
-#show heading.where(level: 2): set text(size: 20pt, weight: 600)
-#show heading.where(level: 3): set text(size: 16pt, weight: 600)
-#show heading.where(level: 4): set text(size: 14pt, weight: 600)
-#show heading.where(level: 5): set text(size: 12pt, weight: 600)
-#show heading.where(level: 6): set text(size: 11pt, weight: 600)
-
-`
+	var sb strings.Builder
+	for i, size := range b.tokens.HeadingSizes {
+		sb.WriteString(fmt.Sprintf("#show heading.where(level: %d): set text(size: %s, weight: %s)\n", i+1, size, b.tokens.HeadingWeight))
+	}
+	sb.WriteString("\n")
+	return sb.String()
 }
 
 // GetPageCount returns the page count based on page breaks encountered.

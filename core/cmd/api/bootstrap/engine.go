@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/internal/core/service/rendering/pdfrenderer"
 	"github.com/rendis/pdf-forge/internal/infra/config"
 	"github.com/rendis/pdf-forge/internal/infra/logging"
 	"github.com/rendis/pdf-forge/internal/migrations"
@@ -28,6 +29,7 @@ type Engine struct {
 	initFunc            port.InitFunc
 	workspaceProvider   port.WorkspaceInjectableProvider
 	renderAuthenticator port.RenderAuthenticator
+	designTokens        *pdfrenderer.TypstDesignTokens
 
 	// Middleware
 	globalMiddleware []gin.HandlerFunc // Applied to all routes (after CORS, before auth)
@@ -95,6 +97,14 @@ func (e *Engine) SetRenderAuthenticator(auth port.RenderAuthenticator) *Engine {
 // GetRenderAuthenticator returns the registered render authenticator, or nil if not set.
 func (e *Engine) GetRenderAuthenticator() port.RenderAuthenticator {
 	return e.renderAuthenticator
+}
+
+// SetDesignTokens sets custom design tokens for PDF rendering.
+// Controls fonts, colors, spacing, and heading styles in Typst output.
+// If not set, DefaultDesignTokens() is used.
+func (e *Engine) SetDesignTokens(tokens pdfrenderer.TypstDesignTokens) *Engine {
+	e.designTokens = &tokens
+	return e
 }
 
 // UseMiddleware adds middleware to be applied globally to all routes.

@@ -9,7 +9,7 @@ import (
 )
 
 func TestRenderPreview_Basic(t *testing.T) {
-	service, err := NewService(DefaultTypstOptions(), nil)
+	service, err := NewService(DefaultTypstOptions(), nil, nil)
 	if err != nil {
 		t.Skipf("Typst not available, skipping test: %v", err)
 	}
@@ -97,7 +97,7 @@ func TestRenderPreview_Basic(t *testing.T) {
 }
 
 func TestRenderPreview_EmptyInjectables(t *testing.T) {
-	service, err := NewService(DefaultTypstOptions(), nil)
+	service, err := NewService(DefaultTypstOptions(), nil, nil)
 	if err != nil {
 		t.Skipf("Typst not available, skipping test: %v", err)
 	}

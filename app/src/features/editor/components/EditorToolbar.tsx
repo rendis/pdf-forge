@@ -55,16 +55,7 @@ import { PreviewButton } from './preview'
 import { TextColorPicker } from './TextColorPicker'
 import { useOverflowScroll } from '@/hooks/use-overflow-scroll'
 import { cn } from '@/lib/utils'
-
-const FONT_FAMILIES = [
-  { label: 'Inter', value: 'Inter' },
-  { label: 'Arial', value: 'Arial, sans-serif' },
-  { label: 'Times New Roman', value: 'Times New Roman, serif' },
-  { label: 'Georgia', value: 'Georgia, serif' },
-  { label: 'Courier New', value: 'Courier New, monospace' },
-]
-
-const FONT_SIZES = ['10', '12', '14', '16', '18', '24', '36']
+import { TOOLBAR_FONT_FAMILIES, TOOLBAR_FONT_SIZES } from '../config'
 
 interface EditorToolbarProps {
   editor: Editor | null
@@ -164,7 +155,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
               <SelectValue placeholder={t('editor.toolbar.fontFamily')} />
             </SelectTrigger>
             <SelectContent>
-              {FONT_FAMILIES.map((font) => (
+              {TOOLBAR_FONT_FAMILIES.map((font) => (
                 <SelectItem
                   key={font.value}
                   value={font.value}
@@ -187,9 +178,9 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
               <SelectValue placeholder={t('editor.toolbar.fontSize')} />
             </SelectTrigger>
             <SelectContent>
-              {FONT_SIZES.map((size) => (
-                <SelectItem key={size} value={size}>
-                  {size}
+              {TOOLBAR_FONT_SIZES.map((s) => (
+                <SelectItem key={s.value} value={s.value.toString()}>
+                  {s.label}
                 </SelectItem>
               ))}
             </SelectContent>

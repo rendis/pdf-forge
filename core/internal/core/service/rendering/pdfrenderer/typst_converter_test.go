@@ -37,7 +37,7 @@ func newConverter(injectables map[string]any, defaults map[string]string) *Typst
 	if defaults == nil {
 		defaults = map[string]string{}
 	}
-	return NewTypstConverter(injectables, defaults)
+	return NewTypstConverter(injectables, defaults, DefaultDesignTokens())
 }
 
 // --- Text & Marks ---
@@ -803,7 +803,7 @@ func TestTypstBuilder_Build(t *testing.T) {
 		},
 	}
 
-	builder := NewTypstBuilder(nil, nil)
+	builder := NewTypstBuilder(nil, nil, DefaultDesignTokens())
 	got := builder.Build(doc)
 
 	checks := []string{
@@ -834,7 +834,7 @@ func TestTypstBuilder_CustomPageSize(t *testing.T) {
 		Content: &portabledoc.ProseMirrorDoc{Type: "doc", Content: []portabledoc.Node{}},
 	}
 
-	builder := NewTypstBuilder(nil, nil)
+	builder := NewTypstBuilder(nil, nil, DefaultDesignTokens())
 	got := builder.Build(doc)
 
 	if strings.Contains(got, "paper:") {
@@ -861,7 +861,7 @@ func TestTypstBuilder_PageCount(t *testing.T) {
 		},
 	}
 
-	builder := NewTypstBuilder(nil, nil)
+	builder := NewTypstBuilder(nil, nil, DefaultDesignTokens())
 	builder.Build(doc)
 
 	if builder.GetPageCount() != 3 {
