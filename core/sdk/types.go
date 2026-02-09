@@ -112,9 +112,9 @@ const (
 
 // List constructors and helpers.
 var (
-	NewListValue    = entity.NewListValue
-	ListItemValue   = entity.ListItemValue
-	ListItemNested  = entity.ListItemNested
+	NewListValue   = entity.NewListValue
+	ListItemValue  = entity.ListItemValue
+	ListItemNested = entity.ListItemNested
 )
 
 // ── Pointer helpers ─────────────────────────────────────────────────────────

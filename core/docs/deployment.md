@@ -1,5 +1,11 @@
 # Deployment Guide
 
+## Single Binary Deployment
+
+`make build` produces a single Go binary with the React SPA embedded via `go:embed`. The binary serves both the API and the frontend on a single port — no nginx or separate frontend container required.
+
+To disable the embedded frontend (e.g., when serving the SPA separately), call `engine.SetFrontendFS(nil)` in your extensions.
+
 ## Stateless Design
 
 The server is stateless. Scale horizontally behind a load balancer. All state lives in PostgreSQL.
@@ -22,7 +28,7 @@ DOC_ENGINE_INTERNAL_API_API_KEY=xxx
 ## Docker
 
 ```bash
-# Build
+# Build (unified: frontend + backend in single image)
 docker build -t pdf-forge .
 
 # Run with external PG
@@ -32,7 +38,7 @@ docker-compose up --scale postgres=0
 PG_PORT=5433 docker-compose up
 ```
 
-The Dockerfile is multi-stage and auto-detects architecture for Typst binary download.
+The root `Dockerfile` is a multi-stage build: Node.js (frontend) → Go (backend with embedded SPA) → Alpine (runtime with Typst).
 
 ## Kubernetes
 

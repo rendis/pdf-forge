@@ -3,8 +3,13 @@ package server
 import (
 	"context"
 	"fmt"
+	"io"
+	"io/fs"
 	"log/slog"
+	"mime"
 	"net/http"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +23,14 @@ import (
 
 	_ "github.com/rendis/pdf-forge/docs" // swagger generated docs
 )
+
+func init() {
+	// Register MIME types to avoid OS-level detection inconsistencies (especially on Windows).
+	_ = mime.AddExtensionType(".js", "application/javascript")
+	_ = mime.AddExtensionType(".css", "text/css")
+	_ = mime.AddExtensionType(".woff2", "font/woff2")
+	_ = mime.AddExtensionType(".svg", "image/svg+xml")
+}
 
 // @title           Doc Engine API
 // @version         1.0
@@ -58,6 +71,7 @@ func NewHTTPServer(
 	globalMiddleware []gin.HandlerFunc,
 	apiMiddleware []gin.HandlerFunc,
 	renderAuthenticator port.RenderAuthenticator,
+	frontendFS fs.FS,
 ) *HTTPServer {
 	// Set Gin mode based on environment
 	if cfg.Environment == "production" {
@@ -185,10 +199,8 @@ func NewHTTPServer(
 
 	renderController.RegisterWorkspaceRoutes(renderGroup)
 
-	// NoRoute handler for unmatched routes
-	engine.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-	})
+	// NoRoute handler: serves embedded SPA or returns JSON 404
+	engine.NoRoute(spaHandler(frontendFS))
 
 	return &HTTPServer{
 		engine: engine,
@@ -307,6 +319,80 @@ func noCacheAPI() gin.HandlerFunc {
 		c.Header("Expires", "0")
 		c.Next()
 	}
+}
+
+// spaHandler returns a Gin handler that serves the embedded SPA frontend.
+// Explicit routes (/health, /ready, /api/v1/*) are matched by Gin before NoRoute.
+// This handler only runs for unmatched paths: static files get served with cache
+// headers, unknown paths get index.html (SPA client-side routing).
+func spaHandler(fsys fs.FS) gin.HandlerFunc {
+	var fileServer http.Handler
+	if fsys != nil {
+		fileServer = http.FileServer(http.FS(fsys))
+	}
+
+	return func(c *gin.Context) {
+		reqPath := c.Request.URL.Path
+
+		// Backend-owned prefixes → JSON 404 (defensive, in case of sub-path misses)
+		if strings.HasPrefix(reqPath, "/api/") || strings.HasPrefix(reqPath, "/swagger/") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+
+		// No frontend embedded → JSON 404
+		if fsys == nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+
+		// Normalize path for fs lookup
+		cleanPath := path.Clean(strings.TrimPrefix(reqPath, "/"))
+		if cleanPath == "." || cleanPath == "" {
+			cleanPath = "index.html"
+		}
+
+		// Try serving the exact file
+		f, err := fsys.Open(cleanPath)
+		if err == nil {
+			f.Close()
+			if strings.HasPrefix(cleanPath, "assets/") {
+				c.Header("Cache-Control", "public, max-age=31536000, immutable")
+			}
+			fileServer.ServeHTTP(c.Writer, c.Request)
+			return
+		}
+
+		// SPA fallback → serve index.html
+		serveIndexHTML(c, fsys)
+	}
+}
+
+// serveIndexHTML serves index.html with no-cache headers for SPA fallback routing.
+func serveIndexHTML(c *gin.Context, fsys fs.FS) {
+	indexFile, err := fsys.Open("index.html")
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+	defer indexFile.Close()
+
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	stat, _ := indexFile.Stat()
+
+	if rs, ok := indexFile.(io.ReadSeeker); ok {
+		http.ServeContent(c.Writer, c.Request, "index.html", stat.ModTime(), rs)
+		return
+	}
+
+	// Fallback if fs.File doesn't implement ReadSeeker
+	content, err := io.ReadAll(indexFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read index"})
+		return
+	}
+	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
 }
 
 // corsMiddleware configures CORS for the API using allowed origins from config.

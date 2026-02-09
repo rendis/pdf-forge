@@ -108,6 +108,7 @@ See **types-reference.md** for Tables, Lists, InjectorContext, FormatConfig.
 | Provider   | Dynamic injectables | `SetWorkspaceInjectableProvider()`      |
 | Auth       | Custom render auth  | `SetRenderAuthenticator()`              |
 | Middleware | Request handling    | `UseMiddleware()`, `UseAPIMiddleware()` |
+| Frontend   | Embedded SPA        | `SetFrontendFS()` (nil to disable)      |
 | Lifecycle  | Startup/shutdown    | `OnStart()`, `OnShutdown()`             |
 
 See **extensions-reference.md** for implementation examples.
@@ -121,8 +122,9 @@ See **config-reference.md** for all YAML keys, env vars, and auth setup.
 ## CLI Commands
 
 ```bash
-make build      # Build backend + frontend
-make run        # Run API server
+make build      # Build frontend + embed + Go binary (single binary)
+make embed-app  # Build frontend and copy to Go embed location
+make run        # Run API server (with embedded frontend)
 make dev        # Hot reload backend (air)
 make migrate    # Apply database migrations
 make test       # Run tests

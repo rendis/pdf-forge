@@ -17,7 +17,7 @@ services:
 
   api:
     build:
-      context: ./core
+      context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -30,13 +30,6 @@ services:
       DOC_ENGINE_DATABASE_USER: postgres
       DOC_ENGINE_DATABASE_PASSWORD: postgres
       DOC_ENGINE_DATABASE_NAME: pdf_forge
-
-  web:
-    build: ./app
-    ports:
-      - "3000:80"
-    depends_on:
-      - api
 
 volumes:
   pgdata:

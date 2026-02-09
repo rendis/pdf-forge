@@ -45,7 +45,7 @@ internal/
 │   ├── config/               # Configuration loading (Viper, YAML + env)
 │   ├── logging/              # Context-aware slog handler
 │   ├── registry/             # Injector/mapper registries
-│   ├── server/               # HTTP server setup (Gin, CORS, SPA serving)
+│   ├── server/               # HTTP server setup (Gin, CORS, embedded SPA serving)
 │   └── initializer.go        # Application bootstrap
 │
 ├── migrations/               # Embedded SQL migrations (golang-migrate)

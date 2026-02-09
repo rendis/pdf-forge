@@ -11,6 +11,11 @@
 bin/
 dist/
 
+# Embedded frontend: keep placeholder, ignore built assets
+!core/internal/frontend/dist/
+core/internal/frontend/dist/*
+!core/internal/frontend/dist/.gitkeep
+
 # Test binary
 *.test
 

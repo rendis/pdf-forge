@@ -1,16 +1,22 @@
 -include .env
 export
 
-.PHONY: build build-core build-app run run-core dev dev-app migrate test lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
+.PHONY: build build-core build-app embed-app run run-core dev dev-app migrate test lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
 
-# Build everything
-build: build-core build-app
+# Build everything (frontend embedded in Go binary)
+build: embed-app build-core
 
 build-core:
 	$(MAKE) -C core build
 
 build-app:
 	$(MAKE) -C app build
+
+# Build frontend and copy to Go embed location
+embed-app: build-app
+	@rm -rf core/internal/frontend/dist/*
+	@cp -r app/dist/* core/internal/frontend/dist/
+	@echo "Frontend assets embedded in core/internal/frontend/dist/"
 
 # Auto-create .env from .env.example if missing
 .env:
@@ -64,6 +70,8 @@ docker-down:
 clean:
 	$(MAKE) -C core clean
 	$(MAKE) -C app clean
+	@rm -rf core/internal/frontend/dist/*
+	@touch core/internal/frontend/dist/.gitkeep
 
 # Fork workflow
 init-fork:
@@ -148,9 +156,10 @@ check-upgrade:
 
 help:
 	@echo "=== Build ==="
-	@echo "  build          Build backend + frontend"
-	@echo "  build-core     Build Go backend only"
-	@echo "  build-app      Build React frontend only"
+	@echo "  build          Build frontend + embed + Go binary (single binary)"
+	@echo "  build-core     Build Go backend only (uses existing embedded assets)"
+	@echo "  build-app      Build React frontend only (outputs to app/dist/)"
+	@echo "  embed-app      Build frontend and copy to Go embed location"
 	@echo ""
 	@echo "=== Development ==="
 	@echo "  run            Run backend + frontend"

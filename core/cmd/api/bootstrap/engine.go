@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/rendis/pdf-forge/internal/core/port"
 	"github.com/rendis/pdf-forge/internal/core/service/rendering/pdfrenderer"
+	"github.com/rendis/pdf-forge/internal/frontend"
 	"github.com/rendis/pdf-forge/internal/infra/config"
 	"github.com/rendis/pdf-forge/internal/infra/logging"
 	"github.com/rendis/pdf-forge/internal/migrations"
@@ -30,6 +32,8 @@ type Engine struct {
 	workspaceProvider   port.WorkspaceInjectableProvider
 	renderAuthenticator port.RenderAuthenticator
 	designTokens        *pdfrenderer.TypstDesignTokens
+	frontendFS          fs.FS // Embedded SPA filesystem; nil = no frontend served
+	frontendOverridden  bool  // True if SetFrontendFS was called (even with nil)
 
 	// Middleware
 	globalMiddleware []gin.HandlerFunc // Applied to all routes (after CORS, before auth)
@@ -99,6 +103,15 @@ func (e *Engine) GetRenderAuthenticator() port.RenderAuthenticator {
 	return e.renderAuthenticator
 }
 
+// SetFrontendFS overrides the embedded frontend filesystem.
+// By default, the engine loads the embedded SPA from internal/frontend/dist.
+// Pass a custom fs.FS to serve a different frontend, or nil to disable frontend serving.
+func (e *Engine) SetFrontendFS(fsys fs.FS) *Engine {
+	e.frontendFS = fsys
+	e.frontendOverridden = true
+	return e
+}
+
 // SetDesignTokens sets custom design tokens for PDF rendering.
 // Controls fonts, colors, spacing, and heading styles in Typst output.
 // If not set, DefaultDesignTokens() is used.
@@ -158,6 +171,15 @@ func (e *Engine) Run() error {
 	// Load configuration
 	if err := e.loadConfig(); err != nil {
 		return fmt.Errorf("config: %w", err)
+	}
+
+	// Load embedded frontend (unless overridden by SetFrontendFS)
+	if !e.frontendOverridden {
+		fsys, err := frontend.Assets()
+		if err != nil {
+			return fmt.Errorf("frontend: %w", err)
+		}
+		e.frontendFS = fsys
 	}
 
 	// Preflight checks
@@ -239,7 +261,11 @@ func (e *Engine) runWithSignals(ctx context.Context, app *appComponents) error {
 		fmt.Printf("  Swagger:   http://localhost:%s/swagger/index.html\n", port)
 	}
 	fmt.Printf("  Health:    http://localhost:%s/health\n", port)
-	fmt.Printf("  Frontend:  http://localhost:3000\n")
+	if e.frontendFS != nil {
+		fmt.Printf("  Frontend:  http://localhost:%s\n", port)
+	} else {
+		fmt.Printf("  Frontend:  not embedded (run 'make embed-app' to embed, or 'make dev-app' for Vite on :3000)\n")
+	}
 	fmt.Println()
 
 	select {
