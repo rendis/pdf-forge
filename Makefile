@@ -3,7 +3,12 @@ export
 
 BASE_PATH ?=
 
-.PHONY: build build-core build-app embed-app run run-core dev dev-app migrate test lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
+# Dummy auth flag: make run DUMMY=1 / make dev DUMMY=1
+ifdef DUMMY
+export VITE_USE_MOCK_AUTH=true
+endif
+
+.PHONY: build build-core build-app embed-app run run-core run-dummy dev dev-dummy dev-app migrate test lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
 
 # Build everything (frontend embedded in Go binary)
 build: embed-app build-core
@@ -42,6 +47,13 @@ dev: .env
 	$(MAKE) -C core dev & \
 	$(MAKE) -C app dev & \
 	wait
+
+# Shorthand: run/dev with dummy auth (bypass OIDC)
+run-dummy:
+	$(MAKE) run DUMMY=1
+
+dev-dummy:
+	$(MAKE) dev DUMMY=1
 
 # Run frontend only
 dev-app:
@@ -165,8 +177,10 @@ help:
 	@echo ""
 	@echo "=== Development ==="
 	@echo "  run            Run backend + frontend"
+	@echo "  run-dummy      Same as run, with dummy auth (no OIDC needed)"
 	@echo "  run-core       Run backend only"
 	@echo "  dev            Hot reload backend + frontend"
+	@echo "  dev-dummy      Same as dev, with dummy auth (no OIDC needed)"
 	@echo "  dev-app        Start Vite dev server only"
 	@echo "  migrate        Apply database migrations"
 	@echo "  test           Run Go tests"
@@ -184,3 +198,7 @@ help:
 	@echo "  sync-upstream  Merge upstream VERSION into current branch"
 	@echo ""
 	@echo "  clean          Remove all build artifacts"
+	@echo ""
+	@echo "=== Flags ==="
+	@echo "  DUMMY=1        Force dummy auth (bypass OIDC). Example: make dev DUMMY=1"
+	@echo "  BASE_PATH=X    URL prefix for all routes. Example: BASE_PATH=/pdf-forge make build"
