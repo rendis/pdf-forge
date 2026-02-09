@@ -16,7 +16,7 @@ console.log(`[PDF-Forge] Build: ${__BUILD_TIMESTAMP__}`)
 // @ts-expect-error - TanStack Router requires strictNullChecks but we have it disabled
 const router = createRouter({
   routeTree,
-  basePath: import.meta.env.VITE_BASE_PATH || '/',
+  basepath: import.meta.env.VITE_BASE_PATH || '/',
 })
 
 // Register the router instance for type safety
