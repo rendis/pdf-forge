@@ -66,7 +66,7 @@ func bindEnvVars(v *viper.Viper) {
 		"database.name", "database.ssl_mode", "database.max_pool_size",
 		"database.min_pool_size", "database.max_idle_time_seconds",
 		// Server
-		"server.port", "server.read_timeout", "server.write_timeout",
+		"server.port", "server.base_path", "server.read_timeout", "server.write_timeout",
 		"server.shutdown_timeout", "server.swagger_ui",
 		// Logging
 		"logging.level", "logging.format",
@@ -87,6 +87,7 @@ func bindEnvVars(v *viper.Viper) {
 func setDefaults(v *viper.Viper) {
 	// Server defaults
 	v.SetDefault("server.port", "8080")
+	v.SetDefault("server.base_path", "")
 	v.SetDefault("server.read_timeout", 30)
 	v.SetDefault("server.write_timeout", 30)
 	v.SetDefault("server.shutdown_timeout", 10)

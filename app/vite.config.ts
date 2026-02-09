@@ -5,8 +5,12 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import path from 'path'
 
 export default defineConfig(() => {
+  const basePath = process.env.VITE_BASE_PATH || ''
+  const normalizedBase = basePath ? `${basePath}/` : '/'
+  const proxyPrefix = basePath || ''
+
   return {
-    base: '/',
+    base: normalizedBase,
     plugins: [
       tanstackRouter({ target: 'react', autoCodeSplitting: true }),
       react(),
@@ -33,17 +37,17 @@ export default defineConfig(() => {
       host: true,
       allowedHosts: true,
       proxy: {
-        '/api': {
+        [`${proxyPrefix}/api`]: {
           target: 'http://localhost:8080',
           changeOrigin: true,
         },
-        '/health': {
+        [`${proxyPrefix}/health`]: {
           target: 'http://localhost:8080',
         },
-        '/ready': {
+        [`${proxyPrefix}/ready`]: {
           target: 'http://localhost:8080',
         },
-        '/swagger': {
+        [`${proxyPrefix}/swagger`]: {
           target: 'http://localhost:8080',
         },
       },

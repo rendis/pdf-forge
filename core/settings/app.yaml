@@ -6,6 +6,7 @@ environment: development
 
 server:
   port: "8080"
+  # base_path: "/pdf-forge"  # DOC_ENGINE_SERVER_BASE_PATH - URL prefix for all routes
   read_timeout: 30    # seconds
   write_timeout: 30   # seconds
   shutdown_timeout: 10 # seconds

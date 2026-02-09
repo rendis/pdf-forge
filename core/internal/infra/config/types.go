@@ -1,6 +1,9 @@
 package config
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 // Config represents the complete application configuration.
 type Config struct {
@@ -61,11 +64,23 @@ func (c *Config) IsDummyAuth() bool {
 // ServerConfig holds HTTP server configuration.
 type ServerConfig struct {
 	Port            string     `mapstructure:"port"`
+	BasePath        string     `mapstructure:"base_path"`
 	ReadTimeout     int        `mapstructure:"read_timeout"`
 	WriteTimeout    int        `mapstructure:"write_timeout"`
 	ShutdownTimeout int        `mapstructure:"shutdown_timeout"`
 	SwaggerUI       bool       `mapstructure:"swagger_ui"`
 	CORS            CORSConfig `mapstructure:"cors"`
+}
+
+// NormalizedBasePath returns the base path with leading slash and no trailing slash.
+// Returns empty string if no base path is configured.
+func (s ServerConfig) NormalizedBasePath() string {
+	bp := strings.TrimSpace(s.BasePath)
+	if bp == "" || bp == "/" {
+		return ""
+	}
+	bp = "/" + strings.Trim(bp, "/")
+	return bp
 }
 
 // CORSConfig holds CORS configuration.

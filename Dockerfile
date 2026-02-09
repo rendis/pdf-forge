@@ -3,11 +3,12 @@
 
 # --- Stage 1: Build frontend ---
 FROM node:22-alpine AS frontend
+ARG BASE_PATH=
 WORKDIR /app
 COPY app/package.json app/pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY app/ .
-RUN pnpm build
+RUN VITE_BASE_PATH=${BASE_PATH} pnpm build
 
 # --- Stage 2: Build Go binary with embedded frontend ---
 FROM golang:1.25-alpine AS build

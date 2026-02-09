@@ -253,16 +253,17 @@ func (e *Engine) runWithSignals(ctx context.Context, app *appComponents) error {
 
 	// Startup banner
 	port := e.config.Server.Port
+	bp := e.config.Server.NormalizedBasePath()
 	fmt.Println()
 	fmt.Println("  pdf-forge is running")
 	fmt.Println()
-	fmt.Printf("  API:       http://localhost:%s\n", port)
+	fmt.Printf("  API:       http://localhost:%s%s/api\n", port, bp)
 	if e.config.Server.SwaggerUI {
-		fmt.Printf("  Swagger:   http://localhost:%s/swagger/index.html\n", port)
+		fmt.Printf("  Swagger:   http://localhost:%s%s/swagger/index.html\n", port, bp)
 	}
-	fmt.Printf("  Health:    http://localhost:%s/health\n", port)
+	fmt.Printf("  Health:    http://localhost:%s%s/health\n", port, bp)
 	if e.frontendFS != nil {
-		fmt.Printf("  Frontend:  http://localhost:%s\n", port)
+		fmt.Printf("  Frontend:  http://localhost:%s%s\n", port, bp)
 	} else {
 		fmt.Printf("  Frontend:  not embedded (run 'make embed-app' to embed, or 'make dev-app' for Vite on :3000)\n")
 	}

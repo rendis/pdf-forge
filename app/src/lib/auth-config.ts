@@ -2,8 +2,9 @@
  * Runtime auth configuration fetched from backend.
  */
 
-// API Base URL from environment variable
-const API_BASE_URL = `${(import.meta.env.VITE_API_URL || 'http://localhost:8080').replace(/\/$/, '')}/v1`
+// API Base URL derived from base path
+const BASE_PATH = (import.meta.env.VITE_BASE_PATH || '').replace(/\/$/, '')
+const API_BASE_URL = `${BASE_PATH}/api/v1`
 
 export interface PanelProvider {
   name: string

@@ -90,16 +90,23 @@ func NewHTTPServer(
 		engine.Use(mw)
 	}
 
+	// Base path group (e.g. "/pdf-forge" → all routes under /pdf-forge/*)
+	basePath := cfg.Server.NormalizedBasePath()
+	var base gin.IRouter = &engine.RouterGroup
+	if basePath != "" {
+		base = engine.Group(basePath)
+	}
+
 	// Health check endpoint (no auth required)
-	engine.GET("/health", healthHandler)
-	engine.GET("/ready", readyHandler)
+	base.GET("/health", healthHandler)
+	base.GET("/ready", readyHandler)
 
 	// Client config endpoint (no auth required)
-	engine.GET("/api/v1/config", clientConfigHandler(cfg))
+	base.GET("/api/v1/config", clientConfigHandler(cfg))
 
 	// Swagger UI (enabled via DOC_ENGINE_SERVER_SWAGGER_UI=true)
 	if cfg.Server.SwaggerUI {
-		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		base.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	// =====================================================
@@ -114,7 +121,7 @@ func NewHTTPServer(
 		requestTimeout = 28 * time.Second
 	}
 
-	v1 := engine.Group("/api/v1")
+	v1 := base.Group("/api/v1")
 	v1.Use(noCacheAPI())
 	v1.Use(middleware.Operation())
 	v1.Use(middleware.RequestTimeout(requestTimeout))
@@ -177,7 +184,7 @@ func NewHTTPServer(
 	// Auth priority: dummy > custom RenderAuthenticator > OIDC
 	// Custom authorization via engine.UseAPIMiddleware().
 	// =====================================================
-	renderGroup := engine.Group("/api/v1/workspace")
+	renderGroup := base.Group("/api/v1/workspace")
 	renderGroup.Use(noCacheAPI())
 	renderGroup.Use(middleware.Operation())
 	renderGroup.Use(middleware.RequestTimeout(requestTimeout))
@@ -200,7 +207,7 @@ func NewHTTPServer(
 	renderController.RegisterWorkspaceRoutes(renderGroup)
 
 	// NoRoute handler: serves embedded SPA or returns JSON 404
-	engine.NoRoute(spaHandler(frontendFS))
+	engine.NoRoute(spaHandler(frontendFS, basePath))
 
 	return &HTTPServer{
 		engine: engine,
@@ -283,6 +290,7 @@ func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 
 	type clientConfig struct {
 		DummyAuth     bool          `json:"dummyAuth"`
+		BasePath      string        `json:"basePath"`
 		PanelProvider *providerInfo `json:"panelProvider,omitempty"`
 	}
 
@@ -300,6 +308,7 @@ func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 
 	resp := clientConfig{
 		DummyAuth:     cfg.IsDummyAuth(),
+		BasePath:      cfg.Server.NormalizedBasePath(),
 		PanelProvider: panelProvider,
 	}
 
@@ -321,33 +330,47 @@ func noCacheAPI() gin.HandlerFunc {
 	}
 }
 
+// stripBasePath removes the basePath prefix from reqPath.
+// Returns the stripped path and true, or empty and false if the prefix doesn't match.
+func stripBasePath(reqPath, basePath string) (string, bool) {
+	if basePath == "" {
+		return reqPath, true
+	}
+	if !strings.HasPrefix(reqPath, basePath) {
+		return "", false
+	}
+	stripped := strings.TrimPrefix(reqPath, basePath)
+	if stripped == "" {
+		return "/", true
+	}
+	return stripped, true
+}
+
+// isBackendPath returns true if the path belongs to backend-owned prefixes.
+func isBackendPath(p string) bool {
+	return strings.HasPrefix(p, "/api/") || strings.HasPrefix(p, "/swagger/")
+}
+
 // spaHandler returns a Gin handler that serves the embedded SPA frontend.
 // Explicit routes (/health, /ready, /api/v1/*) are matched by Gin before NoRoute.
 // This handler only runs for unmatched paths: static files get served with cache
 // headers, unknown paths get index.html (SPA client-side routing).
-func spaHandler(fsys fs.FS) gin.HandlerFunc {
+// basePath is stripped from the request URL before filesystem lookup.
+func spaHandler(fsys fs.FS, basePath string) gin.HandlerFunc {
 	var fileServer http.Handler
 	if fsys != nil {
-		fileServer = http.FileServer(http.FS(fsys))
+		fileServer = http.StripPrefix(basePath, http.FileServer(http.FS(fsys)))
 	}
 
 	return func(c *gin.Context) {
-		reqPath := c.Request.URL.Path
-
-		// Backend-owned prefixes → JSON 404 (defensive, in case of sub-path misses)
-		if strings.HasPrefix(reqPath, "/api/") || strings.HasPrefix(reqPath, "/swagger/") {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-			return
-		}
-
-		// No frontend embedded → JSON 404
-		if fsys == nil {
+		stripped, ok := stripBasePath(c.Request.URL.Path, basePath)
+		if !ok || isBackendPath(stripped) || fsys == nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
 
 		// Normalize path for fs lookup
-		cleanPath := path.Clean(strings.TrimPrefix(reqPath, "/"))
+		cleanPath := path.Clean(strings.TrimPrefix(stripped, "/"))
 		if cleanPath == "." || cleanPath == "" {
 			cleanPath = "index.html"
 		}

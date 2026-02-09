@@ -2,9 +2,10 @@
 FROM node:22-alpine AS frontend
 RUN apk add --no-cache git
 ARG PDF_FORGE_VERSION=main
+ARG BASE_PATH=
 RUN git clone --depth 1 --branch ${PDF_FORGE_VERSION} https://github.com/rendis/pdf-forge.git /pdf-forge
 WORKDIR /pdf-forge/app
-RUN npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+RUN npm install -g pnpm && pnpm install --frozen-lockfile && VITE_BASE_PATH=${BASE_PATH} pnpm build
 
 # Stage 2: Build Go binary with embedded frontend
 FROM golang:1.25-alpine AS build

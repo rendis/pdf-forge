@@ -1,6 +1,8 @@
 -include .env
 export
 
+BASE_PATH ?=
+
 .PHONY: build build-core build-app embed-app run run-core dev dev-app migrate test lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
 
 # Build everything (frontend embedded in Go binary)
@@ -10,7 +12,7 @@ build-core:
 	$(MAKE) -C core build
 
 build-app:
-	$(MAKE) -C app build
+	VITE_BASE_PATH=$(BASE_PATH) $(MAKE) -C app build
 
 # Build frontend and copy to Go embed location
 embed-app: build-app
