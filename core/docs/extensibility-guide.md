@@ -28,25 +28,38 @@ flowchart LR
 3. Run the engine
 
 ```go
+// core/extensions/register.go
+package extensions
+
+import "github.com/rendis/pdf-forge/sdk"
+
+func Register(engine *sdk.Engine) {
+    engine.RegisterInjector(&CustomerNameInjector{})
+    engine.RegisterInjector(&InvoiceTotalInjector{})
+    engine.SetMapper(&MyMapper{})
+    engine.SetInitFunc(myInitFunc)
+}
+```
+
+```go
+// core/cmd/api/main.go
 package main
 
 import (
-    "github.com/rendis/pdf-forge/sdk"
+    "log/slog"
+    "os"
+
+    "github.com/rendis/pdf-forge/cmd/api/bootstrap"
+    "github.com/rendis/pdf-forge/extensions"
 )
 
 func main() {
-    engine := sdk.New(
-        sdk.WithConfigFile("config/app.yaml"),
-        sdk.WithI18nFile("config/injectors.i18n.yaml"),
-    )
-
-    engine.RegisterInjector(&CustomerNameInjector{})
-    engine.RegisterInjector(&InvoiceTotalInjector{})
-    engine.RegisterMapper(&MyMapper{})
-    engine.SetInitFunc(myInitFunc)
-
+    engine := bootstrap.NewWithConfig("settings/app.yaml").
+        SetI18nFilePath("settings/injectors.i18n.yaml")
+    extensions.Register(engine)
     if err := engine.Run(); err != nil {
-        log.Fatal(err)
+        slog.Error("failed to run engine", slog.String("error", err.Error()))
+        os.Exit(1)
     }
 }
 ```

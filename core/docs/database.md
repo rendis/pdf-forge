@@ -1714,4 +1714,4 @@ WHERE id IN (
 
 ### Migrations
 
-Database schema is managed via **golang-migrate** with embedded SQL files in `internal/migrations/sql/`. Run via `pdfforge-cli migrate` or `engine.RunMigrations()`.
+Database schema is managed via **golang-migrate** with embedded SQL files in `internal/migrations/sql/`. Run via `make migrate` or `engine.RunMigrations()`.

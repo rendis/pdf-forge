@@ -179,20 +179,10 @@ func localizedGroupName(locale string) string {
 ### Registration (CRM Integration)
 
 ```go
-func main() {
+// In core/extensions/register.go:
+func Register(engine *sdk.Engine) {
     crmClient := NewSalesforceClient(os.Getenv("SALESFORCE_TOKEN"))
-
-    engine := sdk.New(
-        sdk.WithConfigFile("config/app.yaml"),
-    )
-
-    engine.SetWorkspaceInjectableProvider(
-        extensions.NewCRMWorkspaceProvider(crmClient),
-    )
-
-    if err := engine.Run(); err != nil {
-        log.Fatal(err)
-    }
+    engine.SetWorkspaceInjectableProvider(NewCRMWorkspaceProvider(crmClient))
 }
 ```
 
@@ -355,25 +345,19 @@ func (i *ExternalAPIInjector) Resolve() (sdk.ResolveFunc, []string) {
 ### Registration (External Secrets)
 
 ```go
-func main() {
-    vaultStore, err := extensions.NewVaultSecretStore(
+// In core/extensions/register.go:
+func Register(engine *sdk.Engine) {
+    vaultStore, err := NewVaultSecretStore(
         os.Getenv("VAULT_ADDR"),
         os.Getenv("VAULT_TOKEN"),
     )
     if err != nil {
-        log.Fatal("vault init:", err)
+        slog.Error("vault init failed", slog.Any("error", err))
+        os.Exit(1)
     }
 
-    engine := sdk.New(
-        sdk.WithConfigFile("config/app.yaml"),
-    )
-
-    engine.SetInitFunc(extensions.NewSecretsInitFunc(vaultStore))
+    engine.SetInitFunc(NewSecretsInitFunc(vaultStore))
     engine.RegisterInjector(&injectors.ExternalAPIInjector{})
-
-    if err := engine.Run(); err != nil {
-        log.Fatal(err)
-    }
 }
 ```
 
@@ -513,16 +497,9 @@ func (m *ValidatingMapper) setDefaults(req *RenderRequest) {
 ### Registration (Request Validation)
 
 ```go
-func main() {
-    engine := sdk.New(
-        sdk.WithConfigFile("config/app.yaml"),
-    )
-
-    engine.RegisterMapper(&extensions.ValidatingMapper{})
-
-    if err := engine.Run(); err != nil {
-        log.Fatal(err)
-    }
+// In core/extensions/register.go:
+func Register(engine *sdk.Engine) {
+    engine.SetMapper(&ValidatingMapper{})
 }
 ```
 
@@ -875,17 +852,9 @@ func formatNumber(n float64, decimals int, thousandsSep, decimalSep string) stri
 ### Registration (Custom Formatting)
 
 ```go
-func main() {
-    engine := sdk.New(
-        sdk.WithConfigFile("config/app.yaml"),
-        sdk.WithI18nFile("config/injectors.i18n.yaml"),
-    )
-
+// In core/extensions/register.go:
+func Register(engine *sdk.Engine) {
     engine.RegisterInjector(&injectors.CurrencyInjector{})
-
-    if err := engine.Run(); err != nil {
-        log.Fatal(err)
-    }
 }
 ```
 
@@ -1047,29 +1016,22 @@ func APIKeyValidationMiddleware(validKeys []string) gin.HandlerFunc {
 ### Registration (Middleware)
 
 ```go
-func main() {
-    engine := sdk.New(
-        sdk.WithConfigFile("config/app.yaml"),
-    )
-
+// In core/extensions/register.go:
+func Register(engine *sdk.Engine) {
     // Global middleware (all routes, after CORS, before auth)
-    engine.UseMiddleware(extensions.RequestLoggerMiddleware())
-    engine.UseMiddleware(extensions.CustomHeadersMiddleware(map[string]string{
+    engine.UseMiddleware(RequestLoggerMiddleware())
+    engine.UseMiddleware(CustomHeadersMiddleware(map[string]string{
         "X-Powered-By":    "pdf-forge",
         "X-Frame-Options": "DENY",
     }))
 
     // API middleware (after auth, user context available)
-    engine.UseAPIMiddleware(extensions.RateLimitMiddleware(10, 20)) // 10 req/s, burst 20
-    engine.UseAPIMiddleware(extensions.TenantValidationMiddleware())
-    engine.UseAPIMiddleware(extensions.APIKeyValidationMiddleware([]string{
+    engine.UseAPIMiddleware(RateLimitMiddleware(10, 20)) // 10 req/s, burst 20
+    engine.UseAPIMiddleware(TenantValidationMiddleware())
+    engine.UseAPIMiddleware(APIKeyValidationMiddleware([]string{
         os.Getenv("CUSTOM_API_KEY_1"),
         os.Getenv("CUSTOM_API_KEY_2"),
     }))
-
-    if err := engine.Run(); err != nil {
-        log.Fatal(err)
-    }
 }
 ```
 

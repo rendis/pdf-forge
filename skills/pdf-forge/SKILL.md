@@ -26,17 +26,22 @@ Tenant → Workspace → Template → Version (DRAFT→PUBLISHED)
 ## Quick Start
 
 ```go
-engine := sdk.New(
-    sdk.WithConfigFile("config/app.yaml"),
-    sdk.WithI18nFile("config/injectors.i18n.yaml"),
-)
+// core/extensions/register.go
+func Register(engine *sdk.Engine) {
+    engine.RegisterInjector(&CustomerNameInjector{})
+    engine.SetMapper(&MyMapper{})
+    engine.SetInitFunc(MyInit())
+}
 
-engine.RegisterInjector(&CustomerNameInjector{})
-engine.SetMapper(&MyMapper{})
-engine.SetInitFunc(MyInit())
-
-if err := engine.Run(); err != nil {
-    log.Fatal(err)
+// core/cmd/api/main.go
+func main() {
+    engine := sdk.NewWithConfig("settings/app.yaml").
+        SetI18nFilePath("settings/injectors.i18n.yaml")
+    extensions.Register(engine)
+    if err := engine.Run(); err != nil {
+        slog.Error("failed to run engine", slog.String("error", err.Error()))
+        os.Exit(1)
+    }
 }
 ```
 
@@ -116,10 +121,14 @@ See **config-reference.md** for all YAML keys, env vars, and auth setup.
 ## CLI Commands
 
 ```bash
-pdfforge-cli              # Interactive menu
-pdfforge-cli init <name>  # Create new project
-pdfforge-cli doctor       # Check Typst, DB, auth
-pdfforge-cli migrate      # Run migrations
+make build      # Build backend + frontend
+make run        # Run API server
+make dev        # Hot reload backend (air)
+make migrate    # Apply database migrations
+make test       # Run tests
+make lint       # Run linter
+make swagger    # Regenerate OpenAPI spec
+make doctor     # Check system dependencies
 ```
 
 ## Common Mistakes
@@ -147,4 +156,3 @@ pdfforge-cli migrate      # Run migrations
 - **patterns-reference.md** - Logging, error handling, context, anti-patterns
 - **enterprise-scenarios.md** - CRM integration, Vault, validation patterns
 - **domain-reference.md** - Tenants, workspaces, roles, render flow
-- **scripts-reference.md** - Custom scripts system (`make run-script`)

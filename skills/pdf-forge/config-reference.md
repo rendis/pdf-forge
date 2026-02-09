@@ -9,11 +9,11 @@ Complete configuration reference for pdf-forge.
 3. **Built-in defaults** (lowest priority)
 
 ```go
-// Programmatic config takes precedence over file
-engine := sdk.New(
-    sdk.WithConfig(cfg),      // Wins if both set
-    sdk.WithConfigFile(path), // Fallback
-)
+// NewWithConfig loads from a specific file (env vars still override)
+engine := sdk.NewWithConfig("settings/app.yaml")
+
+// New() loads from standard locations
+engine := sdk.New()
 ```
 
 ## Environment Variables
@@ -217,23 +217,20 @@ max_concurrent = min(CPU_CORES, AVAILABLE_MEMORY_GB * 2)
 max_pool_size = max_concurrent + 5  # headroom for non-render queries
 ```
 
-## SDK Options
+## SDK / Engine API
 
 ```go
-// Load from YAML file (env vars override)
-sdk.WithConfigFile("config/app.yaml")
+// Default config (loads from standard locations + env vars)
+engine := sdk.New()
 
-// Provide config programmatically (takes precedence)
-sdk.WithConfig(&config.Config{
-    Server: config.ServerConfig{Port: "9000"},
-    // ...
-})
+// Load from specific YAML file (env vars override)
+engine := sdk.NewWithConfig("settings/app.yaml")
 
-// Load injector translations
-sdk.WithI18nFile("config/injectors.i18n.yaml")
+// Load injector translations (method chain)
+engine.SetI18nFilePath("settings/injectors.i18n.yaml")
 
-// Development: proxy frontend to Vite
-sdk.WithDevFrontendURL("http://localhost:5173")
+// Custom design tokens for PDF rendering
+engine.SetDesignTokens(sdk.DefaultDesignTokens())
 ```
 
 ## Runtime-Only Settings
@@ -244,4 +241,3 @@ These are NOT configurable via YAML or env vars:
 | ----------------- | ------------------------------- | ----------------------- |
 | `DummyAuth`       | Automatic when no `auth` config | Enables dummy auth mode |
 | `DummyAuthUserID` | Automatic                       | Seeded admin user ID    |
-| `DevFrontendURL`  | `sdk.WithDevFrontendURL()`      | Frontend dev proxy      |

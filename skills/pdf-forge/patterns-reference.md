@@ -315,7 +315,6 @@ func (i *MyInjector) Resolve() (sdk.ResolveFunc, []string) {
 | N+1 queries in injectors                  | Load once in `InitFunc`                   | Performance              |
 | Block in `OnStart`                        | Spawn goroutine for background processes  | Server never starts      |
 | Skip `OnShutdown` cleanup                 | Cancel context + wait for goroutine       | Orphaned processes       |
-| `engine.RegisterMapper()`                 | `engine.SetMapper()`                      | Deprecated naming        |
 
 ## Testing Patterns
 

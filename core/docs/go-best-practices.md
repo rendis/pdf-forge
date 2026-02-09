@@ -522,7 +522,8 @@ func main() {
 
     app := application.New(db, cfg)
     if err := app.Run(); err != nil {
-        log.Fatal(err)
+        slog.Error("failed to run", slog.String("error", err.Error()))
+        os.Exit(1)
     }
 }
 ```

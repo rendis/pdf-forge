@@ -71,7 +71,7 @@ readinessProbe:
 
 ## Preflight Checks
 
-On startup, the engine runs preflight checks via `pdfforge-cli doctor` or automatically:
+On startup, the engine runs preflight checks via `make doctor` or automatically:
 1. Typst CLI binary is accessible
 2. PostgreSQL connection is valid
 3. Database schema is up to date
