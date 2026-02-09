@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // ResolveFunc is the function that resolves the injector value.

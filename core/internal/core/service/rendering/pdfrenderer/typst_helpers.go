@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // --- Typst escaping ---

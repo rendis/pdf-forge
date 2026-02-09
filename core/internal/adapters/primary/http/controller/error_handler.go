@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // respondError sends an error response.

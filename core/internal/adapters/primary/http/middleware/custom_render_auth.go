@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 const renderAuthExtraKey = "render_auth_extra"

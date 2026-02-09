@@ -13,11 +13,11 @@ RUN VITE_BASE_PATH=${BASE_PATH} pnpm build
 # --- Stage 2: Build Go binary with embedded frontend ---
 FROM golang:1.25-alpine AS build
 WORKDIR /src
-COPY core/go.mod core/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY core/ .
-COPY --from=frontend /app/dist ./internal/frontend/dist/
-RUN CGO_ENABLED=0 go build -o /bin/server ./cmd/api
+COPY core/ ./core/
+COPY --from=frontend /app/dist ./core/internal/frontend/dist/
+RUN CGO_ENABLED=0 go build -o /bin/server ./core/cmd/api
 
 # --- Stage 3: Runtime ---
 FROM alpine:3.21

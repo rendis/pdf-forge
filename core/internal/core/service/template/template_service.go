@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	templateuc "github.com/rendis/pdf-forge/internal/core/usecase/template"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	templateuc "github.com/rendis/pdf-forge/core/internal/core/usecase/template"
 )
 
 // NewTemplateService creates a new template service.

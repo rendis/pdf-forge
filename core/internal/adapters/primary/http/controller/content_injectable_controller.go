@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	_ "github.com/rendis/pdf-forge/internal/adapters/primary/http/dto" // for swagger
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/mapper"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
-	injectableuc "github.com/rendis/pdf-forge/internal/core/usecase/injectable"
+	_ "github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto" // for swagger
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/mapper"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	injectableuc "github.com/rendis/pdf-forge/core/internal/core/usecase/injectable"
 )
 
 // ContentInjectableController handles injectable-related HTTP requests.

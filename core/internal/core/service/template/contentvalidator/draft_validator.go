@@ -1,8 +1,8 @@
 package contentvalidator
 
 import (
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // validateDraft performs minimal validation for draft mode.

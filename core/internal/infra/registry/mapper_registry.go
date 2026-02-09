@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // mapperRegistry implements port.MapperRegistry with thread-safe support.

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/rendis/pdf-forge/internal/core/port"
-	"github.com/rendis/pdf-forge/internal/infra/config"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/infra/config"
 )
 
 // injectorRegistry implements port.injectorRegistry with thread-safe support.

@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/rendis/pdf-forge/cmd/api/bootstrap"
-	"github.com/rendis/pdf-forge/extensions"
+	"github.com/rendis/pdf-forge/core/cmd/api/bootstrap"
+	"github.com/rendis/pdf-forge/core/extensions"
 )
 
 func main() {

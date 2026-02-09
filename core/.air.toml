@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
   entrypoint = "./tmp/main"
-  cmd = "go build -o ./tmp/main ./cmd/api"
+  cmd = "go build -C .. -o core/tmp/main ./core/cmd/api"
   delay = 1000
   exclude_dir = ["tmp", "docs", "node_modules"]
   exclude_regex = ["_test\\.go$"]

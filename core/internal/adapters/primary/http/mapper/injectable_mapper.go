@@ -1,9 +1,9 @@
 package mapper
 
 import (
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // InjectableMapper handles mapping between injectable entities and DTOs.

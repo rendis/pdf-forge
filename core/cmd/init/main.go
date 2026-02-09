@@ -2,9 +2,9 @@
 //
 // Usage:
 //
-//	go run github.com/rendis/pdf-forge/cmd/init@latest my-project
-//	go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
-//	go run github.com/rendis/pdf-forge/cmd/init@latest my-project --force
+//	go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project
+//	go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --module github.com/myorg/my-project
+//	go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --force
 package main
 
 import (
@@ -85,6 +85,21 @@ func main() {
 	}
 }
 
+type fileCounts struct {
+	created, skipped, overwritten int
+}
+
+func (c *fileCounts) track(action fileAction) {
+	switch action {
+	case actionCreated:
+		c.created++
+	case actionSkipped:
+		c.skipped++
+	case actionOverwritten:
+		c.overwritten++
+	}
+}
+
 func run(projectName, modulePath string, force bool) error {
 	outDir, err := filepath.Abs(projectName)
 	if err != nil {
@@ -92,77 +107,73 @@ func run(projectName, modulePath string, force bool) error {
 	}
 
 	displayName := filepath.Base(outDir)
-
-	data := templateData{
-		Module:      modulePath,
-		ProjectName: displayName,
-	}
+	data := templateData{Module: modulePath, ProjectName: displayName}
 
 	fmt.Printf("Initializing project %s...\n\n", displayName)
 
-	var created, skipped, overwritten int
-
-	countAction := func(action fileAction) {
-		switch action {
-		case actionCreated:
-			created++
-		case actionSkipped:
-			skipped++
-		case actionOverwritten:
-			overwritten++
-		}
+	counts, err := generateFiles(outDir, data, modulePath, force)
+	if err != nil {
+		return err
 	}
 
-	// Generate files from templates
+	printSummary(counts, force)
+	printNextSteps(displayName)
+	return nil
+}
+
+func generateFiles(outDir string, data templateData, modulePath string, force bool) (fileCounts, error) {
+	var counts fileCounts
+
 	for _, fm := range fileMapping {
 		dstPath := filepath.Join(outDir, fm.dst)
-
 		if err := os.MkdirAll(filepath.Dir(dstPath), 0o755); err != nil {
-			return fmt.Errorf("creating directory for %s: %w", fm.dst, err)
+			return counts, fmt.Errorf("creating directory for %s: %w", fm.dst, err)
 		}
-
 		action, err := writeTemplateFile(templateFS, fm.src, dstPath, data, force)
 		if err != nil {
-			return fmt.Errorf("%s: %w", fm.dst, err)
+			return counts, fmt.Errorf("%s: %w", fm.dst, err)
 		}
-
 		printAction(action, fm.dst)
-		countAction(action)
+		counts.track(action)
 	}
 
 	// frontend-dist/.gitkeep
 	gitkeepPath := filepath.Join(outDir, "frontend-dist", ".gitkeep")
 	if err := os.MkdirAll(filepath.Dir(gitkeepPath), 0o755); err != nil {
-		return fmt.Errorf("creating frontend-dist: %w", err)
+		return counts, fmt.Errorf("creating frontend-dist: %w", err)
 	}
 	action := writeStaticFile(gitkeepPath, nil, force)
 	printAction(action, "frontend-dist/.gitkeep")
-	countAction(action)
+	counts.track(action)
 
 	// go.mod
-	goModPath := filepath.Join(outDir, "go.mod")
 	goModContent := []byte(fmt.Sprintf("module %s\n\ngo 1.25\n\nrequire github.com/rendis/pdf-forge v0.0.0\n", modulePath))
-	action = writeStaticFile(goModPath, goModContent, force)
+	action = writeStaticFile(filepath.Join(outDir, "go.mod"), goModContent, force)
 	printAction(action, "go.mod")
-	countAction(action)
+	counts.track(action)
 
-	// Summary
+	return counts, nil
+}
+
+func printSummary(c fileCounts, force bool) {
 	fmt.Println()
 	parts := make([]string, 0, 3)
-	if created > 0 {
-		parts = append(parts, fmt.Sprintf("%d created", created))
+	if c.created > 0 {
+		parts = append(parts, fmt.Sprintf("%d created", c.created))
 	}
-	if overwritten > 0 {
-		parts = append(parts, fmt.Sprintf("%d overwritten", overwritten))
+	if c.overwritten > 0 {
+		parts = append(parts, fmt.Sprintf("%d overwritten", c.overwritten))
 	}
-	if skipped > 0 {
-		parts = append(parts, fmt.Sprintf("%d skipped", skipped))
+	if c.skipped > 0 {
+		parts = append(parts, fmt.Sprintf("%d skipped", c.skipped))
 	}
 	fmt.Printf("Done: %s.\n", strings.Join(parts, ", "))
-	if skipped > 0 && !force {
+	if c.skipped > 0 && !force {
 		fmt.Println("Use --force to overwrite existing files.")
 	}
+}
 
+func printNextSteps(displayName string) {
 	fmt.Println()
 	fmt.Println("Next steps:")
 	fmt.Println()
@@ -177,14 +188,12 @@ func run(projectName, modulePath string, force bool) error {
 	fmt.Println("  make migrate")
 	fmt.Println("  make dev")
 	fmt.Println()
-
-	return nil
 }
 
 type fileAction int
 
 const (
-	actionCreated    fileAction = iota
+	actionCreated fileAction = iota
 	actionSkipped
 	actionOverwritten
 )
@@ -241,7 +250,7 @@ func writeStaticFile(path string, content []byte, force bool) fileAction {
 	if content == nil {
 		content = []byte{}
 	}
-	if err := os.WriteFile(path, content, 0o644); err != nil {
+	if err := os.WriteFile(path, content, 0o600); err != nil {
 		return actionCreated // best effort
 	}
 
@@ -257,7 +266,7 @@ func fileExists(path string) bool {
 }
 
 func printUsage() {
-	fmt.Println("Usage: go run github.com/rendis/pdf-forge/cmd/init@latest <project-name> [flags]")
+	fmt.Println("Usage: go run github.com/rendis/pdf-forge/core/cmd/init@latest <project-name> [flags]")
 	fmt.Println()
 	fmt.Println("Creates a new pdf-forge project with all necessary boilerplate.")
 	fmt.Println("Safe to run in existing projects — skips files that already exist.")
@@ -270,7 +279,7 @@ func printUsage() {
 	fmt.Println("  --force           Overwrite existing files")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  go run github.com/rendis/pdf-forge/cmd/init@latest my-docs")
-	fmt.Println("  go run github.com/rendis/pdf-forge/cmd/init@latest my-docs --module github.com/myorg/my-docs")
-	fmt.Println("  go run github.com/rendis/pdf-forge/cmd/init@latest my-docs --force")
+	fmt.Println("  go run github.com/rendis/pdf-forge/core/cmd/init@latest my-docs")
+	fmt.Println("  go run github.com/rendis/pdf-forge/core/cmd/init@latest my-docs --module github.com/myorg/my-docs")
+	fmt.Println("  go run github.com/rendis/pdf-forge/core/cmd/init@latest my-docs --force")
 }

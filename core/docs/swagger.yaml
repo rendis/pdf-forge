@@ -1,6 +1,5 @@
-basePath: /api/v1
 definitions:
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTagsRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTagsRequest:
     properties:
       tagIds:
         items:
@@ -10,7 +9,7 @@ definitions:
     required:
     - tagIds
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTenantMemberRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTenantMemberRequest:
     properties:
       email:
         type: string
@@ -24,7 +23,7 @@ definitions:
     - fullName
     - role
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddVersionInjectableRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddVersionInjectableRequest:
     properties:
       defaultValue:
         type: string
@@ -35,7 +34,7 @@ definitions:
     required:
     - injectableDefinitionId
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeRequest:
     properties:
       documentTypeId:
         description: nil to unassign
@@ -44,14 +43,14 @@ definitions:
         description: true = reassign even if type is used by another template
         type: boolean
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeResponse:
     properties:
       conflict:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateConflictInfo'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateConflictInfo'
       template:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest:
     properties:
       email:
         type: string
@@ -68,7 +67,7 @@ definitions:
     - fullName
     - role
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleRequest:
     properties:
       role:
         enum:
@@ -78,7 +77,7 @@ definitions:
     required:
     - role
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkKeysRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkKeysRequest:
     properties:
       keys:
         items:
@@ -88,25 +87,25 @@ definitions:
     required:
     - keys
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationError:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationError:
     properties:
       error:
         type: string
       key:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse:
     properties:
       failed:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationError'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationError'
         type: array
       succeeded:
         items:
           type: string
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest:
     properties:
       keys:
         items:
@@ -127,7 +126,7 @@ definitions:
     - keys
     - scopeType
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CloneTemplateRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CloneTemplateRequest:
     properties:
       newTitle:
         maxLength: 255
@@ -141,7 +140,7 @@ definitions:
     - newTitle
     - versionId
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateAssignmentRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateAssignmentRequest:
     properties:
       scopeType:
         enum:
@@ -156,7 +155,7 @@ definitions:
     required:
     - scopeType
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateDocumentTypeRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateDocumentTypeRequest:
     properties:
       code:
         maxLength: 50
@@ -174,7 +173,7 @@ definitions:
     - code
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateFolderRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateFolderRequest:
     properties:
       name:
         maxLength: 255
@@ -185,7 +184,7 @@ definitions:
     required:
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTagRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTagRequest:
     properties:
       color:
         type: string
@@ -197,7 +196,7 @@ definitions:
     - color
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTemplateRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTemplateRequest:
     properties:
       contentStructure:
         description: Initial content for the first version
@@ -215,7 +214,7 @@ definitions:
     required:
     - title
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTenantRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTenantRequest:
     properties:
       code:
         maxLength: 10
@@ -232,7 +231,7 @@ definitions:
     - code
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest:
     properties:
       description:
         type: string
@@ -246,7 +245,7 @@ definitions:
     - name
     - sourceVersionId
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionRequest:
     properties:
       description:
         type: string
@@ -257,7 +256,7 @@ definitions:
     required:
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest:
     properties:
       defaultValue:
         type: string
@@ -279,7 +278,7 @@ definitions:
     - key
     - label
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceRequest:
     properties:
       code:
         maxLength: 50
@@ -301,7 +300,7 @@ definitions:
     - name
     - type
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest:
     properties:
       force:
         description: Delete even if templates are assigned
@@ -310,7 +309,7 @@ definitions:
         description: Replace with another type before deleting
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse:
     properties:
       canReplace:
         description: True if replacement is possible
@@ -320,10 +319,10 @@ definitions:
       templates:
         description: Templates using this type (if not deleted)
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse'
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeListItemResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeListItemResponse:
     properties:
       code:
         type: string
@@ -335,6 +334,9 @@ definitions:
         type: object
       id:
         type: string
+      isGlobal:
+        description: True if from SYS tenant (read-only for other tenants)
+        type: boolean
       name:
         additionalProperties:
           type: string
@@ -346,7 +348,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse:
     properties:
       code:
         type: string
@@ -358,6 +360,9 @@ definitions:
         type: object
       id:
         type: string
+      isGlobal:
+        description: True if from SYS tenant (read-only for other tenants)
+        type: boolean
       name:
         additionalProperties:
           type: string
@@ -367,7 +372,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse:
     properties:
       id:
         type: string
@@ -378,7 +383,7 @@ definitions:
       workspaceName:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse:
     properties:
       code:
         type: string
@@ -387,7 +392,7 @@ definitions:
       message:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse:
     properties:
       childFolderCount:
         type: integer
@@ -406,11 +411,11 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderTreeResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderTreeResponse:
     properties:
       children:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderTreeResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderTreeResponse'
         type: array
       createdAt:
         type: string
@@ -425,7 +430,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FormatConfigResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse:
     properties:
       default:
         type: string
@@ -434,7 +439,7 @@ definitions:
           type: string
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.GroupResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GroupResponse:
     properties:
       icon:
         type: string
@@ -445,7 +450,7 @@ definitions:
       order:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse:
     properties:
       createdAt:
         type: string
@@ -454,7 +459,7 @@ definitions:
       description:
         type: string
       formatConfig:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FormatConfigResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse'
       group:
         type: string
       id:
@@ -475,13 +480,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InternalRenderRequest:
-    properties:
-      injectables:
-        additionalProperties: {}
-        type: object
-    type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InviteMemberRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InviteMemberRequest:
     properties:
       email:
         type: string
@@ -495,92 +494,92 @@ definitions:
     - fullName
     - role
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListAssignmentsResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListAssignmentsResponse:
     properties:
       assignments:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse'
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListInjectablesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListInjectablesResponse:
     properties:
       groups:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.GroupResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GroupResponse'
         type: array
       items:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse'
         type: array
       total:
         type: integer
     type: object
-  ? github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_FolderResponse
+  ? github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_FolderResponse
   : properties:
       count:
         type: integer
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
         type: array
     type: object
-  ? github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_MemberResponse
+  ? github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_MemberResponse
   : properties:
       count:
         type: integer
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse'
         type: array
     type: object
-  ? github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_SystemRoleWithUserResponse
+  ? github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_SystemRoleWithUserResponse
   : properties:
       count:
         type: integer
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleWithUserResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleWithUserResponse'
         type: array
     type: object
-  ? github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TagWithCountResponse
+  ? github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TagWithCountResponse
   : properties:
       count:
         type: integer
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagWithCountResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagWithCountResponse'
         type: array
     type: object
-  ? github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TenantMemberResponse
+  ? github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TenantMemberResponse
   : properties:
       count:
         type: integer
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse'
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListSystemInjectablesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListSystemInjectablesResponse:
     properties:
       injectables:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableResponse'
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplateVersionsResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplateVersionsResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse'
         type: array
       total:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplatesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplatesResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateListItemResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateListItemResponse'
         type: array
       limit:
         type: integer
@@ -589,16 +588,16 @@ definitions:
       total:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
         type: array
       total:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse:
     properties:
       createdAt:
         type: string
@@ -611,11 +610,11 @@ definitions:
       role:
         type: string
       user:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberUserResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberUserResponse'
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberUserResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberUserResponse:
     properties:
       email:
         type: string
@@ -626,55 +625,55 @@ definitions:
       status:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MoveFolderRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MoveFolderRequest:
     properties:
       newParentId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MyRolesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MyRolesResponse:
     properties:
       roles:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RoleEntry'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RoleEntry'
         type: array
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeListItemResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeListItemResponse'
         type: array
       pagination:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         type: array
       pagination:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantWithRoleResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantWithRoleResponse'
         type: array
       pagination:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse'
         type: array
       pagination:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta:
     properties:
       page:
         type: integer
@@ -685,7 +684,7 @@ definitions:
       totalPages:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RecordAccessRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RecordAccessRequest:
     properties:
       entityId:
         type: string
@@ -695,16 +694,19 @@ definitions:
     - entityId
     - entityType
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RenderPreviewRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderPreviewRequest:
     properties:
       injectables:
         additionalProperties: {}
-        description: |-
-          Injectables contains the values to inject into the document.
-          Keys are variable IDs, values are the actual values.
         type: object
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RoleEntry:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderRequest:
+    properties:
+      injectables:
+        additionalProperties: {}
+        type: object
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RoleEntry:
     properties:
       resourceId:
         description: null for SYSTEM, UUID for TENANT/WORKSPACE
@@ -716,21 +718,21 @@ definitions:
         description: SYSTEM, TENANT, or WORKSPACE
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ScheduleArchiveRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ScheduleArchiveRequest:
     properties:
       archiveAt:
         type: string
     required:
     - archiveAt
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SchedulePublishRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SchedulePublishRequest:
     properties:
       publishAt:
         type: string
     required:
     - publishAt
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse:
     properties:
       createdAt:
         type: string
@@ -751,7 +753,7 @@ definitions:
       workspaceName:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableResponse:
     properties:
       dataType:
         type: string
@@ -772,7 +774,7 @@ definitions:
           type: string
         type: object
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleResponse:
     properties:
       createdAt:
         type: string
@@ -785,7 +787,7 @@ definitions:
       userId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleWithUserResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleWithUserResponse:
     properties:
       createdAt:
         type: string
@@ -796,11 +798,11 @@ definitions:
       role:
         type: string
       user:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UserBriefResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UserBriefResponse'
       userId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse:
     properties:
       color:
         type: string
@@ -815,7 +817,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagSimpleResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagSimpleResponse:
     properties:
       color:
         type: string
@@ -824,7 +826,7 @@ definitions:
       name:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagWithCountResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagWithCountResponse:
     properties:
       color:
         type: string
@@ -841,21 +843,21 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateConflictInfo:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateConflictInfo:
     properties:
       id:
         type: string
       title:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateCreateResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateCreateResponse:
     properties:
       initialVersion:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse'
       template:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateListItemResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateListItemResponse:
     properties:
       createdAt:
         type: string
@@ -875,7 +877,7 @@ definitions:
         type: integer
       tags:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagSimpleResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagSimpleResponse'
         type: array
       title:
         type: string
@@ -886,7 +888,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse:
     properties:
       createdAt:
         type: string
@@ -909,7 +911,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionDetailResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionDetailResponse:
     properties:
       archivedAt:
         type: string
@@ -929,7 +931,7 @@ definitions:
         type: string
       injectables:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse'
         type: array
       name:
         type: string
@@ -950,14 +952,14 @@ definitions:
       versionNumber:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse:
     properties:
       createdAt:
         type: string
       defaultValue:
         type: string
       definition:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse'
       id:
         type: string
       isRequired:
@@ -965,7 +967,7 @@ definitions:
       templateVersionId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse:
     properties:
       archivedAt:
         type: string
@@ -998,7 +1000,7 @@ definitions:
       versionNumber:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse:
     properties:
       archivedAt:
         type: string
@@ -1014,7 +1016,7 @@ definitions:
         type: string
       injectables:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse'
         type: array
       name:
         type: string
@@ -1035,7 +1037,7 @@ definitions:
       versionNumber:
         type: integer
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse:
     properties:
       createdAt:
         type: string
@@ -1046,7 +1048,7 @@ definitions:
           type: string
         type: object
       folder:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
       folderId:
         type: string
       id:
@@ -1055,7 +1057,7 @@ definitions:
         type: boolean
       tags:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse'
         type: array
       title:
         type: string
@@ -1063,12 +1065,12 @@ definitions:
         type: string
       versions:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse'
         type: array
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithDetailsResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithDetailsResponse:
     properties:
       createdAt:
         type: string
@@ -1079,7 +1081,7 @@ definitions:
           type: string
         type: object
       folder:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
       folderId:
         type: string
       id:
@@ -1087,10 +1089,10 @@ definitions:
       isPublicLibrary:
         type: boolean
       publishedVersion:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionDetailResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionDetailResponse'
       tags:
         items:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse'
         type: array
       title:
         type: string
@@ -1099,7 +1101,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse:
     properties:
       createdAt:
         type: string
@@ -1112,9 +1114,9 @@ definitions:
       tenantId:
         type: string
       user:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberUserResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberUserResponse'
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberUserResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberUserResponse:
     properties:
       email:
         type: string
@@ -1125,7 +1127,7 @@ definitions:
       status:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse:
     properties:
       code:
         type: string
@@ -1147,7 +1149,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantWithRoleResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantWithRoleResponse:
     properties:
       code:
         type: string
@@ -1173,7 +1175,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest:
     properties:
       description:
         additionalProperties:
@@ -1186,7 +1188,7 @@ definitions:
     required:
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateFolderRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateFolderRequest:
     properties:
       name:
         maxLength: 255
@@ -1195,14 +1197,14 @@ definitions:
     required:
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateMemberRoleRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateMemberRoleRequest:
     properties:
       role:
         type: string
     required:
     - role
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTagRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTagRequest:
     properties:
       color:
         type: string
@@ -1214,7 +1216,7 @@ definitions:
     - color
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTemplateRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTemplateRequest:
     properties:
       folderId:
         description: Use "root" to move template to root folder
@@ -1226,14 +1228,14 @@ definitions:
         minLength: 1
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest:
     properties:
       role:
         type: string
     required:
     - role
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantRequest:
     properties:
       description:
         maxLength: 500
@@ -1248,7 +1250,7 @@ definitions:
     required:
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantStatusRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantStatusRequest:
     properties:
       status:
         enum:
@@ -1259,7 +1261,7 @@ definitions:
     required:
     - status
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateVersionRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateVersionRequest:
     properties:
       contentStructure:
         items:
@@ -1272,7 +1274,7 @@ definitions:
         minLength: 1
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest:
     properties:
       defaultValue:
         type: string
@@ -1290,7 +1292,7 @@ definitions:
         additionalProperties: {}
         type: object
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceRequest:
     properties:
       code:
         maxLength: 50
@@ -1304,7 +1306,7 @@ definitions:
     - code
     - name
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest:
     properties:
       status:
         enum:
@@ -1315,7 +1317,7 @@ definitions:
     required:
     - status
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UserBriefResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UserBriefResponse:
     properties:
       email:
         type: string
@@ -1326,7 +1328,7 @@ definitions:
       status:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse:
     properties:
       createdAt:
         type: string
@@ -1337,7 +1339,7 @@ definitions:
       description:
         type: string
       formatConfig:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FormatConfigResponse'
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse'
       id:
         type: string
       isActive:
@@ -1356,7 +1358,7 @@ definitions:
       workspaceId:
         type: string
     type: object
-  github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse:
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse:
     properties:
       code:
         type: string
@@ -1377,17 +1379,8 @@ definitions:
       updatedAt:
         type: string
     type: object
-host: localhost:8080
 info:
-  contact:
-    email: support@example.com
-    name: API Support
-  description: Document Assembly System API - Template management and document generation
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  title: Doc Engine API
-  version: "1.0"
+  contact: {}
 paths:
   /api/v1/content/injectables:
     get:
@@ -1409,11 +1402,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListInjectablesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListInjectablesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List injectables
       tags:
       - Injectables
@@ -1433,11 +1426,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get injectable
       tags:
       - Injectables
@@ -1485,11 +1478,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplatesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplatesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List templates
       tags:
       - Templates
@@ -1507,22 +1500,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTemplateRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTemplateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateCreateResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Create template
       tags:
       - Templates
@@ -1549,7 +1542,7 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Delete template
       tags:
       - Templates
@@ -1573,11 +1566,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithDetailsResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithDetailsResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get template
       tags:
       - Templates
@@ -1603,22 +1596,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTemplateRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTemplateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update template
       tags:
       - Templates
@@ -1643,11 +1636,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get template with all versions
       tags:
       - Templates
@@ -1674,27 +1667,27 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CloneTemplateRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CloneTemplateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateCreateResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateCreateResponse'
         "400":
           description: Bad request (invalid versionId, version doesn't belong to template,
             validation error)
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Template or version not found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Template title already exists
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Clone template from specific version
       tags:
       - Templates
@@ -1722,26 +1715,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Assign document type to template
       tags:
       - Templates
@@ -1765,7 +1758,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTagsRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTagsRequest'
       produces:
       - application/json
       responses:
@@ -1774,11 +1767,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Add tags to template
       tags:
       - Templates
@@ -1810,7 +1803,7 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Remove tag from template
       tags:
       - Templates
@@ -1835,11 +1828,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplateVersionsResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplateVersionsResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List template versions
       tags:
       - Template Versions
@@ -1862,22 +1855,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Create template version
       tags:
       - Template Versions
@@ -1909,11 +1902,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Delete template version
       tags:
       - Template Versions
@@ -1942,11 +1935,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionDetailResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionDetailResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get template version
       tags:
       - Template Versions
@@ -1974,22 +1967,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateVersionRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateVersionRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update template version
       tags:
       - Template Versions
@@ -2021,11 +2014,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Archive template version
       tags:
       - Template Versions
@@ -2054,22 +2047,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddVersionInjectableRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddVersionInjectableRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Add injectable to version
       tags:
       - Template Versions
@@ -2106,7 +2099,7 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Remove injectable from version
       tags:
       - Template Versions
@@ -2135,7 +2128,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RenderPreviewRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderPreviewRequest'
       produces:
       - application/pdf
       responses:
@@ -2146,15 +2139,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Generate preview PDF
       tags:
       - Template Versions
@@ -2186,11 +2179,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Publish template version
       tags:
       - Template Versions
@@ -2222,11 +2215,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Cancel scheduled action
       tags:
       - Template Versions
@@ -2255,7 +2248,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ScheduleArchiveRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ScheduleArchiveRequest'
       produces:
       - application/json
       responses:
@@ -2264,11 +2257,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Schedule version archival
       tags:
       - Template Versions
@@ -2297,7 +2290,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SchedulePublishRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SchedulePublishRequest'
       produces:
       - application/json
       responses:
@@ -2306,11 +2299,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Schedule version publication
       tags:
       - Template Versions
@@ -2334,22 +2327,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Create version from existing
       tags:
       - Template Versions
@@ -2365,7 +2358,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RecordAccessRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RecordAccessRequest'
       produces:
       - application/json
       responses:
@@ -2374,15 +2367,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Record resource access
@@ -2411,11 +2404,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MyRolesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MyRolesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get my roles
@@ -2448,11 +2441,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List my tenants with pagination and optional search
@@ -2468,15 +2461,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListSystemInjectablesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListSystemInjectablesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List system injectables
@@ -2500,15 +2493,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Activate system injectable
@@ -2530,19 +2523,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListAssignmentsResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListAssignmentsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List injectable assignments
@@ -2562,30 +2555,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateAssignmentRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateAssignmentRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create injectable assignment
@@ -2614,15 +2607,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete injectable assignment
@@ -2651,15 +2644,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Exclude injectable assignment
@@ -2688,15 +2681,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Include injectable assignment
@@ -2720,15 +2713,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Deactivate system injectable
@@ -2744,26 +2737,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkKeysRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkKeysRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Bulk activate system injectables
@@ -2779,26 +2772,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Bulk delete scoped assignments
@@ -2813,26 +2806,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Bulk create scoped assignments
@@ -2848,26 +2841,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkKeysRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkKeysRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Bulk deactivate system injectables
@@ -2898,15 +2891,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List tenants with pagination
@@ -2921,30 +2914,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTenantRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTenantRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create tenant
@@ -2968,15 +2961,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete tenant
@@ -2997,19 +2990,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get tenant
@@ -3029,30 +3022,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update tenant
@@ -3073,30 +3066,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantStatusRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantStatusRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update tenant status
@@ -3132,19 +3125,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List tenant workspaces
@@ -3160,15 +3153,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_SystemRoleWithUserResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_SystemRoleWithUserResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List users with system roles
@@ -3183,26 +3176,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleWithUserResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleWithUserResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Assign system role by email
@@ -3226,15 +3219,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Revoke system role
@@ -3254,30 +3247,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Assign system role
@@ -3299,19 +3292,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get current tenant
@@ -3331,30 +3324,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update current tenant
@@ -3390,15 +3383,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List document types
@@ -3418,30 +3411,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateDocumentTypeRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateDocumentTypeRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create document type
@@ -3466,30 +3459,30 @@ paths:
         in: body
         name: request
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete document type
@@ -3515,19 +3508,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get document type by ID
@@ -3552,30 +3545,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update document type
@@ -3602,19 +3595,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get document type by code
@@ -3641,19 +3634,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplatesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplatesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List templates by document type code
@@ -3675,15 +3668,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TenantMemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TenantMemberResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List tenant members
@@ -3703,30 +3696,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTenantMemberRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTenantMemberRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Add tenant member
@@ -3755,19 +3748,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove tenant member
@@ -3793,19 +3786,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get tenant member
@@ -3830,30 +3823,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update tenant member role
@@ -3893,15 +3886,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List workspaces with pagination and optional search
@@ -3921,26 +3914,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create workspace in tenant
@@ -3969,15 +3962,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete workspace from tenant
@@ -4003,30 +3996,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update workspace status
@@ -4050,11 +4043,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Archive current workspace
       tags:
       - Workspaces
@@ -4073,15 +4066,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get current workspace
       tags:
       - Workspaces
@@ -4099,25 +4092,81 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update current workspace
       tags:
       - Workspaces
+  /api/v1/workspace/document-types/{code}/render:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Document type code
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: 'Content disposition: inline (default) or attachment'
+        in: query
+        name: disposition
+        type: string
+      - description: Injectable values
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Render PDF by document type
+      tags:
+      - Workspace - Render
   /api/v1/workspace/folders:
     get:
       consumes:
@@ -4134,15 +4183,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_FolderResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_FolderResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List folders
       tags:
       - Folders
@@ -4160,18 +4209,18 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateFolderRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateFolderRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Create folder
       tags:
       - Folders
@@ -4198,11 +4247,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Delete folder
       tags:
       - Folders
@@ -4226,15 +4275,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get folder
       tags:
       - Folders
@@ -4257,22 +4306,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateFolderRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateFolderRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update folder
       tags:
       - Folders
@@ -4296,22 +4345,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MoveFolderRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MoveFolderRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Move folder
       tags:
       - Folders
@@ -4332,16 +4381,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderTreeResponse'
+              $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderTreeResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get folder tree
       tags:
       - Folders
@@ -4361,15 +4410,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List workspace injectables
       tags:
       - Injectables
@@ -4387,18 +4436,18 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Create workspace injectable
       tags:
       - Injectables
@@ -4425,11 +4474,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Delete workspace injectable
       tags:
       - Injectables
@@ -4453,15 +4502,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get workspace injectable
       tags:
       - Injectables
@@ -4484,22 +4533,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update workspace injectable
       tags:
       - Injectables
@@ -4524,15 +4573,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Activate injectable
       tags:
       - Injectables
@@ -4557,15 +4606,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Deactivate injectable
       tags:
       - Injectables
@@ -4585,15 +4634,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_MemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_MemberResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List workspace members
       tags:
       - Members
@@ -4611,22 +4660,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InviteMemberRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InviteMemberRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Invite member
       tags:
       - Members
@@ -4653,11 +4702,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Remove member
       tags:
       - Members
@@ -4681,15 +4730,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get member
       tags:
       - Members
@@ -4712,22 +4761,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateMemberRoleRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateMemberRoleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update member role
       tags:
       - Members
@@ -4747,15 +4796,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TagWithCountResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TagWithCountResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: List tags
       tags:
       - Tags
@@ -4773,18 +4822,18 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTagRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTagRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Create tag
       tags:
       - Tags
@@ -4811,11 +4860,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Delete tag
       tags:
       - Tags
@@ -4839,15 +4888,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Get tag
       tags:
       - Tags
@@ -4870,85 +4919,23 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTagRequest'
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTagRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Update tag
       tags:
       - Tags
-  /internal/render/{tenantCode}/{workspaceCode}/{templateTypeCode}:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Internal API Key
-        in: header
-        name: X-API-Key
-        required: true
-        type: string
-      - description: Tenant code
-        in: path
-        name: tenantCode
-        required: true
-        type: string
-      - description: Workspace code
-        in: path
-        name: workspaceCode
-        required: true
-        type: string
-      - description: Document type code
-        in: path
-        name: templateTypeCode
-        required: true
-        type: string
-      - description: 'Content disposition: inline (default) or attachment'
-        in: query
-        name: disposition
-        type: string
-      - description: Injectable values
-        in: body
-        name: request
-        schema:
-          $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InternalRenderRequest'
-      produces:
-      - application/pdf
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: file
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse'
-      summary: Render PDF by document type codes
-      tags:
-      - Internal
-securityDefinitions:
-  BearerAuth:
-    description: Type "Bearer" followed by a space and JWT token
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

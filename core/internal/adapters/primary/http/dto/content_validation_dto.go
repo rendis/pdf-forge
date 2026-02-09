@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/rendis/pdf-forge/internal/core/entity"
+import "github.com/rendis/pdf-forge/core/internal/core/entity"
 
 // ContentValidationErrorDTO represents a single content validation error.
 type ContentValidationErrorDTO struct {

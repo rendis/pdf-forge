@@ -1,9 +1,9 @@
 package mapper
 
 import (
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	cataloguc "github.com/rendis/pdf-forge/internal/core/usecase/catalog"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	cataloguc "github.com/rendis/pdf-forge/core/internal/core/usecase/catalog"
 )
 
 // TagMapper handles mapping between tag entities and DTOs.

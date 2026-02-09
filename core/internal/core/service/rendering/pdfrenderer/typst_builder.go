@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
 )
 
 // pixelsToPoints converts pixels (at 96 DPI) to typographic points.

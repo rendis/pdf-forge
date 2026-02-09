@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
 )
 
 // RenderPreviewRequest contains the data needed to render a preview PDF.

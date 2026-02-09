@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/mapper"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
-	templateuc "github.com/rendis/pdf-forge/internal/core/usecase/template"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/mapper"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	templateuc "github.com/rendis/pdf-forge/core/internal/core/usecase/template"
 )
 
 // TemplateVersionController handles template version HTTP requests.

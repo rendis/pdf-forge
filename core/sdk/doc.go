@@ -6,7 +6,7 @@
 //
 // Example usage:
 //
-//	import "github.com/rendis/pdf-forge/sdk"
+//	import "github.com/rendis/pdf-forge/core/sdk"
 //
 //	engine := sdk.New()
 //	engine.RegisterInjector(&MyInjector{})

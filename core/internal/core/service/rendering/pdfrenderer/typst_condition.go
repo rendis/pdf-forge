@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
 )
 
 // evaluateCondition and all comparison logic is identical to NodeConverter.

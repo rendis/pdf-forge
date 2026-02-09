@@ -11,12 +11,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/core/port"
-	"github.com/rendis/pdf-forge/internal/core/service/rendering/pdfrenderer"
-	"github.com/rendis/pdf-forge/internal/frontend"
-	"github.com/rendis/pdf-forge/internal/infra/config"
-	"github.com/rendis/pdf-forge/internal/infra/logging"
-	"github.com/rendis/pdf-forge/internal/migrations"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/service/rendering/pdfrenderer"
+	"github.com/rendis/pdf-forge/core/internal/frontend"
+	"github.com/rendis/pdf-forge/core/internal/infra/config"
+	"github.com/rendis/pdf-forge/core/internal/infra/logging"
+	"github.com/rendis/pdf-forge/core/internal/migrations"
 )
 
 // Engine is the main entry point for pdf-forge.

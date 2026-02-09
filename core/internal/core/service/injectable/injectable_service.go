@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	injectableuc "github.com/rendis/pdf-forge/internal/core/usecase/injectable"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	injectableuc "github.com/rendis/pdf-forge/core/internal/core/usecase/injectable"
 )
 
 // Ensure InjectableService implements InjectableUseCase.

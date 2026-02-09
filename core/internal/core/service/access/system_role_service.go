@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	accessuc "github.com/rendis/pdf-forge/internal/core/usecase/access"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	accessuc "github.com/rendis/pdf-forge/core/internal/core/usecase/access"
 )
 
 // NewSystemRoleService creates a new system role service.

@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // FolderRepository defines the interface for folder data access.

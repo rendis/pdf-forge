@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // ExampleValueInjector demonstrates a string ValueType injector.

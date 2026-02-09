@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // CreateVersionCommand represents the command to create a new template version.

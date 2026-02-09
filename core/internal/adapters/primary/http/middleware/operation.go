@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/rendis/pdf-forge/internal/infra/logging"
+	"github.com/rendis/pdf-forge/core/internal/infra/logging"
 )
 
 const (

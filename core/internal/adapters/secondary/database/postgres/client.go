@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/rendis/pdf-forge/internal/infra/config"
+	"github.com/rendis/pdf-forge/core/internal/infra/config"
 )
 
 // NewPool creates a new PostgreSQL connection pool.

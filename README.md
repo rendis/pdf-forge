@@ -104,7 +104,7 @@ Create a new project using the SDK — no fork needed:
 
 ```bash
 # 1. Scaffold a new project
-go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
+go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --module github.com/myorg/my-project
 
 # 2. Set up
 cd my-project
@@ -236,10 +236,10 @@ docker-compose.yaml              ← Full stack: postgres + api + web
 
 ## SDK (Public API)
 
-External consumers import `github.com/rendis/pdf-forge/sdk` — a single package that re-exports all extension types without exposing internal implementation:
+External consumers import `github.com/rendis/pdf-forge/core/sdk` — a single package that re-exports all extension types without exposing internal implementation:
 
 ```go
-import "github.com/rendis/pdf-forge/sdk"
+import "github.com/rendis/pdf-forge/core/sdk"
 
 engine := sdk.New()
 engine.RegisterInjector(&MyInjector{})
@@ -270,8 +270,8 @@ All user customization lives in `core/extensions/register.go`:
 package extensions
 
 import (
-    "github.com/rendis/pdf-forge/cmd/api/bootstrap"
-    "github.com/rendis/pdf-forge/extensions/injectors"
+    "github.com/rendis/pdf-forge/core/cmd/api/bootstrap"
+    "github.com/rendis/pdf-forge/core/extensions/injectors"
 )
 
 func Register(engine *bootstrap.Engine) {
@@ -307,7 +307,7 @@ import (
     "context"
     "time"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type CustomerNameInjector struct{}

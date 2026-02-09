@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	organizationuc "github.com/rendis/pdf-forge/internal/core/usecase/organization"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	organizationuc "github.com/rendis/pdf-forge/core/internal/core/usecase/organization"
 )
 
 // NewWorkspaceService creates a new workspace service.

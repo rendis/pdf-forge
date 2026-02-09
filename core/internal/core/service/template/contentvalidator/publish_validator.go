@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	injectableuc "github.com/rendis/pdf-forge/internal/core/usecase/injectable"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	injectableuc "github.com/rendis/pdf-forge/core/internal/core/usecase/injectable"
 )
 
 // validationContext holds shared state during validation.

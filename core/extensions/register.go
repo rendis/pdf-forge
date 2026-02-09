@@ -1,8 +1,8 @@
 package extensions
 
 import (
-	"github.com/rendis/pdf-forge/cmd/api/bootstrap"
-	"github.com/rendis/pdf-forge/extensions/injectors"
+	"github.com/rendis/pdf-forge/core/cmd/api/bootstrap"
+	"github.com/rendis/pdf-forge/core/extensions/injectors"
 )
 
 // Register registers all user-defined extensions with the engine.

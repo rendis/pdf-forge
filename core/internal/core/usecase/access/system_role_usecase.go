@@ -3,7 +3,7 @@ package access
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // AssignSystemRoleCommand represents the command to assign a system role.

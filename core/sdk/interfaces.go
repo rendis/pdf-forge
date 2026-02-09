@@ -1,6 +1,6 @@
 package sdk
 
-import "github.com/rendis/pdf-forge/internal/core/port"
+import "github.com/rendis/pdf-forge/core/internal/core/port"
 
 // ── Extension interfaces ────────────────────────────────────────────────────
 

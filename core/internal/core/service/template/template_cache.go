@@ -5,7 +5,7 @@ import (
 
 	"github.com/dgraph-io/ristretto/v2"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // TemplateCache provides an in-memory cache for resolved template versions.

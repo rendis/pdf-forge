@@ -10,7 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/rendis/pdf-forge/internal/adapters/secondary/database/postgres"
+	"github.com/rendis/pdf-forge/core/internal/adapters/secondary/database/postgres"
 )
 
 // preflightChecks runs all startup validations.

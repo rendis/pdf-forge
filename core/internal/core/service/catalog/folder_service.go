@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	cataloguc "github.com/rendis/pdf-forge/internal/core/usecase/catalog"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	cataloguc "github.com/rendis/pdf-forge/core/internal/core/usecase/catalog"
 )
 
 // NewFolderService creates a new folder service.

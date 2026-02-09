@@ -16,12 +16,12 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/controller"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	"github.com/rendis/pdf-forge/internal/infra/config"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/controller"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/infra/config"
 
-	_ "github.com/rendis/pdf-forge/docs" // swagger generated docs
+	_ "github.com/rendis/pdf-forge/core/docs" // swagger generated docs
 )
 
 func init() {

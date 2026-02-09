@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // SystemInjectableResponse represents a system injectable in API responses.

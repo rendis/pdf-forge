@@ -31,7 +31,7 @@ flowchart LR
 // core/extensions/register.go
 package extensions
 
-import "github.com/rendis/pdf-forge/sdk"
+import "github.com/rendis/pdf-forge/core/sdk"
 
 func Register(engine *sdk.Engine) {
     engine.RegisterInjector(&CustomerNameInjector{})
@@ -49,8 +49,8 @@ import (
     "log/slog"
     "os"
 
-    "github.com/rendis/pdf-forge/cmd/api/bootstrap"
-    "github.com/rendis/pdf-forge/extensions"
+    "github.com/rendis/pdf-forge/core/cmd/api/bootstrap"
+    "github.com/rendis/pdf-forge/core/extensions"
 )
 
 func main() {
@@ -110,7 +110,7 @@ import (
     "context"
     "time"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type CustomerNameInjector struct{}
@@ -243,7 +243,7 @@ import (
     "context"
     "encoding/json"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type MyPayload struct {

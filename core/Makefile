@@ -1,19 +1,20 @@
 .PHONY: build run migrate dev test lint fmt swagger clean help
 
+# Go commands use -C .. because go.mod is at project root
 build:
-	go build -o bin/server ./cmd/api
+	go build -C .. -o core/bin/server ./core/cmd/api
 
 run:
-	go run ./cmd/api
+	go run -C .. ./core/cmd/api
 
 migrate:
-	go run ./cmd/api migrate
+	go run -C .. ./core/cmd/api migrate
 
 dev:
 	air
 
 test:
-	go test ./...
+	go test -C .. ./core/...
 
 lint:
 	golangci-lint run
@@ -22,7 +23,7 @@ fmt:
 	gofmt -w .
 
 swagger:
-	swag init -g cmd/api/main.go -o docs
+	swag init -d .. -g core/cmd/api/main.go -o docs --parseDependency
 
 clean:
 	rm -rf bin/

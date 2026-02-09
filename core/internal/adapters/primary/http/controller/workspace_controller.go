@@ -5,13 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/mapper"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	cataloguc "github.com/rendis/pdf-forge/internal/core/usecase/catalog"
-	injectableuc "github.com/rendis/pdf-forge/internal/core/usecase/injectable"
-	organizationuc "github.com/rendis/pdf-forge/internal/core/usecase/organization"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/mapper"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	cataloguc "github.com/rendis/pdf-forge/core/internal/core/usecase/catalog"
+	injectableuc "github.com/rendis/pdf-forge/core/internal/core/usecase/injectable"
+	organizationuc "github.com/rendis/pdf-forge/core/internal/core/usecase/organization"
 )
 
 // WorkspaceController handles workspace-related HTTP requests.

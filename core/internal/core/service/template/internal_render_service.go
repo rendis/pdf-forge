@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	injectablesvc "github.com/rendis/pdf-forge/internal/core/service/injectable"
-	templateuc "github.com/rendis/pdf-forge/internal/core/usecase/template"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	injectablesvc "github.com/rendis/pdf-forge/core/internal/core/service/injectable"
+	templateuc "github.com/rendis/pdf-forge/core/internal/core/usecase/template"
 )
 
 // NewInternalRenderService creates a new internal render service.

@@ -3,7 +3,7 @@ package template
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // InternalRenderCommand contains the parameters for resolving and rendering a template by codes.

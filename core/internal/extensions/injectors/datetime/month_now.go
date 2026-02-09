@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // MonthNowInjector returns the current month.

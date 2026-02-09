@@ -116,8 +116,8 @@ doctor:
 	@printf "PostgreSQL...... " && pg_isready > /dev/null 2>&1 && echo "ok" || echo "not running"
 	@printf "pnpm............ " && pnpm --version > /dev/null 2>&1 && echo "ok" || echo "MISSING"
 	@printf "Upstream remote. " && git remote get-url upstream > /dev/null 2>&1 && echo "ok" || echo "MISSING (run: make init-fork)"
-	@printf "Go build........ " && go build -C core ./... > /dev/null 2>&1 && echo "ok" || echo "FAIL"
-	@printf "Go modules...... " && go -C core mod verify > /dev/null 2>&1 && echo "ok" || echo "FAIL"
+	@printf "Go build........ " && go build ./core/... > /dev/null 2>&1 && echo "ok" || echo "FAIL"
+	@printf "Go modules...... " && go mod verify > /dev/null 2>&1 && echo "ok" || echo "FAIL"
 	@echo ""
 	@echo "Done."
 
@@ -149,7 +149,7 @@ check-upgrade:
 	git stash push -q -m "check-upgrade-temp" 2>/dev/null && STASHED=true; \
 	git merge --no-commit --no-ff $(VERSION) > /dev/null 2>&1; \
 	BUILD_OK=true; \
-	go build -C core ./... > /dev/null 2>&1 || BUILD_OK=false; \
+	go build ./core/... > /dev/null 2>&1 || BUILD_OK=false; \
 	git merge --abort 2>/dev/null; \
 	if [ "$$STASHED" = "true" ]; then git stash pop -q 2>/dev/null; fi; \
 	if [ "$$BUILD_OK" = "true" ]; then echo "ok"; else echo "FAIL (extensions may need updates)"; fi

@@ -3,8 +3,8 @@ package contentvalidator
 import (
 	"fmt"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
 )
 
 // validateVariables validates all variables and injectors in the document.

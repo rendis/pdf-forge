@@ -1,9 +1,9 @@
 package mapper
 
 import (
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	accessuc "github.com/rendis/pdf-forge/internal/core/usecase/access"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	accessuc "github.com/rendis/pdf-forge/core/internal/core/usecase/access"
 )
 
 // SystemRoleToResponse converts a SystemRoleAssignment entity to a response DTO.

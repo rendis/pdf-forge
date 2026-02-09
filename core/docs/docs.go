@@ -9,14 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "API Support",
-            "email": "support@example.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -53,13 +46,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListInjectablesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListInjectablesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -90,13 +83,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -167,13 +160,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplatesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplatesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -203,7 +196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTemplateRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTemplateRequest"
                         }
                     }
                 ],
@@ -211,19 +204,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateCreateResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -261,13 +254,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithDetailsResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithDetailsResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -305,7 +298,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTemplateRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTemplateRequest"
                         }
                     }
                 ],
@@ -313,19 +306,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -364,7 +357,7 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -402,13 +395,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -448,7 +441,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CloneTemplateRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CloneTemplateRequest"
                         }
                     }
                 ],
@@ -456,25 +449,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateCreateResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad request (invalid versionId, version doesn't belong to template, validation error)",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Template or version not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Template title already exists",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -514,7 +507,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeRequest"
                         }
                     }
                 ],
@@ -522,25 +515,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -579,7 +572,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTagsRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTagsRequest"
                         }
                     }
                 ],
@@ -590,13 +583,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -644,7 +637,7 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -682,13 +675,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplateVersionsResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplateVersionsResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -725,7 +718,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionRequest"
                         }
                     }
                 ],
@@ -733,19 +726,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -784,7 +777,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest"
                         }
                     }
                 ],
@@ -792,19 +785,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -849,13 +842,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionDetailResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionDetailResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -899,7 +892,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateVersionRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateVersionRequest"
                         }
                     }
                 ],
@@ -907,19 +900,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -965,13 +958,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1019,13 +1012,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1071,7 +1064,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddVersionInjectableRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddVersionInjectableRequest"
                         }
                     }
                 ],
@@ -1079,19 +1072,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1146,7 +1139,7 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1192,7 +1185,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RenderPreviewRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderPreviewRequest"
                         }
                     }
                 ],
@@ -1206,19 +1199,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1266,13 +1259,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1320,13 +1313,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1372,7 +1365,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ScheduleArchiveRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ScheduleArchiveRequest"
                         }
                     }
                 ],
@@ -1383,13 +1376,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1435,7 +1428,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SchedulePublishRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SchedulePublishRequest"
                         }
                     }
                 ],
@@ -1446,13 +1439,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1483,7 +1476,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RecordAccessRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RecordAccessRequest"
                         }
                     }
                 ],
@@ -1494,19 +1487,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1548,13 +1541,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MyRolesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MyRolesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1604,13 +1597,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1637,19 +1630,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListSystemInjectablesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListSystemInjectablesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1679,7 +1672,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkKeysRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkKeysRequest"
                         }
                     }
                 ],
@@ -1687,25 +1680,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1735,7 +1728,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest"
                         }
                     }
                 ],
@@ -1743,25 +1736,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1789,7 +1782,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest"
                         }
                     }
                 ],
@@ -1797,25 +1790,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1845,7 +1838,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkKeysRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkKeysRequest"
                         }
                     }
                 ],
@@ -1853,25 +1846,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1910,19 +1903,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -1958,25 +1951,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListAssignmentsResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListAssignmentsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2011,7 +2004,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateAssignmentRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateAssignmentRequest"
                         }
                     }
                 ],
@@ -2019,31 +2012,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2089,19 +2082,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2147,19 +2140,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2205,19 +2198,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2256,19 +2249,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2317,19 +2310,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2357,7 +2350,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTenantRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTenantRequest"
                         }
                     }
                 ],
@@ -2365,31 +2358,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2425,25 +2418,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2478,7 +2471,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantRequest"
                         }
                     }
                 ],
@@ -2486,31 +2479,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2547,19 +2540,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2596,7 +2589,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantStatusRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantStatusRequest"
                         }
                     }
                 ],
@@ -2604,31 +2597,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2684,25 +2677,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2729,19 +2722,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_SystemRoleWithUserResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_SystemRoleWithUserResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2769,7 +2762,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest"
                         }
                     }
                 ],
@@ -2777,25 +2770,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleWithUserResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleWithUserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2832,7 +2825,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleRequest"
                         }
                     }
                 ],
@@ -2840,31 +2833,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2901,19 +2894,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -2949,25 +2942,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3002,7 +2995,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantRequest"
                         }
                     }
                 ],
@@ -3010,31 +3003,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3090,19 +3083,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3137,7 +3130,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateDocumentTypeRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateDocumentTypeRequest"
                         }
                     }
                 ],
@@ -3145,31 +3138,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3212,25 +3205,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3273,25 +3266,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplatesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplatesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3334,25 +3327,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3394,7 +3387,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest"
                         }
                     }
                 ],
@@ -3402,31 +3395,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3467,7 +3460,7 @@ const docTemplate = `{
                         "name": "request",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest"
                         }
                     }
                 ],
@@ -3475,31 +3468,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3535,19 +3528,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TenantMemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TenantMemberResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3582,7 +3575,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTenantMemberRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTenantMemberRequest"
                         }
                     }
                 ],
@@ -3590,31 +3583,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3657,25 +3650,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3717,7 +3710,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest"
                         }
                     }
                 ],
@@ -3725,31 +3718,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3793,25 +3786,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3873,19 +3866,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3920,7 +3913,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceRequest"
                         }
                     }
                 ],
@@ -3928,25 +3921,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -3992,19 +3985,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4048,7 +4041,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest"
                         }
                     }
                 ],
@@ -4056,31 +4049,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4111,19 +4104,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4153,7 +4146,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceRequest"
                         }
                     }
                 ],
@@ -4161,19 +4154,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4205,13 +4198,100 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/workspace/document-types/{code}/render": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "Workspace - Render"
+                ],
+                "summary": "Render PDF by document type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "X-Workspace-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Document type code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Content disposition: inline (default) or attachment",
+                        "name": "disposition",
+                        "in": "query"
+                    },
+                    {
+                        "description": "Injectable values",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4242,19 +4322,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_FolderResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_FolderResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4284,7 +4364,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateFolderRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateFolderRequest"
                         }
                     }
                 ],
@@ -4292,13 +4372,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4331,20 +4411,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderTreeResponse"
+                                "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderTreeResponse"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4382,19 +4462,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4431,7 +4511,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateFolderRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateFolderRequest"
                         }
                     }
                 ],
@@ -4439,19 +4519,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4490,13 +4570,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4535,7 +4615,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MoveFolderRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MoveFolderRequest"
                         }
                     }
                 ],
@@ -4543,19 +4623,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4586,19 +4666,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4628,7 +4708,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest"
                         }
                     }
                 ],
@@ -4636,13 +4716,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4680,19 +4760,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4729,7 +4809,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest"
                         }
                     }
                 ],
@@ -4737,19 +4817,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4788,13 +4868,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4832,19 +4912,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4882,19 +4962,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4925,19 +5005,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_MemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_MemberResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -4967,7 +5047,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InviteMemberRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InviteMemberRequest"
                         }
                     }
                 ],
@@ -4975,19 +5055,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5025,19 +5105,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5074,7 +5154,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateMemberRoleRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateMemberRoleRequest"
                         }
                     }
                 ],
@@ -5082,19 +5162,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5133,13 +5213,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5170,19 +5250,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TagWithCountResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TagWithCountResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5212,7 +5292,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTagRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTagRequest"
                         }
                     }
                 ],
@@ -5220,13 +5300,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5264,19 +5344,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5313,7 +5393,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTagRequest"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTagRequest"
                         }
                     }
                 ],
@@ -5321,19 +5401,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5372,97 +5452,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/internal/render/{tenantCode}/{workspaceCode}/{templateTypeCode}": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/pdf"
-                ],
-                "tags": [
-                    "Internal"
-                ],
-                "summary": "Render PDF by document type codes",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Internal API Key",
-                        "name": "X-API-Key",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant code",
-                        "name": "tenantCode",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Workspace code",
-                        "name": "workspaceCode",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Document type code",
-                        "name": "templateTypeCode",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Content disposition: inline (default) or attachment",
-                        "name": "disposition",
-                        "in": "query"
-                    },
-                    {
-                        "description": "Injectable values",
-                        "name": "request",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InternalRenderRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse"
+                            "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse"
                         }
                     }
                 }
@@ -5470,7 +5466,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTagsRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTagsRequest": {
             "type": "object",
             "required": [
                 "tagIds"
@@ -5485,7 +5481,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddTenantMemberRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTenantMemberRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -5505,7 +5501,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AddVersionInjectableRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddVersionInjectableRequest": {
             "type": "object",
             "required": [
                 "injectableDefinitionId"
@@ -5522,7 +5518,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeRequest": {
             "type": "object",
             "properties": {
                 "documentTypeId": {
@@ -5535,18 +5531,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignDocumentTypeResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignDocumentTypeResponse": {
             "type": "object",
             "properties": {
                 "conflict": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateConflictInfo"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateConflictInfo"
                 },
                 "template": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleByEmailRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -5570,7 +5566,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.AssignSystemRoleRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AssignSystemRoleRequest": {
             "type": "object",
             "required": [
                 "role"
@@ -5585,7 +5581,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkKeysRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkKeysRequest": {
             "type": "object",
             "required": [
                 "keys"
@@ -5600,7 +5596,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationError": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationError": {
             "type": "object",
             "properties": {
                 "error": {
@@ -5611,13 +5607,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationResponse": {
             "type": "object",
             "properties": {
                 "failed": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkOperationError"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkOperationError"
                     }
                 },
                 "succeeded": {
@@ -5628,7 +5624,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.BulkScopedAssignmentsRequest": {
             "type": "object",
             "required": [
                 "keys",
@@ -5658,7 +5654,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CloneTemplateRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CloneTemplateRequest": {
             "type": "object",
             "required": [
                 "newTitle",
@@ -5678,7 +5674,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateAssignmentRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateAssignmentRequest": {
             "type": "object",
             "required": [
                 "scopeType"
@@ -5700,7 +5696,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateDocumentTypeRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateDocumentTypeRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -5726,7 +5722,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateFolderRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateFolderRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -5742,7 +5738,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTagRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTagRequest": {
             "type": "object",
             "required": [
                 "color",
@@ -5759,7 +5755,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTemplateRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTemplateRequest": {
             "type": "object",
             "required": [
                 "title"
@@ -5785,7 +5781,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateTenantRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateTenantRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -5808,7 +5804,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionFromExistingRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -5828,7 +5824,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateVersionRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateVersionRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -5844,7 +5840,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceInjectableRequest": {
             "type": "object",
             "required": [
                 "defaultValue",
@@ -5874,7 +5870,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.CreateWorkspaceRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.CreateWorkspaceRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -5904,7 +5900,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeRequest": {
             "type": "object",
             "properties": {
                 "force": {
@@ -5917,7 +5913,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DeleteDocumentTypeResponse": {
             "type": "object",
             "properties": {
                 "canReplace": {
@@ -5931,12 +5927,12 @@ const docTemplate = `{
                     "description": "Templates using this type (if not deleted)",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeListItemResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeListItemResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -5953,6 +5949,10 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "isGlobal": {
+                    "description": "True if from SYS tenant (read-only for other tenants)",
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "object",
@@ -5971,7 +5971,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -5989,6 +5989,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "isGlobal": {
+                    "description": "True if from SYS tenant (read-only for other tenants)",
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "object",
                     "additionalProperties": {
@@ -6003,7 +6007,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeTemplateInfoResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -6020,7 +6024,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ErrorResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6034,7 +6038,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse": {
             "type": "object",
             "properties": {
                 "childFolderCount": {
@@ -6063,13 +6067,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderTreeResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderTreeResponse": {
             "type": "object",
             "properties": {
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderTreeResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderTreeResponse"
                     }
                 },
                 "createdAt": {
@@ -6092,7 +6096,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FormatConfigResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse": {
             "type": "object",
             "properties": {
                 "default": {
@@ -6106,7 +6110,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.GroupResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GroupResponse": {
             "type": "object",
             "properties": {
                 "icon": {
@@ -6123,7 +6127,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6136,7 +6140,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "formatConfig": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FormatConfigResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse"
                 },
                 "group": {
                     "type": "string"
@@ -6168,16 +6172,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InternalRenderRequest": {
-            "type": "object",
-            "properties": {
-                "injectables": {
-                    "type": "object",
-                    "additionalProperties": {}
-                }
-            }
-        },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InviteMemberRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InviteMemberRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -6197,30 +6192,30 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListAssignmentsResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListAssignmentsResponse": {
             "type": "object",
             "properties": {
                 "assignments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListInjectablesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListInjectablesResponse": {
             "type": "object",
             "properties": {
                 "groups": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.GroupResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GroupResponse"
                     }
                 },
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse"
                     }
                 },
                 "total": {
@@ -6228,7 +6223,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_FolderResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_FolderResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -6237,12 +6232,12 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_MemberResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_MemberResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -6251,12 +6246,12 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_SystemRoleWithUserResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_SystemRoleWithUserResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -6265,12 +6260,12 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleWithUserResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleWithUserResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TagWithCountResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TagWithCountResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -6279,12 +6274,12 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagWithCountResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagWithCountResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_internal_adapters_primary_http_dto_TenantMemberResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListResponse-github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto_TenantMemberResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -6293,29 +6288,29 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListSystemInjectablesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListSystemInjectablesResponse": {
             "type": "object",
             "properties": {
                 "injectables": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableResponse"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplateVersionsResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplateVersionsResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse"
                     }
                 },
                 "total": {
@@ -6323,13 +6318,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListTemplatesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListTemplatesResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateListItemResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateListItemResponse"
                     }
                 },
                 "limit": {
@@ -6343,13 +6338,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ListWorkspaceInjectablesResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse"
                     }
                 },
                 "total": {
@@ -6357,7 +6352,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6376,14 +6371,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberUserResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberUserResponse"
                 },
                 "workspaceId": {
                     "type": "string"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MemberUserResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MemberUserResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -6400,7 +6395,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MoveFolderRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MoveFolderRequest": {
             "type": "object",
             "properties": {
                 "newParentId": {
@@ -6408,74 +6403,74 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.MyRolesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.MyRolesResponse": {
             "type": "object",
             "properties": {
                 "roles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RoleEntry"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RoleEntry"
                     }
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedDocumentTypesResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.DocumentTypeListItemResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.DocumentTypeListItemResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedTenantsWithRoleResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantWithRoleResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantWithRoleResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginatedWorkspacesResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.PaginationMeta": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.PaginationMeta": {
             "type": "object",
             "properties": {
                 "page": {
@@ -6492,7 +6487,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RecordAccessRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RecordAccessRequest": {
             "type": "object",
             "required": [
                 "entityId",
@@ -6507,17 +6502,25 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RenderPreviewRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderPreviewRequest": {
             "type": "object",
             "properties": {
                 "injectables": {
-                    "description": "Injectables contains the values to inject into the document.\nKeys are variable IDs, values are the actual values.",
                     "type": "object",
                     "additionalProperties": {}
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.RoleEntry": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderRequest": {
+            "type": "object",
+            "properties": {
+                "injectables": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RoleEntry": {
             "type": "object",
             "properties": {
                 "resourceId": {
@@ -6534,7 +6537,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.ScheduleArchiveRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ScheduleArchiveRequest": {
             "type": "object",
             "required": [
                 "archiveAt"
@@ -6545,7 +6548,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SchedulePublishRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SchedulePublishRequest": {
             "type": "object",
             "required": [
                 "publishAt"
@@ -6556,7 +6559,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableAssignmentResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6588,7 +6591,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemInjectableResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemInjectableResponse": {
             "type": "object",
             "properties": {
                 "dataType": {
@@ -6620,7 +6623,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6640,7 +6643,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.SystemRoleWithUserResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.SystemRoleWithUserResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6656,14 +6659,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UserBriefResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UserBriefResponse"
                 },
                 "userId": {
                     "type": "string"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse": {
             "type": "object",
             "properties": {
                 "color": {
@@ -6686,7 +6689,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagSimpleResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagSimpleResponse": {
             "type": "object",
             "properties": {
                 "color": {
@@ -6700,7 +6703,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagWithCountResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagWithCountResponse": {
             "type": "object",
             "properties": {
                 "color": {
@@ -6726,7 +6729,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateConflictInfo": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateConflictInfo": {
             "type": "object",
             "properties": {
                 "id": {
@@ -6737,18 +6740,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateCreateResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateCreateResponse": {
             "type": "object",
             "properties": {
                 "initialVersion": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse"
                 },
                 "template": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateListItemResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateListItemResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6778,7 +6781,7 @@ const docTemplate = `{
                 "tags": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagSimpleResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagSimpleResponse"
                     }
                 },
                 "title": {
@@ -6795,7 +6798,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6830,7 +6833,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionDetailResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionDetailResponse": {
             "type": "object",
             "properties": {
                 "archivedAt": {
@@ -6860,7 +6863,7 @@ const docTemplate = `{
                 "injectables": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse"
                     }
                 },
                 "name": {
@@ -6892,7 +6895,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6902,7 +6905,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "definition": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.InjectableResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.InjectableResponse"
                 },
                 "id": {
                     "type": "string"
@@ -6915,7 +6918,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionResponse": {
             "type": "object",
             "properties": {
                 "archivedAt": {
@@ -6965,7 +6968,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse": {
             "type": "object",
             "properties": {
                 "archivedAt": {
@@ -6989,7 +6992,7 @@ const docTemplate = `{
                 "injectables": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionInjectableResponse"
                     }
                 },
                 "name": {
@@ -7021,7 +7024,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithAllVersionsResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7037,7 +7040,7 @@ const docTemplate = `{
                     }
                 },
                 "folder": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                 },
                 "folderId": {
                     "type": "string"
@@ -7051,7 +7054,7 @@ const docTemplate = `{
                 "tags": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse"
                     }
                 },
                 "title": {
@@ -7063,7 +7066,7 @@ const docTemplate = `{
                 "versions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionSummaryResponse"
                     }
                 },
                 "workspaceId": {
@@ -7071,7 +7074,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateWithDetailsResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateWithDetailsResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7087,7 +7090,7 @@ const docTemplate = `{
                     }
                 },
                 "folder": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FolderResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FolderResponse"
                 },
                 "folderId": {
                     "type": "string"
@@ -7099,12 +7102,12 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "publishedVersion": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TemplateVersionDetailResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TemplateVersionDetailResponse"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TagResponse"
+                        "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TagResponse"
                     }
                 },
                 "title": {
@@ -7118,7 +7121,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7137,11 +7140,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberUserResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberUserResponse"
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantMemberUserResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantMemberUserResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -7158,7 +7161,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -7191,7 +7194,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.TenantWithRoleResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.TenantWithRoleResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -7230,7 +7233,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateDocumentTypeRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -7250,7 +7253,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateFolderRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateFolderRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -7263,7 +7266,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateMemberRoleRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateMemberRoleRequest": {
             "type": "object",
             "required": [
                 "role"
@@ -7274,7 +7277,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTagRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTagRequest": {
             "type": "object",
             "required": [
                 "color",
@@ -7291,7 +7294,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTemplateRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTemplateRequest": {
             "type": "object",
             "properties": {
                 "folderId": {
@@ -7308,7 +7311,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantMemberRoleRequest": {
             "type": "object",
             "required": [
                 "role"
@@ -7319,7 +7322,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -7340,7 +7343,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateTenantStatusRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateTenantStatusRequest": {
             "type": "object",
             "required": [
                 "status"
@@ -7356,7 +7359,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateVersionRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateVersionRequest": {
             "type": "object",
             "properties": {
                 "contentStructure": {
@@ -7375,7 +7378,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceInjectableRequest": {
             "type": "object",
             "properties": {
                 "defaultValue": {
@@ -7400,7 +7403,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -7419,7 +7422,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UpdateWorkspaceStatusRequest": {
             "type": "object",
             "required": [
                 "status"
@@ -7435,7 +7438,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.UserBriefResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.UserBriefResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -7452,7 +7455,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceInjectableResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceInjectableResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7468,7 +7471,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "formatConfig": {
-                    "$ref": "#/definitions/github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.FormatConfigResponse"
+                    "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse"
                 },
                 "id": {
                     "type": "string"
@@ -7497,7 +7500,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rendis_pdf-forge_internal_adapters_primary_http_dto.WorkspaceResponse": {
+        "github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.WorkspaceResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -7529,25 +7532,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Type \"Bearer\" followed by a space and JWT token",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Doc Engine API",
-	Description:      "Document Assembly System API - Template management and document generation",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

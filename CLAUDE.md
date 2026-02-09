@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **ALWAYS** read files before suggesting changes
 - **NEVER** modify DB schema SQL without understanding migration ordering
 - **ALWAYS** include multi-tenant headers (`X-Tenant-ID`, `X-Workspace-ID`) in API calls
-- **NEVER** change module path in `core/go.mod` — must stay `github.com/rendis/pdf-forge` even in forks
+- **NEVER** change module path in `go.mod` — must stay `github.com/rendis/pdf-forge` even in forks
 
 ## Project Overview
 
@@ -48,8 +48,8 @@ make doctor                           # Check system dependencies and build heal
 make check-upgrade VERSION=v1.2.0     # Verify if upgrade is safe before merging
 make sync-upstream VERSION=v1.2.0     # Merge upstream release into current branch
 
-# Single test (from core/)
-go test -C core -run TestFunctionName ./internal/core/service/...
+# Single test (from root)
+go test -run TestFunctionName ./core/internal/core/service/...
 
 # Format Go code
 make -C core fmt
@@ -58,7 +58,8 @@ make -C core fmt
 ## Repository Structure
 
 ```plaintext
-core/                            ← Backend Go (module: github.com/rendis/pdf-forge)
+go.mod                               ← Module root (github.com/rendis/pdf-forge)
+core/                            ← Backend Go
   sdk/                           ← PUBLIC API for external consumers (type aliases)
   cmd/api/
     main.go                      ← Entrypoint (run server / migrate)
@@ -96,7 +97,7 @@ docker-compose.yaml              ← Full stack: postgres + api (with embedded f
 End users create new projects via scaffold command — no fork needed:
 
 ```bash
-go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
+go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --module github.com/myorg/my-project
 cd my-project && go mod tidy
 ```
 
@@ -112,14 +113,14 @@ Scaffold source: `core/cmd/init/` (templates in `core/cmd/init/templates/`)
 
 **Fork model**: All user code goes in `core/extensions/`. Entry point: `core/extensions/register.go`. Called from `core/cmd/api/main.go`. Users never modify `core/internal/` or `core/cmd/api/bootstrap/`.
 
-**SDK model** (scaffold): External projects import only `github.com/rendis/pdf-forge/sdk`. Same extension pattern, all types come from `sdk` package.
+**SDK model** (scaffold): External projects import only `github.com/rendis/pdf-forge/core/sdk`. Same extension pattern, all types come from `sdk` package.
 
 Types imported from:
 
-- `github.com/rendis/pdf-forge/sdk` — **public API** (Engine, interfaces, entity types, constructors) — **use this for external consumers**
-- `github.com/rendis/pdf-forge/internal/core/port` — interfaces (internal, fork-only)
-- `github.com/rendis/pdf-forge/internal/core/entity` — domain types (internal, fork-only)
-- `github.com/rendis/pdf-forge/cmd/api/bootstrap` — Engine type (internal, fork-only)
+- `github.com/rendis/pdf-forge/core/sdk` — **public API** (Engine, interfaces, entity types, constructors) — **use this for external consumers**
+- `github.com/rendis/pdf-forge/core/internal/core/port` — interfaces (internal, fork-only)
+- `github.com/rendis/pdf-forge/core/internal/core/entity` — domain types (internal, fork-only)
+- `github.com/rendis/pdf-forge/core/cmd/api/bootstrap` — Engine type (internal, fork-only)
 
 ## Extension Points
 
@@ -230,14 +231,14 @@ pnpm --dir app lint      # ESLint
 
 ### Auth & RBAC
 
-- OIDC config fetched at runtime from backend `{VITE_API_URL}/v1/config` — `src/lib/auth-config.ts`
+- OIDC config fetched at runtime from backend `{VITE_BASE_PATH}/api/v1/config` — `src/lib/auth-config.ts`
 - Mock auth: `VITE_USE_MOCK_AUTH=true`
 - RBAC: `usePermission()` hook + `<PermissionGuard>` component — **always check** [core/docs/authorization-matrix.md](core/docs/authorization-matrix.md) before implementing permissions
 
 ### API Layer
 
 - Axios client (`src/lib/api-client.ts`) auto-attaches `Authorization`, `X-Tenant-ID`, `X-Workspace-ID`
-- Base URL: `${VITE_API_URL}/v1`
+- Base URL: `${VITE_BASE_PATH}/api/v1`
 - **Always check** OpenAPI spec before implementing API calls: MCP `pdf-forge-api` tools or `app/docs/swagger.yaml`
 
 ### Feature Structure
@@ -260,7 +261,7 @@ Current: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 ### Frontend Environment
 
 ```plaintext
-VITE_API_URL        # Backend base URL (dev: http://localhost:8080, prod: /api)
+VITE_BASE_PATH      # URL prefix for all routes (empty = root, e.g. /pdf-forge)
 VITE_USE_MOCK_AUTH  # "true" to skip OIDC (dev only)
 ```
 

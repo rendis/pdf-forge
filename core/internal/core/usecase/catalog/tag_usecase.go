@@ -3,7 +3,7 @@ package catalog
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // CreateTagCommand represents the command to create a tag.

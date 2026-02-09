@@ -1,9 +1,9 @@
 package mapper
 
 import (
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	organizationuc "github.com/rendis/pdf-forge/internal/core/usecase/organization"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	organizationuc "github.com/rendis/pdf-forge/core/internal/core/usecase/organization"
 )
 
 // WorkspaceMemberMapper handles mapping between member entities and DTOs.

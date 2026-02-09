@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 func TestRenderPreview_Basic(t *testing.T) {

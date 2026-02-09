@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/mapper"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	organizationuc "github.com/rendis/pdf-forge/internal/core/usecase/organization"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/mapper"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	organizationuc "github.com/rendis/pdf-forge/core/internal/core/usecase/organization"
 )
 
 // TenantController handles tenant-scoped HTTP requests.

@@ -36,7 +36,7 @@ Frontend: [http://localhost:3000](http://localhost:3000) · API: [http://localho
 
 | Path             | Why                                                                 |
 | ---------------- | ------------------------------------------------------------------- |
-| `core/go.mod`    | Module path must stay `github.com/rendis/pdf-forge` (see FAQ below) |
+| `go.mod`         | Module path must stay `github.com/rendis/pdf-forge` (see FAQ below) |
 | `core/internal/` | Engine internals — updated by upstream                              |
 | `core/cmd/`      | Entrypoint — calls your `extensions.Register()`                     |
 | `app/`           | Frontend SPA — unless you need UI changes                           |
@@ -125,16 +125,16 @@ services:
 
   web:
     environment:
-      VITE_API_URL: http://localhost:9090
+      VITE_BASE_PATH: ""
 ```
 
 Docker Compose automatically merges `docker-compose.yaml` + `docker-compose.override.yaml`.
 
 ## Go Module Path FAQ
 
-**Q: Do I need to change the module path in `core/go.mod`?**
+**Q: Do I need to change the module path in `go.mod`?**
 
-A: **No.** The module path `github.com/rendis/pdf-forge` must stay unchanged. Since pdf-forge is a binary (not a library), the module path does not need to match your GitHub URL. Go resolves all imports locally within `core/`. Changing it would break every import in the codebase.
+A: **No.** The module path `github.com/rendis/pdf-forge` must stay unchanged. Since pdf-forge is a binary (not a library), the module path does not need to match your GitHub URL. Changing it would break every import in the codebase.
 
 **Q: Won't `go get` fail with my fork's URL?**
 

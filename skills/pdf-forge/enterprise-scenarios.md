@@ -16,7 +16,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type CRMWorkspaceProvider struct {
@@ -203,7 +203,7 @@ import (
     "fmt"
     "log/slog"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type SecretStore interface {
@@ -313,7 +313,7 @@ import (
     "fmt"
     "net/http"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
     "myproject/extensions"
 )
 
@@ -380,7 +380,7 @@ import (
     "regexp"
     "strings"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type RenderRequest struct {
@@ -521,7 +521,7 @@ import (
     "log/slog"
     "sync"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
 )
 
 type MultiSourceData struct {
@@ -663,7 +663,7 @@ package injectors
 import (
     "context"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
     "myproject/extensions"
 )
 
@@ -752,7 +752,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/rendis/pdf-forge/sdk"
+    "github.com/rendis/pdf-forge/core/sdk"
     "golang.org/x/text/language"
     "golang.org/x/text/message"
     "golang.org/x/text/number"

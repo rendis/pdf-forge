@@ -4,7 +4,7 @@ package common
 import (
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // SafeString returns the string value or empty string if nil.

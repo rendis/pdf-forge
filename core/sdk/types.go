@@ -1,6 +1,6 @@
 package sdk
 
-import "github.com/rendis/pdf-forge/internal/core/entity"
+import "github.com/rendis/pdf-forge/core/internal/core/entity"
 
 // ── Core types ──────────────────────────────────────────────────────────────
 

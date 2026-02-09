@@ -1,6 +1,6 @@
 package sdk
 
-import "github.com/rendis/pdf-forge/internal/core/service/rendering/pdfrenderer"
+import "github.com/rendis/pdf-forge/core/internal/core/service/rendering/pdfrenderer"
 
 // TypstDesignTokens holds all configurable design values for Typst PDF output.
 // Customize via engine.SetDesignTokens().

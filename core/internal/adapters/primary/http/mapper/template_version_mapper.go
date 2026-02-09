@@ -1,9 +1,9 @@
 package mapper
 
 import (
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	templateuc "github.com/rendis/pdf-forge/internal/core/usecase/template"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	templateuc "github.com/rendis/pdf-forge/core/internal/core/usecase/template"
 )
 
 // TemplateVersionMapper handles mapping between template version entities and DTOs.

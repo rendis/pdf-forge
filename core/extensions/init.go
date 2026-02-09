@@ -3,8 +3,8 @@ package extensions
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
-	"github.com/rendis/pdf-forge/internal/core/port"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
 // ExampleInit returns an InitFunc that runs once before all injectors on each render request.

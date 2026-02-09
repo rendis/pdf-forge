@@ -144,3 +144,4 @@ secrets/
 *.local.json
 .env.local
 core/init
+init

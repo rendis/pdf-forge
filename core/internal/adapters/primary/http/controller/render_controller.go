@@ -7,12 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/dto"
-	"github.com/rendis/pdf-forge/internal/adapters/primary/http/middleware"
-	"github.com/rendis/pdf-forge/internal/core/entity/portabledoc"
-	"github.com/rendis/pdf-forge/internal/core/port"
-	templatesvc "github.com/rendis/pdf-forge/internal/core/service/template"
-	templateuc "github.com/rendis/pdf-forge/internal/core/usecase/template"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
+	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
+	"github.com/rendis/pdf-forge/core/internal/core/port"
+	templatesvc "github.com/rendis/pdf-forge/core/internal/core/service/template"
+	templateuc "github.com/rendis/pdf-forge/core/internal/core/usecase/template"
 )
 
 // RenderController handles document rendering HTTP requests.

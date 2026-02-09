@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // TemplateVersionFilters contains optional filters for version queries.

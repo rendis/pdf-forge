@@ -9,8 +9,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/rendis/pdf-forge/internal/adapters/secondary/database/postgres"
-	"github.com/rendis/pdf-forge/internal/infra/server"
+	"github.com/rendis/pdf-forge/core/internal/adapters/secondary/database/postgres"
+	"github.com/rendis/pdf-forge/core/internal/infra/server"
 )
 
 // Initializer holds all components that need to be started and stopped.

@@ -1,6 +1,6 @@
 package formatter
 
-import "github.com/rendis/pdf-forge/internal/core/entity"
+import "github.com/rendis/pdf-forge/core/internal/core/entity"
 
 // DateFormats provides common date format options.
 var DateFormats = &entity.FormatConfig{

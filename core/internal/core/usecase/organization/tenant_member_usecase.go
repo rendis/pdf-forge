@@ -3,7 +3,7 @@ package organization
 import (
 	"context"
 
-	"github.com/rendis/pdf-forge/internal/core/entity"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 // AddTenantMemberCommand contains data for adding a user to a tenant.

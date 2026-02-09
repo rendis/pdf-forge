@@ -1,6 +1,6 @@
 package sdk
 
-import "github.com/rendis/pdf-forge/cmd/api/bootstrap"
+import "github.com/rendis/pdf-forge/core/cmd/api/bootstrap"
 
 // Engine is the main entry point for pdf-forge.
 // Create with New(), register extensions, then call Run().

@@ -8,7 +8,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 
-	"github.com/rendis/pdf-forge/internal/infra/config"
+	"github.com/rendis/pdf-forge/core/internal/infra/config"
 )
 
 //go:embed sql/*.sql
