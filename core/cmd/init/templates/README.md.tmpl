@@ -8,24 +8,25 @@ Built with [pdf-forge](https://github.com/rendis/pdf-forge) — multi-tenant PDF
 # Check dependencies
 make doctor
 
-# Start with Docker (full stack with frontend)
-docker compose up --build
-
-# Or run locally (API only, no frontend)
+# Run locally (auto-embeds frontend on first run if Node.js + pnpm available)
 make migrate
-make dev
+make run
+
+# Or start with Docker (full stack with frontend)
+docker compose up --build
 ```
 
 - **API**: http://localhost:8080
-- **Frontend** (Docker only): http://localhost:8080
+- **Frontend**: http://localhost:8080 (after auto-embed or via Docker)
 
 ## Commands
 
 ```bash
 make help         # Show all available commands
-make dev          # Hot reload with air
-make run          # Run the server
+make run          # Run server (auto-embeds frontend if missing)
+make dev          # Hot reload with air (auto-embeds frontend if missing)
 make migrate      # Apply database migrations
+make embed-app    # Build and embed frontend (requires Node.js + pnpm)
 make build        # Build production binary
 make test         # Run tests
 make docker-up    # Start full stack (postgres + api + frontend)
@@ -53,16 +54,21 @@ make doctor       # Check system dependencies
 
 ## Frontend
 
-The frontend React SPA is included automatically when building with Docker.
-For local development without Docker, the server runs in API-only mode.
-
-To embed the frontend locally (requires Node.js + pnpm):
+The frontend is auto-embedded on `make run` / `make dev` if Node.js and pnpm are installed.
+You can also embed it manually or use Docker:
 
 ```bash
-git clone --depth 1 https://github.com/rendis/pdf-forge.git /tmp/pdf-forge
-cd /tmp/pdf-forge/app && pnpm install && pnpm build
-cp -r /tmp/pdf-forge/app/dist/* ./frontend-dist/
+# Explicit embed (also triggered automatically by make run/dev)
+make embed-app
+
+# Pin a specific pdf-forge version
+make embed-app PDF_FORGE_VERSION=v1.2.0
+
+# With a custom base path
+BASE_PATH=/pdf-forge make embed-app
 ```
+
+Without Node.js/pnpm, use Docker for full stack: `docker compose up --build`.
 
 ## Configuration
 

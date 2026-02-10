@@ -1,17 +1,38 @@
 -include .env
 export
 
+PDF_FORGE_VERSION ?= main
+PDF_FORGE_REPO    ?= https://github.com/rendis/pdf-forge.git
+PDF_FORGE_TMP     := /tmp/pdf-forge-build
+BASE_PATH         ?=
+
 .DEFAULT_GOAL := help
 
 # Auth: settings/app.yaml has no auth section = dummy auth (auto-login, no OIDC).
 # To enable OIDC, uncomment the auth section in settings/app.yaml.
 
-# ── Development (no auth) ────────────────────────────────
+# ── Development ─────────────────────────────────────────
 
-run: .env           ## Run server (dummy auth, no OIDC)
+run: .env           ## Run server (auto-embeds frontend if missing)
+	@if [ ! -f frontend-dist/index.html ]; then \
+		if command -v pnpm > /dev/null 2>&1; then \
+			echo "Frontend not found. Building..."; \
+			$(MAKE) embed-app; \
+		else \
+			echo "WARNING: Frontend not embedded. Install Node.js + pnpm then run: make embed-app"; \
+		fi; \
+	fi
 	go run .
 
-dev: .env           ## Hot reload (dummy auth, no OIDC)
+dev: .env           ## Hot reload (auto-embeds frontend if missing)
+	@if [ ! -f frontend-dist/index.html ]; then \
+		if command -v pnpm > /dev/null 2>&1; then \
+			echo "Frontend not found. Building..."; \
+			$(MAKE) embed-app; \
+		else \
+			echo "WARNING: Frontend not embedded. Install Node.js + pnpm then run: make embed-app"; \
+		fi; \
+	fi
 	air
 
 migrate:            ## Apply database migrations
@@ -21,6 +42,21 @@ migrate:            ## Apply database migrations
 
 build:              ## Build production binary (API only)
 	CGO_ENABLED=0 go build -o bin/server .
+
+embed-app:          ## Clone pdf-forge frontend, build, and embed into frontend-dist/
+	@command -v node > /dev/null 2>&1 || { echo "ERROR: Node.js is required. Install from https://nodejs.org"; exit 1; }
+	@command -v pnpm > /dev/null 2>&1 || { echo "ERROR: pnpm is required. Install: npm install -g pnpm"; exit 1; }
+	@echo "Cloning pdf-forge ($(PDF_FORGE_VERSION))..."
+	@rm -rf $(PDF_FORGE_TMP)
+	git clone --depth 1 --branch $(PDF_FORGE_VERSION) $(PDF_FORGE_REPO) $(PDF_FORGE_TMP)
+	@echo "Installing dependencies..."
+	pnpm --dir $(PDF_FORGE_TMP)/app install --frozen-lockfile
+	@echo "Building frontend..."
+	VITE_BASE_PATH=$(BASE_PATH) pnpm --dir $(PDF_FORGE_TMP)/app build
+	@rm -rf frontend-dist/*
+	@cp -r $(PDF_FORGE_TMP)/app/dist/* frontend-dist/
+	@rm -rf $(PDF_FORGE_TMP)
+	@echo "Frontend embedded in frontend-dist/"
 
 test:               ## Run tests
 	go test ./...
@@ -44,6 +80,8 @@ doctor:             ## Check system dependencies
 	@printf "Go.............. " && go version > /dev/null 2>&1 && echo "ok" || echo "MISSING"
 	@printf "Typst........... " && typst --version > /dev/null 2>&1 && echo "ok" || echo "MISSING"
 	@printf "PostgreSQL...... " && pg_isready > /dev/null 2>&1 && echo "ok" || echo "not running"
+	@printf "Node.js......... " && node --version > /dev/null 2>&1 && echo "ok" || echo "MISSING (needed for embed-app)"
+	@printf "pnpm............ " && pnpm --version > /dev/null 2>&1 && echo "ok" || echo "MISSING (needed for embed-app)"
 	@printf "Go build........ " && go build ./... > /dev/null 2>&1 && echo "ok" || echo "FAIL"
 	@printf "Go modules...... " && go mod verify > /dev/null 2>&1 && echo "ok" || echo "FAIL"
 	@echo ""
@@ -51,6 +89,9 @@ doctor:             ## Check system dependencies
 
 clean:              ## Remove build artifacts
 	rm -rf bin/ tmp/
+	@rm -rf frontend-dist/*
+	@touch frontend-dist/.gitkeep
+	@rm -rf $(PDF_FORGE_TMP)
 
 # ── Internal ─────────────────────────────────────────────
 

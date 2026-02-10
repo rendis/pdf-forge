@@ -181,12 +181,12 @@ func printNextSteps(displayName string) {
 	fmt.Println("  go mod tidy")
 	fmt.Println("  make doctor")
 	fmt.Println()
-	fmt.Println("  # Start with Docker (full stack with frontend):")
-	fmt.Println("  docker compose up --build")
-	fmt.Println()
-	fmt.Println("  # Or run locally (API only):")
+	fmt.Println("  # Run locally (auto-embeds frontend if Node.js + pnpm installed):")
 	fmt.Println("  make migrate")
-	fmt.Println("  make dev")
+	fmt.Println("  make run")
+	fmt.Println()
+	fmt.Println("  # Or start with Docker (full stack with frontend):")
+	fmt.Println("  docker compose up --build")
 	fmt.Println()
 }
 
