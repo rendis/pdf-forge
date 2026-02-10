@@ -438,8 +438,8 @@ func TestTypstConverter_InjectorEmpty(t *testing.T) {
 		Attrs: map[string]any{"variableId": "var1", "label": "Name"},
 	}
 	got := c.ConvertNode(node)
-	if !strings.Contains(got, "#text(fill: luma(136)") || !strings.Contains(got, "Name") {
-		t.Errorf("expected placeholder markup, got %q", got)
+	if got != "" {
+		t.Errorf("expected empty string for missing injectable, got %q", got)
 	}
 }
 
@@ -695,8 +695,8 @@ func TestTypstConverter_TableInjectorMissing(t *testing.T) {
 		Attrs: map[string]any{"variableId": "missing", "label": "My Table"},
 	}
 	got := c.ConvertNode(node)
-	if !strings.Contains(got, "My Table") || !strings.Contains(got, "#block(") {
-		t.Errorf("expected placeholder, got %q", got)
+	if got != "" {
+		t.Errorf("expected empty string for missing table injectable, got %q", got)
 	}
 }
 

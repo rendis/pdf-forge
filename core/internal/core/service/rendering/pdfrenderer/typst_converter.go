@@ -278,7 +278,6 @@ func (c *TypstConverter) taskItem(node portabledoc.Node) string {
 
 func (c *TypstConverter) injector(node portabledoc.Node) string {
 	variableID, _ := node.Attrs["variableId"].(string)
-	label, _ := node.Attrs["label"].(string)
 
 	value := c.resolveRegularInjectable(variableID, node.Attrs)
 	if value == "" {
@@ -286,8 +285,7 @@ func (c *TypstConverter) injector(node portabledoc.Node) string {
 	}
 
 	if value == "" {
-		placeholder := fmt.Sprintf("[%s]", label)
-		return fmt.Sprintf("#text(fill: luma(136), style: \"italic\")[%s]", escapeTypst(placeholder))
+		return ""
 	}
 	return escapeTypst(value)
 }
@@ -509,11 +507,7 @@ func (c *TypstConverter) listInjector(node portabledoc.Node) string {
 
 	listData := c.resolveListValue(variableID)
 	if listData == nil {
-		label, _ := node.Attrs["label"].(string)
-		if label == "" {
-			label = variableID
-		}
-		return fmt.Sprintf("#block(fill: rgb(\"%s\"), stroke: (dash: \"dashed\", paint: rgb(\"%s\")), inset: 1em, width: 100%%)[#text(fill: rgb(\"%s\"), style: \"italic\")[\\[List: %s\\]]]\n", c.tokens.PlaceholderFillBg, c.tokens.PlaceholderStroke, c.tokens.PlaceholderTextColor, escapeTypst(label))
+		return ""
 	}
 
 	// Override symbol from editor attrs
@@ -698,11 +692,7 @@ func (c *TypstConverter) tableInjector(node portabledoc.Node) string {
 
 	tableData := c.resolveTableValue(variableID)
 	if tableData == nil {
-		label, _ := node.Attrs["label"].(string)
-		if label == "" {
-			label = variableID
-		}
-		return fmt.Sprintf("#block(fill: rgb(\"%s\"), stroke: (dash: \"dashed\", paint: rgb(\"%s\")), inset: 1em, width: 100%%)[#text(fill: rgb(\"%s\"), style: \"italic\")[\\[Table: %s\\]]]\n", c.tokens.PlaceholderFillBg, c.tokens.PlaceholderStroke, c.tokens.PlaceholderTextColor, escapeTypst(label))
+		return ""
 	}
 
 	headerStyles := c.parseTableStylesFromAttrs(node.Attrs, "header")
