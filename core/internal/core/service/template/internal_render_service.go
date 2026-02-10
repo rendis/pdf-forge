@@ -150,7 +150,7 @@ func (s *InternalRenderService) tryResolveVersionBySystemWorkspace(ctx context.C
 
 // tryResolveVersionWithWorkspace attempts to find a published template version.
 func (s *InternalRenderService) tryResolveVersionWithWorkspace(ctx context.Context, tenantID string, ws *entity.Workspace, docTypeCode string) (*entity.TemplateVersionWithDetails, error) {
-	docType, err := s.docTypeRepo.FindByCode(ctx, tenantID, docTypeCode)
+	docType, err := s.docTypeRepo.FindByCodeWithGlobalFallback(ctx, tenantID, docTypeCode)
 	if errors.Is(err, entity.ErrDocumentTypeNotFound) {
 		return nil, nil
 	}
