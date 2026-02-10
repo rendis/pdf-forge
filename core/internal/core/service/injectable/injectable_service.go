@@ -59,7 +59,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 		return nil, fmt.Errorf("listing injectables: %w", err)
 	}
 
-	systemInjectables, err := s.getSystemInjectables(ctx, req.WorkspaceID)
+	systemInjectables, err := s.getSystemInjectables(ctx, req.WorkspaceID, req.Locale)
 	if err != nil {
 		return nil, fmt.Errorf("listing system injectables: %w", err)
 	}
@@ -107,7 +107,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 }
 
 // getSystemInjectables returns system injectables filtered by active assignments for the workspace.
-func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceID string) ([]*entity.InjectableDefinition, error) {
+func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceID, locale string) ([]*entity.InjectableDefinition, error) {
 	if s.injectorRegistry == nil || s.systemInjectableRepo == nil {
 		return nil, nil
 	}
@@ -126,7 +126,7 @@ func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceI
 	result := make([]*entity.InjectableDefinition, 0, len(activeKeys))
 	for _, inj := range injectors {
 		if activeKeySet[inj.Code()] {
-			result = append(result, s.injectorToDefinition(inj))
+			result = append(result, s.injectorToDefinition(inj, locale))
 		}
 	}
 
@@ -134,12 +134,11 @@ func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceI
 }
 
 // injectorToDefinition converts a port.Injector to entity.InjectableDefinition.
-func (s *InjectableService) injectorToDefinition(inj port.Injector) *entity.InjectableDefinition {
+func (s *InjectableService) injectorToDefinition(inj port.Injector, locale string) *entity.InjectableDefinition {
 	code := inj.Code()
 
-	// Get translations (default to "es" locale, fallback to code)
-	label := s.injectorRegistry.GetName(code, "es")
-	description := s.injectorRegistry.GetDescription(code, "es")
+	label := s.injectorRegistry.GetName(code, locale)
+	description := s.injectorRegistry.GetDescription(code, locale)
 
 	// Convert DataType
 	dataType := convertValueTypeToDataType(inj.DataType())
