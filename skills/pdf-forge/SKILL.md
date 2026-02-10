@@ -144,11 +144,13 @@ make doctor     # Check system dependencies
 
 ## API Headers
 
-| Header           | Purpose                             |
-| ---------------- | ----------------------------------- |
-| `Authorization`  | `Bearer <JWT>` (omit in dummy mode) |
-| `X-Tenant-ID`    | Tenant UUID                         |
-| `X-Workspace-ID` | Workspace UUID                      |
+| Header             | Purpose                             | Used By        |
+| ------------------ | ----------------------------------- | -------------- |
+| `Authorization`    | `Bearer <JWT>` (omit in dummy mode) | All auth routes |
+| `X-Tenant-ID`      | Tenant UUID                         | Panel routes   |
+| `X-Workspace-ID`   | Workspace UUID                      | Panel routes   |
+| `X-Tenant-Code`    | Tenant code (e.g. `CL`)            | Render routes  |
+| `X-Workspace-Code` | Workspace code (e.g. `SYSTEM`)     | Render routes  |
 
 ## References
 

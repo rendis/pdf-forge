@@ -177,7 +177,9 @@ Recovery → Logger → CORS → Global middleware → Auth → Identity → Rol
 
 Frontend embedded in Go binary via `go:embed`. Served from same port as API.
 
-**Headers**: `X-Tenant-ID`, `X-Workspace-ID`, `Authorization` (Bearer JWT)
+**Headers (Panel)**: `X-Tenant-ID`, `X-Workspace-ID`, `Authorization` (Bearer JWT)
+
+**Headers (Render)**: `X-Tenant-Code`, `X-Workspace-Code`, `Authorization` (Bearer JWT)
 
 ## RBAC
 

@@ -107,13 +107,15 @@ DRAFT ────────────────────────�
 
 ## API Headers
 
-| Header           | Required For                 | Description                              |
-| ---------------- | ---------------------------- | ---------------------------------------- |
-| `Authorization`  | All authenticated routes     | `Bearer <JWT>`                           |
-| `X-Tenant-ID`    | `/tenant/*`, `/api/v1/*`     | Tenant UUID                              |
-| `X-Workspace-ID` | `/workspace/*`, `/content/*` | Workspace UUID                           |
-| `X-API-Key`      | `/internal/*`                | Service-to-service API key               |
-| `X-Operation-ID` | Optional                     | Traceability (auto-generated if omitted) |
+| Header             | Required For                 | Description                              |
+| ------------------ | ---------------------------- | ---------------------------------------- |
+| `Authorization`    | All authenticated routes     | `Bearer <JWT>`                           |
+| `X-Tenant-ID`      | `/tenant/*`, `/api/v1/*`     | Tenant UUID (panel routes)               |
+| `X-Workspace-ID`   | `/workspace/*`, `/content/*` | Workspace UUID (panel routes)            |
+| `X-Tenant-Code`    | `.../render`                 | Tenant code (render routes)              |
+| `X-Workspace-Code` | `.../render`                 | Workspace code (render routes)           |
+| `X-API-Key`        | `/internal/*`                | Service-to-service API key               |
+| `X-Operation-ID`   | Optional                     | Traceability (auto-generated if omitted) |
 
 ## API Routes
 

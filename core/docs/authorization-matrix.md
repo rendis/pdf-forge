@@ -10,12 +10,14 @@ El sistema tiene **3 niveles de roles** jerárquicos:
 
 ### Headers Requeridos
 
-| Header           | Descripción                                                             |
-| ---------------- | ----------------------------------------------------------------------- |
-| `Authorization`  | `Bearer <JWT_token>` - Requerido para todos los endpoints autenticados  |
-| `X-Tenant-ID`    | UUID del tenant - Requerido para rutas `/tenant/*`                      |
-| `X-Workspace-ID` | UUID del workspace - Requerido para rutas `/workspace/*` y `/content/*` |
-| `X-Operation-ID` | UUID de operación (opcional, se genera automáticamente)                 |
+| Header             | Descripción                                                                        |
+| ------------------ | ---------------------------------------------------------------------------------- |
+| `Authorization`    | `Bearer <JWT_token>` - Requerido para todos los endpoints autenticados             |
+| `X-Tenant-ID`      | UUID del tenant - Requerido para rutas del panel (`/tenant/*`)                     |
+| `X-Workspace-ID`   | UUID del workspace - Requerido para rutas del panel (`/workspace/*`, `/content/*`) |
+| `X-Tenant-Code`    | Code del tenant - Requerido para rutas de render                                   |
+| `X-Workspace-Code` | Code del workspace - Requerido para rutas de render                                |
+| `X-Operation-ID`   | UUID de operación (opcional, se genera automáticamente)                             |
 
 ### Elevación Automática de Roles
 
