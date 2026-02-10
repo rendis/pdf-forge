@@ -9,22 +9,11 @@ import type { InjectableGroup } from '../types/injectable-group'
 
 // Module-level deduplication (persists across StrictMode remounts)
 let inFlightFetch: Promise<void> | null = null
-let lastFetchedWorkspaceId: string | null = null
-let lastFetchedLocale: string | null = null
 
-/**
- * Reset module-level dedup state (called on logout to prevent stale promises)
- */
-export function resetInjectablesDedup() {
-  inFlightFetch = null
-  lastFetchedWorkspaceId = null
-  lastFetchedLocale = null
-}
-
-// Clear dedup state and store when auth is lost (logout / session expiry)
+// Clear store when auth is lost (logout / session expiry)
 useAuthStore.subscribe((state, prevState) => {
   if (prevState.token && !state.token) {
-    resetInjectablesDedup()
+    inFlightFetch = null
     useInjectablesStore.getState().reset()
   }
 })
@@ -80,11 +69,6 @@ export function useInjectables(): UseInjectablesReturn {
       return
     }
 
-    // Skip if already loaded for this workspace and locale (module-level check)
-    if (lastFetchedWorkspaceId === workspaceId && lastFetchedLocale === locale) {
-      return
-    }
-
     // If request already in-flight, wait for it instead of making a new one
     if (inFlightFetch) {
       await inFlightFetch
@@ -99,8 +83,6 @@ export function useInjectables(): UseInjectablesReturn {
       try {
         const response = await fetchInjectables(locale)
         setFromResponse(response)
-        lastFetchedWorkspaceId = workspaceId
-        lastFetchedLocale = locale
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to load injectables'
