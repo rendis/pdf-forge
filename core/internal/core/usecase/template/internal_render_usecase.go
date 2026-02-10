@@ -12,6 +12,8 @@ type InternalRenderCommand struct {
 	WorkspaceCode    string
 	TemplateTypeCode string
 	Injectables      map[string]any
+	Headers          map[string]string
+	Payload          any
 }
 
 // InternalRenderUseCase defines the input port for internal template rendering by codes.

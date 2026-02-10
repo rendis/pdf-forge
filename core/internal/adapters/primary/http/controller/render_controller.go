@@ -173,12 +173,22 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		req.Injectables = make(map[string]any)
 	}
 
+	// Extract headers for injector context
+	headers := make(map[string]string, len(ctx.Request.Header))
+	for k, v := range ctx.Request.Header {
+		if len(v) > 0 {
+			headers[k] = v[0]
+		}
+	}
+
 	// Resolve and render
 	result, err := c.documentTypeRenderUC.RenderByDocumentType(ctx.Request.Context(), templateuc.InternalRenderCommand{
 		TenantCode:       tenantCode,
 		WorkspaceCode:    workspaceCode,
 		TemplateTypeCode: documentTypeCode,
 		Injectables:      req.Injectables,
+		Headers:          headers,
+		Payload:          req.Injectables,
 	})
 	if err != nil {
 		HandleError(ctx, err)
