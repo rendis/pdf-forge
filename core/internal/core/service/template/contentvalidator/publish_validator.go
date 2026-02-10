@@ -147,7 +147,6 @@ func (s *Service) loadAccessibleInjectables(vctx *validationContext) error {
 
 	result, err := s.injectableUC.ListInjectables(vctx.ctx, &injectableuc.ListInjectablesRequest{
 		WorkspaceID: vctx.workspaceID,
-		Locale:      "es", // Default locale for validation
 	})
 	if err != nil {
 		return err

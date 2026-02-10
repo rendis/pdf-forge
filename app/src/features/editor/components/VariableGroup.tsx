@@ -4,7 +4,7 @@ import { ChevronRight, FolderOpen, type LucideIcon } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { InjectableGroup } from '../types/injectable-group'
+import type { ResolvedGroup } from '../types/injectable-group'
 import type { Variable } from '../types/variables'
 import type { VariableDragData } from '../types/drag'
 import { DraggableVariable } from './DraggableVariable'
@@ -59,7 +59,7 @@ const DEFAULT_COLORS = {
 
 interface VariableGroupProps {
   /** Group definition with name, icon, and order */
-  group: InjectableGroup
+  group: ResolvedGroup
   /** Variables belonging to this group */
   variables: Variable[]
   /** Optional click handler for variables */

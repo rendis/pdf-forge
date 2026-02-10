@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useInjectablesStore } from '../stores/injectables-store'
 import { fetchInjectables } from '../api/injectables-api'
 import type { Variable } from '../types/variables'
-import type { InjectableGroup } from '../types/injectable-group'
+import type { ResolvedGroup } from '../types/injectable-group'
 
 // Module-level deduplication (persists across StrictMode remounts)
 let inFlightFetch: Promise<void> | null = null
@@ -19,12 +19,12 @@ useAuthStore.subscribe((state, prevState) => {
 })
 
 export interface UseInjectablesReturn {
-  /** List of variables (mapped from injectables) */
+  /** List of variables (mapped from injectables, resolved for current locale) */
   variables: Variable[]
-  /** Raw injectables from API */
+  /** Raw injectables from API (i18n maps) */
   injectables: ReturnType<typeof useInjectablesStore.getState>['injectables']
-  /** Injectable groups for visual organization */
-  groups: InjectableGroup[]
+  /** Injectable groups resolved for current locale */
+  groups: ResolvedGroup[]
   /** Loading state */
   isLoading: boolean
   /** Error message, if any */
@@ -39,50 +39,40 @@ export interface UseInjectablesReturn {
  * This hook:
  * - Fetches injectables when a workspace is selected
  * - Automatically reloads when workspace changes
+ * - Re-resolves labels client-side when locale changes (no API call)
  * - Returns empty array if no workspace is selected (not an error)
  * - Handles loading and error states
- *
- * @example
- * ```tsx
- * const { variables, isLoading, error, refetch } = useInjectables()
- *
- * if (isLoading) return <Spinner />
- * if (error) return <ErrorMessage>{error}</ErrorMessage>
- *
- * return <DocumentEditor variables={variables} />
- * ```
  */
 export function useInjectables(): UseInjectablesReturn {
   const { i18n } = useTranslation()
   const currentWorkspace = useAppContextStore((state) => state.currentWorkspace)
+  const locale = i18n.language.split('-')[0]
 
-  // Use getState() for actions (stable references) — avoids subscribing to ALL store state
-  const { setFromResponse, setInjectables, setLoading, setError } = useInjectablesStore.getState()
-  const locale = i18n.language.split('-')[0] // "en-US" -> "en"
+  // Use getState() for actions (stable references)
+  const { setFromResponse, setInjectables, setLoading, setError, resolveForLocale } =
+    useInjectablesStore.getState()
 
+  // Fetch injectables (only depends on workspace, NOT locale)
   const loadInjectables = useCallback(async () => {
     const workspaceId = currentWorkspace?.id
 
-    // Skip if no workspace selected (not an error condition)
     if (!workspaceId) {
-      setInjectables([])
+      setInjectables([], locale)
       return
     }
 
-    // If request already in-flight, wait for it instead of making a new one
     if (inFlightFetch) {
       await inFlightFetch
       return
     }
 
-    // Create and track the fetch promise for deduplication
     inFlightFetch = (async () => {
       setLoading(true)
       setError(null)
 
       try {
-        const response = await fetchInjectables(locale)
-        setFromResponse(response)
+        const response = await fetchInjectables()
+        setFromResponse(response, locale)
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to load injectables'
@@ -95,12 +85,17 @@ export function useInjectables(): UseInjectablesReturn {
     })()
 
     await inFlightFetch
-  }, [currentWorkspace?.id, locale])
+  }, [currentWorkspace?.id])
 
   // Load on mount and when workspace changes
   useEffect(() => {
     loadInjectables()
   }, [loadInjectables])
+
+  // Re-resolve labels when locale changes (no API call)
+  useEffect(() => {
+    resolveForLocale(locale)
+  }, [locale])
 
   // Subscribe to only the values we need to return (not actions)
   const variables = useInjectablesStore((s) => s.variables)

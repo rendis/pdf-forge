@@ -1,9 +1,9 @@
 package port
 
-// GroupConfig represents a resolved group with localized name.
+// GroupConfig represents a group with all locale translations.
 type GroupConfig struct {
 	Key   string
-	Name  string
+	Names map[string]string
 	Icon  string
 	Order int
 }
@@ -40,8 +40,8 @@ type InjectorRegistry interface {
 	// Retorna nil si el inyector no tiene grupo asignado.
 	GetGroup(code string) *string
 
-	// GetGroups retorna todos los grupos traducidos al locale especificado.
-	GetGroups(locale string) []GroupConfig
+	// GetAllGroups retorna todos los grupos con todas las traducciones.
+	GetAllGroups() []GroupConfig
 
 	// SetInitFunc registra la función de inicialización GLOBAL.
 	// Se ejecuta UNA vez antes de todos los inyectores.

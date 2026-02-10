@@ -22,10 +22,10 @@ type groupI18n struct {
 	Icon string            `yaml:"icon"`
 }
 
-// GroupConfig represents a resolved group with localized name.
+// GroupConfig represents a group with all locale translations.
 type GroupConfig struct {
 	Key   string
-	Name  string
+	Names map[string]string
 	Icon  string
 	Order int
 }
@@ -247,28 +247,25 @@ func (c *InjectorI18nConfig) GetGroup(code string) *string {
 	return &entry.Group
 }
 
-// GetGroups retorna todos los grupos traducidos al locale especificado.
+// GetAllGroups retorna todos los grupos con todas las traducciones.
 // El orden se determina por la posición en el array YAML (índice = orden).
-func (c *InjectorI18nConfig) GetGroups(locale string) []GroupConfig {
+func (c *InjectorI18nConfig) GetAllGroups() []GroupConfig {
 	if c == nil || c.groups == nil {
 		return nil
 	}
 
 	result := make([]GroupConfig, 0, len(c.groups))
 	for i, group := range c.groups {
-		name := group.Name[locale]
-		if name == "" {
-			name = group.Name["en"]
-		}
-		if name == "" {
-			name = group.Key
+		names := group.Name
+		if names == nil {
+			names = map[string]string{"en": group.Key}
 		}
 
 		result = append(result, GroupConfig{
 			Key:   group.Key,
-			Name:  name,
+			Names: names,
 			Icon:  group.Icon,
-			Order: i, // Order is determined by position in YAML array
+			Order: i,
 		})
 	}
 

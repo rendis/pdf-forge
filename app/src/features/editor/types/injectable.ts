@@ -1,5 +1,6 @@
 import type { InjectorType, Variable } from './variables'
 import type { InjectableGroup } from './injectable-group'
+import { resolveI18n } from './i18n-resolve'
 
 // ============================================
 // Internal Injectable Constants
@@ -84,9 +85,9 @@ export interface Injectable {
   id: string
   workspaceId: string
   key: string
-  label: string
+  label: Record<string, string>
   dataType: InjectorType
-  description?: string
+  description?: Record<string, string>
   isGlobal: boolean
   sourceType: 'INTERNAL' | 'EXTERNAL'
   formatConfig?: FormatConfig
@@ -106,15 +107,15 @@ export interface InjectablesListResponse {
 }
 
 /**
- * Convert API Injectable to frontend Variable format
+ * Convert API Injectable to frontend Variable format, resolving i18n labels.
  */
-export function mapInjectableToVariable(injectable: Injectable): Variable {
+export function mapInjectableToVariable(injectable: Injectable, locale: string): Variable {
   return {
     id: injectable.id,
     variableId: injectable.key,
-    label: injectable.label,
+    label: resolveI18n(injectable.label, locale, injectable.key),
     type: injectable.dataType,
-    description: injectable.description,
+    description: resolveI18n(injectable.description, locale),
     formatConfig: injectable.formatConfig,
     sourceType: injectable.sourceType,
     metadata: injectable.metadata,
@@ -123,10 +124,10 @@ export function mapInjectableToVariable(injectable: Injectable): Variable {
 }
 
 /**
- * Convert array of Injectables to Variables
+ * Convert array of Injectables to Variables, resolving i18n labels.
  */
-export function mapInjectablesToVariables(injectables: Injectable[]): Variable[] {
-  return injectables.map(mapInjectableToVariable)
+export function mapInjectablesToVariables(injectables: Injectable[], locale: string): Variable[] {
+  return injectables.map((inj) => mapInjectableToVariable(inj, locale))
 }
 
 /**

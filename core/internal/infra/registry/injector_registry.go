@@ -130,17 +130,17 @@ func (r *injectorRegistry) GetInitFunc() port.InitFunc {
 	return r.initFunc
 }
 
-// GetGroups returns all groups translated to the specified locale.
-func (r *injectorRegistry) GetGroups(locale string) []port.GroupConfig {
+// GetAllGroups returns all groups with all locale translations.
+func (r *injectorRegistry) GetAllGroups() []port.GroupConfig {
 	if r.i18n == nil {
 		return nil
 	}
-	configGroups := r.i18n.GetGroups(locale)
+	configGroups := r.i18n.GetAllGroups()
 	result := make([]port.GroupConfig, len(configGroups))
 	for i, g := range configGroups {
 		result[i] = port.GroupConfig{
 			Key:   g.Key,
-			Name:  g.Name,
+			Names: g.Names,
 			Icon:  g.Icon,
 			Order: g.Order,
 		}

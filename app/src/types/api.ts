@@ -43,8 +43,8 @@ export interface Injectable {
   id: string;
   workspaceId?: string;
   key: string;
-  label: string;
-  description?: string;
+  label: Record<string, string>;
+  description?: Record<string, string>;
   dataType: InjectableDataType;
   sourceType: InjectableSourceType;
   metadata?: Record<string, unknown>;

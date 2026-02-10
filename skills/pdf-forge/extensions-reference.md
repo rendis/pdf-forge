@@ -54,7 +54,7 @@ func (p *MyProvider) ResolveInjectables(ctx context.Context, req *sdk.ResolveInj
 
 **Register**: `engine.SetWorkspaceInjectableProvider(&MyProvider{})`
 
-**i18n**: Return all locales in `map[string]string`. Framework picks based on `?locale=` param.
+**i18n**: Return all locales in `map[string]string`. All translations are included in the API response; the frontend resolves client-side.
 
 See **types-reference.md** for complete interface details.
 

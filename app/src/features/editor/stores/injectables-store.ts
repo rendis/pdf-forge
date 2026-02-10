@@ -2,54 +2,80 @@ import { create } from 'zustand'
 import type { Variable } from '../types/variables'
 import type { Injectable, InjectablesListResponse } from '../types/injectable'
 import { mapInjectablesToVariables } from '../types/injectable'
-import type { InjectableGroup } from '../types/injectable-group'
+import type { InjectableGroup, ResolvedGroup } from '../types/injectable-group'
+import { resolveI18n } from '../types/i18n-resolve'
+
+function resolveGroups(
+  groups: InjectableGroup[],
+  locale: string
+): ResolvedGroup[] {
+  return groups
+    .map((g) => ({
+      key: g.key,
+      name: resolveI18n(g.name, locale, g.key),
+      icon: g.icon,
+      order: g.order,
+    }))
+    .sort((a, b) => a.order - b.order)
+}
 
 interface InjectablesState {
-  // State
-  variables: Variable[]
+  // Raw API data (i18n maps)
+  rawResponse: InjectablesListResponse | null
+  // Resolved for current locale
   injectables: Injectable[]
-  groups: InjectableGroup[]
+  variables: Variable[]
+  groups: ResolvedGroup[]
   isLoading: boolean
   error: string | null
   // Actions
-  setFromResponse: (response: InjectablesListResponse) => void
-  setInjectables: (injectables: Injectable[]) => void
+  setFromResponse: (response: InjectablesListResponse, locale: string) => void
+  resolveForLocale: (locale: string) => void
+  setInjectables: (injectables: Injectable[], locale: string) => void
   setVariables: (variables: Variable[]) => void
-  setGroups: (groups: InjectableGroup[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   reset: () => void
 }
 
 const initialState = {
-  variables: [] as Variable[],
+  rawResponse: null as InjectablesListResponse | null,
   injectables: [] as Injectable[],
-  groups: [] as InjectableGroup[],
+  variables: [] as Variable[],
+  groups: [] as ResolvedGroup[],
   isLoading: false,
   error: null as string | null,
 }
 
-export const useInjectablesStore = create<InjectablesState>()((set) => ({
+export const useInjectablesStore = create<InjectablesState>()((set, get) => ({
   ...initialState,
 
-  setFromResponse: (response) => {
-    const variables = mapInjectablesToVariables(response.items)
-    // Groups come directly from API, already resolved for locale
-    const groups = (response.groups ?? []).sort((a, b) => a.order - b.order)
-    set({ injectables: response.items, variables, groups })
+  setFromResponse: (response, locale) => {
+    const variables = mapInjectablesToVariables(response.items, locale)
+    const groups = resolveGroups(response.groups ?? [], locale)
+    set({
+      rawResponse: response,
+      injectables: response.items,
+      variables,
+      groups,
+    })
   },
 
-  setInjectables: (injectables) => {
-    const variables = mapInjectablesToVariables(injectables)
+  resolveForLocale: (locale) => {
+    const { rawResponse } = get()
+    if (!rawResponse) return
+    const variables = mapInjectablesToVariables(rawResponse.items, locale)
+    const groups = resolveGroups(rawResponse.groups ?? [], locale)
+    set({ variables, groups })
+  },
+
+  setInjectables: (injectables, locale) => {
+    const variables = mapInjectablesToVariables(injectables, locale)
     set({ injectables, variables })
   },
 
   setVariables: (variables) => {
     set({ variables })
-  },
-
-  setGroups: (groups) => {
-    set({ groups })
   },
 
   setLoading: (isLoading) => {
@@ -146,4 +172,3 @@ export const selectInternalVariables = (state: InjectablesState) =>
  */
 export const selectExternalVariables = (state: InjectablesState) =>
   state.variables.filter((v) => v.sourceType === 'EXTERNAL')
-

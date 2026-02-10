@@ -446,7 +446,9 @@ definitions:
       key:
         type: string
       name:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       order:
         type: integer
     type: object
@@ -457,7 +459,9 @@ definitions:
       dataType:
         type: string
       description:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       formatConfig:
         $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse'
       group:
@@ -469,7 +473,9 @@ definitions:
       key:
         type: string
       label:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       metadata:
         additionalProperties: {}
         type: object
@@ -1391,10 +1397,6 @@ paths:
         in: header
         name: X-Workspace-ID
         required: true
-        type: string
-      - description: 'Locale for translations (default: es)'
-        in: query
-        name: locale
         type: string
       produces:
       - application/json

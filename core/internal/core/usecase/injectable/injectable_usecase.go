@@ -10,7 +10,6 @@ import (
 // ListInjectablesRequest contains parameters for listing injectables.
 type ListInjectablesRequest struct {
 	WorkspaceID string // Workspace ID to list injectables for
-	Locale      string // Locale for translations (e.g., "es", "en")
 }
 
 // ListInjectablesResult contains the list of injectables and groups.

@@ -31,12 +31,22 @@ func (m *InjectableMapper) ToResponse(injectable *entity.InjectableDefinition) *
 		return nil
 	}
 
+	// Use i18n maps if available (system/provider), otherwise wrap DB string
+	labels := injectable.Labels
+	if labels == nil {
+		labels = map[string]string{"_": injectable.Label}
+	}
+	descriptions := injectable.Descriptions
+	if descriptions == nil && injectable.Description != "" {
+		descriptions = map[string]string{"_": injectable.Description}
+	}
+
 	return &dto.InjectableResponse{
 		ID:           injectable.ID,
 		WorkspaceID:  injectable.WorkspaceID,
 		Key:          injectable.Key,
-		Label:        injectable.Label,
-		Description:  injectable.Description,
+		Label:        labels,
+		Description:  descriptions,
 		DataType:     string(injectable.DataType),
 		SourceType:   string(injectable.SourceType),
 		Metadata:     injectable.Metadata,
@@ -82,7 +92,7 @@ func (m *InjectableMapper) ToGroupResponseList(groups []port.GroupConfig) []*dto
 	for i, g := range groups {
 		responses[i] = &dto.GroupResponse{
 			Key:   g.Key,
-			Name:  g.Name,
+			Name:  g.Names,
 			Icon:  g.Icon,
 			Order: g.Order,
 		}

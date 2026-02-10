@@ -51,17 +51,14 @@ func (c *ContentInjectableController) RegisterRoutes(rg *gin.RouterGroup, middle
 // @Accept json
 // @Produce json
 // @Param X-Workspace-ID header string true "Workspace ID"
-// @Param locale query string false "Locale for translations (default: es)"
 // @Success 200 {object} dto.ListInjectablesResponse
 // @Failure 401 {object} dto.ErrorResponse
 // @Router /api/v1/content/injectables [get]
 func (c *ContentInjectableController) ListInjectables(ctx *gin.Context) {
 	workspaceID, _ := middleware.GetWorkspaceID(ctx)
-	locale := ctx.DefaultQuery("locale", "es")
 
 	result, err := c.injectableUC.ListInjectables(ctx.Request.Context(), &injectableuc.ListInjectablesRequest{
 		WorkspaceID: workspaceID,
-		Locale:      locale,
 	})
 	if err != nil {
 		respondError(ctx, http.StatusInternalServerError, err)

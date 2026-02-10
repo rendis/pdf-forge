@@ -34,12 +34,6 @@ const docTemplate = `{
                         "name": "X-Workspace-ID",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Locale for translations (default: es)",
-                        "name": "locale",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -6120,7 +6114,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "order": {
                     "type": "integer"
@@ -6137,7 +6134,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "formatConfig": {
                     "$ref": "#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.FormatConfigResponse"
@@ -6155,7 +6155,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "label": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "metadata": {
                     "type": "object",

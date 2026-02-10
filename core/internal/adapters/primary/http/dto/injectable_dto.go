@@ -16,8 +16,8 @@ type InjectableResponse struct {
 	ID           string                `json:"id"`
 	WorkspaceID  *string               `json:"workspaceId,omitempty"`
 	Key          string                `json:"key"`
-	Label        string                `json:"label"`
-	Description  string                `json:"description,omitempty"`
+	Label        map[string]string     `json:"label"`
+	Description  map[string]string     `json:"description,omitempty"`
 	DataType     string                `json:"dataType"`
 	SourceType   string                `json:"sourceType"`
 	Metadata     map[string]any        `json:"metadata,omitempty"`
@@ -30,10 +30,10 @@ type InjectableResponse struct {
 
 // GroupResponse represents an injectable group in API responses.
 type GroupResponse struct {
-	Key   string `json:"key"`
-	Name  string `json:"name"`
-	Icon  string `json:"icon"`
-	Order int    `json:"order"`
+	Key   string            `json:"key"`
+	Name  map[string]string `json:"name"`
+	Icon  string            `json:"icon"`
+	Order int               `json:"order"`
 }
 
 // ListInjectablesResponse represents the list of injectables.

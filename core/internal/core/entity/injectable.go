@@ -11,10 +11,12 @@ var injectableKeyRegex = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
 // InjectableDefinition represents a variable that can be injected into templates.
 type InjectableDefinition struct {
 	ID           string               `json:"id"`
-	WorkspaceID  *string              `json:"workspaceId,omitempty"` // NULL for global definitions
-	Key          string               `json:"key"`                   // Technical key (e.g., customer_name)
-	Label        string               `json:"label"`                 // Human-readable name
-	Description  string               `json:"description,omitempty"`
+	WorkspaceID  *string              `json:"workspaceId,omitempty"`  // NULL for global definitions
+	Key          string               `json:"key"`                    // Technical key (e.g., customer_name)
+	Label        string               `json:"label"`                  // Human-readable name (DB injectables)
+	Description  string               `json:"description,omitempty"`  // Human-readable description (DB injectables)
+	Labels       map[string]string    `json:"labels,omitempty"`       // i18n labels (system/provider injectables)
+	Descriptions map[string]string    `json:"descriptions,omitempty"` // i18n descriptions (system/provider injectables)
 	DataType     InjectableDataType   `json:"dataType"`
 	SourceType   InjectableSourceType `json:"sourceType"`             // INTERNAL (system-calculated) or EXTERNAL (user input)
 	Metadata     map[string]any       `json:"metadata"`               // Flexible configuration (format options, etc.)

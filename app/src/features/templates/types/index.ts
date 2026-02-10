@@ -87,9 +87,9 @@ export interface Injectable {
   id: string
   workspaceId: string
   key: string
-  label: string
+  label: Record<string, string>
   dataType: InjectableDataType
-  description?: string
+  description?: Record<string, string>
   isGlobal: boolean
   createdAt: string
   updatedAt?: string

@@ -59,7 +59,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 		return nil, fmt.Errorf("listing injectables: %w", err)
 	}
 
-	systemInjectables, err := s.getSystemInjectables(ctx, req.WorkspaceID, req.Locale)
+	systemInjectables, err := s.getSystemInjectables(ctx, req.WorkspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("listing system injectables: %w", err)
 	}
@@ -80,8 +80,8 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 		}
 
 		if providerResult != nil {
-			providerInjectables = s.convertProviderInjectables(providerResult.Injectables, req.Locale)
-			providerGroups = s.convertProviderGroups(providerResult.Groups, req.Locale)
+			providerInjectables = s.convertProviderInjectables(providerResult.Injectables)
+			providerGroups = s.convertProviderGroups(providerResult.Groups)
 
 			// Validate no duplicate codes with existing injectables
 			if err := s.validateNoDuplicateCodes(dbInjectables, systemInjectables, providerInjectables); err != nil {
@@ -95,7 +95,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 	allInjectables = append(allInjectables, providerInjectables...)
 
 	// Merge groups (registry groups + provider groups)
-	registryGroups := s.injectorRegistry.GetGroups(req.Locale)
+	registryGroups := s.injectorRegistry.GetAllGroups()
 	allGroups := make([]port.GroupConfig, 0, len(registryGroups)+len(providerGroups))
 	allGroups = append(allGroups, registryGroups...)
 	allGroups = append(allGroups, providerGroups...)
@@ -107,7 +107,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 }
 
 // getSystemInjectables returns system injectables filtered by active assignments for the workspace.
-func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceID, locale string) ([]*entity.InjectableDefinition, error) {
+func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceID string) ([]*entity.InjectableDefinition, error) {
 	if s.injectorRegistry == nil || s.systemInjectableRepo == nil {
 		return nil, nil
 	}
@@ -126,7 +126,7 @@ func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceI
 	result := make([]*entity.InjectableDefinition, 0, len(activeKeys))
 	for _, inj := range injectors {
 		if activeKeySet[inj.Code()] {
-			result = append(result, s.injectorToDefinition(inj, locale))
+			result = append(result, s.injectorToDefinition(inj))
 		}
 	}
 
@@ -134,11 +134,11 @@ func (s *InjectableService) getSystemInjectables(ctx context.Context, workspaceI
 }
 
 // injectorToDefinition converts a port.Injector to entity.InjectableDefinition.
-func (s *InjectableService) injectorToDefinition(inj port.Injector, locale string) *entity.InjectableDefinition {
+func (s *InjectableService) injectorToDefinition(inj port.Injector) *entity.InjectableDefinition {
 	code := inj.Code()
 
-	label := s.injectorRegistry.GetName(code, locale)
-	description := s.injectorRegistry.GetDescription(code, locale)
+	labels := s.injectorRegistry.GetAllNames(code)
+	descriptions := s.injectorRegistry.GetAllDescriptions(code)
 
 	// Convert DataType
 	dataType := convertValueTypeToDataType(inj.DataType())
@@ -179,20 +179,20 @@ func (s *InjectableService) injectorToDefinition(inj port.Injector, locale strin
 	}
 
 	return &entity.InjectableDefinition{
-		ID:           code, // Same as key
-		WorkspaceID:  nil,  // Global (extension injectors are system-wide)
+		ID:           code,
+		WorkspaceID:  nil,
 		Key:          code,
-		Label:        label,
-		Description:  description,
+		Labels:       labels,
+		Descriptions: descriptions,
 		DataType:     dataType,
-		SourceType:   entity.InjectableSourceTypeInternal, // System injectors are auto-calculated
+		SourceType:   entity.InjectableSourceTypeInternal,
 		Metadata:     metadata,
 		FormatConfig: formatConfig,
 		Group:        s.injectorRegistry.GetGroup(code),
 		DefaultValue: defaultValue,
 		IsActive:     true,
 		IsDeleted:    false,
-		CreatedAt:    time.Time{}, // Extensions don't have creation time
+		CreatedAt:    time.Time{},
 		UpdatedAt:    nil,
 	}
 }
@@ -262,21 +262,21 @@ func (s *InjectableService) getWorkspaceCodes(ctx context.Context, workspaceID s
 }
 
 // convertProviderInjectables converts provider injectables to entity definitions.
-func (s *InjectableService) convertProviderInjectables(injectables []port.ProviderInjectable, locale string) []*entity.InjectableDefinition {
+func (s *InjectableService) convertProviderInjectables(injectables []port.ProviderInjectable) []*entity.InjectableDefinition {
 	result := make([]*entity.InjectableDefinition, 0, len(injectables))
 	for _, inj := range injectables {
 		def := &entity.InjectableDefinition{
-			ID:          inj.Code,
-			WorkspaceID: nil, // Provider injectables are not workspace-owned
-			Key:         inj.Code,
-			Label:       getLocalizedString(inj.Label, locale, inj.Code),
-			Description: getLocalizedString(inj.Description, locale, ""),
-			DataType:    inj.DataType, // Already InjectableDataType, no conversion needed
-			SourceType:  entity.InjectableSourceTypeExternal,
-			Metadata:    nil,
-			IsActive:    true,
-			IsDeleted:   false,
-			CreatedAt:   time.Time{},
+			ID:           inj.Code,
+			WorkspaceID:  nil,
+			Key:          inj.Code,
+			Labels:       inj.Label,
+			Descriptions: inj.Description,
+			DataType:     inj.DataType,
+			SourceType:   entity.InjectableSourceTypeExternal,
+			Metadata:     nil,
+			IsActive:     true,
+			IsDeleted:    false,
+			CreatedAt:    time.Time{},
 		}
 		if inj.GroupKey != "" {
 			def.Group = &inj.GroupKey
@@ -296,30 +296,19 @@ func (s *InjectableService) convertProviderInjectables(injectables []port.Provid
 	return result
 }
 
-// getLocalizedString retrieves a string for the given locale from a map.
-// Fallback order: requested locale → "en" → fallback value.
-func getLocalizedString(m map[string]string, locale, fallback string) string {
-	if m == nil {
-		return fallback
-	}
-	if v, ok := m[locale]; ok {
-		return v
-	}
-	if v, ok := m["en"]; ok {
-		return v
-	}
-	return fallback
-}
-
 // convertProviderGroups converts provider groups to GroupConfig.
-func (s *InjectableService) convertProviderGroups(groups []port.ProviderGroup, locale string) []port.GroupConfig {
+func (s *InjectableService) convertProviderGroups(groups []port.ProviderGroup) []port.GroupConfig {
 	result := make([]port.GroupConfig, 0, len(groups))
 	for i, g := range groups {
+		names := g.Name
+		if names == nil {
+			names = map[string]string{"en": g.Key}
+		}
 		result = append(result, port.GroupConfig{
 			Key:   g.Key,
-			Name:  getLocalizedString(g.Name, locale, g.Key),
+			Names: names,
 			Icon:  g.Icon,
-			Order: 1000 + i, // Provider groups appear at the end
+			Order: 1000 + i,
 		})
 	}
 	return result
