@@ -4224,8 +4224,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Workspace ID",
-                        "name": "X-Workspace-ID",
+                        "description": "Tenant code",
+                        "name": "X-Tenant-Code",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Workspace code",
+                        "name": "X-Workspace-Code",
                         "in": "header",
                         "required": true
                     },

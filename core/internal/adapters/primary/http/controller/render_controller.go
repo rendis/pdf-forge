@@ -135,7 +135,8 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 // @Tags Workspace - Render
 // @Accept json
 // @Produce application/pdf
-// @Param X-Workspace-ID header string true "Workspace ID"
+// @Param X-Tenant-Code header string true "Tenant code"
+// @Param X-Workspace-Code header string true "Workspace code"
 // @Param code path string true "Document type code"
 // @Param disposition query string false "Content disposition: inline (default) or attachment"
 // @Param request body dto.RenderRequest false "Injectable values"
@@ -148,9 +149,15 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 // @Router /api/v1/workspace/document-types/{code}/render [post]
 // @Security BearerAuth
 func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
-	workspaceID, ok := middleware.GetWorkspaceID(ctx)
-	if !ok {
-		respondError(ctx, http.StatusBadRequest, fmt.Errorf("workspace ID not found in context"))
+	tenantCode := ctx.GetHeader("X-Tenant-Code")
+	if tenantCode == "" {
+		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Tenant-Code header is required"))
+		return
+	}
+
+	workspaceCode := ctx.GetHeader("X-Workspace-Code")
+	if workspaceCode == "" {
+		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Workspace-Code header is required"))
 		return
 	}
 
@@ -167,9 +174,10 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 	}
 
 	// Resolve and render
-	result, err := c.documentTypeRenderUC.RenderByWorkspaceID(ctx.Request.Context(), templateuc.RenderByWorkspaceCommand{
-		WorkspaceID:      workspaceID,
-		DocumentTypeCode: documentTypeCode,
+	result, err := c.documentTypeRenderUC.RenderByDocumentType(ctx.Request.Context(), templateuc.InternalRenderCommand{
+		TenantCode:       tenantCode,
+		WorkspaceCode:    workspaceCode,
+		TemplateTypeCode: documentTypeCode,
 		Injectables:      req.Injectables,
 	})
 	if err != nil {
@@ -184,7 +192,8 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 	}
 
 	slog.InfoContext(ctx.Request.Context(), "document type render completed",
-		slog.String("workspace_id", workspaceID),
+		slog.String("tenant_code", tenantCode),
+		slog.String("workspace_code", workspaceCode),
 		slog.String("document_type_code", documentTypeCode),
 		slog.Int("page_count", result.PageCount),
 	)

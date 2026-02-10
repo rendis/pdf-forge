@@ -14,20 +14,9 @@ type InternalRenderCommand struct {
 	Injectables      map[string]any
 }
 
-// RenderByWorkspaceCommand contains the parameters for rendering a template by workspace ID.
-type RenderByWorkspaceCommand struct {
-	WorkspaceID      string
-	DocumentTypeCode string
-	Injectables      map[string]any
-}
-
 // InternalRenderUseCase defines the input port for internal template rendering by codes.
 type InternalRenderUseCase interface {
 	// RenderByDocumentType resolves a template using the fallback chain
 	// (workspace → tenant system workspace → global system) and renders a PDF.
 	RenderByDocumentType(ctx context.Context, cmd InternalRenderCommand) (*port.RenderPreviewResult, error)
-
-	// RenderByWorkspaceID resolves a template using workspace ID and document type code.
-	// Uses the same fallback chain as RenderByDocumentType.
-	RenderByWorkspaceID(ctx context.Context, cmd RenderByWorkspaceCommand) (*port.RenderPreviewResult, error)
 }

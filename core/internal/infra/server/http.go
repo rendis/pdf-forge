@@ -446,7 +446,7 @@ func corsMiddleware(corsCfg config.CORSConfig) gin.HandlerFunc {
 		}
 
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, Cache-Control, Pragma, X-Workspace-ID, X-Tenant-ID, X-External-ID, X-Template-ID, X-Transactional-ID")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, Cache-Control, Pragma, X-Workspace-ID, X-Tenant-ID, X-Tenant-Code, X-Workspace-Code, X-External-ID, X-Template-ID, X-Transactional-ID")
 		c.Header("Access-Control-Expose-Headers", "Content-Length")
 		c.Header("Access-Control-Allow-Credentials", "true")
 

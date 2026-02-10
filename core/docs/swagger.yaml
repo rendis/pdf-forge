@@ -4118,9 +4118,14 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Workspace ID
+      - description: Tenant code
         in: header
-        name: X-Workspace-ID
+        name: X-Tenant-Code
+        required: true
+        type: string
+      - description: Workspace code
+        in: header
+        name: X-Workspace-Code
         required: true
         type: string
       - description: Document type code
