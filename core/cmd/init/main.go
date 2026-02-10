@@ -32,7 +32,7 @@ var fileMapping = []struct {
 }{
 	{"templates/main.go.tmpl", "main.go"},
 	{"templates/extensions/register.go.tmpl", "extensions/register.go"},
-	{"templates/extensions/injectors/example.go.tmpl", "extensions/injectors/example.go"},
+	{"templates/extensions/injectors/example_value.go.tmpl", "extensions/injectors/example_value.go"},
 	{"templates/extensions/mapper.go.tmpl", "extensions/mapper.go"},
 	{"templates/extensions/init.go.tmpl", "extensions/init.go"},
 	{"templates/extensions/provider.go.tmpl", "extensions/provider.go"},

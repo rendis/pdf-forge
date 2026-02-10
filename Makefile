@@ -31,18 +31,18 @@ embed-app: build-app
 	@echo "Created .env from .env.example"
 
 # Run backend + frontend (Ctrl+C stops both)
-run: .env
+run: .env embed-app
 	@trap 'kill 0' INT TERM; \
 	$(MAKE) -C core run & \
 	$(MAKE) -C app dev & \
 	wait
 
 # Run backend only
-run-core: .env
+run-core: .env embed-app
 	$(MAKE) -C core run
 
 # Development (hot reload backend + frontend)
-dev: .env
+dev: .env embed-app
 	@trap 'kill 0' INT TERM; \
 	$(MAKE) -C core dev & \
 	$(MAKE) -C app dev & \
