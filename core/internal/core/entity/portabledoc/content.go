@@ -40,6 +40,7 @@ const (
 	NodeTypeImage       = "image"
 	NodeTypeCustomImage = "customImage"
 	NodeTypeText        = "text"
+	NodeTypeHardBreak   = "hardBreak" // Line break within paragraph (Shift+Enter)
 	// List types
 	NodeTypeListInjector = "listInjector" // Dynamic list from system injector
 	// Table types

@@ -624,7 +624,7 @@ body {
   background: hsl(var(--card));
   font-family: "Helvetica Neue", "Arial", sans-serif;
   font-size: 12pt;
-  line-height: 1.75;
+  line-height: 1.3;
   hyphens: auto;
   overflow-wrap: break-word;
 }
@@ -802,7 +802,7 @@ body {
 .ProseMirror table {
   border-collapse: collapse;
   width: 100%;
-  margin: 1rem 0;
+  margin: 0.5em 0;
   table-layout: fixed;
   overflow: hidden;
 }
