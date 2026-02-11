@@ -43,7 +43,7 @@ export const SlashCommandsExtension = Extension.create<SlashCommandsOptions>({
         editor: this.editor,
         pluginKey: SlashCommandsPluginKey,
         ...this.options.suggestion,
-        items: ({ query }: { query: string }) => filterCommands(query, i18n.t.bind(i18n)),
+        items: ({ query }: { query: string }) => filterCommands(query, i18n.t.bind(i18n), this.editor),
         char: '/',
         allowSpaces: true,
         allowedPrefixes: null,

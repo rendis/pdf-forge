@@ -846,6 +846,8 @@ body {
   font-size: 24pt;
   font-weight: 600;
   line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .ProseMirror th h2,
@@ -853,6 +855,8 @@ body {
   font-size: 20pt;
   font-weight: 600;
   line-height: 1.4;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .ProseMirror th h3,
@@ -860,6 +864,8 @@ body {
   font-size: 16pt;
   font-weight: 600;
   line-height: 1.55556;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 /* Column resize handle */

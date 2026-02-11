@@ -192,6 +192,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             isActive={editor.isActive('heading', { level: 1 })}
+            disabled={editor.isActive('table')}
             tooltip={t('editor.toolbar.heading1')}
           >
             <Heading1 className="h-4 w-4" />
@@ -199,6 +200,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             isActive={editor.isActive('heading', { level: 2 })}
+            disabled={editor.isActive('table')}
             tooltip={t('editor.toolbar.heading2')}
           >
             <Heading2 className="h-4 w-4" />
@@ -206,6 +208,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
             isActive={editor.isActive('heading', { level: 3 })}
+            disabled={editor.isActive('table')}
             tooltip={t('editor.toolbar.heading3')}
           >
             <Heading3 className="h-4 w-4" />
@@ -430,6 +433,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                 className={cn(editor.isActive('heading', { level: 1 }) && 'bg-accent')}
+                disabled={editor.isActive('table')}
               >
                 <Heading1 className="mr-2 h-4 w-4" />
                 {t('editor.toolbar.heading1')}
@@ -437,6 +441,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                 className={cn(editor.isActive('heading', { level: 2 }) && 'bg-accent')}
+                disabled={editor.isActive('table')}
               >
                 <Heading2 className="mr-2 h-4 w-4" />
                 {t('editor.toolbar.heading2')}
@@ -444,6 +449,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
                 className={cn(editor.isActive('heading', { level: 3 }) && 'bg-accent')}
+                disabled={editor.isActive('table')}
               >
                 <Heading3 className="mr-2 h-4 w-4" />
                 {t('editor.toolbar.heading3')}

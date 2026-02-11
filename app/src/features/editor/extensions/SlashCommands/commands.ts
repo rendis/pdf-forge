@@ -190,11 +190,16 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   },
 ]
 
-export const filterCommands = (query: string, t: (key: string) => string): SlashCommand[] => {
-  if (!query) return SLASH_COMMANDS
+export const filterCommands = (query: string, t: (key: string) => string, editor?: Editor): SlashCommand[] => {
+  const isInTable = editor?.isActive('table')
+  const baseCommands = isInTable
+    ? SLASH_COMMANDS.filter(cmd => !['heading1', 'heading2', 'heading3'].includes(cmd.id))
+    : SLASH_COMMANDS
+
+  if (!query) return baseCommands
 
   const lowerQuery = query.toLowerCase()
-  return SLASH_COMMANDS.filter((command) => {
+  return baseCommands.filter((command) => {
     const title = t(command.titleKey).toLowerCase()
     const description = t(command.descriptionKey).toLowerCase()
     const matchesTitle = title.includes(lowerQuery)
