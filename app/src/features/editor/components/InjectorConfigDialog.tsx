@@ -201,6 +201,7 @@ export function InjectorConfigDialog({
                   onChange={(e) => setDefaultValue(e.target.value)}
                   placeholder={t('editor.injector_config.default_value_placeholder')}
                   className="border-border font-mono text-xs"
+                  disabled={!showLabelIfEmpty}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('editor.injector_config.default_value_desc')}
