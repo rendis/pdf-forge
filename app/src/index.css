@@ -624,7 +624,7 @@ body {
   background: hsl(var(--card));
   font-family: "Helvetica Neue", "Arial", sans-serif;
   font-size: 12pt;
-  line-height: 1.75;
+  line-height: 1.3;
   hyphens: auto;
   overflow-wrap: break-word;
 }
@@ -792,7 +792,8 @@ body {
   --tt-table-selected-bg: hsl(var(--primary) / 0.1);
   --tt-table-selected-stroke: hsl(var(--primary));
   --tt-table-column-resize-handle-bg: hsl(var(--primary));
-  --tt-table-cell-padding: 0.5rem;
+  --tt-table-cell-padding-x: 8px;
+  --tt-table-cell-padding-y: 6px;
   --tt-table-handle-bg-color: hsl(var(--muted));
 }
 
@@ -801,7 +802,7 @@ body {
 .ProseMirror table {
   border-collapse: collapse;
   width: 100%;
-  margin: 1rem 0;
+  margin: 0.5em 0;
   table-layout: fixed;
   overflow: hidden;
 }
@@ -811,11 +812,20 @@ body {
 .ProseMirror th,
 .ProseMirror td {
   border: 1px solid var(--tt-table-border-color);
-  padding: var(--tt-table-cell-padding);
+  padding: var(--tt-table-cell-padding-y) var(--tt-table-cell-padding-x);
   text-align: left;
   vertical-align: top;
   position: relative;
   min-width: 100px;
+}
+
+/* Reduce paragraph margins inside table cells */
+.tiptap th p,
+.tiptap td p,
+.ProseMirror th p,
+.ProseMirror td p {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
 }
 
 .tiptap th,

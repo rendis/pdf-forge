@@ -167,6 +167,94 @@ func TestTypstConverter_ParagraphEmpty(t *testing.T) {
 	}
 }
 
+// --- HardBreak ---
+
+func TestTypstConverter_HardBreak(t *testing.T) {
+	c := newConverter(nil, nil)
+	got := c.ConvertNode(portabledoc.Node{Type: portabledoc.NodeTypeHardBreak})
+	want := "\\\n"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_ParagraphWithHardBreaks(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type: portabledoc.NodeTypeParagraph,
+		Content: []portabledoc.Node{
+			textNode("Line 1"),
+			{Type: portabledoc.NodeTypeHardBreak},
+			textNode("Line 2"),
+			{Type: portabledoc.NodeTypeHardBreak},
+			textNode("Line 3"),
+		},
+	}
+	got := c.ConvertNode(node)
+	// Should have line breaks but stay in same paragraph (ends with \n\n not multiple \n\n\n)
+	if !strings.Contains(got, "Line 1\\\nLine 2\\\nLine 3") {
+		t.Errorf("expected hard breaks within paragraph, got %q", got)
+	}
+	if !strings.HasSuffix(got, "\n\n") {
+		t.Errorf("expected paragraph to end with double newline, got %q", got)
+	}
+}
+
+func TestTypstConverter_TableCellWithLineBreaks(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type: portabledoc.NodeTypeTable,
+		Content: []portabledoc.Node{
+			{
+				Type: portabledoc.NodeTypeTableRow,
+				Content: []portabledoc.Node{
+					{
+						Type: portabledoc.NodeTypeTableCell,
+						Content: []portabledoc.Node{
+							paragraphNode(
+								textNode("First line"),
+								portabledoc.Node{Type: portabledoc.NodeTypeHardBreak},
+								textNode("Second line"),
+							),
+						},
+					},
+				},
+			},
+		},
+	}
+	got := c.ConvertNode(node)
+	// Should preserve line break structure within cell
+	if !strings.Contains(got, "First line\\\nSecond line") {
+		t.Errorf("expected line breaks preserved in table cell, got %q", got)
+	}
+}
+
+func TestTypstConverter_TableCellMultipleParagraphs(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type: portabledoc.NodeTypeTable,
+		Content: []portabledoc.Node{
+			{
+				Type: portabledoc.NodeTypeTableRow,
+				Content: []portabledoc.Node{
+					{
+						Type: portabledoc.NodeTypeTableCell,
+						Content: []portabledoc.Node{
+							paragraphNode(textNode("Paragraph 1")),
+							paragraphNode(textNode("Paragraph 2")),
+						},
+					},
+				},
+			},
+		},
+	}
+	got := c.ConvertNode(node)
+	// Should preserve paragraph breaks (\n\n) within cell
+	if !strings.Contains(got, "Paragraph 1\n\nParagraph 2") {
+		t.Errorf("expected paragraph breaks preserved in table cell, got %q", got)
+	}
+}
+
 // --- Heading ---
 
 func TestTypstConverter_Headings(t *testing.T) {

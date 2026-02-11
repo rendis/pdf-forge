@@ -23,6 +23,7 @@ type TypstDesignTokens struct {
 	// Table defaults
 	TableStrokeColor       string // Table border color
 	TableHeaderFillDefault string // Default table header background
+	TableCellInset         string // Cell padding (e.g., "6pt")
 
 	// Placeholder styling (missing injectable)
 	PlaceholderFillBg    string // Placeholder block background
@@ -49,6 +50,7 @@ func DefaultDesignTokens() TypstDesignTokens {
 
 		TableStrokeColor:       "luma(200)",
 		TableHeaderFillDefault: "#f5f5f5",
+		TableCellInset:         "(x: 8pt, y: 12pt)",
 
 		PlaceholderFillBg:    "#fff3cd",
 		PlaceholderStroke:    "#ffc107",

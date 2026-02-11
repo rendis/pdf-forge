@@ -104,6 +104,7 @@ func (c *TypstConverter) getNodeHandler(nodeType string) typstNodeHandler {
 		portabledoc.NodeTypeTableRow:      c.tableRow,
 		portabledoc.NodeTypeTableCell:     c.tableCellData,
 		portabledoc.NodeTypeTableHeader:   c.tableCellHeader,
+		portabledoc.NodeTypeHardBreak:     c.hardBreak,
 	}
 	return handlers[nodeType]
 }
@@ -120,7 +121,7 @@ func (c *TypstConverter) handleUnknownNode(node portabledoc.Node) string {
 func (c *TypstConverter) paragraph(node portabledoc.Node) string {
 	content := c.ConvertNodes(node.Content)
 	if content == "" {
-		return "#v(0.75em)\n"
+		return "#v(1.5em)\n" // Match typst_builder.go paragraph spacing
 	}
 	if align, ok := node.Attrs["textAlign"].(string); ok {
 		if align == "justify" {
@@ -439,6 +440,14 @@ func (c *TypstConverter) image(node portabledoc.Node) string {
 	default:
 		return imgMarkup + "\n"
 	}
+}
+
+// --- Hard Break Node ---
+
+func (c *TypstConverter) hardBreak(_ portabledoc.Node) string {
+	// Typst line break: backslash at end of line
+	// This creates a hard line break within the same paragraph
+	return "\\\n"
 }
 
 // --- Text Node ---
@@ -913,7 +922,7 @@ func (c *TypstConverter) renderTypstTable(tableData *entity.TableValue, lang str
 
 	colWidths := c.buildTypstColumnWidths(tableData.Columns)
 	headerFill := c.getTableHeaderFillColor(headerStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableStrokeColor, headerFill))
+	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
 	sb.WriteString(c.buildTableAlignParam(headerStyles, bodyStyles))
 	sb.WriteString(c.renderTypstTableHeader(tableData.Columns, lang))
 	sb.WriteString(c.renderTypstTableRows(tableData))
@@ -1071,7 +1080,7 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	sb.WriteString(c.buildTableStyleRules(c.currentTableHeaderStyles))
 
 	headerFill := c.getTableHeaderFillColor(c.currentTableHeaderStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", strings.Join(colSpec, ", "), c.tokens.TableStrokeColor, headerFill))
+	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", strings.Join(colSpec, ", "), c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
 	sb.WriteString(c.buildTableAlignParam(c.currentTableHeaderStyles, c.currentTableBodyStyles))
 
 	isFirstRow := true
@@ -1108,7 +1117,16 @@ func (c *TypstConverter) renderEditableTableCell(cell portabledoc.Node, isFirstR
 	if content == "" {
 		content = " "
 	}
+	// Preserve paragraph structure, trim line whitespace
+	lines := strings.Split(content, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimSpace(line)
+	}
+	content = strings.Join(lines, "\n")
 	content = strings.TrimSpace(content)
+	if content == "" {
+		content = " "
+	}
 
 	// Note: bold/styling for header cells is handled by the user's own text marks
 	// (processed by ConvertNodes), not forced here.
