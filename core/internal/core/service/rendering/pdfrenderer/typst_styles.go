@@ -192,6 +192,31 @@ func (c *TypstConverter) buildTableStyleRules(headerStyles *entity.TableStyles) 
 	return sb.String()
 }
 
+// buildTableBodyStyleRules generates Typst show rules for body cell styling.
+func (c *TypstConverter) buildTableBodyStyleRules(bodyStyles *entity.TableStyles) string {
+	if bodyStyles == nil {
+		return ""
+	}
+
+	var sb strings.Builder
+
+	// Body font styles
+	if bodyStyles.FontWeight != nil {
+		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(weight: \"%s\")\n", *bodyStyles.FontWeight))
+	}
+	if bodyStyles.TextColor != nil {
+		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(fill: rgb(\"%s\"))\n", *bodyStyles.TextColor))
+	}
+	if bodyStyles.FontSize != nil {
+		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(size: %dpt)\n", *bodyStyles.FontSize))
+	}
+	if bodyStyles.FontFamily != nil {
+		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(font: \"%s\")\n", *bodyStyles.FontFamily))
+	}
+
+	return sb.String()
+}
+
 // buildTableAlignParam generates the align parameter for a Typst table.
 func (c *TypstConverter) buildTableAlignParam(headerStyles, bodyStyles *entity.TableStyles) string {
 	headerAlign := getTypstAlignment(headerStyles)

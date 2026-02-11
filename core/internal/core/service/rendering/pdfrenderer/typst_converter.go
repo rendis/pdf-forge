@@ -917,12 +917,14 @@ func (c *TypstConverter) renderTypstTable(tableData *entity.TableValue, lang str
 
 	var sb strings.Builder
 	sb.WriteString("#block[\n") // content block to scope #show rules
+	sb.WriteString("#show table.cell: set par(spacing: 0pt, leading: 0.65em)\n")
 
 	sb.WriteString(c.buildTableStyleRules(headerStyles))
+	sb.WriteString(c.buildTableBodyStyleRules(bodyStyles))
 
 	colWidths := c.buildTypstColumnWidths(tableData.Columns)
 	headerFill := c.getTableHeaderFillColor(headerStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
+	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: (x: 0pt, y: 0pt),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableStrokeColor, headerFill))
 	sb.WriteString(c.buildTableAlignParam(headerStyles, bodyStyles))
 	sb.WriteString(c.renderTypstTableHeader(tableData.Columns, lang))
 	sb.WriteString(c.renderTypstTableRows(tableData))
@@ -938,7 +940,7 @@ func (c *TypstConverter) renderTypstTableHeader(columns []entity.TableColumn, la
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		sb.WriteString(fmt.Sprintf("[%s]", escapeTypst(c.getColumnLabel(col, lang))))
+		sb.WriteString(fmt.Sprintf("table.cell(inset: %s)[%s]", c.tokens.TableHeaderCellInset, escapeTypst(c.getColumnLabel(col, lang))))
 	}
 	sb.WriteString("),\n")
 	return sb.String()
@@ -969,9 +971,9 @@ func (c *TypstConverter) renderTypstDataCell(cell entity.TableCell, format strin
 	content := escapeTypst(c.formatCellValue(cell.Value, format))
 	if cell.Colspan > 1 || cell.Rowspan > 1 {
 		attrs := c.buildTypstCellSpanAttrs(cell.Colspan, cell.Rowspan)
-		return fmt.Sprintf("  table.cell(%s)[%s],\n", attrs, content)
+		return fmt.Sprintf("  table.cell(%s, inset: %s)[%s],\n", attrs, c.tokens.TableBodyCellInset, content)
 	}
-	return fmt.Sprintf("  [%s],\n", content)
+	return fmt.Sprintf("  table.cell(inset: %s)[%s],\n", c.tokens.TableBodyCellInset, content)
 }
 
 func (c *TypstConverter) buildTypstColumnWidths(columns []entity.TableColumn) string {
@@ -1077,7 +1079,10 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 		colSpec[i] = "1fr"
 	}
 
+	sb.WriteString("#block[\n") // scope #show rules to this table
+	sb.WriteString("#show table.cell: set par(spacing: 0pt, leading: 0.65em)\n")
 	sb.WriteString(c.buildTableStyleRules(c.currentTableHeaderStyles))
+	sb.WriteString(c.buildTableBodyStyleRules(c.currentTableBodyStyles))
 
 	headerFill := c.getTableHeaderFillColor(c.currentTableHeaderStyles)
 	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", strings.Join(colSpec, ", "), c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
@@ -1095,6 +1100,7 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	}
 
 	sb.WriteString(")\n")
+	sb.WriteString("]\n") // close block
 	return sb.String()
 }
 
@@ -1114,9 +1120,8 @@ func (c *TypstConverter) countTableColumns(node portabledoc.Node) int {
 
 func (c *TypstConverter) renderEditableTableCell(cell portabledoc.Node, isFirstRow bool) string {
 	content := c.ConvertNodes(cell.Content)
-	if content == "" {
-		content = " "
-	}
+	// Strip empty-paragraph vertical spacing — #v() inflates cell height in tables
+	content = strings.ReplaceAll(content, "#v(1.5em)", "")
 	// Preserve paragraph structure, trim line whitespace
 	lines := strings.Split(content, "\n")
 	for i, line := range lines {
@@ -1125,7 +1130,7 @@ func (c *TypstConverter) renderEditableTableCell(cell portabledoc.Node, isFirstR
 	content = strings.Join(lines, "\n")
 	content = strings.TrimSpace(content)
 	if content == "" {
-		content = " "
+		content = "~" // Typst non-breaking space — has text line height
 	}
 
 	// Note: bold/styling for header cells is handled by the user's own text marks
