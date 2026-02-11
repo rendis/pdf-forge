@@ -52,9 +52,9 @@ func DefaultDesignTokens() TypstDesignTokens {
 
 		TableStrokeColor:       "luma(200)",
 		TableHeaderFillDefault: "#f5f5f5",
-		TableCellInset:         "(x: 8pt, y: 12pt)",
-		TableHeaderCellInset:   "(x: 8pt, y: 12pt)",
-		TableBodyCellInset:     "(x: 8pt, y: 10pt)",
+		TableCellInset:         "(x: 6pt, y: 12pt)",
+		TableHeaderCellInset:   "(x: 6pt, y: 12pt)",
+		TableBodyCellInset:     "(x: 6pt, y: 10pt)",
 
 		PlaceholderFillBg:    "#fff3cd",
 		PlaceholderStroke:    "#ffc107",

@@ -103,7 +103,7 @@ func (b *TypstBuilder) typographySetup() string {
 	fontList := "(" + strings.Join(quoted, ", ") + ")"
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("#set text(\n  font: %s,\n  size: %s,\n  fill: rgb(\"%s\"),\n  hyphenate: true,\n)\n\n",
+	sb.WriteString(fmt.Sprintf("#set text(\n  font: %s,\n  size: %s,\n  fill: rgb(\"%s\"),\n  hyphenate: true,\n  number-width: \"proportional\",\n)\n\n",
 		fontList, b.tokens.BaseFontSize, b.tokens.BaseTextColor))
 	sb.WriteString(fmt.Sprintf("#set par(leading: %s, spacing: %s)\n\n", b.tokens.ParagraphLeading, b.tokens.ParagraphSpacing))
 	return sb.String()

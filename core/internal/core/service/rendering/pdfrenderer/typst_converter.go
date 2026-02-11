@@ -1115,11 +1115,10 @@ func (c *TypstConverter) countTableColumns(node portabledoc.Node) int {
 	return maxCols
 }
 
-// parseEditableTableColumnWidths extracts colwidth from TipTap table attrs and converts to Typst column specs
+// parseEditableTableColumnWidths extracts colwidth from first-row cells and converts to proportional Typst fr units.
+// TipTap stores colwidth on each cell node (not the table node) as an array of pixel widths (length = colspan).
 func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, numCols int) string {
-	colwidthAttr, ok := node.Attrs["colwidth"]
-	if !ok {
-		// No colwidth specified, use equal fractional widths
+	fallback := func() string {
 		specs := make([]string, numCols)
 		for i := range specs {
 			specs[i] = "1fr"
@@ -1127,42 +1126,60 @@ func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, n
 		return strings.Join(specs, ", ")
 	}
 
-	// TipTap stores colwidth as array of numbers (pixels)
-	// Could be []interface{} or []float64 depending on JSON unmarshaling
+	// Find first row
+	var firstRow *portabledoc.Node
+	for i := range node.Content {
+		if node.Content[i].Type == portabledoc.NodeTypeTableRow {
+			firstRow = &node.Content[i]
+			break
+		}
+	}
+	if firstRow == nil {
+		return fallback()
+	}
+
+	// Extract colwidth from each cell in the first row
 	var colwidths []float64
-	switch v := colwidthAttr.(type) {
-	case []interface{}:
-		for _, val := range v {
-			if num, ok := val.(float64); ok {
-				colwidths = append(colwidths, num)
+	for _, cell := range firstRow.Content {
+		cwAttr, ok := cell.Attrs["colwidth"]
+		if !ok || cwAttr == nil {
+			return fallback()
+		}
+
+		// Parse colwidth array (JSON unmarshals as []interface{})
+		var cellWidths []float64
+		switch v := cwAttr.(type) {
+		case []interface{}:
+			for _, val := range v {
+				if num, ok := val.(float64); ok && num > 0 {
+					cellWidths = append(cellWidths, num)
+				} else {
+					return fallback()
+				}
 			}
+		case []float64:
+			cellWidths = v
+		default:
+			return fallback()
 		}
-	case []float64:
-		colwidths = v
+
+		colspan := getIntAttr(cell.Attrs, "colspan", 1)
+		if len(cellWidths) != colspan {
+			return fallback()
+		}
+		colwidths = append(colwidths, cellWidths...)
 	}
 
-	if len(colwidths) == 0 || len(colwidths) != numCols {
-		// Invalid colwidth, fallback to equal widths
-		specs := make([]string, numCols)
-		for i := range specs {
-			specs[i] = "1fr"
-		}
-		return strings.Join(specs, ", ")
+	if len(colwidths) != numCols {
+		return fallback()
 	}
 
-	// Convert pixel widths to Typst pt
+	// Use pixel values as fractional units — preserves editor column proportions
+	// regardless of differences between editor width and PDF page width.
 	specs := make([]string, numCols)
-	for i, pxWidth := range colwidths {
-		if pxWidth > 0 {
-			// Convert pixels to points (1px = 0.75pt)
-			ptWidth := pxWidth * 0.75
-			specs[i] = fmt.Sprintf("%.1fpt", ptWidth)
-		} else {
-			// 0 or negative means auto/flexible width
-			specs[i] = "1fr"
-		}
+	for i, w := range colwidths {
+		specs[i] = fmt.Sprintf("%.0ffr", w)
 	}
-
 	return strings.Join(specs, ", ")
 }
 
