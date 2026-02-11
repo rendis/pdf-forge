@@ -645,7 +645,8 @@
       "addListItem": "Add Item",
       "listItemPlaceholder": "Item text...",
       "addSubItem": "Add sub-item",
-      "subItemPlaceholder": "Sub-item text..."
+      "subItemPlaceholder": "Sub-item text...",
+      "no_injectables_in_document": "No injectables found in this document"
     },
     "workflow": {
       "title": "Signing configuration",

@@ -645,7 +645,8 @@
       "addListItem": "Agregar Elemento",
       "listItemPlaceholder": "Texto del elemento...",
       "addSubItem": "Agregar sub-elemento",
-      "subItemPlaceholder": "Texto del sub-elemento..."
+      "subItemPlaceholder": "Texto del sub-elemento...",
+      "no_injectables_in_document": "No se encontraron inyectores en este documento"
     },
     "workflow": {
       "title": "Configuración de firma",
