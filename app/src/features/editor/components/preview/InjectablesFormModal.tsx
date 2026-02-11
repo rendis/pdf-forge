@@ -60,7 +60,7 @@ export function InjectablesFormModal({
 
   // Filter variables by those actually used in the document
   const filteredVariables = useMemo(() => {
-    if (!usedVariableIds?.length) return variables
+    if (usedVariableIds == null) return variables
     const usedSet = new Set(usedVariableIds)
     return variables.filter((v) => usedSet.has(v.variableId))
   }, [variables, usedVariableIds])
@@ -466,6 +466,18 @@ export function InjectablesFormModal({
                     />
                   </>
                 )}
+
+                {!systemVariables.length &&
+                  !documentVariables.length &&
+                  !tableVariables.length &&
+                  !listVariables.length &&
+                  !imageVariables.length && (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <p className="text-muted-foreground">
+                        {t('editor.preview.no_injectables_in_document')}
+                      </p>
+                    </div>
+                  )}
 
               </div>
             </div>
