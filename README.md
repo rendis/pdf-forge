@@ -17,7 +17,8 @@
   <a href="https://goreportcard.com/report/github.com/rendis/pdf-forge"><img src="https://goreportcard.com/badge/github.com/rendis/pdf-forge" alt="Go Report Card"></a>
   <a href="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL"></a>
   <br>
-  <!-- Activity -->
+  <!-- Release & Activity -->
+  <a href="https://github.com/rendis/pdf-forge/releases"><img src="https://img.shields.io/github/v/release/rendis/pdf-forge" alt="Latest Release"></a>
   <a href="https://github.com/rendis/pdf-forge/commits/main"><img src="https://img.shields.io/github/last-commit/rendis/pdf-forge" alt="Last Commit"></a>
   <br>
   <!-- Metrics & Community -->
