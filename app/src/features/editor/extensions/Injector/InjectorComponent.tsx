@@ -18,6 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useInjectablesStore } from '../../stores/injectables-store'
 
 const icons = {
   TEXT: Type,
@@ -29,26 +30,22 @@ const icons = {
   TABLE: Table,
 }
 
-// Truncate label to prevent overflow in editor
-const MAX_LABEL_LENGTH = 50
-
-function truncateLabel(label: string): { text: string; isTruncated: boolean } {
-  if (label.length <= MAX_LABEL_LENGTH) {
-    return { text: label, isTruncated: false }
-  }
-  return { text: label.slice(0, MAX_LABEL_LENGTH) + '...', isTruncated: true }
-}
-
 export const InjectorComponent = (props: NodeViewProps) => {
   const { node, selected, deleteNode } = props
-  const { label, type, format } = node.attrs
+  const { label, type, format, variableId } = node.attrs
 
   const [contextMenu, setContextMenu] = useState<{
     x: number
     y: number
   } | null>(null)
 
-  const displayLabel = label || 'Variable'
+  // Look up current label from store (updates when language changes)
+  const currentLabel = useInjectablesStore(
+    (s) => s.variables.find((v) => v.variableId === variableId)?.label
+  )
+
+  const displayCode = variableId || 'variable'
+  const displayName = currentLabel || label || 'Variable'
   const Icon = icons[type as keyof typeof icons] || Type
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -76,21 +73,14 @@ export const InjectorComponent = (props: NodeViewProps) => {
       )}
     >
       <Icon className="h-3 w-3" />
-      {(() => {
-        const { text: truncatedLabel, isTruncated } = truncateLabel(displayLabel)
-        return isTruncated ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="cursor-default">{truncatedLabel}</span>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs">
-              {displayLabel}
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          truncatedLabel
-        )
-      })()}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="cursor-default">{displayCode}</span>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs">
+          {displayName}
+        </TooltipContent>
+      </Tooltip>
       {format && (
         <span className="text-[10px] opacity-70 bg-background/50 px-1 rounded font-mono">
           {format}
