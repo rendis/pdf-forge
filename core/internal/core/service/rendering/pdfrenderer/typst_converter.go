@@ -1072,12 +1072,9 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	}()
 
 	numCols := c.countTableColumns(node)
+	colWidths := c.parseEditableTableColumnWidths(node, numCols)
 
 	var sb strings.Builder
-	colSpec := make([]string, numCols)
-	for i := range colSpec {
-		colSpec[i] = "1fr"
-	}
 
 	sb.WriteString("#block[\n") // scope #show rules to this table
 	sb.WriteString("#show table.cell: set par(spacing: 0pt, leading: 0.65em)\n")
@@ -1085,7 +1082,7 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	sb.WriteString(c.buildTableBodyStyleRules(c.currentTableBodyStyles))
 
 	headerFill := c.getTableHeaderFillColor(c.currentTableHeaderStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", strings.Join(colSpec, ", "), c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
+	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
 	sb.WriteString(c.buildTableAlignParam(c.currentTableHeaderStyles, c.currentTableBodyStyles))
 
 	isFirstRow := true
@@ -1116,6 +1113,57 @@ func (c *TypstConverter) countTableColumns(node portabledoc.Node) int {
 		}
 	}
 	return maxCols
+}
+
+// parseEditableTableColumnWidths extracts colwidth from TipTap table attrs and converts to Typst column specs
+func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, numCols int) string {
+	colwidthAttr, ok := node.Attrs["colwidth"]
+	if !ok {
+		// No colwidth specified, use equal fractional widths
+		specs := make([]string, numCols)
+		for i := range specs {
+			specs[i] = "1fr"
+		}
+		return strings.Join(specs, ", ")
+	}
+
+	// TipTap stores colwidth as array of numbers (pixels)
+	// Could be []interface{} or []float64 depending on JSON unmarshaling
+	var colwidths []float64
+	switch v := colwidthAttr.(type) {
+	case []interface{}:
+		for _, val := range v {
+			if num, ok := val.(float64); ok {
+				colwidths = append(colwidths, num)
+			}
+		}
+	case []float64:
+		colwidths = v
+	}
+
+	if len(colwidths) == 0 || len(colwidths) != numCols {
+		// Invalid colwidth, fallback to equal widths
+		specs := make([]string, numCols)
+		for i := range specs {
+			specs[i] = "1fr"
+		}
+		return strings.Join(specs, ", ")
+	}
+
+	// Convert pixel widths to Typst pt
+	specs := make([]string, numCols)
+	for i, pxWidth := range colwidths {
+		if pxWidth > 0 {
+			// Convert pixels to points (1px = 0.75pt)
+			ptWidth := pxWidth * 0.75
+			specs[i] = fmt.Sprintf("%.1fpt", ptWidth)
+		} else {
+			// 0 or negative means auto/flexible width
+			specs[i] = "1fr"
+		}
+	}
+
+	return strings.Join(specs, ", ")
 }
 
 func (c *TypstConverter) renderEditableTableCell(cell portabledoc.Node, isFirstRow bool) string {
