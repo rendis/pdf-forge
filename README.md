@@ -8,24 +8,15 @@
 </p>
 
 <p align="center">
-  <!-- Tech & Version -->
   <a href="https://go.dev"><img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go" alt="Go Version"></a>
   <a href="https://pkg.go.dev/github.com/rendis/pdf-forge"><img src="https://pkg.go.dev/badge/github.com/rendis/pdf-forge.svg" alt="Go Reference"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
-  <br>
-  <!-- Quality & Security -->
   <a href="https://goreportcard.com/report/github.com/rendis/pdf-forge"><img src="https://goreportcard.com/badge/github.com/rendis/pdf-forge" alt="Go Report Card"></a>
   <a href="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/rendis/pdf-forge/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL"></a>
-  <br>
-  <!-- Release & Activity -->
   <a href="https://github.com/rendis/pdf-forge/releases"><img src="https://img.shields.io/github/v/release/rendis/pdf-forge" alt="Latest Release"></a>
   <a href="https://github.com/rendis/pdf-forge/commits/main"><img src="https://img.shields.io/github/last-commit/rendis/pdf-forge" alt="Last Commit"></a>
-  <br>
-  <!-- Metrics & Community -->
   <a href="https://github.com/rendis/pdf-forge"><img src="https://img.shields.io/github/repo-size/rendis/pdf-forge" alt="Repo Size"></a>
   <a href="https://github.com/rendis/pdf-forge/graphs/contributors"><img src="https://img.shields.io/github/contributors/rendis/pdf-forge" alt="Contributors"></a>
-  <br>
-  <!-- AI & Docs -->
   <a href="#ai-agent-skill"><img src="https://img.shields.io/badge/AI_Agents-Skill_Available-8A2BE2?style=flat" alt="AI Agent Skill"></a>
   <a href="https://deepwiki.com/rendis/pdf-forge"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </p>
