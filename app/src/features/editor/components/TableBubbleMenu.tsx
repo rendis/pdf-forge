@@ -130,8 +130,9 @@ export function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
       editor={editor}
       shouldShow={({ editor }) => editor.isActive('table')}
       options={{
-        placement: 'top',
+        placement: 'bottom',
         offset: 8,
+        appendTo: () => document.querySelector('.overflow-auto.bg-background') || document.body,
       }}
       className="rounded-lg border bg-popover shadow-lg"
     >
