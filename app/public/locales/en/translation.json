@@ -648,6 +648,35 @@
       "subItemPlaceholder": "Sub-item text...",
       "no_injectables_in_document": "No injectables found in this document"
     },
+    "context_menu": {
+      "configure_label": "Configure Label...",
+      "edit": "Edit",
+      "copy": "Copy",
+      "cut": "Cut",
+      "delete": "Delete",
+      "node_types": {
+        "variable": "Variable",
+        "conditional": "Conditional",
+        "page_break": "Page Break"
+      }
+    },
+    "injector_config": {
+      "title": "Configure Variable",
+      "description": "Add labels and configure empty value behavior for this variable.",
+      "preview": "Preview",
+      "prefix": "Prefix (Left)",
+      "prefix_placeholder": "e.g., Total: ",
+      "prefix_help": "Text to display before the value",
+      "suffix": "Suffix (Right)",
+      "suffix_placeholder": "e.g.,  USD",
+      "suffix_help": "Text to display after the value",
+      "empty_value_behavior": "Empty Value Behavior",
+      "show_label_when_empty": "Show labels when value is empty",
+      "show_label_when_empty_desc": "Display prefix/suffix even if the variable has no value",
+      "default_value": "Default Value",
+      "default_value_placeholder": "e.g., N/A",
+      "default_value_desc": "Value to use when the variable is empty"
+    },
     "workflow": {
       "title": "Signing configuration",
       "settings": "Signing configuration",

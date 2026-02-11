@@ -278,16 +278,41 @@ func (c *TypstConverter) taskItem(node portabledoc.Node) string {
 
 func (c *TypstConverter) injector(node portabledoc.Node) string {
 	variableID, _ := node.Attrs["variableId"].(string)
+	prefix, _ := node.Attrs["prefix"].(string)
+	suffix, _ := node.Attrs["suffix"].(string)
+	showLabelIfEmpty, _ := node.Attrs["showLabelIfEmpty"].(bool)
+	nodeDefaultValue, _ := node.Attrs["defaultValue"].(string)
 
+	// Resolve value with priority: injected > node default > global default
 	value := c.resolveRegularInjectable(variableID, node.Attrs)
 	if value == "" {
-		value = c.getDefaultValue(variableID)
+		if nodeDefaultValue != "" {
+			value = nodeDefaultValue
+		} else {
+			value = c.getDefaultValue(variableID)
+		}
 	}
 
+	// Empty value handling
 	if value == "" {
+		if showLabelIfEmpty {
+			// Show labels without value
+			return escapeTypst(prefix) + escapeTypst(suffix)
+		}
 		return ""
 	}
-	return escapeTypst(value)
+
+	// Build output: prefix + value + suffix
+	var parts []string
+	if prefix != "" {
+		parts = append(parts, escapeTypst(prefix))
+	}
+	parts = append(parts, escapeTypst(value))
+	if suffix != "" {
+		parts = append(parts, escapeTypst(suffix))
+	}
+
+	return strings.Join(parts, "")
 }
 
 func (c *TypstConverter) resolveRegularInjectable(variableID string, attrs map[string]any) string {

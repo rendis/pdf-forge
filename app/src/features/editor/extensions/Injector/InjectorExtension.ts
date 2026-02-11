@@ -10,6 +10,14 @@ export interface InjectorOptions {
   variableId?: string
   /** Formato seleccionado para la variable (ej: "DD/MM/YYYY" para fechas) */
   format?: string | null
+  /** Etiqueta antes del valor (ej: "Total: ") */
+  prefix?: string | null
+  /** Etiqueta después del valor (ej: " USD") */
+  suffix?: string | null
+  /** Mostrar etiquetas incluso si el valor está vacío */
+  showLabelIfEmpty?: boolean
+  /** Valor por defecto cuando el valor está vacío */
+  defaultValue?: string | null
 }
 
 declare module '@tiptap/core' {
@@ -45,6 +53,18 @@ export const InjectorExtension = Node.create({
       },
       required: {
         default: false,
+      },
+      prefix: {
+        default: null,
+      },
+      suffix: {
+        default: null,
+      },
+      showLabelIfEmpty: {
+        default: false,
+      },
+      defaultValue: {
+        default: null,
       },
     }
   },

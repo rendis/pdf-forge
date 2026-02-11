@@ -648,6 +648,35 @@
       "subItemPlaceholder": "Texto del sub-elemento...",
       "no_injectables_in_document": "No se encontraron inyectores en este documento"
     },
+    "context_menu": {
+      "configure_label": "Configurar Etiqueta...",
+      "edit": "Editar",
+      "copy": "Copiar",
+      "cut": "Cortar",
+      "delete": "Eliminar",
+      "node_types": {
+        "variable": "Variable",
+        "conditional": "Condicional",
+        "page_break": "Salto de página"
+      }
+    },
+    "injector_config": {
+      "title": "Configurar Variable",
+      "description": "Agrega etiquetas y configura el comportamiento cuando el valor está vacío.",
+      "preview": "Vista previa",
+      "prefix": "Prefijo (Izquierda)",
+      "prefix_placeholder": "ej: Total: ",
+      "prefix_help": "Texto a mostrar antes del valor",
+      "suffix": "Sufijo (Derecha)",
+      "suffix_placeholder": "ej:  USD",
+      "suffix_help": "Texto a mostrar después del valor",
+      "empty_value_behavior": "Comportamiento con Valor Vacío",
+      "show_label_when_empty": "Mostrar etiquetas cuando el valor está vacío",
+      "show_label_when_empty_desc": "Muestra el prefijo/sufijo incluso si la variable no tiene valor",
+      "default_value": "Valor Predeterminado",
+      "default_value_placeholder": "ej: N/D",
+      "default_value_desc": "Valor a usar cuando la variable está vacía"
+    },
     "workflow": {
       "title": "Configuración de firma",
       "settings": "Configuración de firma",

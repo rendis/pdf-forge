@@ -479,6 +479,138 @@ func TestTypstConverter_InjectorNumber(t *testing.T) {
 	}
 }
 
+// --- Injector with Labels ---
+
+func TestTypstConverter_InjectorWithPrefix(t *testing.T) {
+	c := newConverter(map[string]any{"name": "John"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "name", "prefix": "Name: "},
+	}
+	got := c.ConvertNode(node)
+	want := "Name: John"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorWithSuffix(t *testing.T) {
+	c := newConverter(map[string]any{"name": "John"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "name", "suffix": " is the name"},
+	}
+	got := c.ConvertNode(node)
+	want := "John is the name"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorWithBothPrefixAndSuffix(t *testing.T) {
+	c := newConverter(map[string]any{"amount": float64(150)}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "amount", "prefix": "Total: ", "suffix": " USD"},
+	}
+	got := c.ConvertNode(node)
+	want := "Total: 150 USD"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorEmptyValueShowLabel(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "missing", "prefix": "Total: ", "showLabelIfEmpty": true},
+	}
+	got := c.ConvertNode(node)
+	want := "Total: "
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorEmptyValueShowBothLabels(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "missing", "prefix": "Total: ", "suffix": " USD", "showLabelIfEmpty": true},
+	}
+	got := c.ConvertNode(node)
+	want := "Total:  USD"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorEmptyValueHideLabel(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "missing", "prefix": "Total: ", "showLabelIfEmpty": false},
+	}
+	got := c.ConvertNode(node)
+	if got != "" {
+		t.Errorf("expected empty string when value is missing and showLabelIfEmpty=false, got %q", got)
+	}
+}
+
+func TestTypstConverter_InjectorNodeDefaultValue(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "missing", "prefix": "Total: ", "defaultValue": "N/A"},
+	}
+	got := c.ConvertNode(node)
+	want := "Total: N/A"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorNodeDefaultOverridesGlobalDefault(t *testing.T) {
+	c := newConverter(nil, map[string]string{"var1": "Global Default"})
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "var1", "defaultValue": "Node Default"},
+	}
+	got := c.ConvertNode(node)
+	want := "Node Default"
+	if got != want {
+		t.Errorf("node default should override global default, got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorPrefixWithSpecialChars(t *testing.T) {
+	c := newConverter(map[string]any{"val": "test"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "val", "prefix": "Price: $"},
+	}
+	got := c.ConvertNode(node)
+	// $ should be escaped to \$
+	if !strings.Contains(got, "\\$") {
+		t.Errorf("expected escaped $, got %q", got)
+	}
+}
+
+func TestTypstConverter_InjectorBackwardCompatNoLabels(t *testing.T) {
+	c := newConverter(map[string]any{"var1": "Value"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "var1"},
+		// No prefix, suffix, showLabelIfEmpty, or defaultValue
+	}
+	got := c.ConvertNode(node)
+	want := "Value"
+	if got != want {
+		t.Errorf("backward compat test failed, got %q, want %q", got, want)
+	}
+}
+
 // --- Conditional ---
 
 func TestTypstConverter_ConditionalTrue(t *testing.T) {
