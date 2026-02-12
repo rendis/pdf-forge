@@ -80,7 +80,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 		}
 
 		if providerResult != nil {
-			providerInjectables = s.convertProviderInjectables(providerResult.Injectables)
+			providerInjectables = s.convertProviderInjectables(req.WorkspaceID, providerResult.Injectables)
 			providerGroups = s.convertProviderGroups(providerResult.Groups)
 
 			// Validate no duplicate codes with existing injectables
@@ -262,12 +262,12 @@ func (s *InjectableService) getWorkspaceCodes(ctx context.Context, workspaceID s
 }
 
 // convertProviderInjectables converts provider injectables to entity definitions.
-func (s *InjectableService) convertProviderInjectables(injectables []port.ProviderInjectable) []*entity.InjectableDefinition {
+func (s *InjectableService) convertProviderInjectables(workspaceID string, injectables []port.ProviderInjectable) []*entity.InjectableDefinition {
 	result := make([]*entity.InjectableDefinition, 0, len(injectables))
 	for _, inj := range injectables {
 		def := &entity.InjectableDefinition{
 			ID:           inj.Code,
-			WorkspaceID:  nil,
+			WorkspaceID:  &workspaceID,
 			Key:          inj.Code,
 			Labels:       inj.Label,
 			Descriptions: inj.Description,
