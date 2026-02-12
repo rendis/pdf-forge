@@ -89,6 +89,12 @@ export function VariablesModal({
   // State for grouped variable sections
   const [groupOpenStates, setGroupOpenStates] = useState<Record<string, boolean>>({})
 
+  // Wrap variable click handler to close modal after insertion
+  const handleVariableClick = useCallback((data: VariableDragData) => {
+    onVariableClick?.(data)
+    onOpenChange(false)
+  }, [onVariableClick, onOpenChange])
+
   // Track if all sections are expanded
   const allSectionsExpanded = useMemo(() => {
     const hasUngroupedExternal = globalVariables.some(v => v.sourceType === 'EXTERNAL' && !v.group)
@@ -417,7 +423,7 @@ export function VariablesModal({
                         <DraggableVariable
                           key={v.variableId}
                           data={mapVariableToDragData(v)}
-                          onClick={onVariableClick}
+                          onClick={handleVariableClick}
                           isDragging={draggingIds.includes(v.variableId)}
                           hideDragHandle={true}
                         />
@@ -464,7 +470,7 @@ export function VariablesModal({
                         <DraggableVariable
                           key={v.variableId}
                           data={mapVariableToDragData(v)}
-                          onClick={onVariableClick}
+                          onClick={handleVariableClick}
                           isDragging={draggingIds.includes(v.variableId)}
                           hideDragHandle={true}
                         />
@@ -484,7 +490,7 @@ export function VariablesModal({
                     key={groupKey}
                     group={group}
                     variables={variables}
-                    onVariableClick={onVariableClick}
+                    onVariableClick={handleVariableClick}
                     draggingIds={draggingIds}
                     isOpen={groupOpenStates[groupKey] ?? false}
                     onOpenChange={(open) => handleGroupOpenChange(groupKey, open)}
