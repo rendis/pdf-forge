@@ -127,7 +127,7 @@ Create a new project using the SDK — no fork needed:
 
 ```bash
 # 1. Scaffold a new project
-go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --module github.com/myorg/my-project
+go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
 
 # 2. Set up
 cd my-project

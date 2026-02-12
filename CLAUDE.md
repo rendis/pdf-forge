@@ -97,7 +97,7 @@ docker-compose.yaml              ← Full stack: postgres + api (with embedded f
 End users create new projects via scaffold command — no fork needed:
 
 ```bash
-go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --module github.com/myorg/my-project
+go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
 cd my-project && go mod tidy
 ```
 
@@ -107,7 +107,7 @@ Generates: `main.go`, `extensions/`, `settings/app.yaml`, `Makefile`, `Dockerfil
 - Full stack (frontend + API) via `docker compose up --build` (Dockerfile clones and builds SPA)
 - Generated `main.go` uses `//go:embed all:frontend-dist` + `engine.SetFrontendFS()` for optional local embedding
 
-Scaffold source: `core/cmd/init/` (templates in `core/cmd/init/templates/`)
+Scaffold source: `cmd/init/` (templates in `cmd/init/templates/`)
 
 ## User Customization (`core/extensions/`)
 

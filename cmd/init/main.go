@@ -2,9 +2,9 @@
 //
 // Usage:
 //
-//	go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project
-//	go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --module github.com/myorg/my-project
-//	go run github.com/rendis/pdf-forge/core/cmd/init@latest my-project --force
+//	go run github.com/rendis/pdf-forge/cmd/init@latest my-project
+//	go run github.com/rendis/pdf-forge/cmd/init@latest my-project --module github.com/myorg/my-project
+//	go run github.com/rendis/pdf-forge/cmd/init@latest my-project --force
 package main
 
 import (
@@ -276,7 +276,7 @@ func fileExists(path string) bool {
 }
 
 func printUsage() {
-	fmt.Println("Usage: go run github.com/rendis/pdf-forge/core/cmd/init@latest <project-name> [flags]")
+	fmt.Println("Usage: go run github.com/rendis/pdf-forge/cmd/init@latest <project-name> [flags]")
 	fmt.Println()
 	fmt.Println("Creates a new pdf-forge project with all necessary boilerplate.")
 	fmt.Println("Safe to run in existing projects — skips files that already exist.")
@@ -289,7 +289,7 @@ func printUsage() {
 	fmt.Println("  --force           Overwrite existing files")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  go run github.com/rendis/pdf-forge/core/cmd/init@latest my-docs")
-	fmt.Println("  go run github.com/rendis/pdf-forge/core/cmd/init@latest my-docs --module github.com/myorg/my-docs")
-	fmt.Println("  go run github.com/rendis/pdf-forge/core/cmd/init@latest my-docs --force")
+	fmt.Println("  go run github.com/rendis/pdf-forge/cmd/init@latest my-docs")
+	fmt.Println("  go run github.com/rendis/pdf-forge/cmd/init@latest my-docs --module github.com/myorg/my-docs")
+	fmt.Println("  go run github.com/rendis/pdf-forge/cmd/init@latest my-docs --force")
 }
