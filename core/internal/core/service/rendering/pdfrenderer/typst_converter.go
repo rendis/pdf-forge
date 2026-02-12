@@ -16,6 +16,7 @@ type TypstConverter struct {
 	injectables              map[string]any
 	injectableDefaults       map[string]string
 	tokens                   TypstDesignTokens
+	contentWidthPx           float64 // page content area width in pixels (for table column calculations)
 	currentPage              int
 	currentTableHeaderStyles *entity.TableStyles
 	currentTableBodyStyles   *entity.TableStyles
@@ -1117,6 +1118,8 @@ func (c *TypstConverter) countTableColumns(node portabledoc.Node) int {
 
 // parseEditableTableColumnWidths extracts colwidth from first-row cells and converts to proportional Typst fr units.
 // TipTap stores colwidth on each cell node (not the table node) as an array of pixel widths (length = colspan).
+// prosemirror-tables only sets colwidth on explicitly resized columns; unresized columns stay nil.
+// For nil columns, we compute their width from the content area: missing = contentWidth - sum(known).
 func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, numCols int) string {
 	fallback := func() string {
 		specs := make([]string, numCols)
@@ -1138,12 +1141,21 @@ func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, n
 		return fallback()
 	}
 
-	// Extract colwidth from each cell in the first row
+	// Extract colwidth from each cell in the first row.
+	// Cells without colwidth (not resized) get 0 as placeholder.
 	var colwidths []float64
+	var missingIdx []int
+	hasAny := false
+
 	for _, cell := range firstRow.Content {
+		colspan := getIntAttr(cell.Attrs, "colspan", 1)
 		cwAttr, ok := cell.Attrs["colwidth"]
 		if !ok || cwAttr == nil {
-			return fallback()
+			for range colspan {
+				missingIdx = append(missingIdx, len(colwidths))
+				colwidths = append(colwidths, 0)
+			}
+			continue
 		}
 
 		// Parse colwidth array (JSON unmarshals as []interface{})
@@ -1163,14 +1175,32 @@ func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, n
 			return fallback()
 		}
 
-		colspan := getIntAttr(cell.Attrs, "colspan", 1)
 		if len(cellWidths) != colspan {
 			return fallback()
 		}
 		colwidths = append(colwidths, cellWidths...)
+		hasAny = true
 	}
 
-	if len(colwidths) != numCols {
+	if !hasAny || len(colwidths) != numCols {
+		return fallback()
+	}
+
+	// Fill in missing columns: compute from content area width
+	if len(missingIdx) > 0 && c.contentWidthPx > 0 {
+		var knownSum float64
+		for _, w := range colwidths {
+			knownSum += w
+		}
+		remaining := c.contentWidthPx - knownSum
+		perMissing := remaining / float64(len(missingIdx))
+		if perMissing < 1 {
+			perMissing = 1
+		}
+		for _, idx := range missingIdx {
+			colwidths[idx] = perMissing
+		}
+	} else if len(missingIdx) > 0 {
 		return fallback()
 	}
 

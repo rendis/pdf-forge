@@ -24,10 +24,12 @@ import { MentionExtension } from '../extensions/Mentions'
 import { ImageExtension, type ImageShape } from '../extensions/Image'
 import { PageBreakHR } from '../extensions/PageBreak'
 import { SlashCommandsExtension, slashCommandsSuggestion } from '../extensions/SlashCommands'
-import { Table } from '@tiptap/extension-table'
-import { TableRow } from '@tiptap/extension-table-row'
-import { TableHeader } from '@tiptap/extension-table-header'
-import { TableCell } from '@tiptap/extension-table-cell'
+import {
+  TableExtension,
+  TableRowExtension,
+  TableHeaderExtension,
+  TableCellExtension,
+} from '../extensions/Table'
 import { TableInjectorExtension } from '../extensions/TableInjector'
 import { ListInjectorExtension } from '../extensions/ListInjector'
 import { ImageInsertModal, type ImageInsertResult } from './ImageInsertModal'
@@ -137,10 +139,10 @@ export function DocumentEditor({
       SlashCommandsExtension.configure({
         suggestion: slashCommandsSuggestion,
       }),
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableHeader,
-      TableCell,
+      TableExtension.configure({ resizable: true, lastColumnResizable: false }),
+      TableRowExtension,
+      TableHeaderExtension,
+      TableCellExtension,
       TableInjectorExtension,
       ListInjectorExtension,
     ],

@@ -41,6 +41,9 @@ func (b *TypstBuilder) Build(doc *portabledoc.Document) string {
 	// Heading styles
 	sb.WriteString(b.headingStyles())
 
+	// Set content area width for table column calculations
+	b.converter.contentWidthPx = doc.PageConfig.Width - doc.PageConfig.Margins.Left - doc.PageConfig.Margins.Right
+
 	// Render content
 	if doc.Content != nil {
 		sb.WriteString(b.converter.ConvertNodes(doc.Content.Content))
