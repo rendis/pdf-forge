@@ -94,7 +94,7 @@ func extractInjectables(vctx *validationContext) []*entity.TemplateVersionInject
 			continue
 		}
 		var tvi *entity.TemplateVersionInjectable
-		if inj.IsGlobal() {
+		if inj.IsGlobal() || inj.SourceType == entity.InjectableSourceTypeExternal {
 			tvi = entity.NewTemplateVersionInjectableFromSystemKey(vctx.versionID, inj.Key)
 		} else {
 			tvi = entity.NewTemplateVersionInjectable(vctx.versionID, inj.ID, false, nil)

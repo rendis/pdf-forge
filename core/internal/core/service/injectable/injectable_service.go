@@ -267,7 +267,7 @@ func (s *InjectableService) convertProviderInjectables(workspaceID string, injec
 	for _, inj := range injectables {
 		def := &entity.InjectableDefinition{
 			ID:           inj.Code,
-			WorkspaceID:  &workspaceID,
+			WorkspaceID:  nil,
 			Key:          inj.Code,
 			Labels:       inj.Label,
 			Descriptions: inj.Description,
