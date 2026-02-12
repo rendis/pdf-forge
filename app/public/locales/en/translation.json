@@ -386,6 +386,7 @@
       "header": "Variables",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all",
+      "expandModal": "Expand panel",
       "collapse": {
         "expand": "Expand panel",
         "collapse": "Collapse panel"
@@ -404,6 +405,11 @@
         "internalVariables": "System Variables",
         "externalVariables": "Custom Variables"
       }
+    },
+    "variablesModal": {
+      "title": "Variables",
+      "description": "Select variables to insert into your template",
+      "close": "Close"
     },
     "toolbar": {
       "blocks": "Blocks",

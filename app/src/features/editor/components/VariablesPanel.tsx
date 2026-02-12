@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
-import { ChevronRight, ChevronsDownUp, ChevronsUpDown, Clock, Database, Loader2, Search, Variable as VariableIcon, X } from 'lucide-react'
+import { ChevronRight, ChevronsDownUp, ChevronsUpDown, Clock, Database, Loader2, Maximize2, Search, Variable as VariableIcon, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useInjectablesStore } from '../stores/injectables-store'
@@ -11,6 +11,7 @@ import type { VariableDragData } from '../types/drag'
 import type { Variable } from '../types/variables'
 import { DraggableVariable } from './DraggableVariable'
 import { VariableGroup } from './VariableGroup'
+import { VariablesModal } from './VariablesModal'
 
 const COLLAPSE_TRANSITION: Transition = { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
 
@@ -78,6 +79,9 @@ export function VariablesPanel({
 
   // Filter state for variables by source type
   const [variablesFilter, setVariablesFilter] = useState<'all' | 'internal' | 'external'>('all')
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Collapsible sections state for internal/external variables - collapsed by default
   const [internalSectionOpen, setInternalSectionOpen] = useState(false)
@@ -172,11 +176,19 @@ export function VariablesPanel({
       if (variablesFilter === excludeFilter) return []
       const filtered = globalVariables.filter(v => v.sourceType === sourceType)
       if (!lowerSearchQuery) return filtered
-      return filtered.filter(
-        (v) =>
+      return filtered.filter((v) => {
+        // Search in variable label and ID
+        const matchesVariable =
           v.label.toLowerCase().includes(lowerSearchQuery) ||
           v.variableId.toLowerCase().includes(lowerSearchQuery)
-      )
+
+        // Search in group name if variable belongs to a group
+        const matchesGroup = v.group
+          ? groups.find(g => g.key === v.group)?.name.toLowerCase().includes(lowerSearchQuery) ?? false
+          : false
+
+        return matchesVariable || matchesGroup
+      })
     }
 
     const internalVars = filterBySourceType('INTERNAL', 'external')
@@ -231,7 +243,8 @@ export function VariablesPanel({
   const totalCount = totalGrouped + ungroupedInternal.length + ungroupedExternal.length
 
   return (
-    <motion.aside
+    <>
+      <motion.aside
       initial={false}
       animate={{ width: isCollapsed ? 56 : 288 }}
       transition={COLLAPSE_TRANSITION}
@@ -288,6 +301,22 @@ export function VariablesPanel({
           ) : (
             <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
           )}
+        </motion.button>
+
+        {/* Expand modal button - hide when collapsed */}
+        <motion.button
+          initial={false}
+          animate={{
+            opacity: isCollapsed ? 0 : 1,
+            width: isCollapsed ? 0 : 'auto',
+          }}
+          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+          onClick={() => setIsModalOpen(true)}
+          className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1 overflow-hidden"
+          aria-label={t('editor.variablesPanel.expandModal')}
+          title={t('editor.variablesPanel.expandModal')}
+        >
+          <Maximize2 className="h-4 w-4 text-muted-foreground" />
         </motion.button>
 
         {/* Collapse button - always visible */}
@@ -560,5 +589,14 @@ export function VariablesPanel({
         )}
       </AnimatePresence>
     </motion.aside>
+
+      {/* Variables Modal */}
+      <VariablesModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onVariableClick={onVariableClick}
+        draggingIds={draggingIds}
+      />
+    </>
   )
 }

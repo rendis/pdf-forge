@@ -386,6 +386,7 @@
       "header": "Variables",
       "expandAll": "Expandir todo",
       "collapseAll": "Colapsar todo",
+      "expandModal": "Expandir panel",
       "collapse": {
         "expand": "Expandir panel",
         "collapse": "Colapsar panel"
@@ -404,6 +405,11 @@
         "internalVariables": "Variables del Sistema",
         "externalVariables": "Variables Personalizadas"
       }
+    },
+    "variablesModal": {
+      "title": "Variables",
+      "description": "Selecciona variables para insertar en tu plantilla",
+      "close": "Cerrar"
     },
     "toolbar": {
       "blocks": "Bloques",
