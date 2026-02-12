@@ -141,6 +141,7 @@ else
 	@printf '\tmakeCmd.Stdout = os.Stdout\n' >> run-script-tmp.go
 	@printf '\tmakeCmd.Stderr = os.Stderr\n' >> run-script-tmp.go
 	@printf '\tmakeCmd.Stdin = os.Stdin\n' >> run-script-tmp.go
+	@printf '\tmakeCmd.Env = os.Environ()\n' >> run-script-tmp.go
 	@printf '\tif err := makeCmd.Run(); err != nil {\n\t\tos.Exit(1)\n\t}\n' >> run-script-tmp.go
 	@printf '}\n' >> run-script-tmp.go
 	@go mod download github.com/charmbracelet/huh@latest github.com/charmbracelet/bubbles@latest 2>/dev/null || true
