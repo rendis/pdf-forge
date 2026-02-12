@@ -46,6 +46,7 @@ var fileMapping = []struct {
 	{"templates/dot-gitignore.tmpl", ".gitignore"},
 	{"templates/dot-air.toml.tmpl", ".air.toml"},
 	{"templates/README.md.tmpl", "README.md"},
+	{"templates/scripts_readme.md.tmpl", "scripts/README.md"},
 }
 
 // ANSI color helpers.
@@ -144,6 +145,15 @@ func generateFiles(outDir string, data templateData, modulePath string, force bo
 	}
 	action := writeStaticFile(gitkeepPath, nil, force)
 	printAction(action, "frontend-dist/.gitkeep")
+	counts.track(action)
+
+	// scripts/.gitkeep
+	scriptsKeepPath := filepath.Join(outDir, "scripts", ".gitkeep")
+	if err := os.MkdirAll(filepath.Dir(scriptsKeepPath), 0o755); err != nil {
+		return counts, fmt.Errorf("creating scripts: %w", err)
+	}
+	action = writeStaticFile(scriptsKeepPath, nil, force)
+	printAction(action, "scripts/.gitkeep")
 	counts.track(action)
 
 	// go.mod

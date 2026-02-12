@@ -11,6 +11,12 @@ BASE_PATH         ?=
 # Auth: settings/app.yaml has no auth section = dummy auth (auto-login, no OIDC).
 # To enable OIDC, uncomment the auth section in settings/app.yaml.
 
+# Capture script name for run-script target
+ifeq (run-script,$(firstword $(MAKECMDGOALS)))
+  SCRIPT_NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(SCRIPT_NAME):;@:)
+endif
+
 # ── Development ─────────────────────────────────────────
 
 run: .env           ## Run server (auto-embeds frontend if missing)
@@ -92,6 +98,55 @@ clean:              ## Remove build artifacts
 	@rm -rf frontend-dist/*
 	@touch frontend-dist/.gitkeep
 	@rm -rf $(PDF_FORGE_TMP)
+
+run-script:         ## Run a script (usage: make run-script [name])
+ifdef SCRIPT_NAME
+	@# Direct execution
+	@if [ ! -d "scripts/$(SCRIPT_NAME)" ]; then echo "Error: script '$(SCRIPT_NAME)' not found"; exit 1; fi
+	@if [ ! -f "scripts/$(SCRIPT_NAME)/Makefile" ]; then echo "Error: scripts/$(SCRIPT_NAME)/Makefile not found"; exit 1; fi
+	$(MAKE) -C scripts/$(SCRIPT_NAME) run
+else
+	@# Interactive selector
+	@if [ ! -d "scripts" ]; then echo "Error: no scripts/ directory"; exit 1; fi
+	@printf 'package main\n' > run-script-tmp.go
+	@printf 'import (\n\t"errors"\n\t"fmt"\n\t"os"\n\t"os/exec"\n\t"path/filepath"\n\t"github.com/charmbracelet/bubbles/key"\n\t"github.com/charmbracelet/huh"\n)\n' >> run-script-tmp.go
+	@printf 'const quitOption = "__quit__"\n' >> run-script-tmp.go
+	@printf 'func main() {\n' >> run-script-tmp.go
+	@printf '\tscriptsDir := "scripts"\n' >> run-script-tmp.go
+	@printf '\tentries, err := os.ReadDir(scriptsDir)\n' >> run-script-tmp.go
+	@printf '\tif err != nil {\n\t\tfmt.Fprintf(os.Stderr, "Error reading scripts/: %%v\\n", err)\n\t\tos.Exit(1)\n\t}\n' >> run-script-tmp.go
+	@printf '\tvar scripts []string\n' >> run-script-tmp.go
+	@printf '\tfor _, e := range entries {\n' >> run-script-tmp.go
+	@printf '\t\tif e.IsDir() {\n' >> run-script-tmp.go
+	@printf '\t\t\tmakefile := filepath.Join(scriptsDir, e.Name(), "Makefile")\n' >> run-script-tmp.go
+	@printf '\t\t\tif _, err := os.Stat(makefile); err == nil {\n' >> run-script-tmp.go
+	@printf '\t\t\t\tscripts = append(scripts, e.Name())\n' >> run-script-tmp.go
+	@printf '\t\t\t}\n\t\t}\n\t}\n' >> run-script-tmp.go
+	@printf '\tif len(scripts) == 0 {\n\t\tfmt.Println("No scripts available")\n\t\treturn\n\t}\n' >> run-script-tmp.go
+	@printf '\toptions := make([]huh.Option[string], len(scripts)+1)\n' >> run-script-tmp.go
+	@printf '\tfor i, s := range scripts {\n\t\toptions[i] = huh.NewOption(s, s)\n\t}\n' >> run-script-tmp.go
+	@printf '\toptions[len(scripts)] = huh.NewOption("Quit", quitOption)\n' >> run-script-tmp.go
+	@printf '\tvar selected string\n' >> run-script-tmp.go
+	@printf '\tkeymap := huh.NewDefaultKeyMap()\n' >> run-script-tmp.go
+	@printf '\tkeymap.Quit = key.NewBinding(key.WithKeys("q", "esc", "ctrl+c"), key.WithHelp("q", "quit"))\n' >> run-script-tmp.go
+	@printf '\tselectField := huh.NewSelect[string]().Title("Select script").Description("Press q to quit").Options(options...).Value(&selected)\n' >> run-script-tmp.go
+	@printf '\tform := huh.NewForm(huh.NewGroup(selectField)).WithKeyMap(keymap)\n' >> run-script-tmp.go
+	@printf '\terr = form.Run()\n' >> run-script-tmp.go
+	@printf '\tif err != nil {\n' >> run-script-tmp.go
+	@printf '\t\tif errors.Is(err, huh.ErrUserAborted) {\n\t\t\treturn\n\t\t}\n' >> run-script-tmp.go
+	@printf '\t\tfmt.Fprintf(os.Stderr, "Error: %%v\\n", err)\n\t\tos.Exit(1)\n\t}\n' >> run-script-tmp.go
+	@printf '\tif selected == quitOption {\n\t\treturn\n\t}\n' >> run-script-tmp.go
+	@printf '\tscriptDir := filepath.Join(scriptsDir, selected)\n' >> run-script-tmp.go
+	@printf '\tmakeCmd := exec.Command("make", "-C", scriptDir, "run")\n' >> run-script-tmp.go
+	@printf '\tmakeCmd.Stdout = os.Stdout\n' >> run-script-tmp.go
+	@printf '\tmakeCmd.Stderr = os.Stderr\n' >> run-script-tmp.go
+	@printf '\tmakeCmd.Stdin = os.Stdin\n' >> run-script-tmp.go
+	@printf '\tif err := makeCmd.Run(); err != nil {\n\t\tos.Exit(1)\n\t}\n' >> run-script-tmp.go
+	@printf '}\n' >> run-script-tmp.go
+	@go mod download github.com/charmbracelet/huh@latest github.com/charmbracelet/bubbles@latest 2>/dev/null || true
+	@go run run-script-tmp.go
+	@rm -f run-script-tmp.go
+endif
 
 # ── Internal ─────────────────────────────────────────────
 
