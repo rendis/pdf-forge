@@ -508,7 +508,7 @@ export function DocumentEditor({
           {/* Center: Main Editor Area */}
           <div className="row-span-2 grid grid-rows-subgrid min-w-0">
             {/* Header with Toolbar and Settings - Toolbar only when editable */}
-            <div className="flex items-center justify-between border-b border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border bg-card min-w-0">
               {editable ? (
                 <EditorToolbar
                   editor={editor}
@@ -520,7 +520,7 @@ export function DocumentEditor({
               ) : (
                 <div className="flex-1" />
               )}
-              <div className="flex items-center gap-1 pr-2">
+              <div className="flex items-center gap-1 pr-2 shrink-0">
                 {!editable && templateId && versionId && (
                   <PreviewButton templateId={templateId} versionId={versionId} editor={editor} />
                 )}
