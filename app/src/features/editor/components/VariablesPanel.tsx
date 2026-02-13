@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
-import { ChevronRight, ChevronsDownUp, ChevronsUpDown, Clock, Database, Loader2, Maximize2, Search, Variable as VariableIcon, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Clock, Database, Loader2, Maximize2, Search, Variable as VariableIcon, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useInjectablesStore } from '../stores/injectables-store'
@@ -249,106 +249,67 @@ export function VariablesPanel({
       animate={{ width: isCollapsed ? 56 : 288 }}
       transition={COLLAPSE_TRANSITION}
       className={cn(
-        'flex flex-col border-r border-border bg-card shrink-0 overflow-hidden',
+        'border-r border-border bg-card shrink-0 overflow-hidden',
         className
       )}
     >
       {/* Header */}
-      <div className="relative flex items-center h-14 px-3 border-b border-border shrink-0">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <VariableIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-          <motion.span
-            initial={false}
-            animate={{
-              opacity: isCollapsed ? 0 : 1,
-              width: isCollapsed ? 0 : 'auto',
-            }}
-            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-            className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground overflow-hidden whitespace-nowrap"
+      <div className="relative flex items-center pt-3 pb-2 px-3 border-b border-border">
+        {!isCollapsed && (
+          <>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <VariableIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground overflow-hidden whitespace-nowrap">
+                {t('editor.variablesPanel.header')}
+              </span>
+            </div>
+
+            <span className="text-xs text-muted-foreground/70 min-w-[1ch] text-center">
+              {totalCount}
+            </span>
+
+            <button
+              onClick={toggleAllSections}
+              className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1"
+              aria-label={allSectionsExpanded ? t('editor.variablesPanel.collapseAll') : t('editor.variablesPanel.expandAll')}
+              title={allSectionsExpanded ? t('editor.variablesPanel.collapseAll') : t('editor.variablesPanel.expandAll')}
+            >
+              {allSectionsExpanded ? (
+                <ChevronsDownUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1"
+              aria-label={t('editor.variablesPanel.expandModal')}
+              title={t('editor.variablesPanel.expandModal')}
+            >
+              <Maximize2 className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </>
+        )}
+
+        {/* Collapse/Expand button */}
+        {isCollapsed ? (
+          <button
+            onClick={toggleCollapsed}
+            className="absolute inset-0 flex items-center justify-center hover:bg-muted/50 transition-colors"
+            aria-label={t('editor.variablesPanel.collapse.expand')}
           >
-            {t('editor.variablesPanel.header')}
-          </motion.span>
-        </div>
-
-        {/* Variable count - hide when collapsed */}
-        <motion.span
-          initial={false}
-          animate={{
-            opacity: isCollapsed ? 0 : 1,
-            width: isCollapsed ? 0 : 'auto',
-          }}
-          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-          className="text-xs text-muted-foreground/70 min-w-[1ch] text-center overflow-hidden"
-        >
-          {totalCount}
-        </motion.span>
-
-        {/* Expand/Collapse all button - hide when collapsed */}
-        <motion.button
-          initial={false}
-          animate={{
-            opacity: isCollapsed ? 0 : 1,
-            width: isCollapsed ? 0 : 'auto',
-          }}
-          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-          onClick={toggleAllSections}
-          className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1 overflow-hidden"
-          aria-label={allSectionsExpanded ? t('editor.variablesPanel.collapseAll') : t('editor.variablesPanel.expandAll')}
-          title={allSectionsExpanded ? t('editor.variablesPanel.collapseAll') : t('editor.variablesPanel.expandAll')}
-        >
-          {allSectionsExpanded ? (
-            <ChevronsDownUp className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
-          )}
-        </motion.button>
-
-        {/* Expand modal button - hide when collapsed */}
-        <motion.button
-          initial={false}
-          animate={{
-            opacity: isCollapsed ? 0 : 1,
-            width: isCollapsed ? 0 : 'auto',
-          }}
-          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-          onClick={() => setIsModalOpen(true)}
-          className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1 overflow-hidden"
-          aria-label={t('editor.variablesPanel.expandModal')}
-          title={t('editor.variablesPanel.expandModal')}
-        >
-          <Maximize2 className="h-4 w-4 text-muted-foreground" />
-        </motion.button>
-
-        {/* Collapse button - always visible */}
-        <button
-          onClick={toggleCollapsed}
-          className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1"
-          aria-label={isCollapsed ? t('editor.variablesPanel.collapse.expand') : t('editor.variablesPanel.collapse.collapse')}
-        >
-          <motion.div
-            animate={{ rotate: isCollapsed ? 180 : 0 }}
-            transition={COLLAPSE_TRANSITION}
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        ) : (
+          <button
+            onClick={toggleCollapsed}
+            className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors ml-1"
+            aria-label={t('editor.variablesPanel.collapse.collapse')}
           >
             <ChevronRight className="h-4 w-4" />
-          </motion.div>
-        </button>
-
-        {/* Collapsed state: show badge centered on border line */}
-        <AnimatePresence>
-          {isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.15 }}
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center justify-center z-10"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted-foreground text-[13px] font-bold font-mono text-white shadow-md">
-                {totalCount}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </button>
+        )}
       </div>
 
       {/* Content */}
@@ -359,7 +320,7 @@ export function VariablesPanel({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="flex-1 min-h-0 flex flex-col"
+            className="min-h-0 flex flex-col overflow-hidden"
           >
             {/* Static Search Bar */}
             <div className="shrink-0 p-4 pb-2">

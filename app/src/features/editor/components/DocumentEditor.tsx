@@ -41,6 +41,7 @@ import { InconsistencyNavigator } from './InconsistencyNavigator'
 import { TableBubbleMenu } from './TableBubbleMenu'
 import { TableCornerHandle } from './TableCornerHandle'
 import { hasConfigurableOptions } from '../types/injectable'
+import { cn } from '@/lib/utils'
 import { type Variable } from '../types'
 import { usePaginationStore } from '../stores'
 import type { VariableDragData } from '../types/drag'
@@ -491,17 +492,21 @@ export function DocumentEditor({
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex h-full">
+        <div className={cn(
+          'grid grid-rows-[auto_1fr] h-full',
+          editable ? 'grid-cols-[auto_1fr]' : 'grid-cols-1'
+        )}>
           {/* Left: Variables Panel - only show when editable */}
           {editable && (
             <VariablesPanel
               onVariableClick={handleVariableClick}
               draggingIds={activeDragData ? [activeDragData.id] : []}
+              className="row-span-2 grid grid-rows-subgrid"
             />
           )}
 
           {/* Center: Main Editor Area */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="row-span-2 grid grid-rows-subgrid min-w-0">
             {/* Header with Toolbar and Settings - Toolbar only when editable */}
             <div className="flex items-center justify-between border-b border-border bg-card">
               {editable ? (
@@ -524,7 +529,7 @@ export function DocumentEditor({
             </div>
 
             {/* Editor Content */}
-            <div className="flex-1 overflow-auto bg-background p-8 relative">
+            <div className="overflow-auto bg-background p-8 relative min-h-0">
               {/* Inconsistency Navigator - floating top-right */}
               {editable && (
                 <div className="sticky top-0 z-40 flex justify-end mb-2 pointer-events-none">
