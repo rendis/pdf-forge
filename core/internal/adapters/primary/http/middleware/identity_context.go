@@ -30,7 +30,7 @@ const (
 // It requires JWTAuth middleware to be applied before this.
 // If bootstrapEnabled is true and no users exist in the database, the first user to login
 // will be automatically created as SUPERADMIN.
-func IdentityContext(pool *pgxpool.Pool, bootstrapEnabled bool, userRepo port.UserRepository) gin.HandlerFunc {
+func IdentityContext(pool *pgxpool.Pool, bootstrapEnabled bool, userRepo port.UserRepository, workspaceMemberRepo port.WorkspaceMemberRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Method == http.MethodOptions {
 			c.Next()
@@ -42,6 +42,9 @@ func IdentityContext(pool *pgxpool.Pool, bootstrapEnabled bool, userRepo port.Us
 
 		user, err := userRepo.FindByEmail(ctx, email)
 		if err == nil {
+			if !user.IsLinkedToIdP() {
+				activateInvitedUser(ctx, c, user, userRepo, workspaceMemberRepo)
+			}
 			c.Set(internalUserIDKey, user.ID)
 			c.Next()
 			return
@@ -156,6 +159,72 @@ func tryBootstrapFirstUser(ctx context.Context, pool *pgxpool.Pool, email, fullN
 	}
 
 	return userID, true, nil
+}
+
+// activateInvitedUser transitions a shadow user to ACTIVE on first OIDC login.
+// Links user to IdP, sets status to ACTIVE, and activates all pending workspace memberships.
+// Errors are non-fatal: logged as warnings but do not block user access.
+func activateInvitedUser(
+	ctx context.Context,
+	c *gin.Context,
+	user *entity.User,
+	userRepo port.UserRepository,
+	workspaceMemberRepo port.WorkspaceMemberRepository,
+) {
+	externalID, hasID := GetUserID(c)
+	if !hasID || externalID == "" {
+		slog.WarnContext(ctx, "cannot activate invited user: missing external ID in token",
+			slog.String("user_id", user.ID),
+			slog.String("email", user.Email),
+		)
+		return
+	}
+
+	// Link user to IdP and set status to ACTIVE
+	if err := userRepo.LinkToIdP(ctx, user.ID, externalID); err != nil {
+		slog.WarnContext(ctx, "failed to link user to IdP",
+			slog.String("user_id", user.ID),
+			slog.String("error", err.Error()),
+		)
+		return
+	}
+
+	user.Activate(externalID)
+	if err := userRepo.Update(ctx, user); err != nil {
+		slog.WarnContext(ctx, "failed to update user status to ACTIVE",
+			slog.String("user_id", user.ID),
+			slog.String("error", err.Error()),
+		)
+		return
+	}
+
+	// Activate all pending workspace memberships
+	memberships, err := workspaceMemberRepo.FindByUser(ctx, user.ID)
+	if err != nil {
+		slog.WarnContext(ctx, "failed to find workspace memberships for activation",
+			slog.String("user_id", user.ID),
+			slog.String("error", err.Error()),
+		)
+		return
+	}
+
+	for _, m := range memberships {
+		if m.MembershipStatus != entity.MembershipStatusPending {
+			continue
+		}
+		if err := workspaceMemberRepo.Activate(ctx, m.ID); err != nil {
+			slog.WarnContext(ctx, "failed to activate workspace membership",
+				slog.String("user_id", user.ID),
+				slog.String("membership_id", m.ID),
+				slog.String("error", err.Error()),
+			)
+		}
+	}
+
+	slog.InfoContext(ctx, "invited user activated on first login",
+		slog.String("user_id", user.ID),
+		slog.String("email", user.Email),
+	)
 }
 
 // WorkspaceContext creates a middleware that requires and loads the user's role for a specific workspace.

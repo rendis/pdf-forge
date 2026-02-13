@@ -43,7 +43,7 @@ func NewProvider(
 // IdentityContext returns a middleware that loads user identity from the database.
 // If bootstrap is enabled and no users exist, creates the first user as SUPERADMIN.
 func (p *Provider) IdentityContext() gin.HandlerFunc {
-	return IdentityContext(p.pool, p.bootstrapEnabled, p.userRepo)
+	return IdentityContext(p.pool, p.bootstrapEnabled, p.userRepo, p.workspaceMemberRepo)
 }
 
 // SystemRoleContext returns a middleware that loads the user's system role if they have one.
