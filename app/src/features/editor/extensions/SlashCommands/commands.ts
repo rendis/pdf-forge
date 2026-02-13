@@ -13,7 +13,6 @@ import {
   GitBranch,
   Variable,
   Table2,
-  ListTree,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Editor } from '@tiptap/core'
@@ -173,19 +172,6 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     action: (editor) => {
       // Insert @ to trigger the mentions menu with available variables
       editor.chain().focus().insertContent('@').run()
-    },
-  },
-  {
-    id: 'dynamicList',
-    titleKey: 'editor.slashCommands.dynamicList',
-    descriptionKey: 'editor.slashCommands.dynamicListDesc',
-    icon: ListTree,
-    groupKey: 'editor.slashCommands.groups.documents',
-    aliases: ['list', 'dynamic', 'injectable', 'lista'],
-    action: (editor) => {
-      editor.view.dom.dispatchEvent(
-        new CustomEvent('editor:insert-list-injector', { bubbles: true })
-      )
     },
   },
 ]

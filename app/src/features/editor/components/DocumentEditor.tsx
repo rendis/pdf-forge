@@ -32,6 +32,7 @@ import {
 } from '../extensions/Table'
 import { TableInjectorExtension } from '../extensions/TableInjector'
 import { ListInjectorExtension } from '../extensions/ListInjector'
+import { StoredMarksPersistenceExtension } from '../extensions/StoredMarksPersistence'
 import { ImageInsertModal, type ImageInsertResult } from './ImageInsertModal'
 import { VariableFormatDialog } from './VariableFormatDialog'
 import { VariablesPanel } from './VariablesPanel'
@@ -130,6 +131,7 @@ export function DocumentEditor({
       Color,
       FontFamily.configure({ types: ['textStyle'] }),
       FontSize.configure({ types: ['textStyle'] }),
+      StoredMarksPersistenceExtension,
       TextAlign.configure({ types: ['heading', 'paragraph', 'tableCell', 'tableHeader'] }),
       InjectorExtension,
       MentionExtension,

@@ -117,15 +117,17 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
 
       // Limitar al ancho máximo de la página
       if (newWidth > maxWidth) {
-        const ratio = e.width / e.height;
+        if (shape === 'circle') {
+          const ratio = e.width / e.height;
+          newHeight = maxWidth / ratio;
+        }
         newWidth = maxWidth;
-        newHeight = newWidth / ratio;
       }
 
       e.target.style.width = `${newWidth}px`;
       e.target.style.height = `${newHeight}px`;
     },
-    [getMaxWidth]
+    [getMaxWidth, shape]
   );
 
   const handleResizeEnd = useCallback(
@@ -301,9 +303,12 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
               key={shape}
               target={imageRef}
               resizable
-              keepRatio
+              keepRatio={shape === 'circle'}
               throttleResize={0}
-              renderDirections={['nw', 'ne', 'sw', 'se']}
+              renderDirections={shape === 'circle'
+                ? ['nw', 'ne', 'sw', 'se']
+                : ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
+              }
               onResizeStart={(e) => {
                 // Permitir que la imagen crezca hasta el ancho máximo del editor
                 const maxWidth = getMaxWidth();

@@ -4,13 +4,6 @@ import type { Editor } from '@tiptap/react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -53,9 +46,10 @@ import {
 } from '@/components/ui/tooltip'
 import { PreviewButton } from './preview'
 import { TextColorPicker } from './TextColorPicker'
+import { FontFamilyPicker } from './FontFamilyPicker'
+import { FontSizePicker } from './FontSizePicker'
 import { useOverflowScroll } from '@/hooks/use-overflow-scroll'
 import { cn } from '@/lib/utils'
-import { TOOLBAR_FONT_FAMILIES, TOOLBAR_FONT_SIZES } from '../config'
 
 interface EditorToolbarProps {
   editor: Editor | null
@@ -145,46 +139,10 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
           <Separator orientation="vertical" className="h-6 mx-1" />
 
           {/* Font Family */}
-          <Select
-            value={editor.getAttributes('textStyle').fontFamily || 'Inter'}
-            onValueChange={(value) => {
-              editor.chain().focus().setFontFamily(value).run()
-            }}
-          >
-            <SelectTrigger className="h-8 w-[150px] shrink-0 text-xs">
-              <SelectValue placeholder={t('editor.toolbar.fontFamily')} />
-            </SelectTrigger>
-            <SelectContent>
-              {TOOLBAR_FONT_FAMILIES.map((font) => (
-                <SelectItem
-                  key={font.value}
-                  value={font.value}
-                  style={{ fontFamily: font.value }}
-                >
-                  {font.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FontFamilyPicker editor={editor} />
 
           {/* Font Size */}
-          <Select
-            value={editor.getAttributes('textStyle').fontSize?.replace('px', '') || '14'}
-            onValueChange={(value) => {
-              editor.chain().focus().setFontSize(`${value}px`).run()
-            }}
-          >
-            <SelectTrigger className="h-8 w-[65px] shrink-0 text-xs">
-              <SelectValue placeholder={t('editor.toolbar.fontSize')} />
-            </SelectTrigger>
-            <SelectContent>
-              {TOOLBAR_FONT_SIZES.map((s) => (
-                <SelectItem key={s.value} value={s.value.toString()}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FontSizePicker editor={editor} />
 
           <Separator orientation="vertical" className="h-6 mx-1" />
 
