@@ -763,6 +763,11 @@ body {
   overflow: visible;
 }
 
+/* Remove top margin from elements after floated images so text starts at image top */
+.ProseMirror [data-display-mode="inline"] + * {
+  margin-top: 0;
+}
+
 /* ============================================
    Moveable (react-moveable) Styles
    ============================================ */

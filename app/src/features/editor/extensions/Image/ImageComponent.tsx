@@ -221,6 +221,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
   return (
     <NodeViewWrapper
       as="div"
+      data-display-mode={displayMode}
       className={cn('relative group', displayMode === 'block' ? 'my-2' : 'mt-0')}
       style={containerStyles}
       ref={containerRef}
@@ -232,7 +233,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
           alt={alt || ''}
           title={title}
           className={imageStyles}
-          style={{ maxWidth: 'none' }}
+          style={{ maxWidth: 'none', marginTop: 0, marginBottom: 0 }}
           onLoad={handleImageLoad}
           onDoubleClick={handleDoubleClick}
           draggable={false}
