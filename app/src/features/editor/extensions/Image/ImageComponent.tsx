@@ -20,6 +20,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [, forceUpdate] = useState({});
 
   // Subscribe to selection updates to properly track direct selection
@@ -61,6 +62,15 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
     injectableLabel?: string;
   };
 
+  // Obtener el ancho máximo disponible del contenedor del editor
+  const getMaxWidth = useCallback(() => {
+    const editorContainer = containerRef.current?.closest('.ProseMirror');
+    if (editorContainer) {
+      return editorContainer.clientWidth;
+    }
+    return 700; // Fallback
+  }, []);
+
   const handleAlignChange = useCallback(
     (newDisplayMode: ImageDisplayMode, newAlign: ImageAlign) => {
       updateAttributes({ displayMode: newDisplayMode, align: newAlign });
@@ -98,16 +108,6 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
     if (!isEditorEditable) return;
     handleEdit();
   }, [isEditorEditable, handleEdit]);
-
-  // Obtener el ancho máximo disponible del contenedor del editor
-  const getMaxWidth = useCallback(() => {
-    // Buscar el contenedor .ProseMirror que es el editor
-    const editorContainer = containerRef.current?.closest('.ProseMirror');
-    if (editorContainer) {
-      return editorContainer.clientWidth;
-    }
-    return 700; // Fallback
-  }, []);
 
   const handleResize = useCallback(
     (e: { width: number; height: number; target: HTMLElement }) => {
@@ -194,7 +194,6 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
       }
     } else {
       // inline/float mode - texto envuelve la imagen
-      styles.maxWidth = '50%';
       styles.marginBottom = '0.5rem';
 
       if (align === 'left') {
@@ -222,7 +221,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
   return (
     <NodeViewWrapper
       as="div"
-      className="relative my-2 group"
+      className={cn('relative group', displayMode === 'block' ? 'my-2' : 'mt-0')}
       style={containerStyles}
       ref={containerRef}
     >
@@ -233,19 +232,16 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
           alt={alt || ''}
           title={title}
           className={imageStyles}
-          style={{
-            width: width ? `${width}px` : undefined,
-            height: height ? `${height}px` : undefined,
-          }}
+          style={{ maxWidth: 'none' }}
           onLoad={handleImageLoad}
           onDoubleClick={handleDoubleClick}
           draggable={false}
         />
 
 
-        {isEditorEditable && isDirectlySelected && imageLoaded && (
+        {isEditorEditable && (isDirectlySelected || isResizing) && imageLoaded && (
           <>
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1 z-50">
+            {isDirectlySelected && <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1 z-50">
               <ImageAlignSelector
                 displayMode={displayMode}
                 align={align}
@@ -297,30 +293,33 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
+            </div>}
 
             <Moveable
-              key={shape}
+              key={`${shape}-${displayMode}`}
               target={imageRef}
               resizable
               keepRatio={shape === 'circle'}
               throttleResize={0}
-              renderDirections={shape === 'circle'
-                ? ['nw', 'ne', 'sw', 'se']
-                : ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
+              renderDirections={
+                displayMode === 'inline'
+                  ? ['e', 'se', 's', 'sw', 'w']
+                  : shape === 'circle'
+                    ? ['nw', 'ne', 'sw', 'se']
+                    : ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
               }
               onResizeStart={(e) => {
-                // Permitir que la imagen crezca hasta el ancho máximo del editor
-                const maxWidth = getMaxWidth();
-                e.setMax([maxWidth, Infinity]);
+                setIsResizing(true);
+                e.setMax([getMaxWidth(), Infinity]);
               }}
               onResize={({ width: w, height: h, target, drag }) => {
-                // Apply transform for position adjustment during resize
-                target.style.transform = drag.transform;
+                if (displayMode === 'block') {
+                  target.style.transform = `translate(${drag.translate[0]}px, 0px)`;
+                }
                 handleResize({ width: w, height: h, target: target as HTMLElement });
               }}
               onResizeEnd={({ target }) => {
-                // Reset transform after resize ends
+                setIsResizing(false);
                 target.style.transform = '';
                 handleResizeEnd({ target: target as HTMLElement });
               }}

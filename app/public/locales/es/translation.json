@@ -851,7 +851,9 @@
       "alignments": {
         "blockLeft": "Bloque izquierda",
         "blockCenter": "Bloque centro",
-        "blockRight": "Bloque derecha"
+        "blockRight": "Bloque derecha",
+        "wrapLeft": "Ajustar izquierda",
+        "wrapRight": "Ajustar derecha"
       },
       "modal": {
         "title": "Insertar imagen",
