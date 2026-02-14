@@ -124,7 +124,7 @@ export function InjectorConfigDialog({
               <Label className="text-xs font-medium uppercase tracking-wider">
                 {t('editor.injector_config.preview')}
               </Label>
-              <div className="border border-border bg-muted/30 px-4 py-3 font-mono text-sm">
+              <div className="overflow-x-scroll whitespace-nowrap border border-border bg-muted/30 px-4 py-3 font-mono text-sm [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-foreground/20 [&::-webkit-scrollbar-track]:bg-transparent" style={{ scrollbarWidth: 'thin' }}>
                 {getPreview()}
               </div>
             </div>
