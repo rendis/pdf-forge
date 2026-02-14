@@ -18,6 +18,8 @@ export interface InjectorOptions {
   showLabelIfEmpty?: boolean
   /** Valor por defecto cuando el valor está vacío */
   defaultValue?: string | null
+  /** Ancho fijo en píxeles (null = auto) */
+  width?: number | null
 }
 
 declare module '@tiptap/core' {
@@ -65,6 +67,19 @@ export const InjectorExtension = Node.create({
       },
       defaultValue: {
         default: null,
+      },
+      width: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          const w = element.getAttribute('data-width')
+          return w ? parseInt(w, 10) : null
+        },
+        renderHTML: (attributes: Record<string, unknown>) => {
+          if (attributes.width) {
+            return { 'data-width': attributes.width }
+          }
+          return {}
+        },
       },
     }
   },

@@ -660,6 +660,7 @@
       "copy": "Copiar",
       "cut": "Cortar",
       "delete": "Eliminar",
+      "reset_width": "Restablecer Ancho",
       "node_types": {
         "variable": "Variable",
         "conditional": "Condicional",

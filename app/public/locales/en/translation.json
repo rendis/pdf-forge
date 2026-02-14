@@ -660,6 +660,7 @@
       "copy": "Copy",
       "cut": "Cut",
       "delete": "Delete",
+      "reset_width": "Reset Width",
       "node_types": {
         "variable": "Variable",
         "conditional": "Conditional",

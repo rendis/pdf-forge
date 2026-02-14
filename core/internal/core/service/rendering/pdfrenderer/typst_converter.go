@@ -301,6 +301,7 @@ func (c *TypstConverter) injector(node portabledoc.Node) string {
 	suffix, _ := node.Attrs["suffix"].(string)
 	showLabelIfEmpty, _ := node.Attrs["showLabelIfEmpty"].(bool)
 	nodeDefaultValue, _ := node.Attrs["defaultValue"].(string)
+	widthPx, hasWidth := node.Attrs["width"].(float64)
 
 	// Resolve value with priority: injected > node default > global default
 	value := c.resolveRegularInjectable(variableID, node.Attrs)
@@ -331,7 +332,14 @@ func (c *TypstConverter) injector(node portabledoc.Node) string {
 		parts = append(parts, escapeTypst(suffix))
 	}
 
-	return strings.Join(parts, "")
+	content := strings.Join(parts, "")
+
+	if hasWidth && widthPx > 0 {
+		widthPt := widthPx * pxToPt
+		return fmt.Sprintf("#box(width: %.1fpt)[%s]", widthPt, content)
+	}
+
+	return content
 }
 
 func (c *TypstConverter) resolveRegularInjectable(variableID string, attrs map[string]any) string {

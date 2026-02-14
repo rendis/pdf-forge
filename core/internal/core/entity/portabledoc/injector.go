@@ -9,8 +9,9 @@ type InjectorAttrs struct {
 	Required         *bool   `json:"required,omitempty"`
 	Prefix           *string `json:"prefix,omitempty"`
 	Suffix           *string `json:"suffix,omitempty"`
-	ShowLabelIfEmpty *bool   `json:"showLabelIfEmpty,omitempty"`
-	DefaultValue     *string `json:"defaultValue,omitempty"`
+	ShowLabelIfEmpty *bool    `json:"showLabelIfEmpty,omitempty"`
+	DefaultValue     *string  `json:"defaultValue,omitempty"`
+	Width            *float64 `json:"width,omitempty"`
 }
 
 // Injector type constants.

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Trash2, Pencil, Copy, Scissors, Settings } from 'lucide-react'
+import { Trash2, Pencil, Copy, Scissors, Settings, Maximize2 } from 'lucide-react'
 
 export type NodeContextType =
   | 'injector'
@@ -16,6 +16,7 @@ interface EditorNodeContextMenuProps {
   onCopy?: () => void
   onCut?: () => void
   onConfigureLabel?: () => void
+  onClearWidth?: () => void
   onClose: () => void
 }
 
@@ -28,6 +29,7 @@ export const EditorNodeContextMenu = ({
   onCopy,
   onCut,
   onConfigureLabel,
+  onClearWidth,
   onClose,
 }: EditorNodeContextMenuProps) => {
   const { t } = useTranslation()
@@ -86,6 +88,19 @@ export const EditorNodeContextMenu = ({
         >
           <Settings className="h-4 w-4 flex-shrink-0" />
           <span className="truncate">{t('editor.context_menu.configure_label')}</span>
+        </button>
+      )}
+
+      {onClearWidth && (
+        <button
+          onClick={() => {
+            onClearWidth()
+            onClose()
+          }}
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-left"
+        >
+          <Maximize2 className="h-4 w-4 flex-shrink-0" />
+          <span className="truncate">{t('editor.context_menu.reset_width')}</span>
         </button>
       )}
 
