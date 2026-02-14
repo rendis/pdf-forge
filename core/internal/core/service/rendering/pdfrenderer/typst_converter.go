@@ -63,10 +63,27 @@ func (c *TypstConverter) registerRemoteImage(url string) string {
 }
 
 // ConvertNodes converts a slice of nodes to Typst markup.
+// It uses look-ahead to group inline images with their following paragraphs
+// for text wrapping via the wrap-it package.
 func (c *TypstConverter) ConvertNodes(nodes []portabledoc.Node) string {
 	var sb strings.Builder
-	for _, node := range nodes {
-		sb.WriteString(c.ConvertNode(node))
+	for i := 0; i < len(nodes); i++ {
+		node := nodes[i]
+		if c.isInlineImage(node) {
+			// Collect consecutive paragraphs after the inline image as wrap body
+			var body []portabledoc.Node
+			for j := i + 1; j < len(nodes) && nodes[j].Type == portabledoc.NodeTypeParagraph; j++ {
+				body = append(body, nodes[j])
+			}
+			if len(body) > 0 {
+				sb.WriteString(c.wrapImage(node, body))
+				i += len(body) // skip consumed paragraphs
+			} else {
+				sb.WriteString(c.image(node)) // no body, fallback to block
+			}
+		} else {
+			sb.WriteString(c.ConvertNode(node))
+		}
 	}
 	return sb.String()
 }
@@ -402,21 +419,30 @@ func (c *TypstConverter) resolveImagePath(attrs map[string]any) string {
 	return src
 }
 
-func (c *TypstConverter) image(node portabledoc.Node) string {
+// isInlineImage checks if a node is an image with displayMode "inline" (text wrapping).
+func (c *TypstConverter) isInlineImage(node portabledoc.Node) bool {
+	if node.Type != portabledoc.NodeTypeImage && node.Type != portabledoc.NodeTypeCustomImage {
+		return false
+	}
+	dm, _ := node.Attrs["displayMode"].(string)
+	return dm == "inline"
+}
+
+// imageMarkup generates just the Typst image/box markup without alignment wrapping.
+func (c *TypstConverter) imageMarkup(node portabledoc.Node) string {
 	imgPath := c.resolveImagePath(node.Attrs)
 	if imgPath == "" {
 		return ""
 	}
 
 	width, _ := node.Attrs["width"].(float64)
-	align, _ := node.Attrs["align"].(string)
 	shape, _ := node.Attrs["shape"].(string)
 
-	var imgMarkup string
+	var markup string
 	if width > 0 {
-		imgMarkup = fmt.Sprintf("#image(\"%s\", width: %.0fpt)", escapeTypstString(imgPath), width*0.75)
+		markup = fmt.Sprintf("#image(\"%s\", width: %.0fpt)", escapeTypstString(imgPath), width*0.75)
 	} else {
-		imgMarkup = fmt.Sprintf("#image(\"%s\", width: 100%%)", escapeTypstString(imgPath))
+		markup = fmt.Sprintf("#image(\"%s\", width: 100%%)", escapeTypstString(imgPath))
 	}
 
 	if shape == "circle" {
@@ -426,20 +452,53 @@ func (c *TypstConverter) image(node portabledoc.Node) string {
 		}
 		size := math.Min(width, height) * 0.75
 		if size > 0 {
-			imgMarkup = fmt.Sprintf(
+			markup = fmt.Sprintf(
 				"#box(width: %.0fpt, height: %.0fpt, clip: true, radius: 50%%)[#image(\"%s\", width: 100%%, height: 100%%)]",
 				size, size, escapeTypstString(imgPath),
 			)
 		}
 	}
 
+	return markup
+}
+
+// wrapImage generates a wrap-content block: image + following paragraphs as body.
+func (c *TypstConverter) wrapImage(imgNode portabledoc.Node, bodyNodes []portabledoc.Node) string {
+	markup := c.imageMarkup(imgNode)
+	if markup == "" {
+		return ""
+	}
+
+	align, _ := imgNode.Attrs["align"].(string)
+	typstAlign := "top + left"
+	if align == "right" {
+		typstAlign = "top + right"
+	}
+
+	var body strings.Builder
+	for _, n := range bodyNodes {
+		body.WriteString(c.ConvertNode(n))
+	}
+
+	return fmt.Sprintf("#wrap-content([%s], align: %s, column-gutter: 0.75em)[%s]\n", markup, typstAlign, body.String())
+}
+
+// image converts an image node to block-mode Typst markup.
+func (c *TypstConverter) image(node portabledoc.Node) string {
+	markup := c.imageMarkup(node)
+	if markup == "" {
+		return ""
+	}
+
+	align, _ := node.Attrs["align"].(string)
+
 	switch align {
 	case "center":
-		return fmt.Sprintf("#align(center)[%s]\n", imgMarkup)
+		return fmt.Sprintf("#align(center)[%s]\n", markup)
 	case "right":
-		return fmt.Sprintf("#align(right)[%s]\n", imgMarkup)
+		return fmt.Sprintf("#align(right)[%s]\n", markup)
 	default:
-		return imgMarkup + "\n"
+		return markup + "\n"
 	}
 }
 

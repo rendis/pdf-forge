@@ -32,6 +32,9 @@ func NewTypstBuilder(
 func (b *TypstBuilder) Build(doc *portabledoc.Document) string {
 	var sb strings.Builder
 
+	// Package imports
+	sb.WriteString("#import \"@preview/wrap-it:0.1.1\": wrap-content\n\n")
+
 	// Page configuration
 	sb.WriteString(b.pageSetup(&doc.PageConfig))
 
