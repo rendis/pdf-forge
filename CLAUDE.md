@@ -195,7 +195,7 @@ Key settings: `typst.bin_path`, `typst.max_concurrent` (default: 20), `server.po
 
 Auth: `auth.panel` (OIDC for panel) + `auth.render_providers[]` (additional OIDC for render). Omit `auth` for dummy mode.
 
-CORS: `server.cors.allowed_origins` (default: `["*"]`)
+CORS: `server.cors.allowed_origins` (default: `["*"]`), `server.cors.allowed_headers` (default: `[]`, extra headers)
 
 See [core/docs/configuration.md](core/docs/configuration.md).
 

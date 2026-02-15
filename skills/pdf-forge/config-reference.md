@@ -31,6 +31,8 @@ engine := sdk.New()
 | `DOC_ENGINE_SERVER_WRITE_TIMEOUT`    | `server.write_timeout`    | `30`    | Write timeout (seconds)                                   |
 | `DOC_ENGINE_SERVER_SHUTDOWN_TIMEOUT` | `server.shutdown_timeout` | `10`    | Graceful shutdown (seconds)                               |
 | `DOC_ENGINE_SERVER_SWAGGER_UI`       | `server.swagger_ui`       | `false` | Enable Swagger UI at `/swagger/*`                         |
+| `DOC_ENGINE_SERVER_CORS_ALLOWED_ORIGINS` | `server.cors.allowed_origins` | `["*"]` | Allowed CORS origins                              |
+| `DOC_ENGINE_SERVER_CORS_ALLOWED_HEADERS` | `server.cors.allowed_headers` | `[]`    | Extra CORS headers (appended to built-in list)    |
 | `PORT`                               | -                         | -       | **Special**: Overrides `server.port` (PaaS compatibility) |
 
 ### Database
@@ -160,6 +162,9 @@ server:
   write_timeout: 30
   shutdown_timeout: 10
   swagger_ui: false
+  cors:
+    allowed_origins: ["*"]
+    # allowed_headers: ["X-Environment"]  # extra CORS headers
 
 database:
   host: localhost

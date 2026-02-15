@@ -56,6 +56,7 @@ YAML (`settings/app.yaml`) + environment variables (`DOC_ENGINE_*` prefix).
 Key settings:
 - `server.port` (default: 8080)
 - `server.cors.allowed_origins` (default: `["*"]`)
+- `server.cors.allowed_headers` (default: `[]`, extra headers appended to built-in list)
 - `database.*` — PostgreSQL connection
 - `auth.panel` — OIDC provider
 - `typst.bin_path`, `typst.max_concurrent` (default: 20)

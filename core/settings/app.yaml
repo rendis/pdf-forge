@@ -13,6 +13,8 @@ server:
   cors:
     allowed_origins:
       - "*"
+    # allowed_headers:       # Extra headers for CORS preflight (appended to built-in list)
+    #   - X-Custom-Header
 
 database:
   host: localhost             # Override via DOC_ENGINE_DATABASE_HOST

@@ -366,6 +366,7 @@ server:
   port: "8080"
   cors:
     allowed_origins: ["*"]
+    # allowed_headers: ["X-Environment"]  # extra CORS headers (appended to built-in list)
 
 database:
   host: localhost
@@ -391,6 +392,7 @@ Override any YAML key with `DOC_ENGINE_` prefix (e.g., `database.host` → `DOC_
 | `DOC_ENGINE_SERVER_READ_TIMEOUT`     | `30`    | Read timeout (seconds)      |
 | `DOC_ENGINE_SERVER_WRITE_TIMEOUT`    | `30`    | Write timeout (seconds)     |
 | `DOC_ENGINE_SERVER_SHUTDOWN_TIMEOUT` | `10`    | Graceful shutdown (seconds) |
+| `DOC_ENGINE_SERVER_CORS_ALLOWED_HEADERS` | `[]` | Extra CORS allowed headers  |
 
 **Database**
 

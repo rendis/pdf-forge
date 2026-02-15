@@ -86,6 +86,7 @@ func (s ServerConfig) NormalizedBasePath() string {
 // CORSConfig holds CORS configuration.
 type CORSConfig struct {
 	AllowedOrigins []string `mapstructure:"allowed_origins"`
+	AllowedHeaders []string `mapstructure:"allowed_headers"`
 }
 
 // ReadTimeoutDuration returns the read timeout as time.Duration.
