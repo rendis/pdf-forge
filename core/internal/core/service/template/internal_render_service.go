@@ -72,6 +72,22 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 	return s.renderVersion(ctx, version, cmd)
 }
 
+// RenderByVersionID renders a specific template version by ID, bypassing document type resolution.
+func (s *InternalRenderService) RenderByVersionID(ctx context.Context, cmd templateuc.RenderByVersionIDCommand) (*port.RenderPreviewResult, error) {
+	version, err := s.versionRepo.FindByIDWithDetails(ctx, cmd.VersionID)
+	if err != nil {
+		return nil, fmt.Errorf("finding version %s: %w", cmd.VersionID, err)
+	}
+
+	return s.renderVersion(ctx, version, templateuc.InternalRenderCommand{
+		TenantCode:    cmd.TenantCode,
+		WorkspaceCode: cmd.WorkspaceCode,
+		Injectables:   cmd.Injectables,
+		Headers:       cmd.Headers,
+		Payload:       cmd.Payload,
+	})
+}
+
 // resolveTemplateVersion walks the fallback chain to find a published template version.
 func (s *InternalRenderService) resolveTemplateVersion(ctx context.Context, cmd templateuc.InternalRenderCommand) (*entity.TemplateVersionWithDetails, error) {
 	tenant, err := s.tenantRepo.FindByCode(ctx, cmd.TenantCode)

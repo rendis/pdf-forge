@@ -168,12 +168,13 @@ Recovery → Logger → CORS → Global middleware → Auth → Identity → Rol
 
 ## HTTP Routes
 
-| Route                                       | Auth                                           |
-| ------------------------------------------- | ---------------------------------------------- |
-| `/api/v1/*` (except render)                 | Panel OIDC + Identity                          |
-| `/api/v1/workspace/document-types/*/render` | Panel + Render providers (NO membership check) |
-| `/swagger/*`, `/health`, `/ready`           | None                                           |
-| `/*` (non-API paths)                        | None (embedded SPA)                            |
+| Route                                              | Auth                                           |
+| -------------------------------------------------- | ---------------------------------------------- |
+| `/api/v1/*` (except render)                        | Panel OIDC + Identity                          |
+| `/api/v1/workspace/document-types/*/render`        | Render providers (NO membership check)         |
+| `/api/v1/workspace/templates/versions/*/render`    | Render providers (render by version ID)        |
+| `/swagger/*`, `/health`, `/ready`                  | None                                           |
+| `/*` (non-API paths)                               | None (embedded SPA)                            |
 
 Frontend embedded in Go binary via `go:embed`. Served from same port as API.
 

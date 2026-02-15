@@ -45,10 +45,10 @@ func (c *RenderController) RegisterRoutes(versions *gin.RouterGroup) {
 }
 
 // RegisterWorkspaceRoutes registers document type render routes under workspace.
-// Route: POST /api/v1/workspace/document-types/{code}/render
 // No RBAC is enforced - users should add custom authorization via engine.UseAPIMiddleware().
 func (c *RenderController) RegisterWorkspaceRoutes(workspaceGroup *gin.RouterGroup) {
 	workspaceGroup.POST("/document-types/:code/render", c.RenderByDocumentType)
+	workspaceGroup.POST("/templates/versions/:versionId/render", c.RenderByVersionID)
 }
 
 // PreviewVersion generates a preview PDF for a template version.
@@ -205,6 +205,92 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		slog.String("tenant_code", tenantCode),
 		slog.String("workspace_code", workspaceCode),
 		slog.String("document_type_code", documentTypeCode),
+		slog.Int("page_count", result.PageCount),
+	)
+
+	// Set response headers
+	ctx.Header("Content-Type", "application/pdf")
+	ctx.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, result.Filename))
+	ctx.Header("Content-Length", fmt.Sprintf("%d", len(result.PDF)))
+
+	ctx.Data(http.StatusOK, "application/pdf", result.PDF)
+}
+
+// RenderByVersionID renders a PDF for a specific template version by ID.
+// Bypasses document type resolution; uses the full injectable pipeline.
+// @Summary Render PDF by version ID
+// @Tags Workspace - Render
+// @Accept json
+// @Produce application/pdf
+// @Param X-Tenant-Code header string true "Tenant code"
+// @Param X-Workspace-Code header string true "Workspace code"
+// @Param versionId path string true "Template version ID"
+// @Param disposition query string false "Content disposition: inline (default) or attachment"
+// @Param request body dto.RenderRequest false "Injectable values"
+// @Success 200 {file} application/pdf
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /api/v1/workspace/templates/versions/{versionId}/render [post]
+// @Security BearerAuth
+func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
+	tenantCode := ctx.GetHeader("X-Tenant-Code")
+	if tenantCode == "" {
+		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Tenant-Code header is required"))
+		return
+	}
+
+	workspaceCode := ctx.GetHeader("X-Workspace-Code")
+	if workspaceCode == "" {
+		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Workspace-Code header is required"))
+		return
+	}
+
+	versionID := ctx.Param("versionId")
+
+	// Parse optional request body
+	var req dto.RenderRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		if err.Error() != "EOF" {
+			respondError(ctx, http.StatusBadRequest, err)
+			return
+		}
+		req.Injectables = make(map[string]any)
+	}
+
+	// Extract headers for injector context
+	headers := make(map[string]string, len(ctx.Request.Header))
+	for k, v := range ctx.Request.Header {
+		if len(v) > 0 {
+			headers[k] = v[0]
+		}
+	}
+
+	// Render by version ID
+	result, err := c.documentTypeRenderUC.RenderByVersionID(ctx.Request.Context(), templateuc.RenderByVersionIDCommand{
+		VersionID:     versionID,
+		TenantCode:    tenantCode,
+		WorkspaceCode: workspaceCode,
+		Injectables:   req.Injectables,
+		Headers:       headers,
+		Payload:       req.Injectables,
+	})
+	if err != nil {
+		HandleError(ctx, err)
+		return
+	}
+
+	// Determine disposition
+	disposition := ctx.DefaultQuery("disposition", "inline")
+	if disposition != "attachment" {
+		disposition = "inline"
+	}
+
+	slog.InfoContext(ctx.Request.Context(), "version render completed",
+		slog.String("version_id", versionID),
+		slog.String("tenant_code", tenantCode),
+		slog.String("workspace_code", workspaceCode),
 		slog.Int("page_count", result.PageCount),
 	)
 

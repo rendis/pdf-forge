@@ -4945,4 +4945,61 @@ paths:
       summary: Update tag
       tags:
       - Tags
+  /api/v1/workspace/templates/versions/{versionId}/render:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tenant code
+        in: header
+        name: X-Tenant-Code
+        required: true
+        type: string
+      - description: Workspace code
+        in: header
+        name: X-Workspace-Code
+        required: true
+        type: string
+      - description: Template version ID
+        in: path
+        name: versionId
+        required: true
+        type: string
+      - description: 'Content disposition: inline (default) or attachment'
+        in: query
+        name: disposition
+        type: string
+      - description: Injectable values
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.RenderRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Render PDF by version ID
+      tags:
+      - Workspace - Render
 swagger: "2.0"

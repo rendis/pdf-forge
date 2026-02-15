@@ -119,18 +119,27 @@ DRAFT ────────────────────────�
 
 ## API Routes
 
-| Route               | Purpose                                    | Auth    |
-| ------------------- | ------------------------------------------ | ------- |
-| `/api/v1/*`         | Public API (templates, workspaces, render) | JWT     |
-| `/internal/*`       | Service-to-service render API              | API Key |
-| `/health`, `/ready` | Health checks                              | None    |
-| `/swagger/*`        | Swagger UI                                 | None    |
-| `/`                 | Embedded React SPA                         | None    |
+| Route                                           | Purpose                                    | Auth         |
+| ----------------------------------------------- | ------------------------------------------ | ------------ |
+| `/api/v1/*`                                     | Public API (templates, workspaces)         | JWT          |
+| `/api/v1/workspace/document-types/{code}/render`| Render by document type (fallback chain)   | Render auth  |
+| `/api/v1/workspace/templates/versions/{id}/render` | Render by version ID (direct)           | Render auth  |
+| `/internal/*`                                   | Service-to-service render API              | API Key      |
+| `/health`, `/ready`                             | Health checks                              | None         |
+| `/swagger/*`                                    | Swagger UI                                 | None         |
+| `/`                                             | Embedded React SPA                         | None         |
 
 ## Render Flow
 
 ```plaintext
-1. API Request (POST /api/v1/.../render or /internal/render)
+Entry points:
+  A. POST /api/v1/workspace/document-types/{code}/render   → resolves by docType (fallback chain)
+  B. POST /api/v1/workspace/templates/versions/{id}/render  → renders specific version (no resolution)
+
+Both require: X-Tenant-Code, X-Workspace-Code headers
+Both use the same pipeline from step 2 onward:
+
+1. Resolve template version (A: fallback chain, B: direct by ID)
 2. Acquire semaphore slot (max_concurrent limit)
 3. Run InitFunc (shared setup)
 4. Resolve injectables:
@@ -144,6 +153,8 @@ DRAFT ────────────────────────�
 7. Typst CLI subprocess → PDF bytes
 8. Return { PDF []byte, Filename, PageCount }
 ```
+
+**Render by Version ID** is useful for testing/sandbox: test multiple template designs for the same docType without conflicts.
 
 ## Folders & Tags
 

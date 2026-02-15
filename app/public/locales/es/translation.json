@@ -262,13 +262,15 @@
     },
     "versions": {
       "actions": {
+        "copyId": "Copiar ID de versión",
         "delete": "Eliminar",
         "publishNow": "Publicar Ahora",
         "schedule": "Programar",
         "archive": "Archivar",
         "clone": "Clonar versión",
         "cancelSchedule": "Cancelar Programación"
-      }
+      },
+      "idCopied": "ID de versión copiado al portapapeles"
     },
     "publishDialog": {
       "title": "Publicar Versión",

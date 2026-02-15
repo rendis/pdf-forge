@@ -262,13 +262,15 @@
     },
     "versions": {
       "actions": {
+        "copyId": "Copy Version ID",
         "delete": "Delete",
         "publishNow": "Publish Now",
         "schedule": "Schedule",
         "archive": "Archive",
         "clone": "Clone version",
         "cancelSchedule": "Cancel Schedule"
-      }
+      },
+      "idCopied": "Version ID copied to clipboard"
     },
     "publishDialog": {
       "title": "Publish Version",

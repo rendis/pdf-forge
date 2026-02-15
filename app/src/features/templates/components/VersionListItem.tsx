@@ -3,6 +3,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import type { TemplateVersionSummaryResponse } from '@/types/api'
 import {
@@ -10,6 +11,7 @@ import {
     Calendar,
     CalendarCheck,
     CalendarClock,
+    ClipboardCopy,
     Clock,
     Copy,
     ExternalLink,
@@ -90,6 +92,7 @@ export function VersionListItem({
   isHighlighted = false,
 }: VersionListItemProps) {
   const { t } = useTranslation()
+  const { toast } = useToast()
 
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(version.name)
@@ -153,8 +156,6 @@ export function VersionListItem({
   const showArchive = version.status === 'PUBLISHED'
   const showDelete = version.status === 'DRAFT'
   const showClone = !!onClone // Always visible if handler is provided
-
-  const hasActions = showPublish || showSchedule || showCancelSchedule || showArchive || showDelete || showClone
 
   return (
     <div
@@ -242,9 +243,18 @@ export function VersionListItem({
           )}
         </div>
 
-        {/* Action buttons - always visible, aligned with metadata */}
-        {hasActions && (
-          <div className="flex items-center gap-1">
+        {/* Action buttons - copy ID always visible, others conditional */}
+        <div className="flex items-center gap-1">
+            <ActionButton
+              icon={<ClipboardCopy size={18} />}
+              label={t('templates.versions.actions.copyId', 'Copy Version ID')}
+              onClick={async () => {
+                await navigator.clipboard.writeText(version.id)
+                toast({
+                  description: t('templates.versions.idCopied', 'Version ID copied to clipboard'),
+                })
+              }}
+            />
             {showClone && (
               <ActionButton
                 icon={<Copy size={18} />}
@@ -289,7 +299,6 @@ export function VersionListItem({
               />
             )}
           </div>
-        )}
       </div>
     </div>
   )

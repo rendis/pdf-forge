@@ -21,7 +21,13 @@ Tenant → Workspace → Template → Version (DRAFT→PUBLISHED)
                               Injectables (variables)
                                     ↓
                               Render → PDF
+
+Render Modes:
+  1. By DocType:    POST /api/v1/workspace/document-types/{code}/render
+  2. By Version ID: POST /api/v1/workspace/templates/versions/{id}/render
 ```
+
+**Render by Version ID** bypasses document type resolution — useful for testing/sandbox scenarios where multiple templates share the same docType. Uses the full injectable pipeline (InitFuncs, registry, provider).
 
 ## Quick Start
 
