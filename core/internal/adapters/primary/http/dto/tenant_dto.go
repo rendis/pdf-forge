@@ -55,6 +55,7 @@ func (r *CreateTenantRequest) Validate() error {
 	if len(r.Name) > 100 {
 		return ErrNameTooLong
 	}
+	r.Code = normalizeCode(r.Code)
 	if r.Code == "" || len(r.Code) < 2 || len(r.Code) > 10 {
 		return ErrInvalidTenantCode
 	}

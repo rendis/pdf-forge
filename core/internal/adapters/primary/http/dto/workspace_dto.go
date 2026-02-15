@@ -31,6 +31,7 @@ type UpdateWorkspaceRequest struct {
 
 // Validate validates the CreateWorkspaceRequest.
 func (r *CreateWorkspaceRequest) Validate() error {
+	r.Code = normalizeCode(r.Code)
 	if r.Code == "" || len(r.Code) < 2 || len(r.Code) > 50 {
 		return ErrCodeRequired
 	}
@@ -51,6 +52,7 @@ func (r *CreateWorkspaceRequest) Validate() error {
 
 // Validate validates the UpdateWorkspaceRequest.
 func (r *UpdateWorkspaceRequest) Validate() error {
+	r.Code = normalizeCode(r.Code)
 	if r.Code == "" || len(r.Code) < 2 || len(r.Code) > 50 {
 		return ErrCodeRequired
 	}

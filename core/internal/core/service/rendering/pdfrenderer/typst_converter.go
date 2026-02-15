@@ -1188,28 +1188,54 @@ func (c *TypstConverter) countTableColumns(node portabledoc.Node) int {
 // prosemirror-tables only sets colwidth on explicitly resized columns; unresized columns stay nil.
 // For nil columns, we compute their width from the content area: missing = contentWidth - sum(known).
 func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, numCols int) string {
-	fallback := func() string {
-		specs := make([]string, numCols)
-		for i := range specs {
-			specs[i] = "1fr"
-		}
-		return strings.Join(specs, ", ")
+	equalCols := buildEqualColumns(numCols)
+
+	firstRow := findFirstTableRow(node)
+	if firstRow == nil {
+		return equalCols
 	}
 
-	// Find first row
-	var firstRow *portabledoc.Node
+	colwidths, missingIdx, ok := extractRowColwidths(firstRow, numCols)
+	if !ok {
+		return equalCols
+	}
+
+	if len(missingIdx) > 0 {
+		if !fillMissingColwidths(colwidths, missingIdx, c.contentWidthPx) {
+			return equalCols
+		}
+	}
+
+	specs := make([]string, numCols)
+	for i, w := range colwidths {
+		specs[i] = fmt.Sprintf("%.0ffr", w)
+	}
+	return strings.Join(specs, ", ")
+}
+
+// buildEqualColumns returns a comma-separated "1fr" spec for numCols columns.
+func buildEqualColumns(numCols int) string {
+	specs := make([]string, numCols)
+	for i := range specs {
+		specs[i] = "1fr"
+	}
+	return strings.Join(specs, ", ")
+}
+
+// findFirstTableRow returns the first table row node, or nil.
+func findFirstTableRow(node portabledoc.Node) *portabledoc.Node {
 	for i := range node.Content {
 		if node.Content[i].Type == portabledoc.NodeTypeTableRow {
-			firstRow = &node.Content[i]
-			break
+			return &node.Content[i]
 		}
 	}
-	if firstRow == nil {
-		return fallback()
-	}
+	return nil
+}
 
-	// Extract colwidth from each cell in the first row.
-	// Cells without colwidth (not resized) get 0 as placeholder.
+// extractRowColwidths iterates first-row cells and collects per-column pixel widths.
+// Unresized cells produce zero-valued placeholders tracked in missingIdx.
+// Returns false if the row data is inconsistent and a fallback should be used.
+func extractRowColwidths(firstRow *portabledoc.Node, numCols int) ([]float64, []int, bool) {
 	var colwidths []float64
 	var missingIdx []int
 	hasAny := false
@@ -1225,59 +1251,58 @@ func (c *TypstConverter) parseEditableTableColumnWidths(node portabledoc.Node, n
 			continue
 		}
 
-		// Parse colwidth array (JSON unmarshals as []interface{})
-		var cellWidths []float64
-		switch v := cwAttr.(type) {
-		case []interface{}:
-			for _, val := range v {
-				if num, ok := val.(float64); ok && num > 0 {
-					cellWidths = append(cellWidths, num)
-				} else {
-					return fallback()
-				}
-			}
-		case []float64:
-			cellWidths = v
-		default:
-			return fallback()
-		}
-
-		if len(cellWidths) != colspan {
-			return fallback()
+		cellWidths, valid := parseCellColwidthAttr(cwAttr)
+		if !valid || len(cellWidths) != colspan {
+			return nil, nil, false
 		}
 		colwidths = append(colwidths, cellWidths...)
 		hasAny = true
 	}
 
 	if !hasAny || len(colwidths) != numCols {
-		return fallback()
+		return nil, nil, false
 	}
+	return colwidths, missingIdx, true
+}
 
-	// Fill in missing columns: compute from content area width
-	if len(missingIdx) > 0 && c.contentWidthPx > 0 {
-		var knownSum float64
-		for _, w := range colwidths {
-			knownSum += w
+// parseCellColwidthAttr converts a raw colwidth attribute (from JSON) into float64 pixel widths.
+func parseCellColwidthAttr(cwAttr interface{}) ([]float64, bool) {
+	switch v := cwAttr.(type) {
+	case []interface{}:
+		widths := make([]float64, 0, len(v))
+		for _, val := range v {
+			num, ok := val.(float64)
+			if !ok || num <= 0 {
+				return nil, false
+			}
+			widths = append(widths, num)
 		}
-		remaining := c.contentWidthPx - knownSum
-		perMissing := remaining / float64(len(missingIdx))
-		if perMissing < 1 {
-			perMissing = 1
-		}
-		for _, idx := range missingIdx {
-			colwidths[idx] = perMissing
-		}
-	} else if len(missingIdx) > 0 {
-		return fallback()
+		return widths, true
+	case []float64:
+		return v, true
+	default:
+		return nil, false
 	}
+}
 
-	// Use pixel values as fractional units — preserves editor column proportions
-	// regardless of differences between editor width and PDF page width.
-	specs := make([]string, numCols)
-	for i, w := range colwidths {
-		specs[i] = fmt.Sprintf("%.0ffr", w)
+// fillMissingColwidths distributes remaining content width among unresized columns.
+// Returns false if missing columns exist but content width is unavailable.
+func fillMissingColwidths(colwidths []float64, missingIdx []int, contentWidthPx float64) bool {
+	if contentWidthPx <= 0 {
+		return false
 	}
-	return strings.Join(specs, ", ")
+	var knownSum float64
+	for _, w := range colwidths {
+		knownSum += w
+	}
+	perMissing := (contentWidthPx - knownSum) / float64(len(missingIdx))
+	if perMissing < 1 {
+		perMissing = 1
+	}
+	for _, idx := range missingIdx {
+		colwidths[idx] = perMissing
+	}
+	return true
 }
 
 func (c *TypstConverter) renderEditableTableCell(cell portabledoc.Node, isFirstRow bool) string {

@@ -1,68 +1,8 @@
 package dto
 
 import (
-	"regexp"
-	"strings"
 	"time"
 )
-
-// codeRegex validates document type codes:
-// - Only uppercase letters, numbers, and underscores
-// - Segments separated by single underscores
-// Valid: CODE, CODE_V2, MY_CODE_123
-// Invalid: _CODE, CODE_, __CODE, CODE__V2
-var codeRegex = regexp.MustCompile(`^[A-Z0-9]+(_[A-Z0-9]+)*$`)
-
-// normalizeCode transforms input into a valid code format:
-// - Converts to uppercase
-// - Replaces spaces with underscores
-// - Removes invalid characters (keeps only A-Z, 0-9, _)
-// - Removes consecutive underscores
-// - Removes leading and trailing underscores
-func normalizeCode(code string) string {
-	// Uppercase
-	code = strings.ToUpper(code)
-	// Spaces to underscore
-	code = strings.ReplaceAll(code, " ", "_")
-	// Remove invalid characters (keep only A-Z, 0-9, _)
-	var result strings.Builder
-	for _, r := range code {
-		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' {
-			result.WriteRune(r)
-		}
-	}
-	code = result.String()
-	// Remove consecutive underscores
-	for strings.Contains(code, "__") {
-		code = strings.ReplaceAll(code, "__", "_")
-	}
-	// Remove leading and trailing underscores
-	code = strings.Trim(code, "_")
-	return code
-}
-
-// validateCode checks if a code meets all requirements.
-func validateCode(code string) error {
-	if code == "" {
-		return ErrCodeRequired
-	}
-	if len(code) > 50 {
-		return ErrCodeTooLong
-	}
-	// Check for consecutive underscores
-	if strings.Contains(code, "__") {
-		return ErrCodeConsecutiveUnder
-	}
-	// Check leading/trailing underscore
-	if strings.HasPrefix(code, "_") || strings.HasSuffix(code, "_") {
-		return ErrCodeStartEndUnder
-	}
-	// Check valid characters (only uppercase, numbers, underscore)
-	if !codeRegex.MatchString(code) {
-		return ErrCodeInvalidFormat
-	}
-	return nil
-}
 
 // DocumentTypeResponse represents a document type in API responses.
 type DocumentTypeResponse struct {

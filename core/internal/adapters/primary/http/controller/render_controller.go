@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -149,19 +150,19 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 // @Router /api/v1/workspace/document-types/{code}/render [post]
 // @Security BearerAuth
 func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
-	tenantCode := ctx.GetHeader("X-Tenant-Code")
+	tenantCode := strings.ToUpper(strings.TrimSpace(ctx.GetHeader("X-Tenant-Code")))
 	if tenantCode == "" {
 		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Tenant-Code header is required"))
 		return
 	}
 
-	workspaceCode := ctx.GetHeader("X-Workspace-Code")
+	workspaceCode := strings.ToUpper(strings.TrimSpace(ctx.GetHeader("X-Workspace-Code")))
 	if workspaceCode == "" {
 		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Workspace-Code header is required"))
 		return
 	}
 
-	documentTypeCode := ctx.Param("code")
+	documentTypeCode := strings.ToUpper(strings.TrimSpace(ctx.Param("code")))
 
 	// Parse optional request body
 	var req dto.RenderRequest
@@ -235,13 +236,13 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 // @Router /api/v1/workspace/templates/versions/{versionId}/render [post]
 // @Security BearerAuth
 func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
-	tenantCode := ctx.GetHeader("X-Tenant-Code")
+	tenantCode := strings.ToUpper(strings.TrimSpace(ctx.GetHeader("X-Tenant-Code")))
 	if tenantCode == "" {
 		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Tenant-Code header is required"))
 		return
 	}
 
-	workspaceCode := ctx.GetHeader("X-Workspace-Code")
+	workspaceCode := strings.ToUpper(strings.TrimSpace(ctx.GetHeader("X-Workspace-Code")))
 	if workspaceCode == "" {
 		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Workspace-Code header is required"))
 		return

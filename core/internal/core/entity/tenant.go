@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 // Tenant represents a jurisdiction, country, or major business unit.
 // It groups multiple workspaces together and provides regional configuration.
@@ -45,6 +48,7 @@ func (t *Tenant) Validate() error {
 	if len(t.Name) > 100 {
 		return ErrFieldTooLong
 	}
+	t.Code = strings.ToUpper(strings.TrimSpace(t.Code))
 	if t.Code == "" {
 		return ErrInvalidTenantCode
 	}

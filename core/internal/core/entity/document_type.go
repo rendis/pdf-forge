@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"strings"
 	"time"
 )
 
@@ -38,6 +39,7 @@ func (d *DocumentType) Validate() error {
 	if d.TenantID == "" {
 		return ErrRequiredField
 	}
+	d.Code = strings.ToUpper(strings.TrimSpace(d.Code))
 	if d.Code == "" {
 		return ErrRequiredField
 	}

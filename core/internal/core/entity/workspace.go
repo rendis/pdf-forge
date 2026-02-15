@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 // Workspace is the root operational entity where all work happens.
 // Every resource (templates, documents, users) belongs to a workspace.
@@ -58,6 +61,7 @@ func (w *Workspace) Validate() error {
 	if w.Name == "" || len(w.Name) < 3 {
 		return ErrRequiredField
 	}
+	w.Code = strings.ToUpper(strings.TrimSpace(w.Code))
 	if w.Code == "" {
 		return ErrInvalidWorkspaceCode
 	}
