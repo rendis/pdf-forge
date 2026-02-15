@@ -36,7 +36,7 @@ type TypstDesignTokens struct {
 // DefaultDesignTokens returns the built-in design tokens matching the current rendering output.
 func DefaultDesignTokens() TypstDesignTokens {
 	return TypstDesignTokens{
-		FontStack:        []string{"Helvetica Neue", "Arial", "Libertinus Serif"},
+		FontStack:        []string{"Helvetica Neue", "Arial", "Liberation Sans", "Libertinus Serif"},
 		BaseFontSize:     "12pt",
 		BaseTextColor:    "#333333",
 		ParagraphLeading: "0.75em",

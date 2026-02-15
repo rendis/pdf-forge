@@ -589,7 +589,7 @@ func (c *TypstConverter) applyTextStyleMark(text string, mark portabledoc.Mark) 
 		// Use first font in the family list (e.g., "Times New Roman, serif" → "Times New Roman")
 		family := strings.Split(fontFamily, ",")[0]
 		family = strings.TrimSpace(family)
-		params = append(params, fmt.Sprintf("font: \"%s\"", escapeTypstString(family)))
+		params = append(params, fmt.Sprintf("font: %s", fontWithFallbacks(family)))
 	}
 
 	if len(params) == 0 {

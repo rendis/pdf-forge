@@ -154,7 +154,7 @@ func (c *TypstConverter) collectListStyleParts(styles *entity.ListStyles) []stri
 		parts = append(parts, fmt.Sprintf("fill: rgb(\"%s\")", *styles.TextColor))
 	}
 	if styles.FontFamily != nil {
-		parts = append(parts, fmt.Sprintf("font: \"%s\"", *styles.FontFamily))
+		parts = append(parts, fmt.Sprintf("font: %s", fontWithFallbacks(*styles.FontFamily)))
 	}
 	return parts
 }
@@ -186,7 +186,7 @@ func (c *TypstConverter) buildTableStyleRules(headerStyles *entity.TableStyles) 
 		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(size: %dpt)\n", *headerStyles.FontSize))
 	}
 	if headerStyles.FontFamily != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(font: \"%s\")\n", *headerStyles.FontFamily))
+		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(font: %s)\n", fontWithFallbacks(*headerStyles.FontFamily)))
 	}
 
 	return sb.String()
@@ -211,7 +211,7 @@ func (c *TypstConverter) buildTableBodyStyleRules(bodyStyles *entity.TableStyles
 		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(size: %dpt)\n", *bodyStyles.FontSize))
 	}
 	if bodyStyles.FontFamily != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(font: \"%s\")\n", *bodyStyles.FontFamily))
+		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(font: %s)\n", fontWithFallbacks(*bodyStyles.FontFamily)))
 	}
 
 	return sb.String()

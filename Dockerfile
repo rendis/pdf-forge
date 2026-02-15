@@ -21,7 +21,8 @@ RUN CGO_ENABLED=0 go build -o /bin/server ./core/cmd/api
 
 # --- Stage 3: Runtime ---
 FROM alpine:3.21
-RUN apk add --no-cache ca-certificates typst
+RUN apk add --no-cache ca-certificates typst \
+    fontconfig ttf-liberation ttf-dejavu font-noto
 COPY --from=build /bin/server /bin/server
 COPY core/settings/ /app/settings/
 WORKDIR /app
