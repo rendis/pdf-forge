@@ -6,6 +6,7 @@ import {
     fetchTemplateWithVersions,
     versionsApi,
 } from '../api/templates-api'
+import type { UpdateVersionRequest } from '../types'
 import { templateKeys } from './useTemplates'
 
 export const templateDetailKeys = {
@@ -120,6 +121,20 @@ export function useDeleteVersion(templateId: string) {
         queryKey: templateDetailKeys.detail(templateId),
       })
       queryClient.invalidateQueries({ queryKey: templateKeys.all })
+    },
+  })
+}
+
+export function useUpdateVersion(templateId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ versionId, data }: { versionId: string; data: UpdateVersionRequest }) =>
+      versionsApi.update(templateId, versionId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: templateDetailKeys.detail(templateId),
+      })
     },
   })
 }

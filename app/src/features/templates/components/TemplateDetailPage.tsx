@@ -33,6 +33,7 @@ import {
     usePublishVersion,
     useSchedulePublishVersion,
     useTemplateWithVersions,
+    useUpdateVersion,
 } from '../hooks/useTemplateDetail'
 import { useUpdateTemplate, useAssignDocumentType } from '../hooks/useTemplates'
 import { DocumentTypeSelector } from '@/features/administration/components/DocumentTypeSelector'
@@ -99,6 +100,7 @@ export function TemplateDetailPage() {
   // Version action mutations
   const publishVersion = usePublishVersion(templateId)
   const schedulePublishVersion = useSchedulePublishVersion(templateId)
+  const updateVersion = useUpdateVersion(templateId)
 
   const handleTitleSave = async (newTitle: string) => {
     await updateTemplate.mutateAsync({
@@ -409,6 +411,25 @@ export function TemplateDetailPage() {
   const handleCloneClick = (version: TemplateVersionSummaryResponse) => {
     setVersionToClone(version)
     setCloneDialogOpen(true)
+  }
+
+  const handleRenameVersion = async (version: TemplateVersionSummaryResponse, newName: string) => {
+    try {
+      await updateVersion.mutateAsync({
+        versionId: version.id,
+        data: { name: newName },
+      })
+      toast({
+        title: t('templates.versions.renamed', 'Version renamed'),
+        description: newName,
+      })
+    } catch (err) {
+      const message = axios.isAxiosError(err) && err.response?.data?.error
+        ? err.response.data.error
+        : t('templates.versions.renameFailed', 'Failed to rename version')
+      toast({ title: message, variant: 'destructive' })
+      throw err
+    }
   }
 
   // Loading state - only show skeleton if no cached data
@@ -791,6 +812,7 @@ export function TemplateDetailPage() {
                     onArchive={handleArchive}
                     onDelete={handleDelete}
                     onClone={handleCloneClick}
+                    onRename={handleRenameVersion}
                   />
                 ))}
               </div>
