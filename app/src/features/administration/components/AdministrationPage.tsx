@@ -1,4 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { usePermission } from '@/features/auth/hooks/usePermission'
+import { Permission } from '@/features/auth/rbac/rules'
 import { InjectablesTab } from '@/features/system-injectables'
 import { useAppContextStore } from '@/stores/app-context-store'
 import { useTranslation } from 'react-i18next'
@@ -10,10 +12,14 @@ const TAB_TRIGGER_CLASS = 'font-mono text-xs uppercase tracking-widest'
 
 export function AdministrationPage(): React.ReactElement {
   const { t } = useTranslation()
-  const { isGlobalSystemWorkspace, isTenantSystemWorkspace } = useAppContextStore()
+  const { isGlobalSystemWorkspace } = useAppContextStore()
+  const { hasPermission } = usePermission()
 
+  // Global admin: only in global SYSTEM workspace (System tenant + SYSTEM workspace)
   const isGlobal = isGlobalSystemWorkspace()
-  const isTenant = isTenantSystemWorkspace()
+
+  // Tenant admin: any user with TENANT_MANAGE_WORKSPACES permission, except when in global admin
+  const showTenantAdmin = !isGlobal && hasPermission(Permission.TENANT_MANAGE_WORKSPACES)
 
   return (
     <div className="animate-page-enter flex-1 overflow-y-auto bg-background">
@@ -57,7 +63,7 @@ export function AdministrationPage(): React.ReactElement {
           </Tabs>
         )}
 
-        {isTenant && (
+        {showTenantAdmin && (
           <Tabs defaultValue="workspaces">
             <TabsList className="mb-6">
               <TabsTrigger value="workspaces" className={TAB_TRIGGER_CLASS}>

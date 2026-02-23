@@ -37,7 +37,7 @@ interface InjectorConfigDialogProps {
 export function InjectorConfigDialog({
   open,
   onOpenChange,
-  injectorType,
+  injectorType: _injectorType,
   variableId,
   variableLabel,
   currentConfig,

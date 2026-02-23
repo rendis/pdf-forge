@@ -145,10 +145,14 @@ export const WORKSPACE_RULES: Record<WorkspaceRole, Permission[]> = {
 
 export const TENANT_RULES: Record<TenantRole, Permission[]> = {
   [TenantRole.OWNER]: [
+    Permission.ADMIN_ACCESS,
     Permission.TENANT_MANAGE_SETTINGS,
     Permission.TENANT_MANAGE_WORKSPACES,
   ],
-  [TenantRole.ADMIN]: [Permission.TENANT_MANAGE_WORKSPACES],
+  [TenantRole.ADMIN]: [
+    Permission.ADMIN_ACCESS,
+    Permission.TENANT_MANAGE_WORKSPACES,
+  ],
 }
 
 export const SYSTEM_RULES: Record<SystemRole, Permission[]> = {

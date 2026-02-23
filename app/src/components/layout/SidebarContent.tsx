@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/tooltip'
 import { useAuthStore } from '@/stores/auth-store'
 import { useAppContextStore } from '@/stores/app-context-store'
+import { usePermission } from '@/features/auth/hooks/usePermission'
+import { Permission } from '@/features/auth/rbac/rules'
 import { logout } from '@/lib/oidc'
 import { getInitials } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
@@ -50,7 +52,8 @@ export function SidebarContent({
   const location = useLocation()
   const navigate = useNavigate()
   const { userProfile } = useAuthStore()
-  const { currentWorkspace, clearContext, isSystemContext } = useAppContextStore()
+  const { currentWorkspace, clearContext } = useAppContextStore()
+  const { hasPermission } = usePermission()
   const { phase: transitionPhase } = useWorkspaceTransitionStore()
 
   // Hide workspace name while transition animation is active
@@ -79,8 +82,8 @@ export function SidebarContent({
       icon: Users,
       href: `/workspace/${workspaceId}/members`,
     },
-    // Administration - only visible in SYSTEM workspace
-    ...(isSystemContext()
+    // Administration - visible for users with admin access (system roles + tenant owners/admins)
+    ...(hasPermission(Permission.ADMIN_ACCESS)
       ? [
           {
             label: t('nav.administration', 'Administration'),

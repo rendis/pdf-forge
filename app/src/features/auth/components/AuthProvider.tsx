@@ -129,7 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       cleanupTheme?.()
       refreshCleanupRef.current?.()
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   if (isAuthLoading) {
     return <LoadingOverlay message="Initializing..." />
