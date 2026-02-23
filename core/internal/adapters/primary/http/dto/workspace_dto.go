@@ -10,6 +10,7 @@ type WorkspaceResponse struct {
 	Name           string     `json:"name"`
 	Type           string     `json:"type"`
 	Status         string     `json:"status"`
+	Role           string     `json:"role,omitempty"`
 	CreatedAt      time.Time  `json:"createdAt"`
 	UpdatedAt      *time.Time `json:"updatedAt,omitempty"`
 	LastAccessedAt *time.Time `json:"lastAccessedAt,omitempty"`

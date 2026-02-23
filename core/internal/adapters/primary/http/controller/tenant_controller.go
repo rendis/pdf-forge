@@ -169,7 +169,27 @@ func (c *TenantController) ListWorkspaces(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, mapper.WorkspacesToPaginatedResponse(workspaces, total, req.Page, req.PerPage))
+	role := resolveEffectiveWorkspaceRole(ctx)
+	ctx.JSON(http.StatusOK, mapper.WorkspacesToPaginatedResponseWithRole(workspaces, total, req.Page, req.PerPage, role))
+}
+
+// resolveEffectiveWorkspaceRole derives the user's effective workspace role from system/tenant context.
+// Mirrors the role derivation in WorkspaceContext middleware.
+func resolveEffectiveWorkspaceRole(ctx *gin.Context) string {
+	if sysRole, ok := middleware.GetSystemRole(ctx); ok {
+		if sysRole.HasPermission(entity.SystemRoleSuperAdmin) {
+			return string(entity.WorkspaceRoleOwner)
+		}
+	}
+	if tenantRole, ok := middleware.GetTenantRole(ctx); ok {
+		if tenantRole.HasPermission(entity.TenantRoleOwner) {
+			return string(entity.WorkspaceRoleAdmin)
+		}
+		if tenantRole.HasPermission(entity.TenantRoleAdmin) {
+			return string(entity.WorkspaceRoleAdmin)
+		}
+	}
+	return ""
 }
 
 // CreateWorkspace creates a new workspace in the current tenant.
