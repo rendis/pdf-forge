@@ -85,33 +85,3 @@ func WorkspacesToPaginatedResponse(workspaces []*entity.Workspace, total int64, 
 		},
 	}
 }
-
-// WorkspacesToPaginatedResponseWithRole converts workspaces to a paginated response with a role assigned to each.
-func WorkspacesToPaginatedResponseWithRole(
-	workspaces []*entity.Workspace,
-	total int64,
-	page, perPage int,
-	role string,
-) *dto.PaginatedWorkspacesResponse {
-	responses := make([]*dto.WorkspaceResponse, len(workspaces))
-	for i, ws := range workspaces {
-		resp := WorkspaceToResponse(ws)
-		resp.Role = role
-		responses[i] = &resp
-	}
-
-	totalPages := int(total) / perPage
-	if int(total)%perPage > 0 {
-		totalPages++
-	}
-
-	return &dto.PaginatedWorkspacesResponse{
-		Data: responses,
-		Pagination: dto.PaginationMeta{
-			Page:       page,
-			PerPage:    perPage,
-			Total:      total,
-			TotalPages: totalPages,
-		},
-	}
-}

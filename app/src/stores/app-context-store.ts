@@ -23,7 +23,6 @@ export interface AppContextState {
   currentWorkspace: WorkspaceWithRole | null
   singleTenant: boolean
   singleWorkspace: boolean
-  _hasHydrated: boolean
 
   // Actions
   setTenant: (tenant: TenantWithRole | null) => void
@@ -53,7 +52,6 @@ export const useAppContextStore = create<AppContextState>()(
       currentWorkspace: null,
       singleTenant: false,
       singleWorkspace: false,
-      _hasHydrated: false,
 
       // Actions
       setTenant: (tenant) =>
@@ -118,9 +116,6 @@ export const useAppContextStore = create<AppContextState>()(
         singleTenant: state.singleTenant,
         singleWorkspace: state.singleWorkspace,
       }),
-      onRehydrateStorage: () => () => {
-        useAppContextStore.setState({ _hasHydrated: true })
-      },
     }
   )
 )
