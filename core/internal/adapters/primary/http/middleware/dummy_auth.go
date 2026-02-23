@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -38,7 +39,12 @@ func DummyAuth() gin.HandlerFunc {
 // DummyIdentityAndRoles creates a middleware that sets the internal user ID
 // and grants SUPERADMIN system role. Used in dummy auth mode to bypass
 // IdentityContext and SystemRoleContext middlewares.
+//
+// Set DOC_ENGINE_DUMMY_NO_SYSTEM_ROLE=true to skip system role assignment,
+// allowing testing of tenant-owner flows where roles come from DB membership.
 func DummyIdentityAndRoles(internalUserID string) gin.HandlerFunc {
+	skipSystemRole := os.Getenv("DOC_ENGINE_DUMMY_NO_SYSTEM_ROLE") == "true"
+
 	return func(c *gin.Context) {
 		if c.Request.Method == http.MethodOptions {
 			c.Next()
@@ -46,7 +52,9 @@ func DummyIdentityAndRoles(internalUserID string) gin.HandlerFunc {
 		}
 
 		c.Set(internalUserIDKey, internalUserID)
-		c.Set(systemRoleKey, entity.SystemRoleSuperAdmin)
+		if !skipSystemRole {
+			c.Set(systemRoleKey, entity.SystemRoleSuperAdmin)
+		}
 
 		c.Next()
 	}

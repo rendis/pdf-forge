@@ -54,20 +54,26 @@ export const useAppContextStore = create<AppContextState>()(
       singleWorkspace: false,
 
       // Actions
-      setTenant: (tenant) =>
-        set({
-          currentTenant: tenant,
-          currentWorkspace: null, // Clear workspace when tenant changes
-        }),
+      setTenant: (tenant) => {
+        const current = get().currentTenant
+        if (tenant?.id !== current?.id) {
+          set({ currentTenant: tenant, currentWorkspace: null })
+        } else {
+          set({ currentTenant: tenant })
+        }
+      },
 
       setWorkspace: (workspace) => set({ currentWorkspace: workspace }),
 
       // Aliases
-      setCurrentTenant: (tenant) =>
-        set({
-          currentTenant: tenant,
-          currentWorkspace: null,
-        }),
+      setCurrentTenant: (tenant) => {
+        const current = get().currentTenant
+        if (tenant?.id !== current?.id) {
+          set({ currentTenant: tenant, currentWorkspace: null })
+        } else {
+          set({ currentTenant: tenant })
+        }
+      },
 
       setCurrentWorkspace: (workspace) => set({ currentWorkspace: workspace }),
 
