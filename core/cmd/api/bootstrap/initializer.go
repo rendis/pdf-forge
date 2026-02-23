@@ -212,7 +212,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 
 	internalRenderSvc := templatesvc.NewInternalRenderService(
 		tenantRepo, workspaceRepo, documentTypeRepo, templateRepo, templateVersionRepo,
-		pdfRenderer, injectableResolver, templateCache,
+		pdfRenderer, injectableResolver, templateCache, e.templateResolver,
 	)
 
 	// --- HTTP Mappers ---

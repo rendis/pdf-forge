@@ -1,6 +1,6 @@
 # Extensibility Guide
 
-This guide explains how to extend pdf-forge with custom **injectors**, **mappers**, and **init functions** for document generation.
+This guide explains how to extend pdf-forge with custom **injectors**, **mappers**, **template resolvers**, and **init functions** for document generation.
 
 ## Overview
 
@@ -8,6 +8,7 @@ The extensibility system allows you to:
 
 - **Injectors**: Resolve dynamic values from external sources (CRM, databases, APIs)
 - **Mapper**: Parse incoming request payloads into typed structures
+- **Template Resolver**: Choose template version dynamically for document-type render
 - **Init Function**: Load shared data once before all injectors run
 
 ```mermaid
@@ -279,6 +280,52 @@ func (m *MultiDocMapper) Map(ctx context.Context, mapCtx *sdk.MapperContext) (an
         return nil, fmt.Errorf("unknown document type: %s", docType)
     }
 }
+```
+
+---
+
+## Template Resolver (Render By Document Type)
+
+Use a custom resolver when you need to choose the template version dynamically before the default 3-level fallback in:
+
+`POST /api/v1/workspace/document-types/{code}/render`
+
+### Interface
+
+```go
+type TemplateResolver interface {
+    Resolve(
+        ctx context.Context,
+        req *sdk.TemplateResolverRequest,
+        adapter sdk.TemplateVersionSearchAdapter,
+    ) (*string, error)
+}
+```
+
+Resolver contract:
+
+- Return `versionID` (`*string` non-nil): use that version.
+- Return `nil, nil`: fallback to default resolver.
+- Return `error`: abort request.
+
+### Read-Only Search Adapter
+
+The resolver receives a read-only adapter:
+
+```go
+published := true
+items, err := adapter.SearchTemplateVersions(ctx, sdk.TemplateVersionSearchParams{
+    TenantCode:     req.TenantCode,
+    WorkspaceCodes: []string{req.WorkspaceCode, "SYS_WRKSP"},
+    DocumentType:   req.DocumentType,
+    Published:      &published,
+})
+```
+
+### Registration
+
+```go
+engine.SetTemplateResolver(&resolvers.MyTemplateResolver{})
 ```
 
 ---

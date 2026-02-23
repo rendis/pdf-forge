@@ -65,6 +65,32 @@ type RequestMapper interface {
 }
 ```
 
+### TemplateResolver
+
+Go interface for custom template version selection in render-by-document-type flow. When registered, it runs first; if it returns `nil`, the engine uses the default fallback chain.
+
+```go
+type TemplateResolver interface {
+    Resolve(ctx context.Context, req *TemplateResolverRequest, adapter TemplateVersionSearchAdapter) (*string, error)
+}
+
+type TemplateResolverRequest struct {
+    TenantCode    string
+    WorkspaceCode string
+    DocumentType  string
+    Headers       map[string]string
+    RawBody       []byte
+    Injectables   map[string]any
+}
+```
+
+**Register**: `engine.SetTemplateResolver(resolver)`
+
+**Behavior**:
+- `versionID` (non-nil): engine renders that version.
+- `nil, nil`: engine falls back to default resolution (`workspace` → `tenant SYS_WRKSP` → `SYS/SYS_WRKSP`).
+- `error`: request aborts.
+
 ### InitFunc
 
 A function executed once at render start, before injectors run. Used for shared setup (DB queries, API calls) whose result is available to all injectors via `InjectorContext`.

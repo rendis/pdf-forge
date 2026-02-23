@@ -28,6 +28,7 @@ type Engine struct {
 
 	injectors           []port.Injector
 	mapper              port.RequestMapper
+	templateResolver    port.TemplateResolver
 	initFunc            port.InitFunc
 	workspaceProvider   port.WorkspaceInjectableProvider
 	renderAuthenticator port.RenderAuthenticator
@@ -74,6 +75,17 @@ func (e *Engine) RegisterInjector(inj port.Injector) *Engine {
 func (e *Engine) SetMapper(m port.RequestMapper) *Engine {
 	e.mapper = m
 	return e
+}
+
+// SetTemplateResolver sets an optional custom template resolver for document-type render flow.
+func (e *Engine) SetTemplateResolver(r port.TemplateResolver) *Engine {
+	e.templateResolver = r
+	return e
+}
+
+// GetTemplateResolver returns the registered custom template resolver.
+func (e *Engine) GetTemplateResolver() port.TemplateResolver {
+	return e.templateResolver
 }
 
 // SetInitFunc sets the global initialization function.

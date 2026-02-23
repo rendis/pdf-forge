@@ -2,6 +2,7 @@ package template
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -23,51 +24,85 @@ func NewInternalRenderService(
 	pdfRenderer port.PDFRenderer,
 	resolver *injectablesvc.InjectableResolverService,
 	templateCache *TemplateCache,
+	customResolver port.TemplateResolver,
 ) templateuc.InternalRenderUseCase {
 	return &InternalRenderService{
-		tenantRepo:    tenantRepo,
-		workspaceRepo: workspaceRepo,
-		docTypeRepo:   docTypeRepo,
-		templateRepo:  templateRepo,
-		versionRepo:   versionRepo,
-		pdfRenderer:   pdfRenderer,
-		resolver:      resolver,
-		templateCache: templateCache,
+		tenantRepo:      tenantRepo,
+		workspaceRepo:   workspaceRepo,
+		docTypeRepo:     docTypeRepo,
+		templateRepo:    templateRepo,
+		versionRepo:     versionRepo,
+		pdfRenderer:     pdfRenderer,
+		resolver:        resolver,
+		templateCache:   templateCache,
+		customResolver:  customResolver,
+		defaultResolver: NewDefaultTemplateResolver(),
+		searchAdapter: NewTemplateVersionSearchAdapter(
+			tenantRepo,
+			workspaceRepo,
+			docTypeRepo,
+			templateRepo,
+			versionRepo,
+		),
 	}
 }
 
 // InternalRenderService implements the internal render use case with fallback chain.
 type InternalRenderService struct {
-	tenantRepo    port.TenantRepository
-	workspaceRepo port.WorkspaceRepository
-	docTypeRepo   port.DocumentTypeRepository
-	templateRepo  port.TemplateRepository
-	versionRepo   port.TemplateVersionRepository
-	pdfRenderer   port.PDFRenderer
-	resolver      *injectablesvc.InjectableResolverService
-	templateCache *TemplateCache
+	tenantRepo      templateResolverTenantRepository
+	workspaceRepo   templateResolverWorkspaceRepository
+	docTypeRepo     templateResolverDocumentTypeRepository
+	templateRepo    templateResolverTemplateRepository
+	versionRepo     templateResolverTemplateVersionRepository
+	pdfRenderer     port.PDFRenderer
+	resolver        *injectablesvc.InjectableResolverService
+	templateCache   templateResolutionCache
+	customResolver  port.TemplateResolver
+	defaultResolver port.TemplateResolver
+	searchAdapter   port.TemplateVersionSearchAdapter
 }
 
 // RenderByDocumentType resolves a template using the fallback chain and renders a PDF.
 func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd templateuc.InternalRenderCommand) (*port.RenderPreviewResult, error) {
+	// Custom resolver is always evaluated first. If it resolves, bypass cache.
+	if s.customResolver != nil {
+		customVersion, err := s.resolveWithCustomResolver(ctx, cmd)
+		if err != nil {
+			return nil, err
+		}
+		if customVersion != nil {
+			slog.InfoContext(ctx, "template resolved by custom resolver",
+				slog.String("tenant_code", cmd.TenantCode),
+				slog.String("workspace_code", cmd.WorkspaceCode),
+				slog.String("template_type_code", cmd.TemplateTypeCode),
+				slog.String("version_id", customVersion.ID),
+			)
+			return s.renderVersion(ctx, customVersion, cmd)
+		}
+	}
+
 	// Check cache first
-	if cached := s.templateCache.Get(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode); cached != nil {
-		slog.DebugContext(ctx, "template cache hit",
-			slog.String("tenant_code", cmd.TenantCode),
-			slog.String("workspace_code", cmd.WorkspaceCode),
-			slog.String("template_type_code", cmd.TemplateTypeCode),
-		)
-		return s.renderVersion(ctx, cached, cmd)
+	if s.templateCache != nil {
+		if cached := s.templateCache.Get(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode); cached != nil {
+			slog.DebugContext(ctx, "template cache hit",
+				slog.String("tenant_code", cmd.TenantCode),
+				slog.String("workspace_code", cmd.WorkspaceCode),
+				slog.String("template_type_code", cmd.TemplateTypeCode),
+			)
+			return s.renderVersion(ctx, cached, cmd)
+		}
 	}
 
 	// Cache miss — resolve through fallback chain
-	version, err := s.resolveTemplateVersion(ctx, cmd)
+	version, err := s.resolveWithDefaultResolver(ctx, cmd)
 	if err != nil {
 		return nil, err
 	}
 
 	// Store in cache
-	s.templateCache.Set(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode, version)
+	if s.templateCache != nil {
+		s.templateCache.Set(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode, version)
+	}
 
 	return s.renderVersion(ctx, version, cmd)
 }
@@ -88,103 +123,104 @@ func (s *InternalRenderService) RenderByVersionID(ctx context.Context, cmd templ
 	})
 }
 
-// resolveTemplateVersion walks the fallback chain to find a published template version.
-func (s *InternalRenderService) resolveTemplateVersion(ctx context.Context, cmd templateuc.InternalRenderCommand) (*entity.TemplateVersionWithDetails, error) {
+func (s *InternalRenderService) resolveWithCustomResolver(
+	ctx context.Context,
+	cmd templateuc.InternalRenderCommand,
+) (*entity.TemplateVersionWithDetails, error) {
+	rawBody, err := json.Marshal(cmd.Payload)
+	if err != nil {
+		rawBody = nil
+	}
+
+	versionID, err := s.customResolver.Resolve(ctx, &port.TemplateResolverRequest{
+		TenantCode:    cmd.TenantCode,
+		WorkspaceCode: cmd.WorkspaceCode,
+		DocumentType:  cmd.TemplateTypeCode,
+		Headers:       cmd.Headers,
+		RawBody:       rawBody,
+		Injectables:   cmd.Injectables,
+	}, s.searchAdapter)
+	if err != nil {
+		return nil, fmt.Errorf("custom template resolver failed: %w", err)
+	}
+	if versionID == nil || *versionID == "" {
+		return nil, nil
+	}
+
+	return s.validateCustomResolvedVersion(ctx, cmd, *versionID)
+}
+
+func (s *InternalRenderService) resolveWithDefaultResolver(
+	ctx context.Context,
+	cmd templateuc.InternalRenderCommand,
+) (*entity.TemplateVersionWithDetails, error) {
+	versionID, err := s.defaultResolver.Resolve(ctx, &port.TemplateResolverRequest{
+		TenantCode:    cmd.TenantCode,
+		WorkspaceCode: cmd.WorkspaceCode,
+		DocumentType:  cmd.TemplateTypeCode,
+	}, s.searchAdapter)
+	if err != nil {
+		return nil, err
+	}
+	if versionID == nil || *versionID == "" {
+		return nil, entity.ErrTemplateNotResolved
+	}
+
+	version, err := s.versionRepo.FindByIDWithDetails(ctx, *versionID)
+	if err != nil {
+		if errors.Is(err, entity.ErrVersionNotFound) {
+			return nil, entity.ErrTemplateNotResolved
+		}
+		return nil, fmt.Errorf("finding version %s: %w", *versionID, err)
+	}
+	if !version.IsPublished() {
+		return nil, entity.ErrTemplateNotResolved
+	}
+
+	return version, nil
+}
+
+func (s *InternalRenderService) validateCustomResolvedVersion(
+	ctx context.Context,
+	cmd templateuc.InternalRenderCommand,
+	versionID string,
+) (*entity.TemplateVersionWithDetails, error) {
+	version, err := s.versionRepo.FindByIDWithDetails(ctx, versionID)
+	if err != nil {
+		if errors.Is(err, entity.ErrVersionNotFound) {
+			return nil, entity.ErrTemplateNotResolved
+		}
+		return nil, fmt.Errorf("finding version %s: %w", versionID, err)
+	}
+	if !version.IsPublished() {
+		return nil, entity.ErrTemplateNotResolved
+	}
+
 	tenant, err := s.tenantRepo.FindByCode(ctx, cmd.TenantCode)
 	if err != nil {
+		if errors.Is(err, entity.ErrTenantNotFound) {
+			return nil, entity.ErrTemplateNotResolved
+		}
 		return nil, fmt.Errorf("finding tenant by code %q: %w", cmd.TenantCode, err)
 	}
 
-	// Attempt 1: exact tenant + exact workspace
-	version, err := s.tryResolveVersionByWorkspaceCode(ctx, tenant.ID, cmd.WorkspaceCode, cmd.TemplateTypeCode)
+	docType, err := s.docTypeRepo.FindByCodeWithGlobalFallback(ctx, tenant.ID, cmd.TemplateTypeCode)
 	if err != nil {
-		return nil, err
-	}
-	if version != nil {
-		slog.InfoContext(ctx, "template resolved at workspace level",
-			slog.String("tenant_code", cmd.TenantCode),
-			slog.String("workspace_code", cmd.WorkspaceCode),
-		)
-		return version, nil
-	}
-
-	// Attempt 2: exact tenant + SYSTEM workspace
-	version, err = s.tryResolveVersionBySystemWorkspace(ctx, tenant.ID, cmd.TemplateTypeCode)
-	if err != nil {
-		return nil, err
-	}
-	if version != nil {
-		slog.InfoContext(ctx, "template resolved at tenant system workspace level",
-			slog.String("tenant_code", cmd.TenantCode),
-		)
-		return version, nil
-	}
-
-	// Attempt 3: SYS tenant + SYS system workspace
-	sysTenant, err := s.tenantRepo.FindSystemTenant(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("finding system tenant: %w", err)
-	}
-
-	version, err = s.tryResolveVersionBySystemWorkspace(ctx, sysTenant.ID, cmd.TemplateTypeCode)
-	if err != nil {
-		return nil, err
-	}
-	if version != nil {
-		slog.InfoContext(ctx, "template resolved at global system level")
-		return version, nil
-	}
-
-	return nil, entity.ErrTemplateNotResolved
-}
-
-// tryResolveVersionByWorkspaceCode attempts to find a published template version for a specific workspace code.
-func (s *InternalRenderService) tryResolveVersionByWorkspaceCode(ctx context.Context, tenantID, workspaceCode, docTypeCode string) (*entity.TemplateVersionWithDetails, error) {
-	ws, err := s.workspaceRepo.FindByCodeAndTenant(ctx, tenantID, workspaceCode)
-	if errors.Is(err, entity.ErrWorkspaceNotFound) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("finding workspace by code: %w", err)
-	}
-
-	return s.tryResolveVersionWithWorkspace(ctx, tenantID, ws, docTypeCode)
-}
-
-// tryResolveVersionBySystemWorkspace attempts to find a published template version in a tenant's system workspace.
-func (s *InternalRenderService) tryResolveVersionBySystemWorkspace(ctx context.Context, tenantID, docTypeCode string) (*entity.TemplateVersionWithDetails, error) {
-	ws, err := s.workspaceRepo.FindSystemByTenant(ctx, &tenantID)
-	if errors.Is(err, entity.ErrWorkspaceNotFound) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("finding system workspace: %w", err)
-	}
-
-	return s.tryResolveVersionWithWorkspace(ctx, tenantID, ws, docTypeCode)
-}
-
-// tryResolveVersionWithWorkspace attempts to find a published template version.
-func (s *InternalRenderService) tryResolveVersionWithWorkspace(ctx context.Context, tenantID string, ws *entity.Workspace, docTypeCode string) (*entity.TemplateVersionWithDetails, error) {
-	docType, err := s.docTypeRepo.FindByCodeWithGlobalFallback(ctx, tenantID, docTypeCode)
-	if errors.Is(err, entity.ErrDocumentTypeNotFound) {
-		return nil, nil
-	}
-	if err != nil {
+		if errors.Is(err, entity.ErrDocumentTypeNotFound) {
+			return nil, entity.ErrTemplateNotResolved
+		}
 		return nil, fmt.Errorf("finding document type by code: %w", err)
 	}
 
-	tmpl, err := s.templateRepo.FindByDocumentType(ctx, ws.ID, docType.ID)
-	if err != nil || tmpl == nil {
-		return nil, nil //nolint:nilerr // not found means fallback to next level
-	}
-
-	version, err := s.versionRepo.FindPublishedByTemplateIDWithDetails(ctx, tmpl.ID)
-	if errors.Is(err, entity.ErrVersionNotFound) || errors.Is(err, entity.ErrNoPublishedVersion) {
-		return nil, nil
-	}
+	tmpl, err := s.templateRepo.FindByID(ctx, version.TemplateID)
 	if err != nil {
-		return nil, fmt.Errorf("finding published version: %w", err)
+		if errors.Is(err, entity.ErrTemplateNotFound) {
+			return nil, entity.ErrTemplateNotResolved
+		}
+		return nil, fmt.Errorf("finding template %s: %w", version.TemplateID, err)
+	}
+	if tmpl.DocumentTypeID == nil || *tmpl.DocumentTypeID != docType.ID {
+		return nil, entity.ErrTemplateNotResolved
 	}
 
 	return version, nil
