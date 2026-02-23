@@ -3,11 +3,16 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { useAppContextStore } from '@/stores/app-context-store'
 
 export const Route = createFileRoute('/workspace/$workspaceId')({
-  beforeLoad: () => {
-    const { currentTenant } = useAppContextStore.getState()
+  beforeLoad: ({ params }) => {
+    const { currentTenant, currentWorkspace, _hasHydrated } = useAppContextStore.getState()
 
-    // If no tenant selected, redirect to select
-    if (!currentTenant) {
+    // Wait for Zustand persist to rehydrate from localStorage before checking context
+    if (!_hasHydrated) {
+      throw redirect({ to: '/select-tenant' })
+    }
+
+    // Redirect if tenant or workspace context is missing/mismatched
+    if (!currentTenant || !currentWorkspace || currentWorkspace.id !== params.workspaceId) {
       throw redirect({ to: '/select-tenant' })
     }
   },

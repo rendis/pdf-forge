@@ -7616,6 +7616,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "role": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 },
