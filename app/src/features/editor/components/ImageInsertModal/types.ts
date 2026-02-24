@@ -16,6 +16,7 @@ export interface ImagePreviewState {
   isLoading: boolean;
   error: string | null;
   isBase64: boolean;
+  isCorsSupported: boolean;
 }
 
 export interface ImageInsertModalProps {

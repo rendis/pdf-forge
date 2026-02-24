@@ -30,6 +30,7 @@ export function ImageUrlTab({
     isLoading: false,
     error: null,
     isBase64: currentImage?.isBase64 ?? false,
+    isCorsSupported: false,
   });
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -40,6 +41,7 @@ export function ImageUrlTab({
         isLoading: false,
         error: 'URL no válida. Debe comenzar con http:// o https://',
         isBase64: false,
+        isCorsSupported: false,
       });
       onImageReady(null);
       return;
@@ -47,33 +49,51 @@ export function ImageUrlTab({
 
     setPreview((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
+    // Try with CORS first (needed for cropping)
+    const corsImg = new Image();
+    corsImg.crossOrigin = 'anonymous';
 
-    img.onload = () => {
+    corsImg.onload = () => {
       setPreview({
         src: imageUrl,
         isLoading: false,
         error: null,
         isBase64: false,
+        isCorsSupported: true,
       });
-      onImageReady({
-        src: imageUrl,
-        isBase64: false,
-      });
+      onImageReady({ src: imageUrl, isBase64: false });
     };
 
-    img.onerror = () => {
-      setPreview({
-        src: null,
-        isLoading: false,
-        error: 'No se pudo cargar la imagen. Verifica la URL.',
-        isBase64: false,
-      });
-      onImageReady(null);
+    corsImg.onerror = () => {
+      // CORS failed — retry without crossOrigin
+      const fallbackImg = new Image();
+
+      fallbackImg.onload = () => {
+        setPreview({
+          src: imageUrl,
+          isLoading: false,
+          error: null,
+          isBase64: false,
+          isCorsSupported: false,
+        });
+        onImageReady({ src: imageUrl, isBase64: false });
+      };
+
+      fallbackImg.onerror = () => {
+        setPreview({
+          src: null,
+          isLoading: false,
+          error: 'No se pudo cargar la imagen. Verifica la URL.',
+          isBase64: false,
+          isCorsSupported: false,
+        });
+        onImageReady(null);
+      };
+
+      fallbackImg.src = imageUrl;
     };
 
-    img.src = imageUrl;
+    corsImg.src = imageUrl;
   }, [onImageReady]);
 
   const handleUrlChange = useCallback((value: string) => {
@@ -89,6 +109,7 @@ export function ImageUrlTab({
         isLoading: false,
         error: null,
         isBase64: false,
+        isCorsSupported: false,
       });
       onImageReady(null);
       return;
@@ -118,6 +139,7 @@ export function ImageUrlTab({
         isLoading: false,
         error: null,
         isBase64: false,
+        isCorsSupported: false,
       });
     }
   }
@@ -192,12 +214,11 @@ export function ImageUrlTab({
             src={preview.src}
             alt="Vista previa"
             className="max-h-[200px] max-w-full object-contain"
-            crossOrigin="anonymous"
           />
         )}
       </div>
 
-      {preview.src && !preview.isLoading && !preview.error && (
+      {preview.src && !preview.isLoading && !preview.error && preview.isCorsSupported && (
         <Button
           variant="outline"
           onClick={handleCropClick}
