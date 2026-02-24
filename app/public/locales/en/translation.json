@@ -309,6 +309,7 @@
     },
     "tooltips": {
       "publishedVersion": "Published version: v{{version}}",
+      "stagingVersion": "A version is in staging",
       "scheduledVersions": "{{count}} version(s) scheduled to publish"
     },
     "validationDialog": {

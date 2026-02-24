@@ -113,6 +113,7 @@ type TemplateListItemResponse struct {
 	Title                  string               `json:"title"`
 	IsPublicLibrary        bool                 `json:"isPublicLibrary"`
 	HasPublishedVersion    bool                 `json:"hasPublishedVersion"`
+	HasStagingVersion      bool                 `json:"hasStagingVersion"`
 	VersionCount           int                  `json:"versionCount"`
 	ScheduledVersionCount  int                  `json:"scheduledVersionCount"`
 	PublishedVersionNumber *int                 `json:"publishedVersionNumber,omitempty"`

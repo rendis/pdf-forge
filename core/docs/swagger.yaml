@@ -873,6 +873,8 @@ definitions:
         type: string
       hasPublishedVersion:
         type: boolean
+      hasStagingVersion:
+        type: boolean
       id:
         type: string
       isPublicLibrary:

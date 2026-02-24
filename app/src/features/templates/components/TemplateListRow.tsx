@@ -1,4 +1,4 @@
-import { FileText, Edit, MoreHorizontal, FolderOpen, Pencil, Trash, Layers, Check, Clock, AlertTriangle } from 'lucide-react'
+import { FileText, Edit, MoreHorizontal, FolderOpen, Pencil, Trash, Layers, Check, Clock, FlaskConical, AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import {
@@ -159,6 +159,21 @@ export function TemplateListRow({
                 {t('templates.tooltips.publishedVersion', 'Versión publicada: v{{version}}', {
                   version: template.publishedVersionNumber,
                 })}
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Versión en staging (solo si existe) */}
+          {template.hasStagingVersion && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1 border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-purple-600 dark:text-purple-400">
+                  <FlaskConical size={12} />
+                  <span className="font-mono text-[10px]">STG</span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {t('templates.tooltips.stagingVersion', 'A version is in staging')}
               </TooltipContent>
             </Tooltip>
           )}

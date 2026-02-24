@@ -58,6 +58,7 @@ type TemplateListItem struct {
 	IsPublicLibrary        bool       `json:"isPublicLibrary"`
 	Tags                   []*Tag     `json:"tags"`
 	HasPublishedVersion    bool       `json:"hasPublishedVersion"`
+	HasStagingVersion      bool       `json:"hasStagingVersion"`
 	VersionCount           int        `json:"versionCount"`
 	ScheduledVersionCount  int        `json:"scheduledVersionCount"`
 	PublishedVersionNumber *int       `json:"publishedVersionNumber,omitempty"`

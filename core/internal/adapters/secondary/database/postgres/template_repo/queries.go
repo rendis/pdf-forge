@@ -62,6 +62,7 @@ const (
 			t.title, t.is_public_library,
 			t.created_at, t.updated_at,
 			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED') as has_published,
+			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'STAGING') as has_staging,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status != 'ARCHIVED') as version_count,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status = 'SCHEDULED') as scheduled_version_count,
 			(SELECT version_number FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED' LIMIT 1) as published_version_number
@@ -76,6 +77,7 @@ const (
 			t.title, t.is_public_library,
 			t.created_at, t.updated_at,
 			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED') as has_published,
+			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'STAGING') as has_staging,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status != 'ARCHIVED') as version_count,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status = 'SCHEDULED') as scheduled_version_count,
 			(SELECT version_number FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED' LIMIT 1) as published_version_number
@@ -90,6 +92,7 @@ const (
 			t.title, t.is_public_library,
 			t.created_at, t.updated_at,
 			true as has_published,
+			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'STAGING') as has_staging,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status != 'ARCHIVED') as version_count,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status = 'SCHEDULED') as scheduled_version_count,
 			(SELECT version_number FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED' LIMIT 1) as published_version_number
@@ -130,6 +133,7 @@ const (
 			t.title, t.is_public_library,
 			t.created_at, t.updated_at,
 			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED') as has_published,
+			EXISTS(SELECT 1 FROM content.template_versions WHERE template_id = t.id AND status = 'STAGING') as has_staging,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status != 'ARCHIVED') as version_count,
 			(SELECT COUNT(*) FROM content.template_versions WHERE template_id = t.id AND status = 'SCHEDULED') as scheduled_version_count,
 			(SELECT version_number FROM content.template_versions WHERE template_id = t.id AND status = 'PUBLISHED' LIMIT 1) as published_version_number

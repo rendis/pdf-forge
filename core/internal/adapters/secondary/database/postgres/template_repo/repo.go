@@ -369,8 +369,9 @@ func scanTemplateListItems(rows pgx.Rows) ([]*entity.TemplateListItem, error) {
 			&item.ID, &item.WorkspaceID, &item.FolderID,
 			&item.DocumentTypeID, &item.DocumentTypeCode,
 			&item.Title, &item.IsPublicLibrary, &item.CreatedAt, &item.UpdatedAt,
-			&item.HasPublishedVersion, &item.VersionCount,
-			&item.ScheduledVersionCount, &item.PublishedVersionNumber,
+			&item.HasPublishedVersion, &item.HasStagingVersion,
+			&item.VersionCount, &item.ScheduledVersionCount,
+			&item.PublishedVersionNumber,
 		); err != nil {
 			return nil, fmt.Errorf("scanning template: %w", err)
 		}

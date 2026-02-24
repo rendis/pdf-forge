@@ -154,6 +154,7 @@ export interface TemplateListItem extends Template {
   tags: Tag[];
   documentTypeCode?: string;
   hasPublishedVersion: boolean;
+  hasStagingVersion: boolean;
   publishedVersionNumber?: number;
   versionCount: number;
   scheduledVersionCount: number;

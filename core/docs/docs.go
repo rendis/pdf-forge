@@ -6986,6 +6986,9 @@ const docTemplate = `{
                 "hasPublishedVersion": {
                     "type": "boolean"
                 },
+                "hasStagingVersion": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
