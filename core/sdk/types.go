@@ -2,6 +2,19 @@ package sdk
 
 import "github.com/rendis/pdf-forge/core/internal/core/entity"
 
+// ── Environment ──────────────────────────────────────────────────────────────
+
+// Environment represents the render environment from the X-Environment header.
+// Use IsDev() and IsProd() for comparisons.
+type Environment = entity.Environment
+
+const (
+	// EnvironmentDev is the development/staging environment (X-Environment: dev).
+	EnvironmentDev = entity.EnvironmentDev
+	// EnvironmentProd is the production environment (X-Environment: prod).
+	EnvironmentProd = entity.EnvironmentProd
+)
+
 // ── Core types ──────────────────────────────────────────────────────────────
 
 // InjectorContext encapsulates request context data with thread-safe access.

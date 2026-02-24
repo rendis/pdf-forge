@@ -5,43 +5,45 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 )
 
 func TestParseRenderEnvironment(t *testing.T) {
-	t.Run("dev returns staging mode true", func(t *testing.T) {
-		staging, err := parseRenderEnvironment("dev")
+	t.Run("dev returns EnvironmentDev", func(t *testing.T) {
+		env, err := parseRenderEnvironment("dev")
 		require.NoError(t, err)
-		assert.True(t, staging)
+		assert.Equal(t, entity.EnvironmentDev, env)
 	})
 
 	t.Run("DEV case insensitive", func(t *testing.T) {
-		staging, err := parseRenderEnvironment("DEV")
+		env, err := parseRenderEnvironment("DEV")
 		require.NoError(t, err)
-		assert.True(t, staging)
+		assert.Equal(t, entity.EnvironmentDev, env)
 	})
 
 	t.Run("Dev mixed case", func(t *testing.T) {
-		staging, err := parseRenderEnvironment("Dev")
+		env, err := parseRenderEnvironment("Dev")
 		require.NoError(t, err)
-		assert.True(t, staging)
+		assert.Equal(t, entity.EnvironmentDev, env)
 	})
 
 	t.Run("dev with whitespace trimmed", func(t *testing.T) {
-		staging, err := parseRenderEnvironment("  dev  ")
+		env, err := parseRenderEnvironment("  dev  ")
 		require.NoError(t, err)
-		assert.True(t, staging)
+		assert.Equal(t, entity.EnvironmentDev, env)
 	})
 
-	t.Run("prod returns staging mode false", func(t *testing.T) {
-		staging, err := parseRenderEnvironment("prod")
+	t.Run("prod returns EnvironmentProd", func(t *testing.T) {
+		env, err := parseRenderEnvironment("prod")
 		require.NoError(t, err)
-		assert.False(t, staging)
+		assert.Equal(t, entity.EnvironmentProd, env)
 	})
 
 	t.Run("PROD case insensitive", func(t *testing.T) {
-		staging, err := parseRenderEnvironment("PROD")
+		env, err := parseRenderEnvironment("PROD")
 		require.NoError(t, err)
-		assert.False(t, staging)
+		assert.Equal(t, entity.EnvironmentProd, env)
 	})
 
 	t.Run("empty string returns error", func(t *testing.T) {

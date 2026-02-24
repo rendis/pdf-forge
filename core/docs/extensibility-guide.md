@@ -233,6 +233,7 @@ type RequestMapper interface {
 
 - `RawBody` — unparsed HTTP request body
 - `Headers` — HTTP headers
+- `Environment` — render environment (`sdk.EnvironmentDev` or `sdk.EnvironmentProd`)
 - `ExternalID`, `TemplateID`, `TransactionalID`, `Operation` — request metadata
 
 ### Creating a Mapper
@@ -308,9 +309,29 @@ Resolver contract:
 - Return `nil, nil`: fallback to default resolver.
 - Return `error`: abort request.
 
+### Request Context
+
+`TemplateResolverRequest` provides the original render request data:
+
+| Field           | Description                                                               |
+|-----------------|---------------------------------------------------------------------------|
+| `TenantCode`    | Tenant code from `X-Tenant-Code` header                                  |
+| `WorkspaceCode` | Workspace code from `X-Workspace-Code` header                            |
+| `DocumentType`  | Document type code from the URL path                                     |
+| `Headers`       | HTTP headers from the original render request                            |
+| `RawBody`       | Unparsed HTTP request body                                               |
+| `Injectables`   | Pre-resolved injectable values available at resolution time              |
+| `Environment`   | Render environment from `X-Environment` header (`sdk.EnvironmentDev` or `sdk.EnvironmentProd`) |
+
+### Environment
+
+`req.Environment` is an `sdk.Environment` enum derived from the `X-Environment` header. Use `req.Environment.IsDev()` to check for staging mode and decide whether to search for STAGING or PUBLISHED versions.
+
+The default resolver uses `Environment.IsDev()` to automatically search for staging versions. In a custom resolver, you have full control — you can use `Environment` to replicate that behavior, ignore it, or implement custom logic like staging-with-fallback.
+
 ### Read-Only Search Adapter
 
-The resolver receives a read-only adapter:
+The resolver receives a read-only adapter for querying available template versions:
 
 ```go
 published := true
@@ -320,6 +341,76 @@ items, err := adapter.SearchTemplateVersions(ctx, sdk.TemplateVersionSearchParam
     DocumentType:   req.DocumentType,
     Published:      &published,
 })
+```
+
+Each returned `TemplateVersionSearchItem` contains:
+
+| Field           | Description                                                    |
+|-----------------|----------------------------------------------------------------|
+| `VersionID`     | UUID of the template version — return this from `Resolve()`   |
+| `Published`     | `true` if the version has PUBLISHED status                     |
+| `TenantCode`    | Tenant that owns the version                                   |
+| `WorkspaceCode` | Workspace that owns the version                                |
+
+### Search Parameters Behavior
+
+`Staging` takes precedence over `Published`. There is **no automatic fallback** from STAGING to PUBLISHED — if no staging versions exist, the result is empty.
+
+| `Staging`     | `Published`   | Versions returned          |
+|---------------|---------------|----------------------------|
+| nil / false   | nil / true    | Only PUBLISHED (default)   |
+| true          | (ignored)     | Only STAGING               |
+| false         | false         | Only DRAFT                 |
+
+`WorkspaceCodes` are searched in order and results are aggregated across all matching workspaces.
+
+### Example: Staging with Fallback
+
+Search for a staging version first; if none found, fall back to published:
+
+```go
+type StagingFallbackResolver struct{}
+
+func (r *StagingFallbackResolver) Resolve(
+    ctx context.Context,
+    req *sdk.TemplateResolverRequest,
+    adapter sdk.TemplateVersionSearchAdapter,
+) (*string, error) {
+    if !req.Environment.IsDev() {
+        return nil, nil // not dev — use default resolver
+    }
+
+    searchParams := sdk.TemplateVersionSearchParams{
+        TenantCode:     req.TenantCode,
+        WorkspaceCodes: []string{req.WorkspaceCode},
+        DocumentType:   req.DocumentType,
+    }
+
+    // 1. Try staging versions
+    staging := true
+    searchParams.Staging = &staging
+    items, err := adapter.SearchTemplateVersions(ctx, searchParams)
+    if err != nil {
+        return nil, err
+    }
+    if len(items) > 0 {
+        return &items[0].VersionID, nil
+    }
+
+    // 2. Fallback to published
+    searchParams.Staging = nil
+    published := true
+    searchParams.Published = &published
+    items, err = adapter.SearchTemplateVersions(ctx, searchParams)
+    if err != nil {
+        return nil, err
+    }
+    if len(items) > 0 {
+        return &items[0].VersionID, nil
+    }
+
+    return nil, nil // no versions found — let default resolver handle it
+}
 ```
 
 ### Registration
@@ -388,6 +479,7 @@ injCtx.ExternalID()           // External identifier
 injCtx.TemplateID()           // Template being used
 injCtx.TransactionalID()      // For traceability
 injCtx.Operation()            // Operation type
+injCtx.Environment()          // Render environment (dev or prod)
 injCtx.Header("key")          // HTTP header value
 injCtx.RequestPayload()       // Parsed payload from mapper
 injCtx.InitData()             // Data from init function

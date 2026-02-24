@@ -163,6 +163,7 @@ type InjectorContext struct {
 	operation       string
 	tenantCode      string
 	workspaceCode   string
+	environment     Environment
 	headers         map[string]string
 	resolvedValues  map[string]any
 	requestPayload  any
@@ -186,6 +187,7 @@ func normalizeHeaders(headers map[string]string) map[string]string {
 func NewInjectorContext(
 	externalID, templateID, transactionalID string,
 	op string,
+	env Environment,
 	headers map[string]string,
 	payload any,
 ) *InjectorContext {
@@ -194,6 +196,7 @@ func NewInjectorContext(
 		templateID:      templateID,
 		transactionalID: transactionalID,
 		operation:       op,
+		environment:     env,
 		headers:         normalizeHeaders(headers),
 		resolvedValues:  make(map[string]any),
 		requestPayload:  payload,
@@ -205,6 +208,7 @@ func NewInjectorContextWithCodes(
 	externalID, templateID, transactionalID string,
 	op string,
 	tenantCode, workspaceCode string,
+	env Environment,
 	headers map[string]string,
 	payload any,
 ) *InjectorContext {
@@ -215,6 +219,7 @@ func NewInjectorContextWithCodes(
 		operation:       op,
 		tenantCode:      tenantCode,
 		workspaceCode:   workspaceCode,
+		environment:     env,
 		headers:         normalizeHeaders(headers),
 		resolvedValues:  make(map[string]any),
 		requestPayload:  payload,
@@ -261,6 +266,13 @@ func (c *InjectorContext) WorkspaceCode() string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.workspaceCode
+}
+
+// Environment returns the render environment (dev or prod).
+func (c *InjectorContext) Environment() Environment {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.environment
 }
 
 // SetTenantCode sets the tenant code (internal use).

@@ -85,8 +85,8 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 		}
 	}
 
-	// Staging mode: skip cache entirely (cache stores PUBLISHED versions)
-	if !cmd.StagingMode && s.templateCache != nil {
+	// Dev environment: skip cache entirely (cache stores PUBLISHED versions)
+	if !cmd.Environment.IsDev() && s.templateCache != nil {
 		if cached := s.templateCache.Get(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode); cached != nil {
 			slog.DebugContext(ctx, "template cache hit",
 				slog.String("tenant_code", cmd.TenantCode),
@@ -104,7 +104,7 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 	}
 
 	// Only cache published resolutions
-	if !cmd.StagingMode && s.templateCache != nil {
+	if !cmd.Environment.IsDev() && s.templateCache != nil {
 		s.templateCache.Set(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode, version)
 	}
 
@@ -124,6 +124,7 @@ func (s *InternalRenderService) RenderByVersionID(ctx context.Context, cmd templ
 		Injectables:   cmd.Injectables,
 		Headers:       cmd.Headers,
 		Payload:       cmd.Payload,
+		Environment:   cmd.Environment,
 	})
 }
 
@@ -143,6 +144,7 @@ func (s *InternalRenderService) resolveWithCustomResolver(
 		Headers:       cmd.Headers,
 		RawBody:       rawBody,
 		Injectables:   cmd.Injectables,
+		Environment:   cmd.Environment,
 	}, s.searchAdapter)
 	if err != nil {
 		return nil, fmt.Errorf("custom template resolver failed: %w", err)
@@ -162,7 +164,7 @@ func (s *InternalRenderService) resolveWithDefaultResolver(
 		TenantCode:    cmd.TenantCode,
 		WorkspaceCode: cmd.WorkspaceCode,
 		DocumentType:  cmd.TemplateTypeCode,
-		StagingMode:   cmd.StagingMode,
+		Environment:   cmd.Environment,
 	}, s.searchAdapter)
 	if err != nil {
 		return nil, err
@@ -178,7 +180,7 @@ func (s *InternalRenderService) resolveWithDefaultResolver(
 		}
 		return nil, fmt.Errorf("finding version %s: %w", *versionID, err)
 	}
-	if !isRenderableVersion(version, cmd.StagingMode) {
+	if !isRenderableVersion(version, cmd.Environment) {
 		return nil, entity.ErrTemplateNotResolved
 	}
 
@@ -197,7 +199,7 @@ func (s *InternalRenderService) validateCustomResolvedVersion(
 		}
 		return nil, fmt.Errorf("finding version %s: %w", versionID, err)
 	}
-	if !isRenderableVersion(version, cmd.StagingMode) {
+	if !isRenderableVersion(version, cmd.Environment) {
 		return nil, entity.ErrTemplateNotResolved
 	}
 
@@ -208,9 +210,9 @@ func (s *InternalRenderService) validateCustomResolvedVersion(
 	return version, nil
 }
 
-// isRenderableVersion checks if a version can be rendered: published always, staging only in staging mode.
-func isRenderableVersion(v *entity.TemplateVersionWithDetails, stagingMode bool) bool {
-	return v.IsPublished() || (stagingMode && v.IsStaging())
+// isRenderableVersion checks if a version can be rendered: published always, staging only in dev environment.
+func isRenderableVersion(v *entity.TemplateVersionWithDetails, env entity.Environment) bool {
+	return v.IsPublished() || (env.IsDev() && v.IsStaging())
 }
 
 func (s *InternalRenderService) validateVersionOwnership(
@@ -260,7 +262,7 @@ func (s *InternalRenderService) renderVersion(ctx context.Context, version *enti
 	}
 
 	// Resolve all injectables (system + custom registry + provider)
-	injectables := s.resolveInjectables(ctx, version.Injectables, cmd.Injectables, cmd.TenantCode, cmd.WorkspaceCode, cmd.Headers, cmd.Payload)
+	injectables := s.resolveInjectables(ctx, version.Injectables, cmd.Injectables, cmd.TenantCode, cmd.WorkspaceCode, cmd.Environment, cmd.Headers, cmd.Payload)
 
 	// Build injectable defaults
 	defaults := BuildVersionInjectableDefaults(version.Injectables)
@@ -307,6 +309,7 @@ func (s *InternalRenderService) resolveInjectables(
 	versionInjectables []*entity.VersionInjectableWithDefinition,
 	callerValues map[string]any,
 	tenantCode, workspaceCode string,
+	env entity.Environment,
 	headers map[string]string,
 	payload any,
 ) map[string]any {
@@ -325,7 +328,7 @@ func (s *InternalRenderService) resolveInjectables(
 	}
 
 	// Resolve injectables with full context (headers, payload, tenant/workspace codes)
-	injCtx := entity.NewInjectorContextWithCodes("", "", "", "render", tenantCode, workspaceCode, headers, payload)
+	injCtx := entity.NewInjectorContextWithCodes("", "", "", "render", tenantCode, workspaceCode, env, headers, payload)
 	result, err := s.resolver.Resolve(ctx, injCtx, codes)
 	if err != nil {
 		slog.WarnContext(ctx, "failed to resolve injectables",

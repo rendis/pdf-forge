@@ -80,7 +80,7 @@ type TemplateResolverRequest struct {
     TenantCode    string
     WorkspaceCode string
     DocumentType  string
-    StagingMode   bool
+    Environment   entity.Environment // "dev" or "prod"
     Headers       map[string]string
     RawBody       []byte
     Injectables   map[string]any

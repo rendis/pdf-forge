@@ -172,6 +172,7 @@ func (s *InjectableResolverService) resolveProviderCodes(
 		TenantCode:      injCtx.TenantCode(),
 		WorkspaceCode:   injCtx.WorkspaceCode(),
 		TemplateID:      injCtx.TemplateID(),
+		Environment:     injCtx.Environment(),
 		Codes:           codes,
 		SelectedFormats: injCtx.GetSelectedFormats(),
 		Headers:         injCtx.GetHeaders(),

@@ -406,7 +406,7 @@ func TestInternalRenderService_StagingMode_SkipsCache(t *testing.T) {
 		TenantCode:       "TENANT_A",
 		WorkspaceCode:    "WS_1",
 		TemplateTypeCode: "CONTRACT",
-		StagingMode:      true,
+		Environment:      entity.EnvironmentDev,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -441,7 +441,7 @@ func TestInternalRenderService_StagingMode_AcceptsStagingVersion(t *testing.T) {
 		TenantCode:       "TENANT_A",
 		WorkspaceCode:    "WS_1",
 		TemplateTypeCode: "CONTRACT",
-		StagingMode:      true,
+		Environment:      entity.EnvironmentDev,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -473,7 +473,7 @@ func TestInternalRenderService_NonStagingMode_RejectsStagingVersion(t *testing.T
 		TenantCode:       "TENANT_A",
 		WorkspaceCode:    "WS_1",
 		TemplateTypeCode: "CONTRACT",
-		StagingMode:      false, // NOT staging mode
+		Environment:      entity.EnvironmentProd, // NOT dev environment
 	})
 	require.ErrorIs(t, err, entity.ErrTemplateNotResolved)
 	assert.Nil(t, result)
@@ -504,7 +504,7 @@ func TestInternalRenderService_StagingMode_RejectsDraftVersion(t *testing.T) {
 		TenantCode:       "TENANT_A",
 		WorkspaceCode:    "WS_1",
 		TemplateTypeCode: "CONTRACT",
-		StagingMode:      true, // staging mode but version is DRAFT, not STAGING
+		Environment:      entity.EnvironmentDev, // staging mode but version is DRAFT, not STAGING
 	})
 	require.ErrorIs(t, err, entity.ErrTemplateNotResolved)
 	assert.Nil(t, result)
@@ -550,7 +550,7 @@ func TestInternalRenderService_CustomResolverAcceptsStagingInStagingMode(t *test
 		TenantCode:       "TENANT_A",
 		WorkspaceCode:    "WS_1",
 		TemplateTypeCode: "CONTRACT",
-		StagingMode:      true,
+		Environment:      entity.EnvironmentDev,
 		Injectables:      map[string]any{},
 		Payload:          map[string]any{},
 	})
@@ -598,7 +598,7 @@ func TestInternalRenderService_CustomResolverRejectsStagingWithoutStagingMode(t 
 		TenantCode:       "TENANT_A",
 		WorkspaceCode:    "WS_1",
 		TemplateTypeCode: "CONTRACT",
-		StagingMode:      false, // NOT staging mode
+		Environment:      entity.EnvironmentProd, // NOT dev environment
 		Injectables:      map[string]any{},
 		Payload:          map[string]any{},
 	})

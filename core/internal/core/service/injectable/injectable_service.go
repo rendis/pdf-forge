@@ -73,7 +73,7 @@ func (s *InjectableService) ListInjectables(ctx context.Context, req *injectable
 			return nil, fmt.Errorf("getting workspace codes: %w", err)
 		}
 
-		injCtx := entity.NewInjectorContextWithCodes("", "", "", "list", tenantCode, workspaceCode, nil, nil)
+		injCtx := entity.NewInjectorContextWithCodes("", "", "", "list", tenantCode, workspaceCode, entity.EnvironmentProd, nil, nil)
 		providerResult, err := s.workspaceProvider.GetInjectables(ctx, injCtx)
 		if err != nil {
 			return nil, fmt.Errorf("getting provider injectables: %w", err)

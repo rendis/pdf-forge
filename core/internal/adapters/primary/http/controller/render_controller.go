@@ -11,6 +11,7 @@ import (
 
 	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
 	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
 	"github.com/rendis/pdf-forge/core/internal/core/port"
 	templatesvc "github.com/rendis/pdf-forge/core/internal/core/service/template"
@@ -186,7 +187,7 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		req.Injectables = make(map[string]any)
 	}
 
-	stagingMode, err := parseRenderEnvironment(ctx.GetHeader("X-Environment"))
+	env, err := parseRenderEnvironment(ctx.GetHeader("X-Environment"))
 	if err != nil {
 		respondError(ctx, http.StatusBadRequest, err)
 		return
@@ -199,7 +200,7 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		Injectables:      req.Injectables,
 		Headers:          extractHeaders(ctx),
 		Payload:          req.Injectables,
-		StagingMode:      stagingMode,
+		Environment:      env,
 	})
 	if err != nil {
 		HandleError(ctx, err)
@@ -211,7 +212,7 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		slog.String("workspace_code", workspaceCode),
 		slog.String("document_type_code", documentTypeCode),
 		slog.Int("page_count", result.PageCount),
-		slog.Bool("staging_mode", stagingMode),
+		slog.String("environment", string(env)),
 	)
 
 	sendPDFResponse(ctx, result)
@@ -249,7 +250,8 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := parseRenderEnvironment(ctx.GetHeader("X-Environment")); err != nil {
+	env, err := parseRenderEnvironment(ctx.GetHeader("X-Environment"))
+	if err != nil {
 		respondError(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -273,6 +275,7 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 		Injectables:   req.Injectables,
 		Headers:       extractHeaders(ctx),
 		Payload:       req.Injectables,
+		Environment:   env,
 	})
 	if err != nil {
 		HandleError(ctx, err)
@@ -318,20 +321,19 @@ func extractHeaders(ctx *gin.Context) map[string]string {
 	return headers
 }
 
-// parseRenderEnvironment validates the X-Environment header.
-// Returns stagingMode=true for "dev", stagingMode=false for "prod".
-func parseRenderEnvironment(header string) (bool, error) {
+// parseRenderEnvironment validates the X-Environment header and returns the Environment enum.
+func parseRenderEnvironment(header string) (entity.Environment, error) {
 	v := strings.TrimSpace(header)
 	if v == "" {
-		return false, fmt.Errorf("X-Environment header is required. Valid values: dev, prod")
+		return "", fmt.Errorf("X-Environment header is required. Valid values: dev, prod")
 	}
 	switch strings.ToLower(v) {
 	case "dev":
-		return true, nil
+		return entity.EnvironmentDev, nil
 	case "prod":
-		return false, nil
+		return entity.EnvironmentProd, nil
 	default:
-		return false, fmt.Errorf("invalid X-Environment value %q. Valid values: dev, prod", v)
+		return "", fmt.Errorf("invalid X-Environment value %q. Valid values: dev, prod", v)
 	}
 }
 

@@ -1,16 +1,21 @@
 package port
 
-import "context"
+import (
+	"context"
+
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
+)
 
 // MapperContext contains the context for request mapping.
 // The system extracts this information from the request and provides it to the mapper.
 type MapperContext struct {
-	ExternalID      string            // external ID of the request
-	TemplateID      string            // template ID to use
-	TransactionalID string            // transactional ID for traceability
-	Operation       string            // operation type
-	Headers         map[string]string // HTTP request headers
-	RawBody         []byte            // unparsed body
+	ExternalID      string             // external ID of the request
+	TemplateID      string             // template ID to use
+	TransactionalID string             // transactional ID for traceability
+	Operation       string             // operation type
+	Environment     entity.Environment // render environment (dev or prod)
+	Headers         map[string]string  // HTTP request headers
+	RawBody         []byte             // unparsed body
 }
 
 // RequestMapper defines the interface that users implement to map requests.

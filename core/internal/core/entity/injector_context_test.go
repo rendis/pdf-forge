@@ -9,7 +9,7 @@ func TestHeader_CaseInsensitive(t *testing.T) {
 		"X-Custom-Key":  "custom-value",
 	}
 
-	ctx := NewInjectorContext("ext-1", "tpl-1", "tx-1", "render", headers, nil)
+	ctx := NewInjectorContext("ext-1", "tpl-1", "tx-1", "render", EnvironmentProd, headers, nil)
 
 	tests := []struct {
 		key  string
@@ -37,7 +37,7 @@ func TestHeader_CaseInsensitive(t *testing.T) {
 }
 
 func TestHeader_NilHeaders(t *testing.T) {
-	ctx := NewInjectorContext("ext-1", "tpl-1", "tx-1", "render", nil, nil)
+	ctx := NewInjectorContext("ext-1", "tpl-1", "tx-1", "render", EnvironmentProd, nil, nil)
 	if got := ctx.Header("any-key"); got != "" {
 		t.Errorf("Header on nil headers = %q, want empty", got)
 	}
@@ -49,7 +49,7 @@ func TestGetHeaders_ReturnsNormalizedKeys(t *testing.T) {
 		"X-API-KEY":    "secret",
 	}
 
-	ctx := NewInjectorContext("ext-1", "tpl-1", "tx-1", "render", headers, nil)
+	ctx := NewInjectorContext("ext-1", "tpl-1", "tx-1", "render", EnvironmentProd, headers, nil)
 	got := ctx.GetHeaders()
 
 	// Keys should be normalized to lowercase

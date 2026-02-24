@@ -59,8 +59,8 @@ func (r *DefaultTemplateResolver) resolveAtStage(
 	adapter port.TemplateVersionSearchAdapter,
 	tenantCode string, workspaceCodes []string, stage string,
 ) (*string, error) {
-	// In staging mode: try staging version first
-	if req.StagingMode {
+	// In dev environment: try staging version first
+	if req.Environment.IsDev() {
 		staging := true
 		if vID, err := r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, &staging, nil, stage+" (staging)"); err != nil {
 			return nil, err

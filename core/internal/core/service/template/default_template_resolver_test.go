@@ -44,7 +44,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 			TenantCode:    "TENANT_A",
 			WorkspaceCode: "CLIENT_WS",
 			DocumentType:  "CONTRACT",
-			StagingMode:   true,
+			Environment:   entity.EnvironmentDev,
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, adapter)
@@ -65,7 +65,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 			TenantCode:    "TENANT_A",
 			WorkspaceCode: "CLIENT_WS",
 			DocumentType:  "CONTRACT",
-			StagingMode:   true,
+			Environment:   entity.EnvironmentDev,
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, customAdapter)
@@ -87,7 +87,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 			TenantCode:    "TENANT_A",
 			WorkspaceCode: "CLIENT_WS",
 			DocumentType:  "CONTRACT",
-			StagingMode:   true,
+			Environment:   entity.EnvironmentDev,
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, customAdapter)
@@ -110,7 +110,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 			TenantCode:    "TENANT_A",
 			WorkspaceCode: "CLIENT_WS",
 			DocumentType:  "CONTRACT",
-			StagingMode:   false, // NOT staging mode
+			Environment:   entity.EnvironmentProd, // NOT dev environment
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, customAdapter)
@@ -129,7 +129,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 			TenantCode:    "TENANT_A",
 			WorkspaceCode: "CLIENT_WS",
 			DocumentType:  "CONTRACT",
-			StagingMode:   true,
+			Environment:   entity.EnvironmentDev,
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, customAdapter)
@@ -149,7 +149,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 			TenantCode:    "TENANT_A",
 			WorkspaceCode: "CLIENT_WS",
 			DocumentType:  "CONTRACT",
-			StagingMode:   true,
+			Environment:   entity.EnvironmentDev,
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, customAdapter)

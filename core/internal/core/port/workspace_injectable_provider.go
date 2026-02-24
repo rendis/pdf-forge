@@ -108,6 +108,9 @@ type ResolveInjectablesRequest struct {
 	// TemplateID is the ID of the template being rendered.
 	TemplateID string
 
+	// Environment is the render environment from the X-Environment header ("dev" or "prod").
+	Environment entity.Environment
+
 	// Codes is the list of injectable codes to resolve.
 	// Only codes belonging to this provider are included.
 	Codes []string

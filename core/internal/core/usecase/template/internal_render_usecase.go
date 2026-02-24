@@ -3,6 +3,7 @@ package template
 import (
 	"context"
 
+	"github.com/rendis/pdf-forge/core/internal/core/entity"
 	"github.com/rendis/pdf-forge/core/internal/core/port"
 )
 
@@ -14,7 +15,7 @@ type InternalRenderCommand struct {
 	Injectables      map[string]any
 	Headers          map[string]string
 	Payload          any
-	StagingMode      bool // When true, prefer STAGING versions over PUBLISHED
+	Environment      entity.Environment // Render environment (dev or prod)
 }
 
 // RenderByVersionIDCommand contains the parameters for rendering a specific template version by ID.
@@ -25,6 +26,7 @@ type RenderByVersionIDCommand struct {
 	Injectables   map[string]any
 	Headers       map[string]string
 	Payload       any
+	Environment   entity.Environment // Render environment (dev or prod)
 }
 
 // InternalRenderUseCase defines the input port for internal template rendering by codes.

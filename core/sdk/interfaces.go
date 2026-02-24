@@ -20,15 +20,24 @@ type RenderAuthenticator = port.RenderAuthenticator
 type TemplateResolver = port.TemplateResolver
 
 // TemplateResolverRequest provides context for custom template resolution.
+// Contains the original render request data including Environment (derived from
+// the X-Environment header) to help decide which version status to search for.
+// Use req.Environment.IsDev() to check for staging mode.
 type TemplateResolverRequest = port.TemplateResolverRequest
 
 // TemplateVersionSearchAdapter is the read-only adapter passed to custom resolvers.
 type TemplateVersionSearchAdapter = port.TemplateVersionSearchAdapter
 
-// TemplateVersionSearchParams are filters for searching candidate versions.
+// TemplateVersionSearchParams are filters for searching candidate template versions.
+// Staging takes precedence over Published when true (Published is ignored).
+// See port.TemplateVersionSearchParams for the full behavior table.
+//
+// Note: TemplateResolverRequest now provides an Environment field instead of StagingMode.
+// Use req.Environment.IsDev() to decide whether to set Staging=true in search params.
 type TemplateVersionSearchParams = port.TemplateVersionSearchParams
 
-// TemplateVersionSearchItem is one search result item.
+// TemplateVersionSearchItem is one search result from SearchTemplateVersions.
+// The VersionID can be returned directly from Resolve() to select this version.
 type TemplateVersionSearchItem = port.TemplateVersionSearchItem
 
 // TableSchemaProvider is an optional interface that table injectors can implement
