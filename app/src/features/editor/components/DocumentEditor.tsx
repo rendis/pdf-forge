@@ -4,6 +4,14 @@ import { TextStyle, FontFamily, FontSize } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import TextAlign from '@tiptap/extension-text-align'
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Download } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import {
   DndContext,
   DragOverlay,
@@ -77,6 +85,8 @@ export function DocumentEditor({
   templateId,
   versionId,
 }: DocumentEditorProps) {
+  const { t } = useTranslation()
+
   // Get page config from store (for visual width and margins)
   const { pageSize, margins } = usePaginationStore()
 
@@ -530,6 +540,16 @@ export function DocumentEditor({
                 <div className="flex-1" />
               )}
               <div className="flex items-center gap-1 pr-2 shrink-0">
+                {!editable && onExport && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onExport}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('editor.toolbar.exportDocument')}</TooltipContent>
+                  </Tooltip>
+                )}
                 {!editable && templateId && versionId && (
                   <PreviewButton templateId={templateId} versionId={versionId} editor={editor} />
                 )}
