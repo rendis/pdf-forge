@@ -79,6 +79,12 @@ type TemplateVersionUseCase interface {
 	// CancelSchedule cancels any scheduled publication or archival.
 	CancelSchedule(ctx context.Context, versionID string) error
 
+	// StageVersion promotes a draft version to staging (auto-unstages current staging if exists).
+	StageVersion(ctx context.Context, id string) error
+
+	// UnstageVersion reverts a staging version back to draft.
+	UnstageVersion(ctx context.Context, id string) error
+
 	// ArchiveVersion manually archives a published version.
 	ArchiveVersion(ctx context.Context, id string, userID string) error
 

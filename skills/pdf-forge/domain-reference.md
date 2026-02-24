@@ -6,7 +6,7 @@
 Tenant (jurisdiction/country)
   └── Workspace (operational unit)
         ├── Templates
-        │     └── Versions (DRAFT → PUBLISHED → ARCHIVED)
+        │     └── Versions (DRAFT → [STAGING] → PUBLISHED → ARCHIVED)
         ├── Injectables (variables)
         ├── Folders (hierarchical organization)
         └── Tags (cross-cutting labels)
@@ -32,19 +32,26 @@ Business unit or jurisdiction (e.g., "Chile Operations", "Mexico Operations").
 ## Template Version States
 
 ```plaintext
-DRAFT ──────────────────────────→ PUBLISHED ──→ ARCHIVED
-   │                                   │
-   └──→ SCHEDULED ──(at scheduled time)┘
-            │
-            └──→ DRAFT (cancel) or ARCHIVED (cancel+archive)
+DRAFT ──→ STAGING ──→ PUBLISHED ──→ ARCHIVED
+  │          │              │
+  │          └──→ DRAFT     │    (unstage)
+  │                         │
+  └──→ SCHEDULED ──(time)───┘
+  │        │
+  │        └──→ DRAFT              (cancel)
+  │
+  └────────────→ PUBLISHED         (direct publish)
 ```
 
-| State     | Can Edit | Can Render | Notes                                  |
-| --------- | -------- | ---------- | -------------------------------------- |
-| DRAFT     | Yes      | No         | Work in progress                       |
-| SCHEDULED | No       | No         | Waiting for scheduled publish time     |
-| PUBLISHED | No       | Yes        | Active version (only ONE per template) |
-| ARCHIVED  | No       | No         | Historical, read-only                  |
+| State     | Can Edit | Can Render                        | Notes                                  |
+| --------- | -------- | --------------------------------- | -------------------------------------- |
+| DRAFT     | Yes      | No                                | Work in progress                       |
+| STAGING   | Yes      | Yes (with `X-Render-Draft: true`) | Pre-publish testing (ONE per template) |
+| SCHEDULED | No       | No                                | Waiting for scheduled publish time     |
+| PUBLISHED | No       | Yes                               | Active version (ONE per template)      |
+| ARCHIVED  | No       | No                                | Historical, read-only                  |
+
+**STAGING**: Gated by `render.allow_staging: true` config + `X-Render-Draft: true` header. Resolver searches STAGING first, falls back to PUBLISHED. Auto-unstages previous staging version when a new one is staged.
 
 ## Roles & Permissions
 
@@ -115,6 +122,7 @@ DRAFT ────────────────────────�
 | `X-Tenant-Code`    | `.../render`                 | Tenant code (render routes)              |
 | `X-Workspace-Code` | `.../render`                 | Workspace code (render routes)           |
 | `X-API-Key`        | `/internal/*`                | Service-to-service API key               |
+| `X-Render-Draft`   | Optional                     | `true` to render STAGING versions        |
 | `X-Operation-ID`   | Optional                     | Traceability (auto-generated if omitted) |
 
 ## API Routes

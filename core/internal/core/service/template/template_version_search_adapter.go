@@ -41,6 +41,7 @@ type searchContext struct {
 	tenant        *entity.Tenant
 	docType       *entity.DocumentType
 	wantPublished bool
+	wantStaging   bool
 }
 
 // SearchTemplateVersions returns deterministic candidates by tenant/workspace/document type.
@@ -107,7 +108,12 @@ func (a *TemplateVersionSearchAdapter) resolveSearchContext(ctx context.Context,
 		wantPublished = *params.Published
 	}
 
-	return &searchContext{tenant: tenant, docType: docType, wantPublished: wantPublished}, nil
+	wantStaging := false
+	if params.Staging != nil {
+		wantStaging = *params.Staging
+	}
+
+	return &searchContext{tenant: tenant, docType: docType, wantPublished: wantPublished, wantStaging: wantStaging}, nil
 }
 
 // collectWorkspaceVersions finds template versions for a single workspace code.
@@ -134,6 +140,9 @@ func (a *TemplateVersionSearchAdapter) collectWorkspaceVersions(
 		return nil, nil
 	}
 
+	if sc.wantStaging {
+		return a.collectStagingVersion(ctx, sc.tenant.Code, workspace.Code, tmpl.ID)
+	}
 	if sc.wantPublished {
 		return a.collectPublishedVersion(ctx, sc.tenant.Code, workspace.Code, tmpl.ID)
 	}
@@ -156,6 +165,28 @@ func (a *TemplateVersionSearchAdapter) collectPublishedVersion(
 
 	return []port.TemplateVersionSearchItem{{
 		Published:     true,
+		TenantCode:    tenantCode,
+		WorkspaceCode: workspaceCode,
+		VersionID:     version.ID,
+	}}, nil
+}
+
+// collectStagingVersion returns the single staging version for a template, if any.
+func (a *TemplateVersionSearchAdapter) collectStagingVersion(
+	ctx context.Context,
+	tenantCode, workspaceCode string,
+	templateID string,
+) ([]port.TemplateVersionSearchItem, error) {
+	version, err := a.versionRepo.FindStagingByTemplateIDWithDetails(ctx, templateID)
+	if err != nil {
+		if errors.Is(err, entity.ErrVersionNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("finding staging version: %w", err)
+	}
+
+	return []port.TemplateVersionSearchItem{{
+		Published:     false,
 		TenantCode:    tenantCode,
 		WorkspaceCode: workspaceCode,
 		VersionID:     version.ID,

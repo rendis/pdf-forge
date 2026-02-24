@@ -364,6 +364,248 @@ func TestInternalRenderService_CustomResolverNilUsesCachedFallbackFlow(t *testin
 	assert.Equal(t, 0, cache.setCalls)
 }
 
+// --- Staging Mode Tests ---
+
+func TestInternalRenderService_StagingMode_SkipsCache(t *testing.T) {
+	cachedContent := mustBuildPortableDocWithTitle(t, "cached-version")
+	freshContent := mustBuildPortableDocWithTitle(t, "fresh-staging")
+
+	cache := &templateCacheStub{
+		items: map[string]*entity.TemplateVersionWithDetails{
+			"TENANT_A:WS_1:CONTRACT": {
+				TemplateVersion: entity.TemplateVersion{
+					ID: "v-cached", Status: entity.VersionStatusPublished,
+					ContentStructure: cachedContent,
+				},
+			},
+		},
+	}
+
+	defaultResolver := &templateResolverStub{versionID: strPtr("v-staging")}
+	renderer := &pdfRendererStub{}
+
+	service := &InternalRenderService{
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			byID: map[string]*entity.TemplateVersionWithDetails{
+				"v-staging": {
+					TemplateVersion: entity.TemplateVersion{
+						ID: "v-staging", TemplateID: "tpl-1",
+						Status:           entity.VersionStatusStaging,
+						ContentStructure: freshContent,
+					},
+				},
+			},
+		},
+		pdfRenderer:     renderer,
+		templateCache:   cache,
+		defaultResolver: defaultResolver,
+		searchAdapter:   &stubTemplateVersionSearchAdapter{},
+	}
+
+	result, err := service.RenderByDocumentType(context.Background(), templateuc.InternalRenderCommand{
+		TenantCode:       "TENANT_A",
+		WorkspaceCode:    "WS_1",
+		TemplateTypeCode: "CONTRACT",
+		StagingMode:      true,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, 0, cache.getCalls, "cache should NOT be consulted in staging mode")
+	assert.Equal(t, 0, cache.setCalls, "cache should NOT be updated in staging mode")
+	assert.Equal(t, "fresh-staging", renderer.lastTitle)
+}
+
+func TestInternalRenderService_StagingMode_AcceptsStagingVersion(t *testing.T) {
+	content := mustBuildPortableDoc(t)
+	defaultResolver := &templateResolverStub{versionID: strPtr("v-staging")}
+	renderer := &pdfRendererStub{}
+
+	service := &InternalRenderService{
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			byID: map[string]*entity.TemplateVersionWithDetails{
+				"v-staging": {
+					TemplateVersion: entity.TemplateVersion{
+						ID: "v-staging", TemplateID: "tpl-1",
+						Status:           entity.VersionStatusStaging,
+						ContentStructure: content,
+					},
+				},
+			},
+		},
+		pdfRenderer:     renderer,
+		defaultResolver: defaultResolver,
+		searchAdapter:   &stubTemplateVersionSearchAdapter{},
+	}
+
+	result, err := service.RenderByDocumentType(context.Background(), templateuc.InternalRenderCommand{
+		TenantCode:       "TENANT_A",
+		WorkspaceCode:    "WS_1",
+		TemplateTypeCode: "CONTRACT",
+		StagingMode:      true,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, 1, renderer.calls)
+}
+
+func TestInternalRenderService_NonStagingMode_RejectsStagingVersion(t *testing.T) {
+	content := mustBuildPortableDoc(t)
+	defaultResolver := &templateResolverStub{versionID: strPtr("v-staging")}
+
+	service := &InternalRenderService{
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			byID: map[string]*entity.TemplateVersionWithDetails{
+				"v-staging": {
+					TemplateVersion: entity.TemplateVersion{
+						ID: "v-staging", TemplateID: "tpl-1",
+						Status:           entity.VersionStatusStaging,
+						ContentStructure: content,
+					},
+				},
+			},
+		},
+		pdfRenderer:     &pdfRendererStub{},
+		defaultResolver: defaultResolver,
+		searchAdapter:   &stubTemplateVersionSearchAdapter{},
+	}
+
+	result, err := service.RenderByDocumentType(context.Background(), templateuc.InternalRenderCommand{
+		TenantCode:       "TENANT_A",
+		WorkspaceCode:    "WS_1",
+		TemplateTypeCode: "CONTRACT",
+		StagingMode:      false, // NOT staging mode
+	})
+	require.ErrorIs(t, err, entity.ErrTemplateNotResolved)
+	assert.Nil(t, result)
+}
+
+func TestInternalRenderService_StagingMode_RejectsDraftVersion(t *testing.T) {
+	content := mustBuildPortableDoc(t)
+	defaultResolver := &templateResolverStub{versionID: strPtr("v-draft")}
+
+	service := &InternalRenderService{
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			byID: map[string]*entity.TemplateVersionWithDetails{
+				"v-draft": {
+					TemplateVersion: entity.TemplateVersion{
+						ID: "v-draft", TemplateID: "tpl-1",
+						Status:           entity.VersionStatusDraft,
+						ContentStructure: content,
+					},
+				},
+			},
+		},
+		pdfRenderer:     &pdfRendererStub{},
+		defaultResolver: defaultResolver,
+		searchAdapter:   &stubTemplateVersionSearchAdapter{},
+	}
+
+	result, err := service.RenderByDocumentType(context.Background(), templateuc.InternalRenderCommand{
+		TenantCode:       "TENANT_A",
+		WorkspaceCode:    "WS_1",
+		TemplateTypeCode: "CONTRACT",
+		StagingMode:      true, // staging mode but version is DRAFT, not STAGING
+	})
+	require.ErrorIs(t, err, entity.ErrTemplateNotResolved)
+	assert.Nil(t, result)
+}
+
+func TestInternalRenderService_CustomResolverAcceptsStagingInStagingMode(t *testing.T) {
+	content := mustBuildPortableDoc(t)
+	customResolver := &templateResolverStub{versionID: strPtr("v-staging")}
+	renderer := &pdfRendererStub{}
+
+	service := &InternalRenderService{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode: map[string]*entity.Tenant{"TENANT_A": {ID: "tenant-1", Code: "TENANT_A"}},
+		},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{
+				"tenant-1|CONTRACT": {ID: "doc-1", Code: "CONTRACT"},
+			},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{
+			byID: map[string]*entity.Template{
+				"tpl-1": {ID: "tpl-1", DocumentTypeID: strPtr("doc-1")},
+			},
+		},
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			byID: map[string]*entity.TemplateVersionWithDetails{
+				"v-staging": {
+					TemplateVersion: entity.TemplateVersion{
+						ID: "v-staging", TemplateID: "tpl-1",
+						Status:           entity.VersionStatusStaging,
+						ContentStructure: content,
+					},
+				},
+			},
+		},
+		pdfRenderer:     renderer,
+		customResolver:  customResolver,
+		defaultResolver: &templateResolverStub{},
+		searchAdapter:   &stubTemplateVersionSearchAdapter{},
+	}
+
+	result, err := service.RenderByDocumentType(context.Background(), templateuc.InternalRenderCommand{
+		TenantCode:       "TENANT_A",
+		WorkspaceCode:    "WS_1",
+		TemplateTypeCode: "CONTRACT",
+		StagingMode:      true,
+		Injectables:      map[string]any{},
+		Payload:          map[string]any{},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, 1, renderer.calls)
+}
+
+func TestInternalRenderService_CustomResolverRejectsStagingWithoutStagingMode(t *testing.T) {
+	content := mustBuildPortableDoc(t)
+	customResolver := &templateResolverStub{versionID: strPtr("v-staging")}
+
+	service := &InternalRenderService{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode: map[string]*entity.Tenant{"TENANT_A": {ID: "tenant-1", Code: "TENANT_A"}},
+		},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{
+				"tenant-1|CONTRACT": {ID: "doc-1", Code: "CONTRACT"},
+			},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{
+			byID: map[string]*entity.Template{
+				"tpl-1": {ID: "tpl-1", DocumentTypeID: strPtr("doc-1")},
+			},
+		},
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			byID: map[string]*entity.TemplateVersionWithDetails{
+				"v-staging": {
+					TemplateVersion: entity.TemplateVersion{
+						ID: "v-staging", TemplateID: "tpl-1",
+						Status:           entity.VersionStatusStaging,
+						ContentStructure: content,
+					},
+				},
+			},
+		},
+		pdfRenderer:     &pdfRendererStub{},
+		customResolver:  customResolver,
+		defaultResolver: &templateResolverStub{},
+		searchAdapter:   &stubTemplateVersionSearchAdapter{},
+	}
+
+	result, err := service.RenderByDocumentType(context.Background(), templateuc.InternalRenderCommand{
+		TenantCode:       "TENANT_A",
+		WorkspaceCode:    "WS_1",
+		TemplateTypeCode: "CONTRACT",
+		StagingMode:      false, // NOT staging mode
+		Injectables:      map[string]any{},
+		Payload:          map[string]any{},
+	})
+	require.ErrorIs(t, err, entity.ErrTemplateNotResolved)
+	assert.Nil(t, result)
+}
+
 type templateResolverStub struct {
 	versionID *string
 	err       error

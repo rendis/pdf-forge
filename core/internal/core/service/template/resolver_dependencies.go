@@ -27,6 +27,7 @@ type templateResolverTemplateRepository interface {
 
 type templateResolverTemplateVersionRepository interface {
 	FindPublishedByTemplateIDWithDetails(ctx context.Context, templateID string) (*entity.TemplateVersionWithDetails, error)
+	FindStagingByTemplateIDWithDetails(ctx context.Context, templateID string) (*entity.TemplateVersionWithDetails, error)
 	FindByIDWithDetails(ctx context.Context, id string) (*entity.TemplateVersionWithDetails, error)
 	FindByTemplateID(ctx context.Context, templateID string) ([]*entity.TemplateVersion, error)
 }

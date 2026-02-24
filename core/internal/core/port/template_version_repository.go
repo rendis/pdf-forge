@@ -37,6 +37,12 @@ type TemplateVersionRepository interface {
 	// FindPublishedByTemplateIDWithDetails finds the published version with all details.
 	FindPublishedByTemplateIDWithDetails(ctx context.Context, templateID string) (*entity.TemplateVersionWithDetails, error)
 
+	// FindStagingByTemplateID finds the staging version for a template.
+	FindStagingByTemplateID(ctx context.Context, templateID string) (*entity.TemplateVersion, error)
+
+	// FindStagingByTemplateIDWithDetails finds the staging version with all details.
+	FindStagingByTemplateIDWithDetails(ctx context.Context, templateID string) (*entity.TemplateVersionWithDetails, error)
+
 	// FindScheduledToPublish finds all versions scheduled to publish before the given time.
 	FindScheduledToPublish(ctx context.Context, before time.Time) ([]*entity.TemplateVersion, error)
 

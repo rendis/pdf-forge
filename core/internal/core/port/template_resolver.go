@@ -10,6 +10,7 @@ type TemplateResolverRequest struct {
 	Headers       map[string]string
 	RawBody       []byte
 	Injectables   map[string]any
+	StagingMode   bool // When true, prefer STAGING versions over PUBLISHED
 }
 
 // TemplateResolver allows custom template version selection before default fallback.
@@ -32,6 +33,7 @@ type TemplateVersionSearchParams struct {
 	WorkspaceCodes []string
 	DocumentType   string
 	Published      *bool
+	Staging        *bool // When true, search for STAGING versions only
 }
 
 // TemplateVersionSearchItem is one candidate returned by SearchTemplateVersions.

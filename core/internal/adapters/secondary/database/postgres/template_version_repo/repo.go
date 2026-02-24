@@ -255,6 +255,47 @@ func (r *Repository) FindPublishedByTemplateIDWithDetails(ctx context.Context, t
 	return r.FindByIDWithDetails(ctx, version.ID)
 }
 
+// FindStagingByTemplateID finds the staging version for a template.
+func (r *Repository) FindStagingByTemplateID(ctx context.Context, templateID string) (*entity.TemplateVersion, error) {
+	version := &entity.TemplateVersion{}
+	err := r.pool.QueryRow(ctx, queryFindStagingByTemplateID, templateID).Scan(
+		&version.ID,
+		&version.TemplateID,
+		&version.VersionNumber,
+		&version.Name,
+		&version.Description,
+		&version.ContentStructure,
+		&version.Status,
+		&version.ScheduledPublishAt,
+		&version.ScheduledArchiveAt,
+		&version.PublishedAt,
+		&version.ArchivedAt,
+		&version.PublishedBy,
+		&version.ArchivedBy,
+		&version.CreatedBy,
+		&version.CreatedAt,
+		&version.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, entity.ErrVersionNotFound
+		}
+		return nil, fmt.Errorf("finding staging version for template %s: %w", templateID, err)
+	}
+
+	return version, nil
+}
+
+// FindStagingByTemplateIDWithDetails finds the staging version with all details.
+func (r *Repository) FindStagingByTemplateIDWithDetails(ctx context.Context, templateID string) (*entity.TemplateVersionWithDetails, error) {
+	version, err := r.FindStagingByTemplateID(ctx, templateID)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.FindByIDWithDetails(ctx, version.ID)
+}
+
 // FindScheduledToPublish finds all versions scheduled to publish before the given time.
 func (r *Repository) FindScheduledToPublish(ctx context.Context, before time.Time) ([]*entity.TemplateVersion, error) {
 	rows, err := r.pool.Query(ctx, queryFindScheduledToPublish, before)

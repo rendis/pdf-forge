@@ -168,6 +168,8 @@ var (
 	ErrVersionNameExists               = errors.New("version name already exists for this template")
 	ErrVersionAlreadyPublished         = errors.New("version is already published")
 	ErrVersionNotPublished             = errors.New("version is not published")
+	ErrVersionNotStaging               = errors.New("version is not in staging")
+	ErrCannotStage                     = errors.New("version cannot be staged, must be in DRAFT status")
 	ErrCannotEditPublished             = errors.New("cannot edit published version")
 	ErrCannotEditArchived              = errors.New("cannot edit archived version")
 	ErrCannotEditScheduled             = errors.New("cannot edit scheduled version")

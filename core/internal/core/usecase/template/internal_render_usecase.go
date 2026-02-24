@@ -14,6 +14,7 @@ type InternalRenderCommand struct {
 	Injectables      map[string]any
 	Headers          map[string]string
 	Payload          any
+	StagingMode      bool // When true, prefer STAGING versions over PUBLISHED
 }
 
 // RenderByVersionIDCommand contains the parameters for rendering a specific template version by ID.

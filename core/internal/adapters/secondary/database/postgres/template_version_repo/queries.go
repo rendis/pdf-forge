@@ -42,6 +42,13 @@ const (
 		FROM content.template_versions
 		WHERE template_id = $1 AND status = 'PUBLISHED'`
 
+	queryFindStagingByTemplateID = `
+		SELECT id, template_id, version_number, name, description, content_structure,
+			status, scheduled_publish_at, scheduled_archive_at, published_at, archived_at,
+			published_by, archived_by, created_by, created_at, updated_at
+		FROM content.template_versions
+		WHERE template_id = $1 AND status = 'STAGING'`
+
 	queryFindScheduledToPublish = `
 		SELECT id, template_id, version_number, name, description, content_structure,
 			status, scheduled_publish_at, scheduled_archive_at, published_at, archived_at,

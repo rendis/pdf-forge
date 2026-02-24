@@ -81,8 +81,8 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 		}
 	}
 
-	// Check cache first
-	if s.templateCache != nil {
+	// Staging mode: skip cache entirely (cache stores PUBLISHED versions)
+	if !cmd.StagingMode && s.templateCache != nil {
 		if cached := s.templateCache.Get(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode); cached != nil {
 			slog.DebugContext(ctx, "template cache hit",
 				slog.String("tenant_code", cmd.TenantCode),
@@ -99,8 +99,8 @@ func (s *InternalRenderService) RenderByDocumentType(ctx context.Context, cmd te
 		return nil, err
 	}
 
-	// Store in cache
-	if s.templateCache != nil {
+	// Only cache published resolutions
+	if !cmd.StagingMode && s.templateCache != nil {
 		s.templateCache.Set(cmd.TenantCode, cmd.WorkspaceCode, cmd.TemplateTypeCode, version)
 	}
 
@@ -158,6 +158,7 @@ func (s *InternalRenderService) resolveWithDefaultResolver(
 		TenantCode:    cmd.TenantCode,
 		WorkspaceCode: cmd.WorkspaceCode,
 		DocumentType:  cmd.TemplateTypeCode,
+		StagingMode:   cmd.StagingMode,
 	}, s.searchAdapter)
 	if err != nil {
 		return nil, err
@@ -173,7 +174,7 @@ func (s *InternalRenderService) resolveWithDefaultResolver(
 		}
 		return nil, fmt.Errorf("finding version %s: %w", *versionID, err)
 	}
-	if !version.IsPublished() {
+	if !isRenderableVersion(version, cmd.StagingMode) {
 		return nil, entity.ErrTemplateNotResolved
 	}
 
@@ -192,38 +193,55 @@ func (s *InternalRenderService) validateCustomResolvedVersion(
 		}
 		return nil, fmt.Errorf("finding version %s: %w", versionID, err)
 	}
-	if !version.IsPublished() {
+	if !isRenderableVersion(version, cmd.StagingMode) {
 		return nil, entity.ErrTemplateNotResolved
 	}
 
+	if err := s.validateVersionOwnership(ctx, cmd, version); err != nil {
+		return nil, err
+	}
+
+	return version, nil
+}
+
+// isRenderableVersion checks if a version can be rendered: published always, staging only in staging mode.
+func isRenderableVersion(v *entity.TemplateVersionWithDetails, stagingMode bool) bool {
+	return v.IsPublished() || (stagingMode && v.IsStaging())
+}
+
+func (s *InternalRenderService) validateVersionOwnership(
+	ctx context.Context,
+	cmd templateuc.InternalRenderCommand,
+	version *entity.TemplateVersionWithDetails,
+) error {
 	tenant, err := s.tenantRepo.FindByCode(ctx, cmd.TenantCode)
 	if err != nil {
 		if errors.Is(err, entity.ErrTenantNotFound) {
-			return nil, entity.ErrTemplateNotResolved
+			return entity.ErrTemplateNotResolved
 		}
-		return nil, fmt.Errorf("finding tenant by code %q: %w", cmd.TenantCode, err)
+		return fmt.Errorf("finding tenant by code %q: %w", cmd.TenantCode, err)
 	}
 
 	docType, err := s.docTypeRepo.FindByCodeWithGlobalFallback(ctx, tenant.ID, cmd.TemplateTypeCode)
 	if err != nil {
 		if errors.Is(err, entity.ErrDocumentTypeNotFound) {
-			return nil, entity.ErrTemplateNotResolved
+			return entity.ErrTemplateNotResolved
 		}
-		return nil, fmt.Errorf("finding document type by code: %w", err)
+		return fmt.Errorf("finding document type by code: %w", err)
 	}
 
 	tmpl, err := s.templateRepo.FindByID(ctx, version.TemplateID)
 	if err != nil {
 		if errors.Is(err, entity.ErrTemplateNotFound) {
-			return nil, entity.ErrTemplateNotResolved
+			return entity.ErrTemplateNotResolved
 		}
-		return nil, fmt.Errorf("finding template %s: %w", version.TemplateID, err)
+		return fmt.Errorf("finding template %s: %w", version.TemplateID, err)
 	}
 	if tmpl.DocumentTypeID == nil || *tmpl.DocumentTypeID != docType.ID {
-		return nil, entity.ErrTemplateNotResolved
+		return entity.ErrTemplateNotResolved
 	}
 
-	return version, nil
+	return nil
 }
 
 // renderVersion parses the content structure and renders a PDF.

@@ -48,6 +48,8 @@ func (c *TemplateVersionController) RegisterRoutes(templates *gin.RouterGroup) {
 		versions.DELETE("/:versionId", middleware.RequireAdmin(), c.DeleteVersion)               // ADMIN+
 
 		// Lifecycle actions - ADMIN+
+		versions.POST("/:versionId/stage", middleware.RequireAdmin(), c.StageVersion)
+		versions.POST("/:versionId/unstage", middleware.RequireAdmin(), c.UnstageVersion)
 		versions.POST("/:versionId/publish", middleware.RequireAdmin(), c.PublishVersion)
 		versions.POST("/:versionId/archive", middleware.RequireAdmin(), c.ArchiveVersion)
 		versions.POST("/:versionId/schedule-publish", middleware.RequireAdmin(), c.SchedulePublish)
@@ -236,6 +238,52 @@ func (c *TemplateVersionController) DeleteVersion(ctx *gin.Context) {
 }
 
 // --- Lifecycle Handlers ---
+
+// StageVersion promotes a draft version to staging.
+// @Summary Stage template version
+// @Tags Template Versions
+// @Accept json
+// @Produce json
+// @Param X-Workspace-ID header string true "Workspace ID"
+// @Param templateId path string true "Template ID"
+// @Param versionId path string true "Version ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.ErrorResponse
+// @Router /api/v1/content/templates/{templateId}/versions/{versionId}/stage [post]
+func (c *TemplateVersionController) StageVersion(ctx *gin.Context) {
+	versionID := ctx.Param("versionId")
+
+	if err := c.versionUC.StageVersion(ctx.Request.Context(), versionID); err != nil {
+		HandleError(ctx, err)
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
+
+// UnstageVersion reverts a staging version back to draft.
+// @Summary Unstage template version
+// @Tags Template Versions
+// @Accept json
+// @Produce json
+// @Param X-Workspace-ID header string true "Workspace ID"
+// @Param templateId path string true "Template ID"
+// @Param versionId path string true "Version ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.ErrorResponse
+// @Router /api/v1/content/templates/{templateId}/versions/{versionId}/unstage [post]
+func (c *TemplateVersionController) UnstageVersion(ctx *gin.Context) {
+	versionID := ctx.Param("versionId")
+
+	if err := c.versionUC.UnstageVersion(ctx.Request.Context(), versionID); err != nil {
+		HandleError(ctx, err)
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
 
 // PublishVersion publishes a version.
 // @Summary Publish template version

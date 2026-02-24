@@ -227,7 +227,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		workspaceSvc, folderSvc, tagSvc, workspaceMemberSvc, workspaceInjectableSvc, injectableMapper,
 	)
 	injectableCtrl := controller.NewContentInjectableController(injectableSvc, injectableMapper)
-	renderCtrl := controller.NewRenderController(templateVersionSvc, internalRenderSvc, pdfRenderer)
+	renderCtrl := controller.NewRenderController(templateVersionSvc, internalRenderSvc, pdfRenderer, cfg.Render.AllowStaging)
 	templateVersionCtrl := controller.NewTemplateVersionController(
 		templateVersionSvc, templateVersionMapper, templateMapper, renderCtrl,
 	)

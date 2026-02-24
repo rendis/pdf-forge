@@ -23,6 +23,7 @@ type RenderController struct {
 	versionUC            templateuc.TemplateVersionUseCase
 	documentTypeRenderUC templateuc.InternalRenderUseCase
 	pdfRenderer          port.PDFRenderer
+	allowStaging         bool
 }
 
 // NewRenderController creates a new render controller.
@@ -30,11 +31,13 @@ func NewRenderController(
 	versionUC templateuc.TemplateVersionUseCase,
 	documentTypeRenderUC templateuc.InternalRenderUseCase,
 	pdfRenderer port.PDFRenderer,
+	allowStaging bool,
 ) *RenderController {
 	return &RenderController{
 		versionUC:            versionUC,
 		documentTypeRenderUC: documentTypeRenderUC,
 		pdfRenderer:          pdfRenderer,
+		allowStaging:         allowStaging,
 	}
 }
 
@@ -174,32 +177,20 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		req.Injectables = make(map[string]any)
 	}
 
-	// Extract headers for injector context
-	headers := make(map[string]string, len(ctx.Request.Header))
-	for k, v := range ctx.Request.Header {
-		if len(v) > 0 {
-			headers[k] = v[0]
-		}
-	}
+	stagingMode := c.allowStaging && strings.EqualFold(strings.TrimSpace(ctx.GetHeader("X-Render-Draft")), "true")
 
-	// Resolve and render
 	result, err := c.documentTypeRenderUC.RenderByDocumentType(ctx.Request.Context(), templateuc.InternalRenderCommand{
 		TenantCode:       tenantCode,
 		WorkspaceCode:    workspaceCode,
 		TemplateTypeCode: documentTypeCode,
 		Injectables:      req.Injectables,
-		Headers:          headers,
+		Headers:          extractHeaders(ctx),
 		Payload:          req.Injectables,
+		StagingMode:      stagingMode,
 	})
 	if err != nil {
 		HandleError(ctx, err)
 		return
-	}
-
-	// Determine disposition
-	disposition := ctx.DefaultQuery("disposition", "inline")
-	if disposition != "attachment" {
-		disposition = "inline"
 	}
 
 	slog.InfoContext(ctx.Request.Context(), "document type render completed",
@@ -207,14 +198,10 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		slog.String("workspace_code", workspaceCode),
 		slog.String("document_type_code", documentTypeCode),
 		slog.Int("page_count", result.PageCount),
+		slog.Bool("staging_mode", stagingMode),
 	)
 
-	// Set response headers
-	ctx.Header("Content-Type", "application/pdf")
-	ctx.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, result.Filename))
-	ctx.Header("Content-Length", fmt.Sprintf("%d", len(result.PDF)))
-
-	ctx.Data(http.StatusOK, "application/pdf", result.PDF)
+	sendPDFResponse(ctx, result)
 }
 
 // RenderByVersionID renders a PDF for a specific template version by ID.
@@ -260,32 +247,17 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 		req.Injectables = make(map[string]any)
 	}
 
-	// Extract headers for injector context
-	headers := make(map[string]string, len(ctx.Request.Header))
-	for k, v := range ctx.Request.Header {
-		if len(v) > 0 {
-			headers[k] = v[0]
-		}
-	}
-
-	// Render by version ID
 	result, err := c.documentTypeRenderUC.RenderByVersionID(ctx.Request.Context(), templateuc.RenderByVersionIDCommand{
 		VersionID:     versionID,
 		TenantCode:    tenantCode,
 		WorkspaceCode: workspaceCode,
 		Injectables:   req.Injectables,
-		Headers:       headers,
+		Headers:       extractHeaders(ctx),
 		Payload:       req.Injectables,
 	})
 	if err != nil {
 		HandleError(ctx, err)
 		return
-	}
-
-	// Determine disposition
-	disposition := ctx.DefaultQuery("disposition", "inline")
-	if disposition != "attachment" {
-		disposition = "inline"
 	}
 
 	slog.InfoContext(ctx.Request.Context(), "version render completed",
@@ -295,10 +267,27 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 		slog.Int("page_count", result.PageCount),
 	)
 
-	// Set response headers
+	sendPDFResponse(ctx, result)
+}
+
+func extractHeaders(ctx *gin.Context) map[string]string {
+	headers := make(map[string]string, len(ctx.Request.Header))
+	for k, v := range ctx.Request.Header {
+		if len(v) > 0 {
+			headers[k] = v[0]
+		}
+	}
+	return headers
+}
+
+func sendPDFResponse(ctx *gin.Context, result *port.RenderPreviewResult) {
+	disposition := ctx.DefaultQuery("disposition", "inline")
+	if disposition != "attachment" {
+		disposition = "inline"
+	}
+
 	ctx.Header("Content-Type", "application/pdf")
 	ctx.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, result.Filename))
 	ctx.Header("Content-Length", fmt.Sprintf("%d", len(result.PDF)))
-
 	ctx.Data(http.StatusOK, "application/pdf", result.PDF)
 }

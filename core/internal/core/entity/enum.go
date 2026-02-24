@@ -250,6 +250,7 @@ type VersionStatus string
 
 const (
 	VersionStatusDraft     VersionStatus = "DRAFT"
+	VersionStatusStaging   VersionStatus = "STAGING"
 	VersionStatusScheduled VersionStatus = "SCHEDULED"
 	VersionStatusPublished VersionStatus = "PUBLISHED"
 	VersionStatusArchived  VersionStatus = "ARCHIVED"
@@ -258,7 +259,7 @@ const (
 // IsValid checks if the version status is valid.
 func (v VersionStatus) IsValid() bool {
 	switch v {
-	case VersionStatusDraft, VersionStatusScheduled, VersionStatusPublished, VersionStatusArchived:
+	case VersionStatusDraft, VersionStatusStaging, VersionStatusScheduled, VersionStatusPublished, VersionStatusArchived:
 		return true
 	}
 	return false
@@ -273,7 +274,9 @@ func (v VersionStatus) String() string {
 func (v VersionStatus) CanTransitionTo(target VersionStatus) bool {
 	switch v {
 	case VersionStatusDraft:
-		return target == VersionStatusScheduled || target == VersionStatusPublished
+		return target == VersionStatusStaging || target == VersionStatusScheduled || target == VersionStatusPublished
+	case VersionStatusStaging:
+		return target == VersionStatusDraft || target == VersionStatusPublished
 	case VersionStatusScheduled:
 		return target == VersionStatusDraft || target == VersionStatusPublished
 	case VersionStatusPublished:

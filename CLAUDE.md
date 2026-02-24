@@ -20,7 +20,7 @@ Fork → customize `core/extensions/` → `docker compose up` → done.
 
 **Stack**: Go 1.25 + PostgreSQL 16 + Typst + React 19 (embedded SPA via go:embed)
 
-**Key terms**: Tenant → Workspace → Template → Version (DRAFT→PUBLISHED→ARCHIVED). See [core/docs/glossary.md](core/docs/glossary.md).
+**Key terms**: Tenant → Workspace → Template → Version (DRAFT→[STAGING]→PUBLISHED→ARCHIVED). See [core/docs/glossary.md](core/docs/glossary.md).
 
 **Non-Goals**: NOT a WYSIWYG editor, Word generator, CMS, signature platform, or reporting tool.
 
@@ -180,7 +180,7 @@ Frontend embedded in Go binary via `go:embed`. Served from same port as API.
 
 **Headers (Panel)**: `X-Tenant-ID`, `X-Workspace-ID`, `Authorization` (Bearer JWT)
 
-**Headers (Render)**: `X-Tenant-Code`, `X-Workspace-Code`, `Authorization` (Bearer JWT)
+**Headers (Render)**: `X-Tenant-Code`, `X-Workspace-Code`, `Authorization` (Bearer JWT), `X-Render-Draft` (optional, `true` to render STAGING versions)
 
 ## RBAC
 

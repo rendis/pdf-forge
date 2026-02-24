@@ -18,9 +18,11 @@ A document blueprint within a workspace. Linked to a Document Type. Contains one
 
 ### Template Version
 
-Versioned snapshot of a template's content. Lifecycle: DRAFT → SCHEDULED → PUBLISHED → ARCHIVED. Only DRAFT versions can be edited. Contains a PortableDoc as its content structure.
+Versioned snapshot of a template's content. Lifecycle: DRAFT → STAGING → PUBLISHED → ARCHIVED (STAGING is optional). DRAFT and STAGING versions can be edited. Contains a PortableDoc as its content structure.
 
-**Lifecycle methods**: `CanEdit()`, `CanPublish()`, `CanArchive()`, `CanSchedulePublish()`, `Publish(userID)`, `Archive(userID)`, `SchedulePublish(time)`, `CancelSchedule()`.
+**STAGING**: Optional pre-publish state for testing via render API without affecting production. Only one STAGING version per template (DB-enforced). Enabled via `render.allow_staging: true` + `X-Render-Draft: true` header.
+
+**Lifecycle methods**: `CanEdit()`, `CanPublish()`, `CanStage()`, `CanArchive()`, `CanSchedulePublish()`, `Publish(userID)`, `Archive(userID)`, `Stage()`, `Unstage()`, `SchedulePublish(time)`, `CancelSchedule()`.
 
 ### Document Type
 
@@ -78,6 +80,7 @@ type TemplateResolverRequest struct {
     TenantCode    string
     WorkspaceCode string
     DocumentType  string
+    StagingMode   bool
     Headers       map[string]string
     RawBody       []byte
     Injectables   map[string]any

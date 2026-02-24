@@ -304,6 +304,53 @@ func (s *TemplateVersionService) CancelSchedule(ctx context.Context, versionID s
 	return nil
 }
 
+// StageVersion promotes a draft version to staging (auto-unstages current staging if exists).
+func (s *TemplateVersionService) StageVersion(ctx context.Context, id string) error {
+	version, err := s.versionRepo.FindByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("finding version: %w", err)
+	}
+
+	if err := version.CanStage(); err != nil {
+		return err
+	}
+
+	if err := s.unstageCurrentStaging(ctx, version.TemplateID); err != nil {
+		return err
+	}
+
+	version.Stage()
+	if err := s.versionRepo.Update(ctx, version); err != nil {
+		return fmt.Errorf("staging version: %w", err)
+	}
+
+	slog.InfoContext(ctx, "template version staged",
+		slog.String("version_id", id),
+		slog.String("template_id", version.TemplateID),
+	)
+	return nil
+}
+
+// UnstageVersion reverts a staging version back to draft.
+func (s *TemplateVersionService) UnstageVersion(ctx context.Context, id string) error {
+	version, err := s.versionRepo.FindByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("finding version: %w", err)
+	}
+
+	if !version.IsStaging() {
+		return entity.ErrVersionNotStaging
+	}
+
+	version.Unstage()
+	if err := s.versionRepo.Update(ctx, version); err != nil {
+		return fmt.Errorf("unstaging version: %w", err)
+	}
+
+	slog.InfoContext(ctx, "template version unstaged", slog.String("version_id", id))
+	return nil
+}
+
 // ArchiveVersion manually archives a published version.
 func (s *TemplateVersionService) ArchiveVersion(ctx context.Context, id string, userID string) error {
 	version, err := s.versionRepo.FindByID(ctx, id)
@@ -331,7 +378,7 @@ func (s *TemplateVersionService) DeleteVersion(ctx context.Context, id string) e
 		return fmt.Errorf("finding version: %w", err)
 	}
 
-	if !version.IsDraft() && !version.IsScheduled() {
+	if !version.IsDraft() && !version.IsScheduled() && !version.IsStaging() {
 		return entity.ErrCannotEditPublished
 	}
 
@@ -548,6 +595,28 @@ func (s *TemplateVersionService) replaceInjectables(ctx context.Context, version
 	slog.InfoContext(ctx, "injectables extracted from content",
 		slog.String("version_id", versionID),
 		slog.Int("count", len(injectables)),
+	)
+
+	return nil
+}
+
+// unstageCurrentStaging unstages the currently staging version if one exists.
+func (s *TemplateVersionService) unstageCurrentStaging(ctx context.Context, templateID string) error {
+	currentStaging, err := s.versionRepo.FindStagingByTemplateID(ctx, templateID)
+	if err != nil {
+		return nil //nolint:nilerr // Not finding a staging version is not an error
+	}
+	if currentStaging == nil {
+		return nil
+	}
+
+	currentStaging.Unstage()
+	if err := s.versionRepo.Update(ctx, currentStaging); err != nil {
+		return fmt.Errorf("unstaging current version: %w", err)
+	}
+
+	slog.InfoContext(ctx, "previous staging version unstaged",
+		slog.String("unstaged_version_id", currentStaging.ID),
 	)
 
 	return nil

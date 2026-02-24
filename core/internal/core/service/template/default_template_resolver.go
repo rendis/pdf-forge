@@ -32,7 +32,6 @@ func (r *DefaultTemplateResolver) Resolve(
 		return nil, fmt.Errorf("template resolver request is nil")
 	}
 
-	published := true
 	fallbacks := []struct {
 		tenantCode     string
 		workspaceCodes []string
@@ -44,35 +43,70 @@ func (r *DefaultTemplateResolver) Resolve(
 	}
 
 	for _, step := range fallbacks {
-		items, err := adapter.SearchTemplateVersions(ctx, port.TemplateVersionSearchParams{
-			TenantCode:     step.tenantCode,
-			WorkspaceCodes: step.workspaceCodes,
-			DocumentType:   req.DocumentType,
-			Published:      &published,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("default template resolution failed at stage %s: %w", step.stage, err)
+		if vID, err := r.resolveAtStage(ctx, req, adapter, step.tenantCode, step.workspaceCodes, step.stage); err != nil {
+			return nil, err
+		} else if vID != nil {
+			return vID, nil
 		}
-		if len(items) == 0 {
-			slog.DebugContext(ctx, "default template resolver stage miss",
-				"stage", step.stage,
-				"tenantCode", step.tenantCode,
-				"workspaceCode", step.workspaceCodes[0],
-				"documentType", req.DocumentType,
-			)
-			continue
-		}
+	}
 
+	return nil, entity.ErrTemplateNotResolved
+}
+
+func (r *DefaultTemplateResolver) resolveAtStage(
+	ctx context.Context,
+	req *port.TemplateResolverRequest,
+	adapter port.TemplateVersionSearchAdapter,
+	tenantCode string, workspaceCodes []string, stage string,
+) (*string, error) {
+	// In staging mode: try staging version first
+	if req.StagingMode {
+		staging := true
+		if vID, err := r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, &staging, nil, stage+" (staging)"); err != nil {
+			return nil, err
+		} else if vID != nil {
+			return vID, nil
+		}
+	}
+
+	// Published lookup (existing behavior)
+	published := true
+	return r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, nil, &published, stage)
+}
+
+func (r *DefaultTemplateResolver) searchVersion(
+	ctx context.Context,
+	adapter port.TemplateVersionSearchAdapter,
+	tenantCode string, workspaceCodes []string, documentType string,
+	staging, published *bool, stage string,
+) (*string, error) {
+	items, err := adapter.SearchTemplateVersions(ctx, port.TemplateVersionSearchParams{
+		TenantCode:     tenantCode,
+		WorkspaceCodes: workspaceCodes,
+		DocumentType:   documentType,
+		Published:      published,
+		Staging:        staging,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("default template resolution failed at stage %s: %w", stage, err)
+	}
+	if len(items) > 0 {
 		versionID := items[0].VersionID
 		slog.InfoContext(ctx, "default template resolver hit",
-			"stage", step.stage,
-			"tenantCode", step.tenantCode,
-			"workspaceCode", step.workspaceCodes[0],
-			"documentType", req.DocumentType,
+			"stage", stage,
+			"tenantCode", tenantCode,
+			"workspaceCode", workspaceCodes[0],
+			"documentType", documentType,
 			"templateVersionID", versionID,
 		)
 		return &versionID, nil
 	}
 
-	return nil, entity.ErrTemplateNotResolved
+	slog.DebugContext(ctx, "default template resolver stage miss",
+		"stage", stage,
+		"tenantCode", tenantCode,
+		"workspaceCode", workspaceCodes[0],
+		"documentType", documentType,
+	)
+	return nil, nil
 }

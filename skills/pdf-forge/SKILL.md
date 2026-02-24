@@ -16,7 +16,7 @@ npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
 ## How It Works
 
 ```plaintext
-Tenant → Workspace → Template → Version (DRAFT→PUBLISHED)
+Tenant → Workspace → Template → Version (DRAFT → [STAGING] → PUBLISHED)
                                     ↓
                               Injectables (variables)
                                     ↓
@@ -28,6 +28,8 @@ Render Modes:
 ```
 
 **Render by Version ID** bypasses document type resolution — useful for testing/sandbox scenarios where multiple templates share the same docType. Uses the full injectable pipeline (InitFuncs, registry, provider).
+
+**Staging Mode**: Set `render.allow_staging: true` + send `X-Render-Draft: true` header to render STAGING versions via the document-type endpoint. Resolver tries STAGING first, falls back to PUBLISHED. Only one STAGING version per template (DB-enforced).
 
 ## Quick Start
 
@@ -157,6 +159,7 @@ make doctor     # Check system dependencies
 | `X-Workspace-ID`   | Workspace UUID                      | Panel routes   |
 | `X-Tenant-Code`    | Tenant code (e.g. `CL`)            | Render routes  |
 | `X-Workspace-Code` | Workspace code (e.g. `SYSTEM`)     | Render routes  |
+| `X-Render-Draft`   | `true` to render STAGING versions  | Render routes  |
 
 ## References
 

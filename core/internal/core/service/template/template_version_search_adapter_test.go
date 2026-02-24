@@ -196,6 +196,139 @@ func TestTemplateVersionSearchAdapter_SearchTemplateVersions_NonPublishedFilter(
 	assert.Equal(t, "v-archived", items[1].VersionID)
 }
 
+func TestTemplateVersionSearchAdapter_SearchTemplateVersions_StagingFilter(t *testing.T) {
+	tenant := &entity.Tenant{ID: "tenant-1", Code: "TENANT_A"}
+	docType := &entity.DocumentType{ID: "doc-1", Code: "CONTRACT"}
+	template := &entity.Template{ID: "tpl-1", DocumentTypeID: &docType.ID}
+	ws := &entity.Workspace{ID: "ws-1", Code: "WS_1"}
+
+	adapter := &TemplateVersionSearchAdapter{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode: map[string]*entity.Tenant{"TENANT_A": tenant},
+		},
+		workspaceRepo: &templateResolverWorkspaceRepoStub{
+			byCodeAndTenant: map[string]*entity.Workspace{"tenant-1|WS_1": ws},
+		},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{"tenant-1|CONTRACT": docType},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{
+			byDocumentType: map[string]*entity.Template{"ws-1|doc-1": template},
+		},
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			stagingByTemplate: map[string]*entity.TemplateVersionWithDetails{
+				"tpl-1": {
+					TemplateVersion: entity.TemplateVersion{ID: "v-staging", Status: entity.VersionStatusStaging},
+				},
+			},
+		},
+	}
+
+	staging := true
+	items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+		TenantCode:     "TENANT_A",
+		WorkspaceCodes: []string{"WS_1"},
+		DocumentType:   "CONTRACT",
+		Staging:        &staging,
+	})
+	require.NoError(t, err)
+	require.Len(t, items, 1)
+	assert.Equal(t, "v-staging", items[0].VersionID)
+}
+
+func TestTemplateVersionSearchAdapter_SearchTemplateVersions_StagingNotFound(t *testing.T) {
+	tenant := &entity.Tenant{ID: "tenant-1", Code: "TENANT_A"}
+	docType := &entity.DocumentType{ID: "doc-1", Code: "CONTRACT"}
+	template := &entity.Template{ID: "tpl-1", DocumentTypeID: &docType.ID}
+	ws := &entity.Workspace{ID: "ws-1", Code: "WS_1"}
+
+	adapter := &TemplateVersionSearchAdapter{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode: map[string]*entity.Tenant{"TENANT_A": tenant},
+		},
+		workspaceRepo: &templateResolverWorkspaceRepoStub{
+			byCodeAndTenant: map[string]*entity.Workspace{"tenant-1|WS_1": ws},
+		},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{"tenant-1|CONTRACT": docType},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{
+			byDocumentType: map[string]*entity.Template{"ws-1|doc-1": template},
+		},
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			// No staging version configured
+		},
+	}
+
+	staging := true
+	items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+		TenantCode:     "TENANT_A",
+		WorkspaceCodes: []string{"WS_1"},
+		DocumentType:   "CONTRACT",
+		Staging:        &staging,
+	})
+	require.NoError(t, err)
+	assert.Empty(t, items, "should return empty when no staging version exists")
+}
+
+func TestTemplateVersionSearchAdapter_SearchTemplateVersions_StagingPreferredOverPublished(t *testing.T) {
+	tenant := &entity.Tenant{ID: "tenant-1", Code: "TENANT_A"}
+	docType := &entity.DocumentType{ID: "doc-1", Code: "CONTRACT"}
+	template := &entity.Template{ID: "tpl-1", DocumentTypeID: &docType.ID}
+	ws := &entity.Workspace{ID: "ws-1", Code: "WS_1"}
+
+	adapter := &TemplateVersionSearchAdapter{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode: map[string]*entity.Tenant{"TENANT_A": tenant},
+		},
+		workspaceRepo: &templateResolverWorkspaceRepoStub{
+			byCodeAndTenant: map[string]*entity.Workspace{"tenant-1|WS_1": ws},
+		},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{"tenant-1|CONTRACT": docType},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{
+			byDocumentType: map[string]*entity.Template{"ws-1|doc-1": template},
+		},
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			stagingByTemplate: map[string]*entity.TemplateVersionWithDetails{
+				"tpl-1": {
+					TemplateVersion: entity.TemplateVersion{ID: "v-staging", Status: entity.VersionStatusStaging},
+				},
+			},
+			publishedByTemplate: map[string]*entity.TemplateVersionWithDetails{
+				"tpl-1": {
+					TemplateVersion: entity.TemplateVersion{ID: "v-published", Status: entity.VersionStatusPublished},
+				},
+			},
+		},
+	}
+
+	// When requesting staging, should get staging (not published)
+	staging := true
+	items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+		TenantCode:     "TENANT_A",
+		WorkspaceCodes: []string{"WS_1"},
+		DocumentType:   "CONTRACT",
+		Staging:        &staging,
+	})
+	require.NoError(t, err)
+	require.Len(t, items, 1)
+	assert.Equal(t, "v-staging", items[0].VersionID, "staging filter should return staging version")
+
+	// When requesting published, should get published (not staging)
+	published := true
+	items, err = adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+		TenantCode:     "TENANT_A",
+		WorkspaceCodes: []string{"WS_1"},
+		DocumentType:   "CONTRACT",
+		Published:      &published,
+	})
+	require.NoError(t, err)
+	require.Len(t, items, 1)
+	assert.Equal(t, "v-published", items[0].VersionID, "published filter should return published version")
+}
+
 type templateResolverTenantRepoStub struct {
 	byCode        map[string]*entity.Tenant
 	findByCodeErr map[string]error
@@ -274,6 +407,8 @@ func (s *templateResolverTemplateRepoStub) FindByID(_ context.Context, id string
 type templateResolverTemplateVersionRepoStub struct {
 	publishedByTemplate    map[string]*entity.TemplateVersionWithDetails
 	publishedByTemplateErr map[string]error
+	stagingByTemplate      map[string]*entity.TemplateVersionWithDetails
+	stagingByTemplateErr   map[string]error
 	versionsByTemplate     map[string][]*entity.TemplateVersion
 	byID                   map[string]*entity.TemplateVersionWithDetails
 	byIDErr                map[string]error
@@ -287,6 +422,20 @@ func (s *templateResolverTemplateVersionRepoStub) FindPublishedByTemplateIDWithD
 		return version, nil
 	}
 	return nil, entity.ErrNoPublishedVersion
+}
+
+func (s *templateResolverTemplateVersionRepoStub) FindStagingByTemplateIDWithDetails(_ context.Context, templateID string) (*entity.TemplateVersionWithDetails, error) {
+	if s.stagingByTemplateErr != nil {
+		if err := s.stagingByTemplateErr[templateID]; err != nil {
+			return nil, err
+		}
+	}
+	if s.stagingByTemplate != nil {
+		if version, ok := s.stagingByTemplate[templateID]; ok {
+			return version, nil
+		}
+	}
+	return nil, entity.ErrVersionNotFound
 }
 
 func (s *templateResolverTemplateVersionRepoStub) FindByIDWithDetails(_ context.Context, id string) (*entity.TemplateVersionWithDetails, error) {

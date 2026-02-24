@@ -52,6 +52,11 @@ func (tv *TemplateVersion) IsPublished() bool {
 	return tv.Status == VersionStatusPublished
 }
 
+// IsStaging returns true if the version is in staging status.
+func (tv *TemplateVersion) IsStaging() bool {
+	return tv.Status == VersionStatusStaging
+}
+
 // IsArchived returns true if the version has been archived.
 func (tv *TemplateVersion) IsArchived() bool {
 	return tv.Status == VersionStatusArchived
@@ -91,6 +96,28 @@ func (tv *TemplateVersion) CanSchedulePublish(publishAt time.Time) error {
 		return ErrScheduledTimeInPast
 	}
 	return nil
+}
+
+// CanStage returns an error if the version cannot be staged.
+func (tv *TemplateVersion) CanStage() error {
+	if !tv.IsDraft() {
+		return ErrCannotStage
+	}
+	return nil
+}
+
+// Stage changes the version status to STAGING.
+func (tv *TemplateVersion) Stage() {
+	now := time.Now().UTC()
+	tv.Status = VersionStatusStaging
+	tv.UpdatedAt = &now
+}
+
+// Unstage reverts the version status from STAGING to DRAFT.
+func (tv *TemplateVersion) Unstage() {
+	now := time.Now().UTC()
+	tv.Status = VersionStatusDraft
+	tv.UpdatedAt = &now
 }
 
 // CanArchive returns an error if the version cannot be archived.
