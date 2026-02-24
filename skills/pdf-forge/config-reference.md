@@ -110,12 +110,6 @@ auth:
 
 **Note**: `typst.font_dirs` (array) cannot be set via env var, YAML only.
 
-### Render
-
-| Env Var                              | YAML Key               | Default | Description                                         |
-| ------------------------------------ | ---------------------- | ------- | --------------------------------------------------- |
-| `DOC_ENGINE_RENDER_ALLOW_STAGING`    | `render.allow_staging` | `false` | Allow STAGING version rendering via `X-Render-Draft` |
-
 ### Logging
 
 | Env Var                     | YAML Key         | Default | Description                      |

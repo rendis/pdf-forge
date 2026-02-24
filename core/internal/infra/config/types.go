@@ -13,7 +13,6 @@ type Config struct {
 	Auth        *AuthConfig     `mapstructure:"auth"`
 	Logging     LoggingConfig   `mapstructure:"logging"`
 	Typst       TypstConfig     `mapstructure:"typst"`
-	Render      RenderConfig    `mapstructure:"render"`
 	Bootstrap   BootstrapConfig `mapstructure:"bootstrap"`
 
 	// DummyAuth is set at runtime when no OIDC providers are configured.
@@ -166,13 +165,6 @@ func (t TypstConfig) TimeoutDuration() time.Duration {
 // AcquireTimeoutDuration returns the acquire timeout as time.Duration.
 func (t TypstConfig) AcquireTimeoutDuration() time.Duration {
 	return time.Duration(t.AcquireTimeoutSeconds) * time.Second
-}
-
-// RenderConfig holds rendering behavior configuration.
-type RenderConfig struct {
-	// AllowStaging enables staging mode rendering via X-Render-Draft header.
-	// When false (default), the header is ignored and only PUBLISHED versions are rendered.
-	AllowStaging bool `mapstructure:"allow_staging"`
 }
 
 // BootstrapConfig holds first-user bootstrap configuration.

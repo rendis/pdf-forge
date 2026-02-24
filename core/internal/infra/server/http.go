@@ -440,7 +440,7 @@ func corsMiddleware(corsCfg config.CORSConfig) gin.HandlerFunc {
 		"Cache-Control", "Pragma",
 		"X-Workspace-ID", "X-Tenant-ID", "X-Tenant-Code", "X-Workspace-Code",
 		"X-External-ID", "X-Template-ID", "X-Transactional-ID",
-		"X-Render-Draft",
+		"X-Environment",
 	}
 	allowedHeaders := strings.Join(append(baseHeaders, corsCfg.AllowedHeaders...), ", ")
 

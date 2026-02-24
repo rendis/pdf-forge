@@ -20,7 +20,7 @@ A document blueprint within a workspace. Linked to a Document Type. Contains one
 
 Versioned snapshot of a template's content. Lifecycle: DRAFT → STAGING → PUBLISHED → ARCHIVED (STAGING is optional). DRAFT and STAGING versions can be edited. Contains a PortableDoc as its content structure.
 
-**STAGING**: Optional pre-publish state for testing via render API without affecting production. Only one STAGING version per template (DB-enforced). Enabled via `render.allow_staging: true` + `X-Render-Draft: true` header.
+**STAGING**: Optional pre-publish state for testing via render API without affecting production. Only one STAGING version per template (DB-enforced). Activated when `X-Environment: dev` header is sent on render endpoints.
 
 **Lifecycle methods**: `CanEdit()`, `CanPublish()`, `CanStage()`, `CanArchive()`, `CanSchedulePublish()`, `Publish(userID)`, `Archive(userID)`, `Stage()`, `Unstage()`, `SchedulePublish(time)`, `CancelSchedule()`.
 

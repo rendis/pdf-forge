@@ -4346,6 +4346,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Render environment: dev or prod",
+                        "name": "X-Environment",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Document type code",
                         "name": "code",
                         "in": "path",
@@ -5602,6 +5609,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Workspace code",
                         "name": "X-Workspace-Code",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Render environment: dev or prod",
+                        "name": "X-Environment",
                         "in": "header",
                         "required": true
                     },

@@ -23,7 +23,6 @@ type RenderController struct {
 	versionUC            templateuc.TemplateVersionUseCase
 	documentTypeRenderUC templateuc.InternalRenderUseCase
 	pdfRenderer          port.PDFRenderer
-	allowStaging         bool
 }
 
 // NewRenderController creates a new render controller.
@@ -31,13 +30,11 @@ func NewRenderController(
 	versionUC templateuc.TemplateVersionUseCase,
 	documentTypeRenderUC templateuc.InternalRenderUseCase,
 	pdfRenderer port.PDFRenderer,
-	allowStaging bool,
 ) *RenderController {
 	return &RenderController{
 		versionUC:            versionUC,
 		documentTypeRenderUC: documentTypeRenderUC,
 		pdfRenderer:          pdfRenderer,
-		allowStaging:         allowStaging,
 	}
 }
 
@@ -141,6 +138,7 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 // @Produce application/pdf
 // @Param X-Tenant-Code header string true "Tenant code"
 // @Param X-Workspace-Code header string true "Workspace code"
+// @Param X-Environment header string true "Render environment: dev or prod"
 // @Param code path string true "Document type code"
 // @Param disposition query string false "Content disposition: inline (default) or attachment"
 // @Param request body dto.RenderRequest false "Injectable values"
@@ -177,7 +175,11 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 		req.Injectables = make(map[string]any)
 	}
 
-	stagingMode := c.allowStaging && strings.EqualFold(strings.TrimSpace(ctx.GetHeader("X-Render-Draft")), "true")
+	stagingMode, err := parseRenderEnvironment(ctx.GetHeader("X-Environment"))
+	if err != nil {
+		respondError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
 	result, err := c.documentTypeRenderUC.RenderByDocumentType(ctx.Request.Context(), templateuc.InternalRenderCommand{
 		TenantCode:       tenantCode,
@@ -212,6 +214,7 @@ func (c *RenderController) RenderByDocumentType(ctx *gin.Context) {
 // @Produce application/pdf
 // @Param X-Tenant-Code header string true "Tenant code"
 // @Param X-Workspace-Code header string true "Workspace code"
+// @Param X-Environment header string true "Render environment: dev or prod"
 // @Param versionId path string true "Template version ID"
 // @Param disposition query string false "Content disposition: inline (default) or attachment"
 // @Param request body dto.RenderRequest false "Injectable values"
@@ -232,6 +235,11 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 	workspaceCode := strings.ToUpper(strings.TrimSpace(ctx.GetHeader("X-Workspace-Code")))
 	if workspaceCode == "" {
 		respondError(ctx, http.StatusBadRequest, fmt.Errorf("X-Workspace-Code header is required"))
+		return
+	}
+
+	if _, err := parseRenderEnvironment(ctx.GetHeader("X-Environment")); err != nil {
+		respondError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -278,6 +286,23 @@ func extractHeaders(ctx *gin.Context) map[string]string {
 		}
 	}
 	return headers
+}
+
+// parseRenderEnvironment validates the X-Environment header.
+// Returns stagingMode=true for "dev", stagingMode=false for "prod".
+func parseRenderEnvironment(header string) (bool, error) {
+	v := strings.TrimSpace(header)
+	if v == "" {
+		return false, fmt.Errorf("X-Environment header is required. Valid values: dev, prod")
+	}
+	switch strings.ToLower(v) {
+	case "dev":
+		return true, nil
+	case "prod":
+		return false, nil
+	default:
+		return false, fmt.Errorf("invalid X-Environment value %q. Valid values: dev, prod", v)
+	}
 }
 
 func sendPDFResponse(ctx *gin.Context, result *port.RenderPreviewResult) {

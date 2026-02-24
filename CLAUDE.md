@@ -180,7 +180,7 @@ Frontend embedded in Go binary via `go:embed`. Served from same port as API.
 
 **Headers (Panel)**: `X-Tenant-ID`, `X-Workspace-ID`, `Authorization` (Bearer JWT)
 
-**Headers (Render)**: `X-Tenant-Code`, `X-Workspace-Code`, `Authorization` (Bearer JWT), `X-Render-Draft` (optional, `true` to render STAGING versions)
+**Headers (Render)**: `X-Tenant-Code`, `X-Workspace-Code`, `X-Environment` (required, `dev` or `prod`), `Authorization` (Bearer JWT)
 
 ## RBAC
 

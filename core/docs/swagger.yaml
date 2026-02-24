@@ -4202,6 +4202,11 @@ paths:
         name: X-Workspace-Code
         required: true
         type: string
+      - description: 'Render environment: dev or prod'
+        in: header
+        name: X-Environment
+        required: true
+        type: string
       - description: Document type code
         in: path
         name: code
@@ -5032,6 +5037,11 @@ paths:
       - description: Workspace code
         in: header
         name: X-Workspace-Code
+        required: true
+        type: string
+      - description: 'Render environment: dev or prod'
+        in: header
+        name: X-Environment
         required: true
         type: string
       - description: Template version ID
