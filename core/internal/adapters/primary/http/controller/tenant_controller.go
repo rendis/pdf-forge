@@ -46,6 +46,7 @@ func (c *TenantController) RegisterRoutes(rg *gin.RouterGroup, middlewareProvide
 		// Workspace routes within tenant
 		tenant.GET("/workspaces", middleware.AuthorizeTenantRole(entity.TenantRoleAdmin), c.ListWorkspaces)
 		tenant.POST("/workspaces", middleware.AuthorizeTenantRole(entity.TenantRoleOwner), c.CreateWorkspace)
+		tenant.PUT("/workspaces/:workspaceId", middleware.AuthorizeTenantRole(entity.TenantRoleAdmin), c.UpdateWorkspace)
 		tenant.PATCH("/workspaces/:workspaceId/status", middleware.AuthorizeTenantRole(entity.TenantRoleAdmin), c.UpdateWorkspaceStatus)
 		tenant.DELETE("/workspaces/:workspaceId", middleware.AuthorizeTenantRole(entity.TenantRoleOwner), c.DeleteWorkspace)
 
@@ -239,6 +240,46 @@ func (c *TenantController) CreateWorkspace(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, mapper.WorkspaceToResponse(workspace))
+}
+
+// UpdateWorkspace updates a workspace's details in the current tenant.
+// @Summary Update workspace in tenant
+// @Tags Tenant - Workspaces
+// @Accept json
+// @Produce json
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param workspaceId path string true "Workspace ID"
+// @Param request body dto.UpdateWorkspaceRequest true "Workspace data"
+// @Success 200 {object} dto.WorkspaceResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.ErrorResponse
+// @Failure 409 {object} dto.ErrorResponse
+// @Router /api/v1/tenant/workspaces/{workspaceId} [put]
+// @Security BearerAuth
+func (c *TenantController) UpdateWorkspace(ctx *gin.Context) {
+	workspaceID := ctx.Param("workspaceId")
+
+	var req dto.UpdateWorkspaceRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.NewErrorResponse(err))
+		return
+	}
+
+	if err := req.Validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.NewErrorResponse(err))
+		return
+	}
+
+	cmd := mapper.UpdateWorkspaceRequestToCommand(workspaceID, req)
+	workspace, err := c.workspaceUC.UpdateWorkspace(ctx.Request.Context(), cmd)
+	if err != nil {
+		HandleError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, mapper.WorkspaceToResponse(workspace))
 }
 
 // UpdateWorkspaceStatus updates a workspace's status in the current tenant.

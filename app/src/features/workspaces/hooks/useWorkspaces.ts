@@ -4,6 +4,7 @@ import {
   createWorkspace,
   fetchCurrentWorkspace,
   updateCurrentWorkspace,
+  updateWorkspace,
   updateWorkspaceStatus,
 } from '../api/workspaces-api'
 import type {
@@ -52,6 +53,19 @@ export function useUpdateWorkspace() {
 
   return useMutation({
     mutationFn: (data: UpdateWorkspaceRequest) => updateCurrentWorkspace(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-workspace'] })
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+    },
+  })
+}
+
+export function useUpdateWorkspaceById() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & UpdateWorkspaceRequest) =>
+      updateWorkspace(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['current-workspace'] })
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })

@@ -66,6 +66,20 @@ export async function archiveCurrentWorkspace(): Promise<void> {
 }
 
 /**
+ * Update workspace by ID (tenant-level)
+ */
+export async function updateWorkspace(
+  workspaceId: string,
+  data: UpdateWorkspaceRequest
+): Promise<Workspace> {
+  const response = await apiClient.put<Workspace>(
+    `/tenant/workspaces/${workspaceId}`,
+    data
+  )
+  return response.data
+}
+
+/**
  * Update workspace status
  */
 export async function updateWorkspaceStatus(

@@ -13,10 +13,9 @@ import { useTranslation } from 'react-i18next'
 import type { Workspace } from '@/features/workspaces/types'
 import {
   useCreateWorkspace,
-  useUpdateWorkspace,
+  useUpdateWorkspaceById,
 } from '@/features/workspaces/hooks/useWorkspaces'
 import { useToast } from '@/components/ui/use-toast'
-import { useAppContextStore } from '@/stores/app-context-store'
 
 const CODE_REGEX = /^[A-Z0-9]+(_[A-Z0-9]+)*$/
 
@@ -47,7 +46,6 @@ export function WorkspaceFormDialog({
 }: WorkspaceFormDialogProps): React.ReactElement {
   const { t } = useTranslation()
   const { toast } = useToast()
-  const { currentWorkspace } = useAppContextStore()
 
   const [code, setCode] = useState('')
   const [codeError, setCodeError] = useState('')
@@ -55,7 +53,7 @@ export function WorkspaceFormDialog({
   const [nameError, setNameError] = useState('')
 
   const createMutation = useCreateWorkspace()
-  const updateMutation = useUpdateWorkspace()
+  const updateMutation = useUpdateWorkspaceById()
 
   const isLoading = createMutation.isPending || updateMutation.isPending
 
@@ -129,24 +127,14 @@ export function WorkspaceFormDialog({
           title: t('administration.workspaces.form.createSuccess', 'Workspace created'),
         })
       } else if (workspace) {
-        // The update endpoint operates on /workspace (current workspace context)
-        // so we can only update the workspace if it matches the current context
-        if (currentWorkspace?.id === workspace.id) {
-          await updateMutation.mutateAsync({
-            code: finalCode,
-            name: name.trim(),
-          })
-          toast({
-            title: t('administration.workspaces.form.updateSuccess', 'Workspace updated'),
-          })
-        } else {
-          toast({
-            variant: 'destructive',
-            title: t('common.error', 'Error'),
-            description: t('administration.workspaces.form.editContextError', 'Cannot edit workspace outside its context'),
-          })
-          return
-        }
+        await updateMutation.mutateAsync({
+          id: workspace.id,
+          code: finalCode,
+          name: name.trim(),
+        })
+        toast({
+          title: t('administration.workspaces.form.updateSuccess', 'Workspace updated'),
+        })
       }
       onOpenChange(false)
     } catch (error) {
