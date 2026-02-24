@@ -187,6 +187,7 @@ export const InjectorComponent = (props: NodeViewProps) => {
         )}
         style={{
           width: width ? `${width}px` : undefined,
+          maxWidth: '100%',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
