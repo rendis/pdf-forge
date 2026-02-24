@@ -383,7 +383,7 @@ function EditorPage() {
               editorRef={editorRef}
               onEditorReady={setEditorInstance}
               onFullyReady={handleEditorFullyReady}
-              onExport={isEditable ? handleExport : undefined}
+              onExport={handleExport}
               onImport={isEditable ? handleImport : undefined}
               templateId={templateId}
               versionId={versionId}
