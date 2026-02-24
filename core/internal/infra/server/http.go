@@ -68,6 +68,7 @@ func NewHTTPServer(
 	tenantController *controller.TenantController,
 	documentTypeController *controller.DocumentTypeController,
 	renderController *controller.RenderController,
+	galleryController *controller.GalleryController,
 	globalMiddleware []gin.HandlerFunc,
 	apiMiddleware []gin.HandlerFunc,
 	renderAuthenticator port.RenderAuthenticator,
@@ -102,7 +103,7 @@ func NewHTTPServer(
 	base.GET("/ready", readyHandler)
 
 	// Client config endpoint (no auth required)
-	base.GET("/api/v1/config", clientConfigHandler(cfg))
+	base.GET("/api/v1/config", clientConfigHandler(cfg, galleryController != nil))
 
 	// Swagger UI (enabled via DOC_ENGINE_SERVER_SWAGGER_UI=true)
 	if cfg.Server.SwaggerUI {
@@ -177,6 +178,14 @@ func NewHTTPServer(
 		// =====================================================
 		injectableController.RegisterRoutes(v1, middlewareProvider)
 		templateController.RegisterRoutes(v1, middlewareProvider)
+
+		// =====================================================
+		// GALLERY ROUTES - Requires X-Workspace-ID header
+		// Only registered when a StorageProvider is configured
+		// =====================================================
+		if galleryController != nil {
+			galleryController.RegisterRoutes(v1, middlewareProvider)
+		}
 	}
 
 	// =====================================================
@@ -278,7 +287,7 @@ func readyHandler(c *gin.Context) {
 }
 
 // clientConfigHandler returns a handler that exposes non-sensitive config to the frontend.
-func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
+func clientConfigHandler(cfg *config.Config, hasGallery bool) gin.HandlerFunc {
 	type providerInfo struct {
 		Name               string `json:"name"`
 		Issuer             string `json:"issuer"`
@@ -288,10 +297,15 @@ func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 		ClientID           string `json:"clientId,omitempty"`
 	}
 
+	type features struct {
+		Gallery bool `json:"gallery"`
+	}
+
 	type clientConfig struct {
 		DummyAuth     bool          `json:"dummyAuth"`
 		BasePath      string        `json:"basePath"`
 		PanelProvider *providerInfo `json:"panelProvider,omitempty"`
+		Features      features      `json:"features"`
 	}
 
 	var panelProvider *providerInfo
@@ -310,6 +324,7 @@ func clientConfigHandler(cfg *config.Config) gin.HandlerFunc {
 		DummyAuth:     cfg.IsDummyAuth(),
 		BasePath:      cfg.Server.NormalizedBasePath(),
 		PanelProvider: panelProvider,
+		Features:      features{Gallery: hasGallery},
 	}
 
 	return func(c *gin.Context) {

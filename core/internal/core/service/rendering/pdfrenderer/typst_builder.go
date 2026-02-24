@@ -125,6 +125,11 @@ func (b *TypstBuilder) headingStyles() string {
 	return sb.String()
 }
 
+// SetImageURLResolver sets a function to resolve non-standard image URL schemes.
+func (b *TypstBuilder) SetImageURLResolver(fn func(url string) (string, error)) {
+	b.converter.imageURLResolver = fn
+}
+
 // GetPageCount returns the page count based on page breaks encountered.
 func (b *TypstBuilder) GetPageCount() int {
 	return b.converter.GetCurrentPage()

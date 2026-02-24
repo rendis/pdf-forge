@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/rendis/pdf-forge/core/internal/core/entity"
 	"github.com/rendis/pdf-forge/core/internal/core/entity/portabledoc"
@@ -25,6 +26,7 @@ func NewInternalRenderService(
 	resolver *injectablesvc.InjectableResolverService,
 	templateCache *TemplateCache,
 	customResolver port.TemplateResolver,
+	storageProvider port.StorageProvider,
 ) templateuc.InternalRenderUseCase {
 	return &InternalRenderService{
 		tenantRepo:      tenantRepo,
@@ -36,6 +38,7 @@ func NewInternalRenderService(
 		resolver:        resolver,
 		templateCache:   templateCache,
 		customResolver:  customResolver,
+		storageProvider: storageProvider,
 		defaultResolver: NewDefaultTemplateResolver(),
 		searchAdapter: NewTemplateVersionSearchAdapter(
 			tenantRepo,
@@ -58,6 +61,7 @@ type InternalRenderService struct {
 	resolver        *injectablesvc.InjectableResolverService
 	templateCache   templateResolutionCache
 	customResolver  port.TemplateResolver
+	storageProvider port.StorageProvider
 	defaultResolver port.TemplateResolver
 	searchAdapter   port.TemplateVersionSearchAdapter
 }
@@ -261,11 +265,39 @@ func (s *InternalRenderService) renderVersion(ctx context.Context, version *enti
 	// Build injectable defaults
 	defaults := BuildVersionInjectableDefaults(version.Injectables)
 
-	return s.pdfRenderer.RenderPreview(ctx, &port.RenderPreviewRequest{
+	renderReq := &port.RenderPreviewRequest{
 		Document:           doc,
 		Injectables:        injectables,
 		InjectableDefaults: defaults,
-	})
+	}
+
+	if s.storageProvider != nil {
+		renderReq.ImageURLResolver = s.buildStorageURLResolver(cmd.TenantCode, cmd.WorkspaceCode)
+	}
+
+	return s.pdfRenderer.RenderPreview(ctx, renderReq)
+}
+
+// buildStorageURLResolver returns an ImageURLResolver that resolves storage:// URLs
+// using the configured StorageProvider.
+func (s *InternalRenderService) buildStorageURLResolver(tenantCode, workspaceCode string) func(context.Context, string) (string, error) {
+	return func(ctx context.Context, url string) (string, error) {
+		if !strings.HasPrefix(url, "storage://") {
+			return url, nil
+		}
+		key := strings.TrimPrefix(url, "storage://")
+		result, err := s.storageProvider.GetURL(ctx, &port.StorageGetURLRequest{
+			Storage: port.StorageContext{
+				TenantCode:    tenantCode,
+				WorkspaceCode: workspaceCode,
+			},
+			Key: key,
+		})
+		if err != nil {
+			return "", err
+		}
+		return result.URL, nil
+	}
 }
 
 // resolveInjectables resolves all injectable values (system, registry, and provider)

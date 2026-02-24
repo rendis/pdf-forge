@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -23,6 +24,7 @@ type RenderController struct {
 	versionUC            templateuc.TemplateVersionUseCase
 	documentTypeRenderUC templateuc.InternalRenderUseCase
 	pdfRenderer          port.PDFRenderer
+	storageProvider      port.StorageProvider
 }
 
 // NewRenderController creates a new render controller.
@@ -30,11 +32,13 @@ func NewRenderController(
 	versionUC templateuc.TemplateVersionUseCase,
 	documentTypeRenderUC templateuc.InternalRenderUseCase,
 	pdfRenderer port.PDFRenderer,
+	storageProvider port.StorageProvider,
 ) *RenderController {
 	return &RenderController{
 		versionUC:            versionUC,
 		documentTypeRenderUC: documentTypeRenderUC,
 		pdfRenderer:          pdfRenderer,
+		storageProvider:      storageProvider,
 	}
 }
 
@@ -107,11 +111,18 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 	injectableDefaults := templatesvc.BuildVersionInjectableDefaults(details.Injectables)
 
 	// Render PDF
-	result, err := c.pdfRenderer.RenderPreview(ctx.Request.Context(), &port.RenderPreviewRequest{
+	renderReq := &port.RenderPreviewRequest{
 		Document:           doc,
 		Injectables:        req.Injectables,
 		InjectableDefaults: injectableDefaults,
-	})
+	}
+
+	if c.storageProvider != nil {
+		wsID, _ := middleware.GetWorkspaceID(ctx)
+		renderReq.ImageURLResolver = buildStoragePreviewResolver(c.storageProvider, wsID)
+	}
+
+	result, err := c.pdfRenderer.RenderPreview(ctx.Request.Context(), renderReq)
 	if err != nil {
 		slog.ErrorContext(ctx.Request.Context(), "failed to render PDF",
 			slog.String("version_id", versionID),
@@ -276,6 +287,25 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 	)
 
 	sendPDFResponse(ctx, result)
+}
+
+// buildStoragePreviewResolver returns an ImageURLResolver that resolves storage:// URLs
+// using the given StorageProvider and workspace ID.
+func buildStoragePreviewResolver(sp port.StorageProvider, wsID string) func(context.Context, string) (string, error) {
+	return func(reqCtx context.Context, url string) (string, error) {
+		if !strings.HasPrefix(url, "storage://") {
+			return url, nil
+		}
+		key := strings.TrimPrefix(url, "storage://")
+		result, err := sp.GetURL(reqCtx, &port.StorageGetURLRequest{
+			Storage: port.StorageContext{WorkspaceID: wsID},
+			Key:     key,
+		})
+		if err != nil {
+			return "", err
+		}
+		return result.URL, nil
+	}
 }
 
 func extractHeaders(ctx *gin.Context) map[string]string {

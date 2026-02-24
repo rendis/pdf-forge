@@ -19,6 +19,11 @@ type RenderPreviewRequest struct {
 	// Keys are variable IDs, values are the default string values.
 	// Used as fallback when Injectables doesn't contain a value.
 	InjectableDefaults map[string]string
+
+	// ImageURLResolver resolves non-standard image URL schemes (e.g. storage://) to HTTP URLs.
+	// Called during Typst source generation for URLs that are not http://, https://, or data:.
+	// May be nil if no custom resolution is needed.
+	ImageURLResolver func(ctx context.Context, url string) (string, error)
 }
 
 // RenderPreviewResult contains the result of rendering a preview PDF.

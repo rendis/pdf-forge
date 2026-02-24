@@ -22,7 +22,8 @@ type TypstConverter struct {
 	currentTableBodyStyles   *entity.TableStyles
 	remoteImages             map[string]string // URL → local filename
 	imageCounter             int
-	listDepth                int // tracks nesting depth for user-built lists
+	listDepth                int                              // tracks nesting depth for user-built lists
+	imageURLResolver         func(url string) (string, error) // resolves non-standard URL schemes (e.g. storage://)
 }
 
 // NewTypstConverter creates a new Typst node converter.
@@ -419,6 +420,16 @@ func (c *TypstConverter) resolveImagePath(attrs map[string]any) string {
 
 	if src == "" {
 		return ""
+	}
+
+	// Resolve non-standard URL schemes (e.g., storage://)
+	if c.imageURLResolver != nil &&
+		!strings.HasPrefix(src, "http://") && !strings.HasPrefix(src, "https://") && !strings.HasPrefix(src, "data:") {
+		resolved, err := c.imageURLResolver(src)
+		if err != nil || resolved == "" {
+			return ""
+		}
+		src = resolved
 	}
 
 	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") || strings.HasPrefix(src, "data:") {

@@ -891,8 +891,23 @@
         "cropImage": "Crop image"
       },
       "gallery": {
-        "title": "Image gallery",
-        "comingSoon": "This feature will be available soon. For now, you can insert images using a URL."
+        "title": "Image Gallery",
+        "comingSoon": "This feature will be available soon. For now, you can insert images using a URL.",
+        "searchPlaceholder": "Search images...",
+        "upload": "Upload",
+        "expand": "Expand",
+        "deleteAsset": "Delete image",
+        "confirmDelete": "Click again to confirm",
+        "empty": "No images yet",
+        "dragHint": "Drag and drop images here or click Upload",
+        "noResults": "No images found",
+        "loadError": "Failed to load gallery",
+        "uploadError": "Failed to upload image",
+        "deleteError": "Failed to delete image",
+        "invalidType": "Only image files are supported",
+        "fileTooLarge": "File is too large. Max 10MB.",
+        "pageInfo": "Page {{page}} of {{totalPages}}",
+        "resolveError": "Failed to load image"
       },
       "cropper": {
         "title": "Crop image",

@@ -892,7 +892,22 @@
       },
       "gallery": {
         "title": "Galería de imágenes",
-        "comingSoon": "Esta funcionalidad estará disponible próximamente. Por ahora, puedes insertar imágenes usando una URL."
+        "comingSoon": "Esta funcionalidad estará disponible próximamente. Por ahora, puedes insertar imágenes usando una URL.",
+        "searchPlaceholder": "Buscar imágenes...",
+        "upload": "Subir",
+        "expand": "Ampliar",
+        "deleteAsset": "Eliminar imagen",
+        "confirmDelete": "Clic de nuevo para confirmar",
+        "empty": "Sin imágenes aún",
+        "dragHint": "Arrastra imágenes aquí o haz clic en Subir",
+        "noResults": "No se encontraron imágenes",
+        "loadError": "Error al cargar la galería",
+        "uploadError": "Error al subir la imagen",
+        "deleteError": "Error al eliminar la imagen",
+        "invalidType": "Solo se admiten archivos de imagen",
+        "fileTooLarge": "El archivo es demasiado grande. Máx 10MB.",
+        "pageInfo": "Página {{page}} de {{totalPages}}",
+        "resolveError": "Error al cargar la imagen"
       },
       "cropper": {
         "title": "Recortar imagen",

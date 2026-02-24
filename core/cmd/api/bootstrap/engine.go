@@ -32,6 +32,7 @@ type Engine struct {
 	initFunc            port.InitFunc
 	workspaceProvider   port.WorkspaceInjectableProvider
 	renderAuthenticator port.RenderAuthenticator
+	storageProvider     port.StorageProvider
 	designTokens        *pdfrenderer.TypstDesignTokens
 	frontendFS          fs.FS // Embedded SPA filesystem; nil = no frontend served
 	frontendOverridden  bool  // True if SetFrontendFS was called (even with nil)
@@ -113,6 +114,18 @@ func (e *Engine) SetRenderAuthenticator(auth port.RenderAuthenticator) *Engine {
 // GetRenderAuthenticator returns the registered render authenticator, or nil if not set.
 func (e *Engine) GetRenderAuthenticator() port.RenderAuthenticator {
 	return e.renderAuthenticator
+}
+
+// SetStorageProvider sets the storage provider for the image gallery.
+// When set, gallery endpoints are enabled and storage:// URLs are resolved during render.
+func (e *Engine) SetStorageProvider(sp port.StorageProvider) *Engine {
+	e.storageProvider = sp
+	return e
+}
+
+// GetStorageProvider returns the registered storage provider, or nil if not set.
+func (e *Engine) GetStorageProvider() port.StorageProvider {
+	return e.storageProvider
 }
 
 // SetFrontendFS overrides the embedded frontend filesystem.

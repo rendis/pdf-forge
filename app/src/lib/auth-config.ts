@@ -15,9 +15,14 @@ export interface PanelProvider {
   clientId: string
 }
 
+export interface Features {
+  gallery?: boolean
+}
+
 export interface AuthConfig {
   dummyAuth: boolean
   panelProvider?: PanelProvider
+  features?: Features
 }
 
 let cachedConfig: AuthConfig | null = null

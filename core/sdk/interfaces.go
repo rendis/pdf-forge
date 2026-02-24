@@ -39,6 +39,39 @@ type TableSchemaProvider = port.TableSchemaProvider
 // to expose their default configuration at the API level.
 type ListSchemaProvider = port.ListSchemaProvider
 
+// StorageProvider defines the interface for pluggable asset storage (image gallery).
+type StorageProvider = port.StorageProvider
+
+// StorageContext identifies the tenant and workspace for a storage operation.
+type StorageContext = port.StorageContext
+
+// StorageAsset represents a single stored file.
+type StorageAsset = port.StorageAsset
+
+// StorageListRequest is the input for StorageProvider.List.
+type StorageListRequest = port.StorageListRequest
+
+// StorageSearchRequest is the input for StorageProvider.Search.
+type StorageSearchRequest = port.StorageSearchRequest
+
+// StorageListResult is a paginated list of storage assets.
+type StorageListResult = port.StorageListResult
+
+// StorageUploadRequest is the input for StorageProvider.Upload.
+type StorageUploadRequest = port.StorageUploadRequest
+
+// StorageUploadResult is the output of StorageProvider.Upload.
+type StorageUploadResult = port.StorageUploadResult
+
+// StorageDeleteRequest is the input for StorageProvider.Delete.
+type StorageDeleteRequest = port.StorageDeleteRequest
+
+// StorageGetURLRequest is the input for StorageProvider.GetURL.
+type StorageGetURLRequest = port.StorageGetURLRequest
+
+// StorageGetURLResult is the output of StorageProvider.GetURL.
+type StorageGetURLResult = port.StorageGetURLResult
+
 // ── Function types ──────────────────────────────────────────────────────────
 
 // ResolveFunc is the function that resolves the injector value.

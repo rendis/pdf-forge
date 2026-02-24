@@ -38,6 +38,7 @@ var fileMapping = []struct {
 	{"templates/extensions/provider.go.tmpl", "extensions/provider.go"},
 	{"templates/extensions/auth.go.tmpl", "extensions/auth.go"},
 	{"templates/extensions/middleware.go.tmpl", "extensions/middleware.go"},
+	{"templates/extensions/storage.go.tmpl", "extensions/storage.go"},
 	{"templates/settings/app.yaml.tmpl", "settings/app.yaml"},
 	{"templates/Makefile.tmpl", "Makefile"},
 	{"templates/Dockerfile.tmpl", "Dockerfile"},

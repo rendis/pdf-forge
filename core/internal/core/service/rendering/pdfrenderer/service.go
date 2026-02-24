@@ -80,6 +80,11 @@ func (s *Service) RenderPreview(ctx context.Context, req *port.RenderPreviewRequ
 	}
 
 	builder := NewTypstBuilder(req.Injectables, injectableDefaults, s.designTokens)
+	if req.ImageURLResolver != nil {
+		builder.SetImageURLResolver(func(url string) (string, error) {
+			return req.ImageURLResolver(ctx, url)
+		})
+	}
 	typstSource := builder.Build(req.Document)
 	pageCount := builder.GetPageCount()
 

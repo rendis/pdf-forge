@@ -212,7 +212,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 
 	internalRenderSvc := templatesvc.NewInternalRenderService(
 		tenantRepo, workspaceRepo, documentTypeRepo, templateRepo, templateVersionRepo,
-		pdfRenderer, injectableResolver, templateCache, e.templateResolver,
+		pdfRenderer, injectableResolver, templateCache, e.templateResolver, e.storageProvider,
 	)
 
 	// --- HTTP Mappers ---
@@ -227,7 +227,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		workspaceSvc, folderSvc, tagSvc, workspaceMemberSvc, workspaceInjectableSvc, injectableMapper,
 	)
 	injectableCtrl := controller.NewContentInjectableController(injectableSvc, injectableMapper)
-	renderCtrl := controller.NewRenderController(templateVersionSvc, internalRenderSvc, pdfRenderer)
+	renderCtrl := controller.NewRenderController(templateVersionSvc, internalRenderSvc, pdfRenderer, e.storageProvider)
 	templateVersionCtrl := controller.NewTemplateVersionController(
 		templateVersionSvc, templateVersionMapper, templateMapper, renderCtrl,
 	)
@@ -236,6 +236,12 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	meCtrl := controller.NewMeController(tenantSvc, tenantMemberRepo, workspaceMemberRepo, userAccessHistorySvc)
 	tenantCtrl := controller.NewTenantController(tenantSvc, workspaceSvc, tenantMemberSvc)
 	documentTypeCtrl := controller.NewDocumentTypeController(documentTypeSvc, templateSvc, templateMapper)
+
+	// --- Gallery Controller (optional) ---
+	var galleryCtrl *controller.GalleryController
+	if e.storageProvider != nil {
+		galleryCtrl = controller.NewGalleryController(e.storageProvider)
+	}
 
 	// --- HTTP Server ---
 	httpServer := server.NewHTTPServer(
@@ -249,6 +255,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		tenantCtrl,
 		documentTypeCtrl,
 		renderCtrl,
+		galleryCtrl,
 		e.globalMiddleware,
 		e.apiMiddleware,
 		e.renderAuthenticator,

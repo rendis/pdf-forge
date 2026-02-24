@@ -439,6 +439,44 @@ definitions:
           type: string
         type: array
     type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryAssetResponse:
+    properties:
+      contentType:
+        type: string
+      createdAt:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+      size:
+        type: integer
+      thumbnailUrl:
+        type: string
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryListResponse:
+    properties:
+      assets:
+        items:
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryAssetResponse'
+        type: array
+      page:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryURLResponse:
+    properties:
+      url:
+        type: string
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryUploadResponse:
+    properties:
+      asset:
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryAssetResponse'
+    type: object
   github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GroupResponse:
     properties:
       icon:
@@ -4534,6 +4572,174 @@ paths:
       summary: Get folder tree
       tags:
       - Folders
+  /api/v1/workspace/gallery:
+    delete:
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Asset key
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: Delete gallery asset
+      tags:
+      - Gallery
+    get:
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20)
+        in: query
+        name: perPage
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: List gallery assets
+      tags:
+      - Gallery
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Image file to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: Upload gallery asset
+      tags:
+      - Gallery
+  /api/v1/workspace/gallery/search:
+    get:
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20)
+        in: query
+        name: perPage
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: Search gallery assets
+      tags:
+      - Gallery
+  /api/v1/workspace/gallery/url:
+    get:
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Asset key
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: Get gallery asset URL
+      tags:
+      - Gallery
   /api/v1/workspace/injectables:
     get:
       consumes:

@@ -10,8 +10,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Square, Circle, Settings2, Trash2 } from 'lucide-react';
+import { Square, Circle, Settings2, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { galleryApi } from '../../../editor/api/gallery-api';
 import { ImageAlignSelector } from './ImageAlignSelector';
 import type { ImageDisplayMode, ImageAlign, ImageShape } from './types';
 
@@ -61,6 +62,30 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
     injectableId?: string;
     injectableLabel?: string;
   };
+
+  // Resolve storage:// URLs to actual HTTP URLs for display
+  const isStorageUrl = src?.startsWith('storage://');
+  const [resolvedSrc, setResolvedSrc] = useState<string | null>(isStorageUrl ? null : src);
+  const [isResolvingSrc, setIsResolvingSrc] = useState(false);
+
+  useEffect(() => {
+    if (!isStorageUrl) {
+      setResolvedSrc(src);
+      return;
+    }
+    const key = src.replace('storage://', '');
+    setIsResolvingSrc(true);
+    galleryApi
+      .getURL(key)
+      .then((url) => {
+        setResolvedSrc(url);
+        setIsResolvingSrc(false);
+      })
+      .catch(() => {
+        setResolvedSrc(null);
+        setIsResolvingSrc(false);
+      });
+  }, [src, isStorageUrl]);
 
   // Obtener el ancho máximo disponible del contenedor del editor
   const getMaxWidth = useCallback(() => {
@@ -227,17 +252,26 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
       ref={containerRef}
     >
       <div className="relative">
-        <img
-          ref={imageRef}
-          src={src}
-          alt={alt || ''}
-          title={title}
-          className={imageStyles}
-          style={{ maxWidth: 'none', marginTop: 0, marginBottom: 0 }}
-          onLoad={handleImageLoad}
-          onDoubleClick={handleDoubleClick}
-          draggable={false}
-        />
+        {isResolvingSrc ? (
+          <div
+            className={cn('flex items-center justify-center bg-muted', shape === 'circle' && 'rounded-full')}
+            style={{ width: width || 200, height: height || 150 }}
+          >
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <img
+            ref={imageRef}
+            src={resolvedSrc || ''}
+            alt={alt || ''}
+            title={title}
+            className={imageStyles}
+            style={{ maxWidth: 'none', marginTop: 0, marginBottom: 0 }}
+            onLoad={handleImageLoad}
+            onDoubleClick={handleDoubleClick}
+            draggable={false}
+          />
+        )}
 
 
         {isEditorEditable && (isDirectlySelected || isResizing) && imageLoaded && (

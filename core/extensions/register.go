@@ -35,4 +35,7 @@ func Register(engine *bootstrap.Engine) {
 
 	// --- API Middleware ---
 	engine.UseAPIMiddleware(TenantValidationMiddleware())
+
+	// --- Storage Provider ---
+	// engine.SetStorageProvider(&ExampleStorageProvider{})
 }
