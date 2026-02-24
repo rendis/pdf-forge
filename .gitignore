@@ -145,3 +145,6 @@ secrets/
 .env.local
 core/init
 /init
+
+# Worktrees
+.worktrees/
