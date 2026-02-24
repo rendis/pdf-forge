@@ -19,7 +19,6 @@ const (
 	defaultGalleryPage    = 1
 	defaultGalleryPerPage = 20
 	maxUploadSize         = 10 << 20 // 10 MB
-	uploadFormField       = "file"
 )
 
 // GalleryController handles gallery asset HTTP requests.
@@ -38,11 +37,12 @@ func (c *GalleryController) RegisterRoutes(rg *gin.RouterGroup, middlewareProvid
 	gallery := rg.Group("/workspace/gallery")
 	gallery.Use(middlewareProvider.WorkspaceContext())
 	{
-		gallery.GET("", c.ListAssets)                                // VIEWER+
-		gallery.GET("/search", c.SearchAssets)                       // VIEWER+
-		gallery.POST("", middleware.RequireEditor(), c.UploadAsset)  // EDITOR+
-		gallery.DELETE("", middleware.RequireAdmin(), c.DeleteAsset) // ADMIN+
-		gallery.GET("/url", c.GetAssetURL)                           // VIEWER+
+		gallery.GET("", c.ListAssets)                                            // VIEWER+
+		gallery.GET("/search", c.SearchAssets)                                   // VIEWER+
+		gallery.POST("/upload/init", middleware.RequireEditor(), c.InitUpload)   // EDITOR+
+		gallery.POST("/upload/complete", middleware.RequireEditor(), c.Complete) // EDITOR+
+		gallery.DELETE("", middleware.RequireAdmin(), c.DeleteAsset)             // ADMIN+
+		gallery.GET("/url", c.GetAssetURL)                                       // VIEWER+
 	}
 }
 
@@ -110,51 +110,97 @@ func (c *GalleryController) SearchAssets(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, toGalleryListResponse(result))
 }
 
-// UploadAsset uploads a new gallery asset.
-// @Summary Upload gallery asset
+// InitUpload initiates a signed-URL upload for a new gallery asset.
+// @Summary Initiate gallery upload
 // @Tags Gallery
-// @Accept multipart/form-data
+// @Accept json
 // @Produce json
 // @Param X-Workspace-ID header string true "Workspace ID"
-// @Param file formData file true "Image file to upload"
-// @Success 201 {object} dto.GalleryUploadResponse
+// @Param body body dto.GalleryInitUploadRequest true "Upload metadata"
+// @Success 200 {object} dto.GalleryInitUploadResponse
 // @Failure 400 {object} dto.ErrorResponse
-// @Failure 413 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /api/v1/workspace/gallery [post]
-func (c *GalleryController) UploadAsset(ctx *gin.Context) {
-	file, header, err := ctx.Request.FormFile(uploadFormField)
-	if err != nil {
-		respondError(ctx, http.StatusBadRequest, fmt.Errorf("file field '%s' is required", uploadFormField))
+// @Router /api/v1/workspace/gallery/upload/init [post]
+func (c *GalleryController) InitUpload(ctx *gin.Context) {
+	var req dto.GalleryInitUploadRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		respondError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	defer file.Close()
 
-	if err := validateUpload(header.Header.Get("Content-Type"), header.Size); err != nil {
+	if err := validateUploadMeta(req.ContentType, req.Size); err != nil {
 		respondError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	storageCtx := buildStorageContext(ctx)
-	result, err := c.storage.Upload(ctx.Request.Context(), &port.StorageUploadRequest{
+	result, err := c.storage.InitUpload(ctx.Request.Context(), &port.StorageInitUploadRequest{
 		Storage:     storageCtx,
-		Name:        header.Filename,
-		ContentType: header.Header.Get("Content-Type"),
-		Size:        header.Size,
-		Body:        file,
+		Filename:    req.Filename,
+		ContentType: req.ContentType,
+		Size:        req.Size,
+		SHA256:      req.SHA256,
 	})
 	if err != nil {
 		HandleError(ctx, err)
 		return
 	}
 
-	slog.InfoContext(ctx.Request.Context(), "gallery asset uploaded",
+	resp := dto.GalleryInitUploadResponse{
+		Duplicate: result.Duplicate,
+		UploadID:  result.UploadID,
+		SignedURL: result.SignedURL,
+		ObjectKey: result.ObjectKey,
+		Headers:   result.Headers,
+	}
+	if result.Asset != nil {
+		asset := toGalleryAssetResponse(result.Asset)
+		resp.Asset = &asset
+	}
+
+	slog.InfoContext(ctx.Request.Context(), "gallery upload initiated",
+		slog.Bool("duplicate", result.Duplicate),
+		slog.String("uploadId", result.UploadID),
+	)
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+// Complete finalizes a gallery upload after the client has PUT the file to the signed URL.
+// @Summary Complete gallery upload
+// @Tags Gallery
+// @Accept json
+// @Produce json
+// @Param X-Workspace-ID header string true "Workspace ID"
+// @Param body body dto.GalleryCompleteUploadRequest true "Upload completion"
+// @Success 201 {object} dto.GalleryCompleteUploadResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /api/v1/workspace/gallery/upload/complete [post]
+func (c *GalleryController) Complete(ctx *gin.Context) {
+	var req dto.GalleryCompleteUploadRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		respondError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	storageCtx := buildStorageContext(ctx)
+	result, err := c.storage.CompleteUpload(ctx.Request.Context(), &port.StorageCompleteUploadRequest{
+		Storage:  storageCtx,
+		UploadID: req.UploadID,
+	})
+	if err != nil {
+		HandleError(ctx, err)
+		return
+	}
+
+	slog.InfoContext(ctx.Request.Context(), "gallery upload completed",
 		slog.String("key", result.Asset.Key),
 		slog.String("name", result.Asset.Name),
 		slog.Int64("size", result.Asset.Size),
 	)
 
-	ctx.JSON(http.StatusCreated, dto.GalleryUploadResponse{
+	ctx.JSON(http.StatusCreated, dto.GalleryCompleteUploadResponse{
 		Asset: toGalleryAssetResponse(&result.Asset),
 	})
 }
@@ -232,10 +278,13 @@ func buildStorageContext(ctx *gin.Context) port.StorageContext {
 	}
 }
 
-// validateUpload checks content type and file size constraints.
-func validateUpload(contentType string, size int64) error {
+// validateUploadMeta checks content type and file size constraints.
+func validateUploadMeta(contentType string, size int64) error {
 	if !strings.HasPrefix(contentType, "image/") {
 		return fmt.Errorf("only image files are allowed, got %q", contentType)
+	}
+	if size <= 0 {
+		return fmt.Errorf("file size must be positive")
 	}
 	if size > maxUploadSize {
 		return fmt.Errorf("file size %d exceeds maximum of %d bytes", size, maxUploadSize)
@@ -279,6 +328,7 @@ func toGalleryAssetResponse(asset *port.StorageAsset) dto.GalleryAssetResponse {
 		Name:         asset.Name,
 		ContentType:  asset.ContentType,
 		Size:         asset.Size,
+		SHA256:       asset.SHA256,
 		ThumbnailURL: asset.ThumbnailURL,
 		CreatedAt:    asset.CreatedAt.Format(time.RFC3339),
 	}

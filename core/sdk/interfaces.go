@@ -66,11 +66,17 @@ type StorageSearchRequest = port.StorageSearchRequest
 // StorageListResult is a paginated list of storage assets.
 type StorageListResult = port.StorageListResult
 
-// StorageUploadRequest is the input for StorageProvider.Upload.
-type StorageUploadRequest = port.StorageUploadRequest
+// StorageInitUploadRequest is the input for StorageProvider.InitUpload.
+type StorageInitUploadRequest = port.StorageInitUploadRequest
 
-// StorageUploadResult is the output of StorageProvider.Upload.
-type StorageUploadResult = port.StorageUploadResult
+// StorageInitUploadResult is the output of StorageProvider.InitUpload.
+type StorageInitUploadResult = port.StorageInitUploadResult
+
+// StorageCompleteUploadRequest is the input for StorageProvider.CompleteUpload.
+type StorageCompleteUploadRequest = port.StorageCompleteUploadRequest
+
+// StorageCompleteUploadResult is the output of StorageProvider.CompleteUpload.
+type StorageCompleteUploadResult = port.StorageCompleteUploadResult
 
 // StorageDeleteRequest is the input for StorageProvider.Delete.
 type StorageDeleteRequest = port.StorageDeleteRequest

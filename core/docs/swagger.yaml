@@ -449,9 +449,56 @@ definitions:
         type: string
       name:
         type: string
+      sha256:
+        type: string
       size:
         type: integer
       thumbnailUrl:
+        type: string
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryCompleteUploadRequest:
+    properties:
+      uploadId:
+        type: string
+    required:
+    - uploadId
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryCompleteUploadResponse:
+    properties:
+      asset:
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryAssetResponse'
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryInitUploadRequest:
+    properties:
+      contentType:
+        type: string
+      filename:
+        type: string
+      sha256:
+        type: string
+      size:
+        minimum: 1
+        type: integer
+    required:
+    - contentType
+    - filename
+    - size
+    type: object
+  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryInitUploadResponse:
+    properties:
+      asset:
+        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryAssetResponse'
+      duplicate:
+        type: boolean
+      headers:
+        additionalProperties:
+          type: string
+        type: object
+      objectKey:
+        type: string
+      signedUrl:
+        type: string
+      uploadId:
         type: string
     type: object
   github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryListResponse:
@@ -471,11 +518,6 @@ definitions:
     properties:
       url:
         type: string
-    type: object
-  github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryUploadResponse:
-    properties:
-      asset:
-        $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryAssetResponse'
     type: object
   github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GroupResponse:
     properties:
@@ -4634,42 +4676,6 @@ paths:
       summary: List gallery assets
       tags:
       - Gallery
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: Workspace ID
-        in: header
-        name: X-Workspace-ID
-        required: true
-        type: string
-      - description: Image file to upload
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryUploadResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
-        "413":
-          description: Request Entity Too Large
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
-      summary: Upload gallery asset
-      tags:
-      - Gallery
   /api/v1/workspace/gallery/search:
     get:
       parameters:
@@ -4707,6 +4713,74 @@ paths:
           schema:
             $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
       summary: Search gallery assets
+      tags:
+      - Gallery
+  /api/v1/workspace/gallery/upload/complete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Upload completion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryCompleteUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryCompleteUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: Complete gallery upload
+      tags:
+      - Gallery
+  /api/v1/workspace/gallery/upload/init:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Workspace ID
+        in: header
+        name: X-Workspace-ID
+        required: true
+        type: string
+      - description: Upload metadata
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryInitUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.GalleryInitUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.ErrorResponse'
+      summary: Initiate gallery upload
       tags:
       - Gallery
   /api/v1/workspace/gallery/url:
