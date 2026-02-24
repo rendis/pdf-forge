@@ -1,6 +1,6 @@
 import { TemplateVersionDetail } from './types'
 
-export type VersionState = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'SCHEDULED'
+export type VersionState = 'DRAFT' | 'STAGING' | 'PUBLISHED' | 'ARCHIVED' | 'SCHEDULED'
 
 /**
  * Determines the logical state of a version.
@@ -10,20 +10,21 @@ export type VersionState = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'SCHEDULED'
 export function getVersionState(version: TemplateVersionDetail | null): VersionState {
   if (!version) return 'DRAFT'
 
+  if (version.status === 'STAGING') return 'STAGING'
   if (version.status === 'PUBLISHED') return 'PUBLISHED'
   if (version.status === 'ARCHIVED') return 'ARCHIVED'
-  
+
   // If it's DRAFT but has a scheduled publish date, treat it as SCHEDULED
   if (version.scheduledPublishAt) return 'SCHEDULED'
-  
+
   return 'DRAFT'
 }
 
 /**
  * Determines if a version is editable based on its state.
- * Only 'DRAFT' state is editable.
+ * DRAFT and STAGING versions are editable.
  */
 export function isVersionEditable(version: TemplateVersionDetail | null): boolean {
   const state = getVersionState(version)
-  return state === 'DRAFT'
+  return state === 'DRAFT' || state === 'STAGING'
 }

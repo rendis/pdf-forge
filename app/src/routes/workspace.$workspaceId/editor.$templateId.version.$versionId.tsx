@@ -13,7 +13,7 @@ import {
   validateDocumentForImport,
 } from '@/features/editor/services/document-import'
 import { exportAndDownload } from '@/features/editor/services/document-export'
-import { usePaginationStore } from '@/features/editor/stores'
+import { usePaginationStore, useEditorEnvironmentStore } from '@/features/editor/stores'
 import { versionsApi, isVersionEditable } from '@/features/templates'
 import type { TemplateVersionDetail } from '@/features/templates/types'
 import type { PortableDocument, ValidationResult, DocumentMeta } from '@/features/editor/types/document-format'
@@ -62,6 +62,11 @@ function EditorPage() {
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
   const _overlayStartTimeRef = useRef(Date.now())
 
+  // Clear editor environment on unmount
+  useEffect(() => {
+    return () => useEditorEnvironmentStore.getState().clearEnvironment()
+  }, [])
+
   // Track fetch to prevent StrictMode double-call
   const fetchStartedRef = useRef(false)
   const lastFetchedParamsRef = useRef<string | null>(null)
@@ -75,6 +80,7 @@ function EditorPage() {
     try {
       const data = await versionsApi.get(templateId, versionId)
       setVersion(data)
+      useEditorEnvironmentStore.getState().setEnvironment(data.status === 'STAGING' ? 'dev' : 'prod')
     } catch (error) {
       console.error('Failed to fetch version:', error)
       setFetchError(error instanceof Error ? error : new Error('Failed to load version'))

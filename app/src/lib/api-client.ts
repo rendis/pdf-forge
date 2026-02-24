@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/stores/auth-store'
 import { useAppContextStore } from '@/stores/app-context-store'
+import { useEditorEnvironmentStore } from '@/features/editor/stores'
 
 import { refreshAccessToken } from '@/lib/oidc'
 
@@ -59,6 +60,12 @@ apiClient.interceptors.request.use(
 
     if (currentWorkspace?.id) {
       config.headers['X-Workspace-ID'] = currentWorkspace.id
+    }
+
+    // Add editor environment header when inside the editor
+    const editorEnv = useEditorEnvironmentStore.getState().environment
+    if (editorEnv) {
+      config.headers['X-Environment'] = editorEnv
     }
 
     return config
