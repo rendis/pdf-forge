@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Editor } from '@tiptap/core'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
@@ -37,41 +37,42 @@ export function TableStylesPanel({ editor, open, onOpenChange, nodeType = 'table
   const { t } = useTranslation()
   const [styles, setStyles] = useState<TableStylesAttrs>({})
 
-  // Load current styles when dialog opens
-  useEffect(() => {
-    if (!open || !editor) return
+  // Load current styles when dialog opens (store previous props pattern)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
+    if (open && editor) {
+      const attrs = initialStyles ?? editor.getAttributes(nodeType)
 
-    const attrs = initialStyles ?? editor.getAttributes(nodeType)
-
-    if (nodeType === 'listInjector') {
-      // Map item* attrs to body* state keys for the shared form
-      setStyles({
-        headerFontFamily: attrs.headerFontFamily || 'inherit',
-        headerFontSize: attrs.headerFontSize || 12,
-        headerFontWeight: attrs.headerFontWeight || 'bold',
-        headerTextColor: attrs.headerTextColor || '#333333',
-        headerBackground: attrs.headerBackground || '#f5f5f5',
-        bodyFontFamily: attrs.itemFontFamily || 'inherit',
-        bodyFontSize: attrs.itemFontSize || 12,
-        bodyFontWeight: attrs.itemFontWeight || 'normal',
-        bodyTextColor: attrs.itemTextColor || '#333333',
-      })
-    } else {
-      setStyles({
-        headerFontFamily: attrs.headerFontFamily || 'inherit',
-        headerFontSize: attrs.headerFontSize || 12,
-        headerFontWeight: attrs.headerFontWeight || 'bold',
-        headerTextColor: attrs.headerTextColor || '#333333',
-        headerTextAlign: attrs.headerTextAlign || 'left',
-        headerBackground: attrs.headerBackground || '#f5f5f5',
-        bodyFontFamily: attrs.bodyFontFamily || 'inherit',
-        bodyFontSize: attrs.bodyFontSize || 12,
-        bodyFontWeight: attrs.bodyFontWeight || 'normal',
-        bodyTextColor: attrs.bodyTextColor || '#333333',
-        bodyTextAlign: attrs.bodyTextAlign || 'left',
-      })
+      if (nodeType === 'listInjector') {
+        setStyles({
+          headerFontFamily: attrs.headerFontFamily || 'inherit',
+          headerFontSize: attrs.headerFontSize || 12,
+          headerFontWeight: attrs.headerFontWeight || 'bold',
+          headerTextColor: attrs.headerTextColor || '#333333',
+          headerBackground: attrs.headerBackground || '#f5f5f5',
+          bodyFontFamily: attrs.itemFontFamily || 'inherit',
+          bodyFontSize: attrs.itemFontSize || 12,
+          bodyFontWeight: attrs.itemFontWeight || 'normal',
+          bodyTextColor: attrs.itemTextColor || '#333333',
+        })
+      } else {
+        setStyles({
+          headerFontFamily: attrs.headerFontFamily || 'inherit',
+          headerFontSize: attrs.headerFontSize || 12,
+          headerFontWeight: attrs.headerFontWeight || 'bold',
+          headerTextColor: attrs.headerTextColor || '#333333',
+          headerTextAlign: attrs.headerTextAlign || 'left',
+          headerBackground: attrs.headerBackground || '#f5f5f5',
+          bodyFontFamily: attrs.bodyFontFamily || 'inherit',
+          bodyFontSize: attrs.bodyFontSize || 12,
+          bodyFontWeight: attrs.bodyFontWeight || 'normal',
+          bodyTextColor: attrs.bodyTextColor || '#333333',
+          bodyTextAlign: attrs.bodyTextAlign || 'left',
+        })
+      }
     }
-  }, [open, editor, nodeType, initialStyles])
+  }
 
   const handleApply = useCallback(() => {
     if (!editor) return

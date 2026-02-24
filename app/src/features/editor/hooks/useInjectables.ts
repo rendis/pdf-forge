@@ -85,6 +85,10 @@ export function useInjectables(): UseInjectablesReturn {
     })()
 
     await inFlightFetch
+  // Intentionally omit locale and store actions from deps:
+  // - locale changes are handled by resolveForLocale effect (no re-fetch needed)
+  // - store actions from getState() are stable references
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWorkspace?.id])
 
   // Load on mount and when workspace changes
@@ -95,6 +99,8 @@ export function useInjectables(): UseInjectablesReturn {
   // Re-resolve labels when locale changes (no API call)
   useEffect(() => {
     resolveForLocale(locale)
+  // resolveForLocale is a stable ref from getState()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale])
 
   // Subscribe to only the values we need to return (not actions)

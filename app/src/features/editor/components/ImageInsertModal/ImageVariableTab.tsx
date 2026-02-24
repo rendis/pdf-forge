@@ -70,24 +70,27 @@ export function ImageVariableTab({ onSelect, currentSelection, hasUrlSelection }
     [variables]
   )
 
-  // Initialize preview when there's an initial selection and variables are loaded
-  useEffect(() => {
-    if (currentSelection && imageVariables.length > 0 && !previewUrl) {
+  // Initialize preview when there's an initial selection and variables are loaded (store previous props)
+  const [prevCurrentSelection, setPrevCurrentSelection] = useState(currentSelection)
+  if (currentSelection !== prevCurrentSelection) {
+    setPrevCurrentSelection(currentSelection)
+    if (currentSelection && imageVariables.length > 0) {
       const variable = imageVariables.find((v) => v.variableId === currentSelection)
-      if (variable) {
-        const url = generatePlaceholderUrl()
-        setPreviewUrl(url)
+      if (variable && !previewUrl) {
+        setPreviewUrl(generatePlaceholderUrl())
       }
     }
-  }, [currentSelection, imageVariables, previewUrl])
+  }
 
-  // Reset when user selects a URL in the URL tab
-  useEffect(() => {
+  // Reset when user selects a URL in the URL tab (store previous props)
+  const [prevHasUrlSelection, setPrevHasUrlSelection] = useState(hasUrlSelection)
+  if (hasUrlSelection !== prevHasUrlSelection) {
+    setPrevHasUrlSelection(hasUrlSelection)
     if (hasUrlSelection) {
       setSelectedId(null)
       setPreviewUrl(null)
     }
-  }, [hasUrlSelection])
+  }
 
 
   const handleSelect = useCallback((variableId: string, label: string) => {

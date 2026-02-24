@@ -31,11 +31,12 @@ export function ListDataInput({
 }: ListDataInputProps) {
   const { t } = useTranslation()
 
+  const valueItems = value?.items
   const items = useMemo(() => {
-    return value?.items && value.items.length > 0
-      ? value.items
+    return valueItems && valueItems.length > 0
+      ? valueItems
       : [createEmptyItem()]
-  }, [value?.items])
+  }, [valueItems])
 
   const updateItems = useCallback(
     (newItems: ListInputItem[]) => {

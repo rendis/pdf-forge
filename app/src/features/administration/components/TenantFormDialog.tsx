@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { Loader2, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { SystemTenant } from '@/features/system-injectables/api/system-tenants-api'
 import {
@@ -73,8 +73,10 @@ export function TenantFormDialog({
 
   const isLoading = createMutation.isPending || updateMutation.isPending
 
-  // Reset form when dialog opens/closes or tenant changes
-  useEffect(() => {
+  // Reset form when dialog opens (React docs: adjusting state when a prop changes)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       if (mode === 'edit' && tenant) {
         setName(tenant.name)
@@ -88,7 +90,7 @@ export function TenantFormDialog({
       setNameError('')
       setCodeError('')
     }
-  }, [open, mode, tenant])
+  }
 
   const validateForm = (): boolean => {
     let isValid = true

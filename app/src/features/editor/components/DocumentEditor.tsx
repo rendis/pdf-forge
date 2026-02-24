@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { TextStyle, FontFamily, FontSize } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import TextAlign from '@tiptap/extension-text-align'
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -80,14 +80,22 @@ export function DocumentEditor({
   // Get page config from store (for visual width and margins)
   const { pageSize, margins } = usePaginationStore()
 
-  // Ref to store current content before editor recreation
-  const contentRef = useRef<string>(initialContent)
+  // Store current content for editor recreation
+  const [latestContent, setLatestContent] = useState(initialContent)
 
   // Key for editor recreation - only recreate when page width changes
   const editorKey = useMemo(
     () => `editor-${pageSize.width}`,
     [pageSize.width]
   )
+
+  // Snapshot content when editorKey changes
+  const [editorContent, setEditorContent] = useState(initialContent)
+  const [prevEditorKey, setPrevEditorKey] = useState(editorKey)
+  if (editorKey !== prevEditorKey) {
+    setPrevEditorKey(editorKey)
+    setEditorContent(latestContent)
+  }
 
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [isEditingImage, setIsEditingImage] = useState(false)
@@ -150,12 +158,13 @@ export function DocumentEditor({
       ListInjectorExtension,
     ],
     // Use stored content on recreation, initial content on first render
-    content: contentRef.current,
+    content: editorContent,
     editable,
     onUpdate: ({ editor }) => {
       // Store current content for potential editor recreation
-      contentRef.current = editor.getHTML()
-      onContentChange?.(editor.getHTML())
+      const html = editor.getHTML()
+      setLatestContent(html)
+      onContentChange?.(html)
     },
     editorProps: {
       attributes: {

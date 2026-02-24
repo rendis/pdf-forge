@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { createElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Popover,
@@ -59,11 +59,11 @@ const ICON_MAP = {
   'wrap-right': WrapRightIcon,
 } as const;
 
-function getCurrentIcon(displayMode: ImageDisplayMode, align: ImageAlign) {
+function getCurrentIconKey(displayMode: ImageDisplayMode, align: ImageAlign): keyof typeof ICON_MAP {
   const option = IMAGE_ALIGN_OPTIONS.find(
     (o) => o.displayMode === displayMode && o.align === align
   );
-  return option ? ICON_MAP[option.icon] : AlignCenter;
+  return option ? option.icon : 'block-center';
 }
 
 function OptionButton({
@@ -96,8 +96,6 @@ export function ImageAlignSelector({
   align,
   onChange,
 }: ImageAlignSelectorProps) {
-  const CurrentIcon = getCurrentIcon(displayMode, align);
-
   const handleSelect = useCallback(
     (option: ImageAlignOption) => {
       onChange(option.displayMode, option.align);
@@ -114,7 +112,7 @@ export function ImageAlignSelector({
           className="h-8 w-8"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <CurrentIcon className="h-4 w-4" />
+          {createElement(ICON_MAP[getCurrentIconKey(displayMode, align)], { className: 'h-4 w-4' })}
         </Button>
       </PopoverTrigger>
       <PopoverContent

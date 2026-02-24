@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import {
@@ -75,7 +75,10 @@ export function LogicBuilderVariablesPanel({
 
   const isSearching = searchQuery.trim().length > 0
 
-  useEffect(() => {
+  // Expand all sections when searching (store previous props pattern)
+  const [prevIsSearching, setPrevIsSearching] = useState(isSearching)
+  if (isSearching !== prevIsSearching) {
+    setPrevIsSearching(isSearching)
     if (isSearching) {
       setExternalSectionOpen(true)
       setInternalSectionOpen(true)
@@ -87,7 +90,7 @@ export function LogicBuilderVariablesPanel({
         return newStates
       })
     }
-  }, [isSearching, groups])
+  }
 
   const toggleAllSections = useCallback(() => {
     const newState = !allSectionsExpanded

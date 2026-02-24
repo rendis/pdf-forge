@@ -210,7 +210,9 @@ export function CreateAssignmentDialog({
   const isPending = createMutation.isPending || excludeMutation.isPending
 
   // Reset all state when dialog closes
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (!open) {
       setScopeType('TENANT')
       setSelectedTenant(null)
@@ -221,14 +223,16 @@ export function CreateAssignmentDialog({
       setTenantSearch('')
       setWorkspaceSearch('')
     }
-  }, [open])
+  }
 
   // Reset search when panel changes
-  useEffect(() => {
+  const [prevActivePanel, setPrevActivePanel] = useState(activePanel)
+  if (activePanel !== prevActivePanel) {
+    setPrevActivePanel(activePanel)
     if (activePanel === 'tenant') {
       setWorkspaceSearch('')
     }
-  }, [activePanel])
+  }
 
   // Clear collapsingFrom after animation completes
   useEffect(() => {

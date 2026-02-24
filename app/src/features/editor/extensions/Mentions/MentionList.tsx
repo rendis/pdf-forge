@@ -33,11 +33,12 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
 
     const variableItems = items
 
-    // Reset index when items change - standard reset-on-prop-change pattern
-    const itemsLength = items.length
-    useEffect(() => {
+    // Reset index when items change (store previous props pattern)
+    const [prevItemsLength, setPrevItemsLength] = useState(items.length)
+    if (items.length !== prevItemsLength) {
+      setPrevItemsLength(items.length)
       setSelectedIndex(0)
-    }, [itemsLength])
+    }
 
     const selectItem = useCallback(
       (index: number) => {

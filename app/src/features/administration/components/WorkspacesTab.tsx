@@ -26,7 +26,7 @@ import {
   Plus,
   Search,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { WorkspaceStatusBadge } from './WorkspaceStatusBadge'
@@ -170,8 +170,6 @@ export function WorkspacesTab(): React.ReactElement {
   // Animation states
   const [isEntering, setIsEntering] = useState(true)
   const [filterAnimationKey, setFilterAnimationKey] = useState(0)
-  const prevResultsRef = useRef<string | null>(null)
-
   // Dialog states
   const [formOpen, setFormOpen] = useState(false)
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create')
@@ -196,10 +194,14 @@ export function WorkspacesTab(): React.ReactElement {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  // Reset page when search or status filter changes
-  useEffect(() => {
+  // Reset page when search or status filter changes (React docs: adjusting state when a prop changes)
+  const [prevDebouncedQuery, setPrevDebouncedQuery] = useState(debouncedQuery)
+  const [prevStatusFilter, setPrevStatusFilter] = useState(statusFilter)
+  if (debouncedQuery !== prevDebouncedQuery || statusFilter !== prevStatusFilter) {
+    setPrevDebouncedQuery(debouncedQuery)
+    setPrevStatusFilter(statusFilter)
     setPage(1)
-  }, [debouncedQuery, statusFilter])
+  }
 
   const { data, isLoading, error, isFetching } = useWorkspaces(
     currentTenant?.id ?? null,
@@ -217,16 +219,15 @@ export function WorkspacesTab(): React.ReactElement {
     [data?.data]
   )
 
-  // Detect result changes and trigger filter animation
-  useEffect(() => {
-    const currentResultsKey = clientWorkspaces.map((w) => w.id).join(',')
-    if (clientWorkspaces.length > 0 && prevResultsRef.current !== currentResultsKey) {
-      if (prevResultsRef.current !== null && !isEntering) {
-        setFilterAnimationKey((k) => k + 1)
-      }
+  // Detect result changes and trigger filter animation (React docs: adjusting state when a prop changes)
+  const currentResultsKey = clientWorkspaces.map((w) => w.id).join(',')
+  const [prevResultsKey, setPrevResultsKey] = useState<string | null>(null)
+  if (clientWorkspaces.length > 0 && prevResultsKey !== currentResultsKey) {
+    if (prevResultsKey !== null && !isEntering) {
+      setFilterAnimationKey((k) => k + 1)
     }
-    prevResultsRef.current = currentResultsKey
-  }, [clientWorkspaces, isEntering])
+    setPrevResultsKey(currentResultsKey)
+  }
 
   const handleCreate = () => {
     setSelectedWorkspace(null)

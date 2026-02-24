@@ -142,9 +142,15 @@ export function InjectablesTab(): React.ReactElement {
   }, [injectables, searchQuery, statusFilter, sortBy, i18n.language])
 
   // Reset visible count when filters change
-  useEffect(() => {
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
+  const [prevStatusFilter, setPrevStatusFilter] = useState(statusFilter)
+  const [prevSortBy, setPrevSortBy] = useState(sortBy)
+  if (searchQuery !== prevSearchQuery || statusFilter !== prevStatusFilter || sortBy !== prevSortBy) {
+    setPrevSearchQuery(searchQuery)
+    setPrevStatusFilter(statusFilter)
+    setPrevSortBy(sortBy)
     setVisibleCount(ITEMS_PER_PAGE)
-  }, [searchQuery, statusFilter, sortBy])
+  }
 
   // IntersectionObserver for infinite scroll
   useEffect(() => {

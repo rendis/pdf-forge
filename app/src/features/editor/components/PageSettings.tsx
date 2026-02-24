@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { Settings2, X } from 'lucide-react'
@@ -31,8 +31,10 @@ export function PageSettings({ disabled = false }: PageSettingsProps) {
     right: String(margins.right),
   })
 
-  // Sincronizar customMargins e inputValues cuando margins del store cambie
-  useEffect(() => {
+  // Sincronizar customMargins e inputValues cuando margins del store cambie (store previous props pattern)
+  const [prevMargins, setPrevMargins] = useState(margins)
+  if (margins !== prevMargins) {
+    setPrevMargins(margins)
     setCustomMargins(margins)
     setInputValues({
       top: String(margins.top),
@@ -40,7 +42,7 @@ export function PageSettings({ disabled = false }: PageSettingsProps) {
       left: String(margins.left),
       right: String(margins.right),
     })
-  }, [margins])
+  }
 
   // Detectar si hay cambios pendientes de aplicar
   const hasChanges =

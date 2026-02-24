@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { AlertTriangle, Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DocumentType, DocumentTypeTemplateInfo } from '../api/document-types-api'
 import { useDeleteDocumentType, useDocumentTypes } from '../hooks/useDocumentTypes'
@@ -47,15 +47,17 @@ export function DeleteDocumentTypeDialog({
     (dt) => dt.id !== documentType?.id
   ) ?? []
 
-  // Reset state when dialog opens/closes
-  useEffect(() => {
+  // Reset state when dialog opens (React docs: adjusting state when a prop changes)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       setStep('confirm')
       setTemplates([])
       setAction(null)
       setReplacementId('')
     }
-  }, [open])
+  }
 
   const handleDelete = async () => {
     if (!documentType) return

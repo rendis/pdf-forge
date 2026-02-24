@@ -136,12 +136,14 @@ export function InjectableDetailSheet({
   const [expandedTenantId, setExpandedTenantId] = useState<string | null>(null)
 
   // Reset state when sheet closes
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (!open) {
       setSearchQuery('')
       setExpandedTenantId(null)
     }
-  }, [open])
+  }
 
   const label = injectable
     ? injectable.label[i18n.language] || injectable.label['en'] || injectable.key
@@ -174,7 +176,11 @@ export function InjectableDetailSheet({
   )
 
   // Auto-expand tenants with matching workspaces when searching
-  useEffect(() => {
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
+  const [prevFilteredGroups, setPrevFilteredGroups] = useState(filteredGroups)
+  if (searchQuery !== prevSearchQuery || filteredGroups !== prevFilteredGroups) {
+    setPrevSearchQuery(searchQuery)
+    setPrevFilteredGroups(filteredGroups)
     if (searchQuery.trim() && filteredGroups.length > 0) {
       const firstMatchingTenant = filteredGroups.find(
         (g) =>
@@ -185,7 +191,7 @@ export function InjectableDetailSheet({
         setExpandedTenantId(firstMatchingTenant.tenantId)
       }
     }
-  }, [searchQuery, filteredGroups])
+  }
 
   function handleToggle(checked: boolean) {
     if (!injectable) return
@@ -477,11 +483,13 @@ function TenantAccordionItem({
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   // Reset visible count when collapsed
-  useEffect(() => {
+  const [prevIsExpanded, setPrevIsExpanded] = useState(isExpanded)
+  if (isExpanded !== prevIsExpanded) {
+    setPrevIsExpanded(isExpanded)
     if (!isExpanded) {
       setVisibleCount(WORKSPACES_PER_PAGE)
     }
-  }, [isExpanded])
+  }
 
   // Infinite scroll observer
   useEffect(() => {

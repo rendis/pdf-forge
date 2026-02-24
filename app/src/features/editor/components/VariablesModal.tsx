@@ -13,7 +13,7 @@ import {
   Variable as VariableIcon,
   X,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Dialog,
@@ -110,10 +110,11 @@ export function VariablesModal({
     return sectionsOpen.every(Boolean)
   }, [externalSectionOpen, internalSectionOpen, groupOpenStates, globalVariables, groups])
 
-  // Expand all sections when searching
+  // Expand all sections when searching (store previous props pattern)
   const isSearching = searchQuery.trim().length > 0
-
-  useEffect(() => {
+  const [prevIsSearching, setPrevIsSearching] = useState(isSearching)
+  if (isSearching !== prevIsSearching) {
+    setPrevIsSearching(isSearching)
     if (isSearching) {
       setExternalSectionOpen(true)
       setInternalSectionOpen(true)
@@ -125,7 +126,7 @@ export function VariablesModal({
         return newStates
       })
     }
-  }, [isSearching, groups])
+  }
 
   // Toggle all sections expand/collapse
   const toggleAllSections = useCallback(() => {

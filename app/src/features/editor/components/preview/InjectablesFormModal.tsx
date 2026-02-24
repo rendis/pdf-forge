@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { AlertCircle, Loader2, X, Eye } from 'lucide-react'
@@ -56,7 +56,7 @@ export function InjectablesFormModal({
   const [errors, setErrors] = useState<InjectableFormErrors>({})
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
   const [showPDFModal, setShowPDFModal] = useState(false)
-  const hasEmulatedRef = useRef(false)
+  const [hasEmulated, setHasEmulated] = useState(false)
 
   // Filter variables by those actually used in the document
   const filteredVariables = useMemo(() => {
@@ -134,38 +134,39 @@ export function InjectablesFormModal({
 
   const hasVariables = standardVariables.length > 0 || tableVariables.length > 0 || listVariables.length > 0 || imageVariables.length > 0
 
-  // Auto-completar valores emulados al abrir el modal
-  useEffect(() => {
-    if (open && systemVariables.length > 0 && !hasEmulatedRef.current) {
-      const emulatedValues: Record<string, unknown> = {}
-      systemVariables.forEach((variable) => {
-        const emulatedValueResult = emulateValue(variable.variableId)
-        if (emulatedValueResult !== null) {
-          emulatedValues[variable.variableId] = emulatedValueResult
-        }
-      })
-      setValues((prev) => ({ ...prev, ...emulatedValues }))
-      hasEmulatedRef.current = true
-    }
-  }, [open, systemVariables])
-
-  // Limpiar estado al abrir/cerrar
-  useEffect(() => {
-    if (!open) {
+  // Auto-completar valores emulados al abrir el modal + limpiar al cerrar (store previous props pattern)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
+    if (open) {
+      if (systemVariables.length > 0 && !hasEmulated) {
+        const emulatedValues: Record<string, unknown> = {}
+        systemVariables.forEach((variable) => {
+          const emulatedValueResult = emulateValue(variable.variableId)
+          if (emulatedValueResult !== null) {
+            emulatedValues[variable.variableId] = emulatedValueResult
+          }
+        })
+        setValues((prev) => ({ ...prev, ...emulatedValues }))
+        setHasEmulated(true)
+      }
+    } else {
       setErrors({})
       setTouchedFields(new Set())
       clearError()
-      hasEmulatedRef.current = false
+      setHasEmulated(false)
     }
-  }, [open, clearError])
+  }
 
-  // Abrir PDF modal cuando el blob esta listo
-  useEffect(() => {
+  // Abrir PDF modal cuando el blob esta listo (store previous props pattern)
+  const [prevPdfBlob, setPrevPdfBlob] = useState(pdfBlob)
+  if (pdfBlob !== prevPdfBlob) {
+    setPrevPdfBlob(pdfBlob)
     if (pdfBlob && !isGenerating) {
       onOpenChange(false)
       setShowPDFModal(true)
     }
-  }, [pdfBlob, isGenerating, onOpenChange])
+  }
 
   const handleChange = useCallback((variableId: string, value: unknown) => {
     setValues((prev) => ({ ...prev, [variableId]: value }))

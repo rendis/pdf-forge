@@ -8,7 +8,7 @@ import {
 import { cn } from '@/lib/utils'
 import axios from 'axios'
 import { Loader2, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Workspace } from '@/features/workspaces/types'
 import {
@@ -57,8 +57,10 @@ export function WorkspaceFormDialog({
 
   const isLoading = createMutation.isPending || updateMutation.isPending
 
-  // Reset form when dialog opens/closes or workspace changes
-  useEffect(() => {
+  // Reset form when dialog opens (React docs: adjusting state when a prop changes)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       if (mode === 'edit' && workspace) {
         setCode(workspace.code)
@@ -70,7 +72,7 @@ export function WorkspaceFormDialog({
       setCodeError('')
       setNameError('')
     }
-  }, [open, mode, workspace])
+  }
 
   const handleCodeBlur = () => {
     setCode(cleanCodeForSubmit(code))

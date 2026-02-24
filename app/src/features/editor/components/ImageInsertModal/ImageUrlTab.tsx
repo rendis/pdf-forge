@@ -107,11 +107,11 @@ export function ImageUrlTab({
     };
   }, []);
 
-  // Reset URL when currentImage becomes an injector (user selected variable in other tab)
-  // Don't reset if currentImage is null or is a URL image - preserve state when navigating tabs
-  useEffect(() => {
+  // Reset URL when currentImage becomes an injector (store previous props pattern)
+  const [prevInjectableId, setPrevInjectableId] = useState(currentImage?.injectableId)
+  if (currentImage?.injectableId !== prevInjectableId) {
+    setPrevInjectableId(currentImage?.injectableId)
     if (currentImage?.injectableId) {
-      // User selected an injector in variable tab - clear URL state
       setUrl('');
       setPreview({
         src: null,
@@ -120,7 +120,7 @@ export function ImageUrlTab({
         isBase64: false,
       });
     }
-  }, [currentImage?.injectableId]);
+  }
 
   const handleCropClick = useCallback(() => {
     if (preview.src) {

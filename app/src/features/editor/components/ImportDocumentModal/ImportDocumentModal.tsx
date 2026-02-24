@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X, FileUp, ClipboardPaste } from 'lucide-react'
@@ -19,14 +19,16 @@ export function ImportDocumentModal({
   const [document, setDocument] = useState<PortableDocument | null>(null)
   const [parseError, setParseError] = useState<string | null>(null)
 
-  // Reset state when dialog opens
-  useEffect(() => {
+  // Reset state when dialog opens (store previous props pattern)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       setDocument(null)
       setParseError(null)
       setActiveTab('file')
     }
-  }, [open])
+  }
 
   const handleDocumentReady = useCallback((doc: PortableDocument | null, error?: string) => {
     setDocument(doc)

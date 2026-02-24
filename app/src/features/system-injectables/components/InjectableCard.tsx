@@ -30,8 +30,9 @@ const DATA_TYPE_ICONS: Record<string, LucideIcon> = {
   ROLE_TEXT: User,
 }
 
-function getIconForType(dataType: string): LucideIcon {
-  return DATA_TYPE_ICONS[dataType.toUpperCase()] || Code2
+function renderDataTypeIcon(dataType: string): React.ReactElement {
+  const Icon = DATA_TYPE_ICONS[dataType.toUpperCase()] || Code2
+  return <Icon size={16} className="text-muted-foreground" />
 }
 
 interface InjectableCardProps {
@@ -57,7 +58,6 @@ export function InjectableCard({
   onSelectChange,
 }: InjectableCardProps): React.ReactElement {
   const { t, i18n } = useTranslation()
-  const Icon = getIconForType(injectable.dataType)
 
   // Get localized text from i18n objects
   const label =
@@ -118,7 +118,7 @@ export function InjectableCard({
         )}
 
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-muted/50">
-          <Icon size={16} className="text-muted-foreground" />
+          {renderDataTypeIcon(injectable.dataType)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">

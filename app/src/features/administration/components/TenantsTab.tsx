@@ -74,10 +74,12 @@ export function TenantsTab(): React.ReactElement {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  // Reset page when search changes
-  useEffect(() => {
+  // Reset page when search changes (React docs: adjusting state when a prop changes)
+  const [prevDebouncedQuery, setPrevDebouncedQuery] = useState(debouncedQuery)
+  if (debouncedQuery !== prevDebouncedQuery) {
+    setPrevDebouncedQuery(debouncedQuery)
     setPage(1)
-  }, [debouncedQuery])
+  }
 
   const { data, isLoading, error, isFetching } = useSystemTenants(
     page,

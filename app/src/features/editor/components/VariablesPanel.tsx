@@ -3,7 +3,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Clock, Database, Loader2, Maximize2, Search, Variable as VariableIcon, X } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useInjectablesStore } from '../stores/injectables-store'
 import { useVariablesPanelStore } from '../stores/variables-panel-store'
@@ -105,12 +105,12 @@ export function VariablesPanel({
     return sectionsOpen.every(Boolean)
   }, [externalSectionOpen, internalSectionOpen, groupOpenStates, globalVariables, groups])
 
-  // Expand all sections when searching
+  // Expand all sections when searching (store previous props pattern)
   const isSearching = searchQuery.trim().length > 0
-
-  useEffect(() => {
+  const [prevIsSearching, setPrevIsSearching] = useState(isSearching)
+  if (isSearching !== prevIsSearching) {
+    setPrevIsSearching(isSearching)
     if (isSearching) {
-      // Expand all sections when searching
       setExternalSectionOpen(true)
       setInternalSectionOpen(true)
       setGroupOpenStates(prev => {
@@ -121,7 +121,7 @@ export function VariablesPanel({
         return newStates
       })
     }
-  }, [isSearching, groups])
+  }
 
   // Toggle all sections expand/collapse
   const toggleAllSections = useCallback(() => {

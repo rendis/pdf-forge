@@ -18,7 +18,7 @@ import {
   Loader2,
   Search,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useInfiniteTenants, type TenantItem } from '../hooks/useInfiniteTenants'
 import { useInfiniteWorkspaces, type WorkspaceItem } from '../hooks/useInfiniteWorkspaces'
@@ -93,8 +93,10 @@ export function BulkAssignmentDialog({
   const [tenantSearch, setTenantSearch] = useState('')
   const [workspaceSearch, setWorkspaceSearch] = useState('')
 
-  // Reset state when dialog opens/closes
-  useEffect(() => {
+  // Reset state when dialog opens
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       setStep('scope')
       setScopeType(null)
@@ -103,7 +105,7 @@ export function BulkAssignmentDialog({
       setTenantSearch('')
       setWorkspaceSearch('')
     }
-  }, [open])
+  }
 
   const tenantsQuery = useInfiniteTenants(tenantSearch)
   const workspacesQuery = useInfiniteWorkspaces(selectedTenant?.id ?? null, workspaceSearch)

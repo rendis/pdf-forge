@@ -115,12 +115,44 @@ export function ImageInjectableInput({
     }
   }, [])
 
-  // Load preview on initial value
-  useEffect(() => {
-    if (value && !preview && !isLoading) {
-      loadPreview(value)
+  // Load preview on initial value (store previous props pattern)
+  const [initialLoadUrl, setInitialLoadUrl] = useState<string | null>(
+    () => (value && URL_REGEX.test(value) ? value : null)
+  )
+  const [prevValue, setPrevValue] = useState(value)
+  if (value !== prevValue) {
+    setPrevValue(value)
+    if (value && !preview && !isLoading && URL_REGEX.test(value)) {
+      setInitialLoadUrl(value)
+      setIsLoading(true)
+      setPreviewError(null)
     }
-  }, [value, preview, isLoading, loadPreview])
+  }
+  // Handle initial load URL (set during first render or on value change)
+  if (initialLoadUrl && !isLoading && !preview) {
+    setIsLoading(true)
+    setPreviewError(null)
+  }
+
+  useEffect(() => {
+    if (!initialLoadUrl || !isLoading) return
+
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      setPreview(initialLoadUrl)
+      setIsLoading(false)
+      setPreviewError(null)
+      setInitialLoadUrl(null)
+    }
+    img.onerror = () => {
+      setPreview(null)
+      setIsLoading(false)
+      setPreviewError(t('editor.preview.imageLoadError'))
+      setInitialLoadUrl(null)
+    }
+    img.src = initialLoadUrl
+  }, [initialLoadUrl, isLoading, t])
 
   return (
     <div className="space-y-2">

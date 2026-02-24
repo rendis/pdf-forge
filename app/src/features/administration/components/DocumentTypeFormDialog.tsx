@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { Loader2, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DocumentType } from '../api/document-types-api'
 import { useCreateDocumentType, useUpdateDocumentType } from '../hooks/useDocumentTypes'
@@ -73,8 +73,10 @@ export function DocumentTypeFormDialog({
 
   const isLoading = createMutation.isPending || updateMutation.isPending
 
-  // Reset form when dialog opens/closes or documentType changes
-  useEffect(() => {
+  // Reset form when dialog opens (React docs: adjusting state when a prop changes)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       if (mode === 'edit' && documentType) {
         setCode(documentType.code)
@@ -93,7 +95,7 @@ export function DocumentTypeFormDialog({
       setCodeError('')
       setNameError('')
     }
-  }, [open, mode, documentType])
+  }
 
   const validateForm = (): boolean => {
     let isValid = true

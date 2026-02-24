@@ -13,11 +13,19 @@ export function useMediaQuery(query: string): boolean {
     return false
   })
 
+  // Sync matches when query changes
+  const [prevQuery, setPrevQuery] = useState(query)
+  if (query !== prevQuery) {
+    setPrevQuery(query)
+    if (typeof window !== 'undefined') {
+      setMatches(window.matchMedia(query).matches)
+    }
+  }
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const mediaQuery = window.matchMedia(query)
-    setMatches(mediaQuery.matches)
 
     const handler = (event: MediaQueryListEvent) => {
       setMatches(event.matches)
