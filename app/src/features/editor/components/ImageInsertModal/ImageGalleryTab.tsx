@@ -34,8 +34,9 @@ export function ImageGalleryTab({ onSelect }: ImageGalleryTabProps) {
   const [expandedAsset, setExpandedAsset] = useState<GalleryAsset | null>(null)
   const [expandedUrl, setExpandedUrl] = useState<string | null>(null)
 
-  // Delete confirmation
+  // Delete confirmation + loading
   const [deleteConfirmKey, setDeleteConfirmKey] = useState<string | null>(null)
+  const [deletingKey, setDeletingKey] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -170,24 +171,38 @@ export function ImageGalleryTab({ onSelect }: ImageGalleryTabProps) {
   )
 
   const handleDeleteClick = useCallback(
-    async (key: string, e: React.MouseEvent) => {
+    (key: string, e: React.MouseEvent) => {
       e.stopPropagation()
-      if (deleteConfirmKey === key) {
-        // Confirmed — delete
-        try {
-          await galleryApi.delete(key)
-          if (selectedKey === key) setSelectedKey(null)
-          setDeleteConfirmKey(null)
-          await refreshList()
-        } catch {
-          setError(t('editor.image.gallery.deleteError'))
-        }
-      } else {
+      // First click → show confirmation overlay
+      if (deleteConfirmKey !== key) {
         setDeleteConfirmKey(key)
       }
     },
-    [deleteConfirmKey, selectedKey, refreshList, t],
+    [deleteConfirmKey],
   )
+
+  const handleDeleteConfirm = useCallback(
+    async (key: string, e: React.MouseEvent) => {
+      e.stopPropagation()
+      setDeletingKey(key)
+      try {
+        await galleryApi.delete(key)
+        if (selectedKey === key) setSelectedKey(null)
+        setDeleteConfirmKey(null)
+        await refreshList()
+      } catch {
+        setError(t('editor.image.gallery.deleteError'))
+      } finally {
+        setDeletingKey(null)
+      }
+    },
+    [selectedKey, refreshList, t],
+  )
+
+  const handleDeleteCancel = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDeleteConfirmKey(null)
+  }, [])
 
   const handleExpand = useCallback((asset: GalleryAsset, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -323,31 +338,63 @@ export function ImageGalleryTab({ onSelect }: ImageGalleryTabProps) {
                   </div>
                 )}
 
+                {/* Delete confirmation overlay */}
+                {deleteConfirmKey === asset.key && (
+                  <div className="absolute inset-0 z-10 bg-destructive/90 flex flex-col items-center justify-center gap-2 p-2">
+                    {deletingKey === asset.key ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-destructive-foreground" />
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4 text-destructive-foreground" />
+                        <p className="text-[10px] text-destructive-foreground text-center leading-tight">
+                          {t('editor.image.gallery.confirmDelete')}
+                        </p>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-6 px-2 text-[10px] rounded-sm"
+                            onClick={handleDeleteCancel}
+                          >
+                            {t('common.cancel')}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-[10px] rounded-sm bg-destructive-foreground text-destructive hover:bg-destructive-foreground/90"
+                            onClick={(e) => handleDeleteConfirm(asset.key, e)}
+                          >
+                            {t('common.delete')}
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
                 {/* Hover overlay with actions */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={(e) => handleExpand(asset, e)}
-                    title={t('editor.image.gallery.expand')}
-                  >
-                    <Expand className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant={deleteConfirmKey === asset.key ? 'destructive' : 'secondary'}
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={(e) => handleDeleteClick(asset.key, e)}
-                    title={
-                      deleteConfirmKey === asset.key
-                        ? t('editor.image.gallery.confirmDelete')
-                        : t('editor.image.gallery.deleteAsset')
-                    }
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                {deleteConfirmKey !== asset.key && (
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={(e) => handleExpand(asset, e)}
+                      title={t('editor.image.gallery.expand')}
+                    >
+                      <Expand className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={(e) => handleDeleteClick(asset.key, e)}
+                      title={t('editor.image.gallery.deleteAsset')}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                )}
 
                 {/* Name overlay */}
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 pb-1 pt-4">
