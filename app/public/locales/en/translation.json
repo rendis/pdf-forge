@@ -12,6 +12,8 @@
     "deleting": "Deleting...",
     "archive": "Archive",
     "archiving": "Archiving...",
+    "staging": "Staging...",
+    "unstaging": "Unstaging...",
     "cancelling": "Cancelling...",
     "edit": "Edit",
     "create": "Create",
@@ -204,6 +206,7 @@
       "createFirstVersion": "Create first version",
       "filters": {
         "published": "Published",
+        "staging": "Staging",
         "scheduled": "Scheduled",
         "draft": "Drafts",
         "archived": "Archived"
@@ -255,6 +258,16 @@
       "message": "Are you sure you want to archive version {{version}}? This action cannot be undone.",
       "confirm": "Archive"
     },
+    "stageDialog": {
+      "title": "Stage Version",
+      "message": "Send version v{{version}} to staging? If another version is currently staged, it will be automatically unstaged.",
+      "confirm": "Stage"
+    },
+    "unstageDialog": {
+      "title": "Unstage Version",
+      "message": "Remove version v{{version}} from staging? It will return to Draft status.",
+      "confirm": "Unstage"
+    },
     "versionCancelScheduleDialog": {
       "title": "Cancel Scheduled Publication",
       "message": "Are you sure you want to cancel the scheduled publication of version {{version}}?",
@@ -268,7 +281,9 @@
         "schedule": "Schedule",
         "archive": "Archive",
         "clone": "Clone version",
-        "cancelSchedule": "Cancel Schedule"
+        "cancelSchedule": "Cancel Schedule",
+        "stage": "Stage",
+        "unstage": "Unstage"
       },
       "idCopied": "Version ID copied to clipboard"
     },

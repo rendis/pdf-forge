@@ -21,6 +21,7 @@ import {
     Clock,
     FileText,
     FileType,
+    FlaskConical,
     FolderOpen,
     Layers,
     Pencil,
@@ -38,6 +39,8 @@ import {
 import { useUpdateTemplate, useAssignDocumentType } from '../hooks/useTemplates'
 import { DocumentTypeSelector } from '@/features/administration/components/DocumentTypeSelector'
 import { ArchiveVersionDialog } from './ArchiveVersionDialog'
+import { StageVersionDialog } from './StageVersionDialog'
+import { UnstageVersionDialog } from './UnstageVersionDialog'
 import { DocumentTypeConflictDialog } from './DocumentTypeConflictDialog'
 import { CancelScheduleDialog } from './CancelScheduleDialog'
 import { CloneVersionDialog } from './CloneVersionDialog'
@@ -87,6 +90,10 @@ export function TemplateDetailPage() {
   const [versionToCancelSchedule, setVersionToCancelSchedule] = useState<TemplateVersionSummaryResponse | null>(null)
   const [cloneDialogOpen, setCloneDialogOpen] = useState(false)
   const [versionToClone, setVersionToClone] = useState<TemplateVersionSummaryResponse | null>(null)
+  const [stageDialogOpen, setStageDialogOpen] = useState(false)
+  const [versionToStage, setVersionToStage] = useState<TemplateVersionSummaryResponse | null>(null)
+  const [unstageDialogOpen, setUnstageDialogOpen] = useState(false)
+  const [versionToUnstage, setVersionToUnstage] = useState<TemplateVersionSummaryResponse | null>(null)
   const [conflictDialog, setConflictDialog] = useState<{
     open: boolean
     conflict: { id: string; title: string } | null
@@ -174,6 +181,7 @@ export function TemplateDetailPage() {
     if (!versions) {
       return {
         PUBLISHED: 0,
+        STAGING: 0,
         SCHEDULED: 0,
         DRAFT: 0,
         ARCHIVED: 0,
@@ -186,6 +194,7 @@ export function TemplateDetailPage() {
       },
       {
         PUBLISHED: 0,
+        STAGING: 0,
         SCHEDULED: 0,
         DRAFT: 0,
         ARCHIVED: 0,
@@ -196,6 +205,7 @@ export function TemplateDetailPage() {
   // User's filter toggle preferences (true = show, false = hide)
   const [userFilterToggles, setUserFilterToggles] = useState<Record<VersionStatus, boolean>>({
     PUBLISHED: true,
+    STAGING: true,
     SCHEDULED: true,
     DRAFT: true,
     ARCHIVED: true,
@@ -204,6 +214,7 @@ export function TemplateDetailPage() {
   // Effective filters: user preference AND count > 0
   const versionFilters = useMemo(() => ({
     PUBLISHED: userFilterToggles.PUBLISHED && versionCounts.PUBLISHED > 0,
+    STAGING: userFilterToggles.STAGING && versionCounts.STAGING > 0,
     SCHEDULED: userFilterToggles.SCHEDULED && versionCounts.SCHEDULED > 0,
     DRAFT: userFilterToggles.DRAFT && versionCounts.DRAFT > 0,
     ARCHIVED: userFilterToggles.ARCHIVED && versionCounts.ARCHIVED > 0,
@@ -232,13 +243,16 @@ export function TemplateDetailPage() {
     
     // Separate versions by status
     const published: typeof filteredVersions = []
+    const staging: typeof filteredVersions = []
     const scheduled: typeof filteredVersions = []
     const drafts: typeof filteredVersions = []
     const archived: typeof filteredVersions = []
-    
+
     for (const version of filteredVersions) {
       if (version.status === 'PUBLISHED') {
         published.push(version)
+      } else if (version.status === 'STAGING') {
+        staging.push(version)
       } else if (version.status === 'SCHEDULED') {
         scheduled.push(version)
       } else if (version.status === 'DRAFT') {
@@ -248,6 +262,14 @@ export function TemplateDetailPage() {
       }
     }
     
+    // Sort staging by updatedAt descending (most recent first)
+    staging.sort((a, b) => {
+      const dateA = getSortDate(a)
+      const dateB = getSortDate(b)
+      if (isNaN(dateA) || isNaN(dateB)) return 0
+      return dateB - dateA
+    })
+
     // Sort scheduled by scheduledPublishAt ascending (earliest first)
     scheduled.sort((a, b) => {
       if (!a.scheduledPublishAt && !b.scheduledPublishAt) return 0
@@ -276,7 +298,7 @@ export function TemplateDetailPage() {
     })
     
     // Concatenate in the required order
-    return [...published, ...scheduled, ...drafts, ...archived]
+    return [...published, ...staging, ...scheduled, ...drafts, ...archived]
   }, [versions, versionFilters])
 
   const handleBackToList = () => {
@@ -411,6 +433,16 @@ export function TemplateDetailPage() {
   const handleCloneClick = (version: TemplateVersionSummaryResponse) => {
     setVersionToClone(version)
     setCloneDialogOpen(true)
+  }
+
+  const handleStage = (version: TemplateVersionSummaryResponse) => {
+    setVersionToStage(version)
+    setStageDialogOpen(true)
+  }
+
+  const handleUnstage = (version: TemplateVersionSummaryResponse) => {
+    setVersionToUnstage(version)
+    setUnstageDialogOpen(true)
   }
 
   const handleRenameVersion = async (version: TemplateVersionSummaryResponse, newName: string) => {
@@ -702,6 +734,35 @@ export function TemplateDetailPage() {
                     </TooltipContent>
                   </Tooltip>
 
+                  {/* Staging filter */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() =>
+                          setUserFilterToggles((prev) => ({
+                            ...prev,
+                            STAGING: !prev.STAGING,
+                          }))
+                        }
+                        disabled={versionCounts.STAGING === 0}
+                        className={cn(
+                          'flex items-center gap-1.5 rounded-sm border px-1.5 py-1 transition-colors',
+                          versionCounts.STAGING === 0
+                            ? 'cursor-not-allowed border-border bg-background text-muted-foreground opacity-30'
+                            : versionFilters.STAGING
+                              ? 'border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                              : 'border-border bg-background text-muted-foreground opacity-50 hover:opacity-75'
+                        )}
+                      >
+                        <FlaskConical size={14} />
+                        <span className="font-mono text-[10px]">{versionCounts.STAGING}</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="font-mono text-xs">
+                      {t('templates.detail.filters.staging', 'Staging')}
+                    </TooltipContent>
+                  </Tooltip>
+
                   {/* Scheduled filter */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -812,6 +873,8 @@ export function TemplateDetailPage() {
                     onArchive={handleArchive}
                     onDelete={handleDelete}
                     onClone={handleCloneClick}
+                    onStage={handleStage}
+                    onUnstage={handleUnstage}
                     onRename={handleRenameVersion}
                   />
                 ))}
@@ -900,6 +963,22 @@ export function TemplateDetailPage() {
         open={cancelScheduleDialogOpen}
         onOpenChange={setCancelScheduleDialogOpen}
         version={versionToCancelSchedule}
+        templateId={templateId}
+      />
+
+      {/* Stage Version Dialog */}
+      <StageVersionDialog
+        open={stageDialogOpen}
+        onOpenChange={setStageDialogOpen}
+        version={versionToStage}
+        templateId={templateId}
+      />
+
+      {/* Unstage Version Dialog */}
+      <UnstageVersionDialog
+        open={unstageDialogOpen}
+        onOpenChange={setUnstageDialogOpen}
+        version={versionToUnstage}
         templateId={templateId}
       />
 

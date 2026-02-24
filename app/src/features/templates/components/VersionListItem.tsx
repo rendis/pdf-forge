@@ -15,10 +15,12 @@ import {
     Clock,
     Copy,
     ExternalLink,
+    FlaskConical,
     Loader2,
     Pencil,
     Send,
     Trash2,
+    Undo2,
     XCircle,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -34,6 +36,8 @@ interface VersionListItemProps {
   onArchive?: (version: TemplateVersionSummaryResponse) => void
   onDelete?: (version: TemplateVersionSummaryResponse) => void
   onClone?: (version: TemplateVersionSummaryResponse) => void
+  onStage?: (version: TemplateVersionSummaryResponse) => void
+  onUnstage?: (version: TemplateVersionSummaryResponse) => void
   onRename?: (version: TemplateVersionSummaryResponse, newName: string) => Promise<void>
   isHighlighted?: boolean
 }
@@ -88,6 +92,8 @@ export function VersionListItem({
   onArchive,
   onDelete,
   onClone,
+  onStage,
+  onUnstage,
   onRename,
   isHighlighted = false,
 }: VersionListItemProps) {
@@ -99,7 +105,7 @@ export function VersionListItem({
   const [isSaving, setIsSaving] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const canRename = version.status === 'DRAFT' && !!onRename
+  const canRename = (version.status === 'DRAFT' || version.status === 'STAGING') && !!onRename
 
   useEffect(() => {
     if (!isEditing && !isSaving) {
@@ -150,7 +156,9 @@ export function VersionListItem({
     }
   }
 
-  const showPublish = version.status === 'DRAFT' || version.status === 'SCHEDULED'
+  const showStage = version.status === 'DRAFT' && !!onStage
+  const showUnstage = version.status === 'STAGING' && !!onUnstage
+  const showPublish = version.status === 'DRAFT' || version.status === 'SCHEDULED' || version.status === 'STAGING'
   const showSchedule = version.status === 'DRAFT'
   const showCancelSchedule = version.status === 'SCHEDULED'
   const showArchive = version.status === 'PUBLISHED'
@@ -260,6 +268,20 @@ export function VersionListItem({
                 icon={<Copy size={18} />}
                 label={t('templates.versions.actions.clone', 'Clonar versión')}
                 onClick={() => onClone?.(version)}
+              />
+            )}
+            {showStage && (
+              <ActionButton
+                icon={<FlaskConical size={18} />}
+                label={t('templates.versions.actions.stage', 'Stage')}
+                onClick={() => onStage?.(version)}
+              />
+            )}
+            {showUnstage && (
+              <ActionButton
+                icon={<Undo2 size={18} />}
+                label={t('templates.versions.actions.unstage', 'Unstage')}
+                onClick={() => onUnstage?.(version)}
               />
             )}
             {showPublish && (

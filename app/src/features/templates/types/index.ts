@@ -8,7 +8,7 @@ import type { PortableDocument } from '@/features/editor/types/document-format'
 // Template Types
 // ============================================================================
 
-export type TemplateStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type TemplateStatus = 'DRAFT' | 'STAGING' | 'PUBLISHED' | 'ARCHIVED';
 
 export interface Template {
   id: string

@@ -14,6 +14,11 @@ const statusConfig: Record<
     badgeClass: 'border-warning-border/50 bg-warning-muted text-warning-foreground',
     dotClass: 'bg-warning',
   },
+  STAGING: {
+    label: 'Staging',
+    badgeClass: 'border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400',
+    dotClass: 'bg-purple-500',
+  },
   SCHEDULED: {
     label: 'Scheduled',
     badgeClass: 'border-info-border/50 bg-info-muted text-info-foreground',

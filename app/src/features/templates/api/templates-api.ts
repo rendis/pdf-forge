@@ -285,5 +285,21 @@ export const versionsApi = {
   delete: async (templateId: string, versionId: string): Promise<void> => {
     await apiClient.delete(`/content/templates/${templateId}/versions/${versionId}`)
   },
+
+  /**
+   * Envía una versión a staging.
+   * POST /api/v1/content/templates/{templateId}/versions/{versionId}/stage
+   */
+  stage: async (templateId: string, versionId: string): Promise<void> => {
+    await apiClient.post(`/content/templates/${templateId}/versions/${versionId}/stage`)
+  },
+
+  /**
+   * Quita una versión de staging (vuelve a DRAFT).
+   * POST /api/v1/content/templates/{templateId}/versions/{versionId}/unstage
+   */
+  unstage: async (templateId: string, versionId: string): Promise<void> => {
+    await apiClient.post(`/content/templates/${templateId}/versions/${versionId}/unstage`)
+  },
 }
 

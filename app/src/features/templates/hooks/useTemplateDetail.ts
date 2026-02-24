@@ -125,6 +125,34 @@ export function useDeleteVersion(templateId: string) {
   })
 }
 
+export function useStageVersion(templateId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (versionId: string) => versionsApi.stage(templateId, versionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: templateDetailKeys.detail(templateId),
+      })
+      queryClient.invalidateQueries({ queryKey: templateKeys.all })
+    },
+  })
+}
+
+export function useUnstageVersion(templateId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (versionId: string) => versionsApi.unstage(templateId, versionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: templateDetailKeys.detail(templateId),
+      })
+      queryClient.invalidateQueries({ queryKey: templateKeys.all })
+    },
+  })
+}
+
 export function useUpdateVersion(templateId: string) {
   const queryClient = useQueryClient()
 

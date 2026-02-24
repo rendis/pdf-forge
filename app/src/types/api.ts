@@ -102,7 +102,7 @@ export interface FolderTree extends Folder {
 // Template Version Types
 // ============================================
 
-export type VersionStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED";
+export type VersionStatus = "DRAFT" | "STAGING" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED";
 
 export interface TemplateVersionDetail {
   id: string;

@@ -12,6 +12,8 @@
     "deleting": "Eliminando...",
     "archive": "Archivar",
     "archiving": "Archivando...",
+    "staging": "Enviando a staging...",
+    "unstaging": "Quitando de staging...",
     "cancelling": "Cancelando...",
     "edit": "Editar",
     "create": "Crear",
@@ -204,6 +206,7 @@
       "createFirstVersion": "Crear primera versión",
       "filters": {
         "published": "Publicadas",
+        "staging": "En staging",
         "scheduled": "Agendadas",
         "draft": "Borradores",
         "archived": "Archivadas"
@@ -255,6 +258,16 @@
       "message": "¿Estás seguro de que deseas archivar la versión {{version}}? Esta acción no se puede deshacer.",
       "confirm": "Archivar"
     },
+    "stageDialog": {
+      "title": "Enviar a Staging",
+      "message": "¿Enviar la versión v{{version}} a staging? Si hay otra versión en staging, será removida automáticamente.",
+      "confirm": "Enviar a Staging"
+    },
+    "unstageDialog": {
+      "title": "Quitar de Staging",
+      "message": "¿Quitar la versión v{{version}} de staging? Volverá al estado Borrador.",
+      "confirm": "Quitar de Staging"
+    },
     "versionCancelScheduleDialog": {
       "title": "Cancelar Publicación Agendada",
       "message": "¿Estás seguro de que deseas cancelar la publicación agendada de la versión {{version}}?",
@@ -268,7 +281,9 @@
         "schedule": "Programar",
         "archive": "Archivar",
         "clone": "Clonar versión",
-        "cancelSchedule": "Cancelar Programación"
+        "cancelSchedule": "Cancelar Programación",
+        "stage": "Enviar a staging",
+        "unstage": "Quitar de staging"
       },
       "idCopied": "ID de versión copiado al portapapeles"
     },
