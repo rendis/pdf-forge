@@ -329,8 +329,103 @@ func TestTemplateVersionSearchAdapter_SearchTemplateVersions_StagingPreferredOve
 	assert.Equal(t, "v-published", items[0].VersionID, "published filter should return published version")
 }
 
+func TestTemplateVersionSearchAdapter_IncludeTenantSystemWorkspace(t *testing.T) {
+	tenant := &entity.Tenant{ID: "tenant-1", Code: "TENANT_A"}
+	docType := &entity.DocumentType{ID: "doc-1", Code: "CONTRACT"}
+	sysTemplate := &entity.Template{ID: "tpl-sys", DocumentTypeID: &docType.ID}
+	sysWs := &entity.Workspace{ID: "ws-sys", Code: "TENANTA_SYS"}
+
+	adapter := &TemplateVersionSearchAdapter{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode:     map[string]*entity.Tenant{"TENANT_A": tenant},
+			sysWsCodes: map[string]string{"TENANT_A": "TENANTA_SYS"},
+		},
+		workspaceRepo: &templateResolverWorkspaceRepoStub{
+			byCodeAndTenant: map[string]*entity.Workspace{
+				"tenant-1|TENANTA_SYS": sysWs,
+			},
+		},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{"tenant-1|CONTRACT": docType},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{
+			byDocumentType: map[string]*entity.Template{"ws-sys|doc-1": sysTemplate},
+		},
+		versionRepo: &templateResolverTemplateVersionRepoStub{
+			publishedByTemplate: map[string]*entity.TemplateVersionWithDetails{
+				"tpl-sys": {
+					TemplateVersion: entity.TemplateVersion{ID: "v-sys-published", Status: entity.VersionStatusPublished},
+				},
+			},
+		},
+	}
+
+	t.Run("flag off does not search sys workspace", func(t *testing.T) {
+		items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+			TenantCode:     "TENANT_A",
+			WorkspaceCodes: []string{"CLIENT_WS"},
+			DocumentType:   "CONTRACT",
+		})
+		require.NoError(t, err)
+		assert.Empty(t, items)
+	})
+
+	t.Run("flag on appends sys workspace", func(t *testing.T) {
+		items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+			TenantCode:                   "TENANT_A",
+			WorkspaceCodes:               []string{"CLIENT_WS"},
+			DocumentType:                 "CONTRACT",
+			IncludeTenantSystemWorkspace: true,
+		})
+		require.NoError(t, err)
+		require.Len(t, items, 1)
+		assert.Equal(t, "v-sys-published", items[0].VersionID)
+		assert.Equal(t, "TENANTA_SYS", items[0].WorkspaceCode)
+	})
+
+	t.Run("dedup when explicit code equals sys workspace code", func(t *testing.T) {
+		items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+			TenantCode:                   "TENANT_A",
+			WorkspaceCodes:               []string{"TENANTA_SYS"},
+			DocumentType:                 "CONTRACT",
+			IncludeTenantSystemWorkspace: true,
+		})
+		require.NoError(t, err)
+		require.Len(t, items, 1, "should not duplicate results when sys workspace already in codes")
+		assert.Equal(t, "v-sys-published", items[0].VersionID)
+	})
+}
+
+func TestTemplateVersionSearchAdapter_IncludeTenantSystemWorkspace_NoSysWorkspace(t *testing.T) {
+	tenant := &entity.Tenant{ID: "tenant-1", Code: "TENANT_A"}
+	docType := &entity.DocumentType{ID: "doc-1", Code: "CONTRACT"}
+
+	adapter := &TemplateVersionSearchAdapter{
+		tenantRepo: &templateResolverTenantRepoStub{
+			byCode: map[string]*entity.Tenant{"TENANT_A": tenant},
+			// No sysWsCodes — tenant has no system workspace
+		},
+		workspaceRepo: &templateResolverWorkspaceRepoStub{},
+		docTypeRepo: &templateResolverDocumentTypeRepoStub{
+			byCodeWithGlobalFallback: map[string]*entity.DocumentType{"tenant-1|CONTRACT": docType},
+		},
+		templateRepo: &templateResolverTemplateRepoStub{},
+		versionRepo:  &templateResolverTemplateVersionRepoStub{},
+	}
+
+	items, err := adapter.SearchTemplateVersions(context.Background(), port.TemplateVersionSearchParams{
+		TenantCode:                   "TENANT_A",
+		WorkspaceCodes:               []string{"CLIENT_WS"},
+		DocumentType:                 "CONTRACT",
+		IncludeTenantSystemWorkspace: true,
+	})
+	require.NoError(t, err)
+	assert.Empty(t, items, "should gracefully skip when tenant has no system workspace")
+}
+
 type templateResolverTenantRepoStub struct {
 	byCode        map[string]*entity.Tenant
+	sysWsCodes    map[string]string // tenantCode → sys workspace code
 	findByCodeErr map[string]error
 }
 
@@ -342,6 +437,22 @@ func (s *templateResolverTenantRepoStub) FindByCode(_ context.Context, code stri
 		return tenant, nil
 	}
 	return nil, entity.ErrTenantNotFound
+}
+
+func (s *templateResolverTenantRepoStub) FindByCodeWithSysWorkspace(_ context.Context, code string) (*entity.Tenant, *string, error) {
+	if err := s.findByCodeErr[code]; err != nil {
+		return nil, nil, err
+	}
+	if tenant, ok := s.byCode[code]; ok {
+		var sysWs *string
+		if s.sysWsCodes != nil {
+			if ws, ok := s.sysWsCodes[code]; ok {
+				sysWs = &ws
+			}
+		}
+		return tenant, sysWs, nil
+	}
+	return nil, nil, entity.ErrTenantNotFound
 }
 
 func (s *templateResolverTenantRepoStub) FindSystemTenant(_ context.Context) (*entity.Tenant, error) {

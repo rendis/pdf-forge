@@ -23,6 +23,10 @@ func NewDefaultTemplateResolver() port.TemplateResolver {
 }
 
 // Resolve applies tenant/workspace/documentType fallback and requires a published version.
+//
+// Fallback chain:
+//  1. Tenant + exact workspace from request + tenant's system workspace
+//  2. SYS tenant + SYS_WRKSP (global system)
 func (r *DefaultTemplateResolver) Resolve(
 	ctx context.Context,
 	req *port.TemplateResolverRequest,
@@ -33,17 +37,26 @@ func (r *DefaultTemplateResolver) Resolve(
 	}
 
 	fallbacks := []struct {
-		tenantCode     string
-		workspaceCodes []string
-		stage          string
+		tenantCode                   string
+		workspaceCodes               []string
+		includeTenantSystemWorkspace bool
+		stage                        string
 	}{
-		{tenantCode: req.TenantCode, workspaceCodes: []string{req.WorkspaceCode}, stage: "tenant_workspace"},
-		{tenantCode: req.TenantCode, workspaceCodes: []string{systemWorkspaceCode}, stage: "tenant_system_workspace"},
-		{tenantCode: systemTenantCode, workspaceCodes: []string{systemWorkspaceCode}, stage: "system_system_workspace"},
+		{
+			tenantCode:                   req.TenantCode,
+			workspaceCodes:               []string{req.WorkspaceCode},
+			includeTenantSystemWorkspace: true,
+			stage:                        "tenant_workspace",
+		},
+		{
+			tenantCode:     systemTenantCode,
+			workspaceCodes: []string{systemWorkspaceCode},
+			stage:          "system_system_workspace",
+		},
 	}
 
 	for _, step := range fallbacks {
-		if vID, err := r.resolveAtStage(ctx, req, adapter, step.tenantCode, step.workspaceCodes, step.stage); err != nil {
+		if vID, err := r.resolveAtStage(ctx, req, adapter, step.tenantCode, step.workspaceCodes, step.includeTenantSystemWorkspace, step.stage); err != nil {
 			return nil, err
 		} else if vID != nil {
 			return vID, nil
@@ -57,12 +70,12 @@ func (r *DefaultTemplateResolver) resolveAtStage(
 	ctx context.Context,
 	req *port.TemplateResolverRequest,
 	adapter port.TemplateVersionSearchAdapter,
-	tenantCode string, workspaceCodes []string, stage string,
+	tenantCode string, workspaceCodes []string, includeTenantSys bool, stage string,
 ) (*string, error) {
 	// In dev environment: try staging version first
 	if req.Environment.IsDev() {
 		staging := true
-		if vID, err := r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, &staging, nil, stage+" (staging)"); err != nil {
+		if vID, err := r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, &staging, nil, includeTenantSys, stage+" (staging)"); err != nil {
 			return nil, err
 		} else if vID != nil {
 			return vID, nil
@@ -71,21 +84,22 @@ func (r *DefaultTemplateResolver) resolveAtStage(
 
 	// Published lookup (existing behavior)
 	published := true
-	return r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, nil, &published, stage)
+	return r.searchVersion(ctx, adapter, tenantCode, workspaceCodes, req.DocumentType, nil, &published, includeTenantSys, stage)
 }
 
 func (r *DefaultTemplateResolver) searchVersion(
 	ctx context.Context,
 	adapter port.TemplateVersionSearchAdapter,
 	tenantCode string, workspaceCodes []string, documentType string,
-	staging, published *bool, stage string,
+	staging, published *bool, includeTenantSys bool, stage string,
 ) (*string, error) {
 	items, err := adapter.SearchTemplateVersions(ctx, port.TemplateVersionSearchParams{
-		TenantCode:     tenantCode,
-		WorkspaceCodes: workspaceCodes,
-		DocumentType:   documentType,
-		Published:      published,
-		Staging:        staging,
+		TenantCode:                   tenantCode,
+		WorkspaceCodes:               workspaceCodes,
+		DocumentType:                 documentType,
+		Published:                    published,
+		Staging:                      staging,
+		IncludeTenantSystemWorkspace: includeTenantSys,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("default template resolution failed at stage %s: %w", stage, err)
@@ -95,7 +109,7 @@ func (r *DefaultTemplateResolver) searchVersion(
 		slog.InfoContext(ctx, "default template resolver hit",
 			"stage", stage,
 			"tenantCode", tenantCode,
-			"workspaceCode", workspaceCodes[0],
+			"workspaceCode", items[0].WorkspaceCode,
 			"documentType", documentType,
 			"templateVersionID", versionID,
 		)
@@ -105,7 +119,6 @@ func (r *DefaultTemplateResolver) searchVersion(
 	slog.DebugContext(ctx, "default template resolver stage miss",
 		"stage", stage,
 		"tenantCode", tenantCode,
-		"workspaceCode", workspaceCodes[0],
 		"documentType", documentType,
 	)
 	return nil, nil

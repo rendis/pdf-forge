@@ -8,6 +8,7 @@ import (
 
 type templateResolverTenantRepository interface {
 	FindByCode(ctx context.Context, code string) (*entity.Tenant, error)
+	FindByCodeWithSysWorkspace(ctx context.Context, code string) (*entity.Tenant, *string, error)
 	FindSystemTenant(ctx context.Context) (*entity.Tenant, error)
 }
 

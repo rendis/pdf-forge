@@ -47,6 +47,10 @@ type TenantRepository interface {
 	// ExistsByCode checks if a tenant with the given code exists.
 	ExistsByCode(ctx context.Context, code string) (bool, error)
 
+	// FindByCodeWithSysWorkspace finds a tenant by code and its system workspace code in a single query.
+	// Returns the tenant and a pointer to the system workspace code (nil if no system workspace exists).
+	FindByCodeWithSysWorkspace(ctx context.Context, code string) (*entity.Tenant, *string, error)
+
 	// FindSystemTenant finds the system tenant (is_system = true).
 	FindSystemTenant(ctx context.Context) (*entity.Tenant, error)
 }

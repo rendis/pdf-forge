@@ -87,4 +87,12 @@ const (
 		WHERE name % $1 OR code % $1
 		ORDER BY is_system DESC, GREATEST(similarity(name, $1), similarity(code, $1)) DESC
 		LIMIT $2`
+
+	queryFindByCodeWithSysWorkspace = `
+		SELECT t.id, t.code, t.name, t.description, t.is_system, t.status,
+		       COALESCE(t.settings, '{}'), t.created_at, t.updated_at,
+		       w.code
+		FROM tenancy.tenants t
+		LEFT JOIN tenancy.workspaces w ON w.tenant_id = t.id AND w.type = 'SYSTEM'
+		WHERE t.code = $1`
 )

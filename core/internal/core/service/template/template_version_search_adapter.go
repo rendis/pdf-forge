@@ -38,10 +38,11 @@ func NewTemplateVersionSearchAdapter(
 
 // searchContext holds resolved entities needed for the workspace-level search loop.
 type searchContext struct {
-	tenant        *entity.Tenant
-	docType       *entity.DocumentType
-	wantPublished bool
-	wantStaging   bool
+	tenant          *entity.Tenant
+	docType         *entity.DocumentType
+	tenantSysWsCode *string
+	wantPublished   bool
+	wantStaging     bool
 }
 
 // SearchTemplateVersions returns deterministic candidates by tenant/workspace/document type.
@@ -58,8 +59,22 @@ func (a *TemplateVersionSearchAdapter) SearchTemplateVersions(ctx context.Contex
 		return []port.TemplateVersionSearchItem{}, nil
 	}
 
-	results := make([]port.TemplateVersionSearchItem, 0, len(params.WorkspaceCodes))
-	for _, code := range params.WorkspaceCodes {
+	// Build the effective workspace code list: explicit codes first, then tenant system workspace if requested.
+	codes := make([]string, 0, len(params.WorkspaceCodes)+1)
+	codes = append(codes, params.WorkspaceCodes...)
+	if params.IncludeTenantSystemWorkspace && sc.tenantSysWsCode != nil {
+		codes = append(codes, *sc.tenantSysWsCode)
+	}
+
+	results := make([]port.TemplateVersionSearchItem, 0, len(codes))
+	searched := make(map[string]struct{}, len(codes))
+	for _, code := range codes {
+		upper := strings.ToUpper(strings.TrimSpace(code))
+		if _, dup := searched[upper]; dup {
+			continue
+		}
+		searched[upper] = struct{}{}
+
 		items, err := a.collectWorkspaceVersions(ctx, sc, code)
 		if err != nil {
 			return nil, err
@@ -84,10 +99,10 @@ func validateSearchParams(params port.TemplateVersionSearchParams) error {
 	return nil
 }
 
-// resolveSearchContext resolves the tenant and document type from codes.
+// resolveSearchContext resolves the tenant, its system workspace code, and the document type.
 // Returns nil context (no error) when the tenant or document type does not exist.
 func (a *TemplateVersionSearchAdapter) resolveSearchContext(ctx context.Context, params port.TemplateVersionSearchParams) (*searchContext, error) {
-	tenant, err := a.tenantRepo.FindByCode(ctx, strings.ToUpper(strings.TrimSpace(params.TenantCode)))
+	tenant, sysWsCode, err := a.tenantRepo.FindByCodeWithSysWorkspace(ctx, strings.ToUpper(strings.TrimSpace(params.TenantCode)))
 	if err != nil {
 		if errors.Is(err, entity.ErrTenantNotFound) {
 			return nil, nil
@@ -113,7 +128,7 @@ func (a *TemplateVersionSearchAdapter) resolveSearchContext(ctx context.Context,
 		wantStaging = *params.Staging
 	}
 
-	return &searchContext{tenant: tenant, docType: docType, wantPublished: wantPublished, wantStaging: wantStaging}, nil
+	return &searchContext{tenant: tenant, docType: docType, tenantSysWsCode: sysWsCode, wantPublished: wantPublished, wantStaging: wantStaging}, nil
 }
 
 // collectWorkspaceVersions finds template versions for a single workspace code.

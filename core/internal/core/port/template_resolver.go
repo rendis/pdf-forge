@@ -71,6 +71,10 @@ type TemplateVersionSearchParams struct {
 	// Staging filters by STAGING status. Defaults to false when nil.
 	// When true, takes precedence over Published (Published is ignored).
 	Staging *bool
+	// IncludeTenantSystemWorkspace, when true, also searches the tenant's system
+	// workspace (auto-created per tenant) in addition to the explicit WorkspaceCodes.
+	// The system workspace is appended after all explicit codes, preserving priority order.
+	IncludeTenantSystemWorkspace bool
 }
 
 // TemplateVersionSearchItem is one candidate returned by SearchTemplateVersions.

@@ -23,11 +23,27 @@ func (s *stubTemplateVersionSearchAdapter) SearchTemplateVersions(_ context.Cont
 	if len(params.WorkspaceCodes) > 0 {
 		workspaceCode = params.WorkspaceCodes[0]
 	}
+
 	key := fmt.Sprintf("%s|%s|%s", params.TenantCode, workspaceCode, params.DocumentType)
 	if err, ok := s.errors[key]; ok {
 		return nil, err
 	}
-	return s.responses[key], nil
+
+	results := s.collectResponses(key)
+
+	if params.IncludeTenantSystemWorkspace {
+		sysKey := fmt.Sprintf("%s|%s_SYS|%s", params.TenantCode, params.TenantCode, params.DocumentType)
+		results = append(results, s.collectResponses(sysKey)...)
+	}
+
+	return results, nil
+}
+
+func (s *stubTemplateVersionSearchAdapter) collectResponses(key string) []port.TemplateVersionSearchItem {
+	if items, ok := s.responses[key]; ok {
+		return items
+	}
+	return nil
 }
 
 func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
@@ -74,8 +90,7 @@ func TestDefaultTemplateResolver_StagingMode(t *testing.T) {
 		assert.Equal(t, "v-published", *versionID)
 	})
 
-	t.Run("staging mode falls back through levels", func(t *testing.T) {
-		// No staging or published at level 1/2, staging at level 3
+	t.Run("staging mode falls back to global system", func(t *testing.T) {
 		customAdapter := &stagingAwareSearchAdapter{
 			stagingResponses: map[string][]port.TemplateVersionSearchItem{
 				"SYS|SYS_WRKSP|CONTRACT": {{VersionID: "v-sys-staging"}},
@@ -196,7 +211,7 @@ func TestDefaultTemplateResolver_Resolve(t *testing.T) {
 		DocumentType:  "CONTRACT",
 	}
 
-	t.Run("level 1 hit", func(t *testing.T) {
+	t.Run("level 1 hit — exact workspace", func(t *testing.T) {
 		adapter := &stubTemplateVersionSearchAdapter{
 			responses: map[string][]port.TemplateVersionSearchItem{
 				"TENANT_A|CLIENT_WS|CONTRACT": {{VersionID: "v-level-1", Published: true}},
@@ -209,30 +224,45 @@ func TestDefaultTemplateResolver_Resolve(t *testing.T) {
 		assert.Equal(t, "v-level-1", *versionID)
 	})
 
-	t.Run("level 2 fallback hit", func(t *testing.T) {
+	t.Run("level 1 fallback — tenant system workspace via flag", func(t *testing.T) {
 		adapter := &stubTemplateVersionSearchAdapter{
 			responses: map[string][]port.TemplateVersionSearchItem{
-				"TENANT_A|SYS_WRKSP|CONTRACT": {{VersionID: "v-level-2", Published: true}},
+				// No match for CLIENT_WS, but match for TENANT_A_SYS (tenant system workspace)
+				"TENANT_A|TENANT_A_SYS|CONTRACT": {{VersionID: "v-tenant-sys", Published: true, WorkspaceCode: "TENANT_A_SYS"}},
 			},
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, adapter)
 		require.NoError(t, err)
 		require.NotNil(t, versionID)
-		assert.Equal(t, "v-level-2", *versionID)
+		assert.Equal(t, "v-tenant-sys", *versionID)
 	})
 
-	t.Run("level 3 fallback hit", func(t *testing.T) {
+	t.Run("level 1 exact workspace takes priority over tenant sys", func(t *testing.T) {
 		adapter := &stubTemplateVersionSearchAdapter{
 			responses: map[string][]port.TemplateVersionSearchItem{
-				"SYS|SYS_WRKSP|CONTRACT": {{VersionID: "v-level-3", Published: true}},
+				"TENANT_A|CLIENT_WS|CONTRACT":    {{VersionID: "v-exact", Published: true}},
+				"TENANT_A|TENANT_A_SYS|CONTRACT": {{VersionID: "v-tenant-sys", Published: true}},
 			},
 		}
 
 		versionID, err := resolver.Resolve(context.Background(), req, adapter)
 		require.NoError(t, err)
 		require.NotNil(t, versionID)
-		assert.Equal(t, "v-level-3", *versionID)
+		assert.Equal(t, "v-exact", *versionID, "exact workspace should take priority over tenant sys")
+	})
+
+	t.Run("level 2 fallback — global system", func(t *testing.T) {
+		adapter := &stubTemplateVersionSearchAdapter{
+			responses: map[string][]port.TemplateVersionSearchItem{
+				"SYS|SYS_WRKSP|CONTRACT": {{VersionID: "v-global-sys", Published: true}},
+			},
+		}
+
+		versionID, err := resolver.Resolve(context.Background(), req, adapter)
+		require.NoError(t, err)
+		require.NotNil(t, versionID)
+		assert.Equal(t, "v-global-sys", *versionID)
 	})
 
 	t.Run("not found", func(t *testing.T) {

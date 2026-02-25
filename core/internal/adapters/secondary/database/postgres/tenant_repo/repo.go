@@ -186,6 +186,32 @@ func (r *Repository) FindSystemTenant(ctx context.Context) (*entity.Tenant, erro
 	return &tenant, nil
 }
 
+// FindByCodeWithSysWorkspace finds a tenant by code and its system workspace code in a single query.
+func (r *Repository) FindByCodeWithSysWorkspace(ctx context.Context, code string) (*entity.Tenant, *string, error) {
+	var tenant entity.Tenant
+	var sysWsCode *string
+	err := r.pool.QueryRow(ctx, queryFindByCodeWithSysWorkspace, code).Scan(
+		&tenant.ID,
+		&tenant.Code,
+		&tenant.Name,
+		&tenant.Description,
+		&tenant.IsSystem,
+		&tenant.Status,
+		&tenant.Settings,
+		&tenant.CreatedAt,
+		&tenant.UpdatedAt,
+		&sysWsCode,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil, entity.ErrTenantNotFound
+	}
+	if err != nil {
+		return nil, nil, fmt.Errorf("querying tenant by code with sys workspace: %w", err)
+	}
+
+	return &tenant, sysWsCode, nil
+}
+
 // FindAllPaginated lists tenants with pagination and returns total count.
 func (r *Repository) FindAllPaginated(ctx context.Context, filters port.TenantFilters) ([]*entity.Tenant, int64, error) {
 	var total int64
