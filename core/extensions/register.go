@@ -1,6 +1,9 @@
 package extensions
 
 import (
+	"os"
+	"strings"
+
 	"github.com/rendis/pdf-forge/core/cmd/api/bootstrap"
 	"github.com/rendis/pdf-forge/core/extensions/injectors"
 )
@@ -36,6 +39,18 @@ func Register(engine *bootstrap.Engine) {
 	// --- API Middleware ---
 	engine.UseAPIMiddleware(TenantValidationMiddleware())
 
-	// --- Storage Provider ---
-	// engine.SetStorageProvider(&ExampleStorageProvider{})
+	// --- Storage Provider (local simulation for QA/dev) ---
+	// Enable with: DOC_ENGINE_ENABLE_LOCAL_GALLERY=true
+	if isTruthy(os.Getenv("DOC_ENGINE_ENABLE_LOCAL_GALLERY")) {
+		engine.SetStorageProvider(NewLocalStorageProvider())
+	}
+}
+
+func isTruthy(value string) bool {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
 }

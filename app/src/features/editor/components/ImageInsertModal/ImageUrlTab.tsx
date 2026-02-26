@@ -19,19 +19,56 @@ const generateTestImageUrl = () => {
   return `https://picsum.photos/seed/${seed}/400/300`;
 };
 
+const EMPTY_PREVIEW: ImagePreviewState = {
+  src: null,
+  isLoading: false,
+  error: null,
+  isBase64: false,
+  isCorsSupported: false,
+}
+
+const resolveInitialUrlState = (image: ImageUrlTabProps['currentImage']) => {
+  if (!image || image.injectableId || image.src.startsWith('storage://')) {
+    return { url: '', preview: EMPTY_PREVIEW }
+  }
+
+  if (image.isBase64) {
+    return {
+      url: '',
+      preview: {
+        src: image.src,
+        isLoading: false,
+        error: null,
+        isBase64: true,
+        isCorsSupported: false,
+      },
+    }
+  }
+
+  if (URL_REGEX.test(image.src)) {
+    return {
+      url: image.src,
+      preview: {
+        src: image.src,
+        isLoading: false,
+        error: null,
+        isBase64: false,
+        isCorsSupported: false,
+      },
+    }
+  }
+
+  return { url: '', preview: EMPTY_PREVIEW }
+}
+
 export function ImageUrlTab({
   onImageReady,
   onOpenCropper,
   currentImage,
 }: ImageUrlTabProps) {
-  const [url, setUrl] = useState(currentImage?.src ?? '');
-  const [preview, setPreview] = useState<ImagePreviewState>({
-    src: currentImage?.src ?? null,
-    isLoading: false,
-    error: null,
-    isBase64: currentImage?.isBase64 ?? false,
-    isCorsSupported: false,
-  });
+  const initialState = resolveInitialUrlState(currentImage)
+  const [url, setUrl] = useState(initialState.url);
+  const [preview, setPreview] = useState<ImagePreviewState>(initialState.preview);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadImage = useCallback((imageUrl: string) => {
@@ -104,13 +141,7 @@ export function ImageUrlTab({
     }
 
     if (!value.trim()) {
-      setPreview({
-        src: null,
-        isLoading: false,
-        error: null,
-        isBase64: false,
-        isCorsSupported: false,
-      });
+      setPreview(EMPTY_PREVIEW);
       onImageReady(null);
       return;
     }
@@ -128,21 +159,12 @@ export function ImageUrlTab({
     };
   }, []);
 
-  // Reset URL when currentImage becomes an injector (store previous props pattern)
-  const [prevInjectableId, setPrevInjectableId] = useState(currentImage?.injectableId)
-  if (currentImage?.injectableId !== prevInjectableId) {
-    setPrevInjectableId(currentImage?.injectableId)
-    if (currentImage?.injectableId) {
-      setUrl('');
-      setPreview({
-        src: null,
-        isLoading: false,
-        error: null,
-        isBase64: false,
-        isCorsSupported: false,
-      });
-    }
-  }
+  // Sync tab state when modal opens with a different source type (URL/gallery/variable/base64).
+  useEffect(() => {
+    const next = resolveInitialUrlState(currentImage)
+    setUrl(next.url)
+    setPreview(next.preview)
+  }, [currentImage?.src, currentImage?.injectableId, currentImage?.isBase64])
 
   const handleCropClick = useCallback(() => {
     if (preview.src) {

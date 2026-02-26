@@ -13,7 +13,13 @@ import type { ImageGalleryTabProps } from './types'
 
 const PER_PAGE = 9
 
-export function ImageGalleryTab({ onSelect }: ImageGalleryTabProps) {
+const storageKeyFromSrc = (src?: string): string | null => {
+  if (!src || !src.startsWith('storage://')) return null
+  const key = src.replace('storage://', '').trim()
+  return key || null
+}
+
+export function ImageGalleryTab({ onSelect, currentImage }: ImageGalleryTabProps) {
   const { t } = useTranslation()
   const [galleryEnabled, setGalleryEnabled] = useState(false)
   const [configLoading, setConfigLoading] = useState(true)
@@ -81,6 +87,11 @@ export function ImageGalleryTab({ onSelect }: ImageGalleryTabProps) {
 
     fetchAssets()
   }, [galleryEnabled, debouncedQuery, page, t])
+
+  // Keep gallery selection in sync when editing an existing storage:// image.
+  useEffect(() => {
+    setSelectedKey(storageKeyFromSrc(currentImage?.src))
+  }, [currentImage?.src])
 
   // Clear delete confirmation when clicking elsewhere
   useEffect(() => {

@@ -22,6 +22,16 @@ export function ImageInsertModal({
   const [cropperOpen, setCropperOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
 
+  const resolveInitialTab = useCallback((image: ImageInsertResult): ImageInsertTab => {
+    if (image.injectableId) {
+      return 'variable'
+    }
+    if (image.src?.startsWith('storage://')) {
+      return 'gallery'
+    }
+    return 'url'
+  }, [])
+
   // Reset form when dialog opens (store previous props pattern)
   const [prevOpen, setPrevOpen] = useState(open)
   if (open !== prevOpen) {
@@ -29,11 +39,7 @@ export function ImageInsertModal({
     if (open) {
       if (initialImage) {
         setCurrentImage(initialImage)
-        if (initialImage.injectableId) {
-          setActiveTab('variable')
-        } else {
-          setActiveTab('url')
-        }
+        setActiveTab(resolveInitialTab(initialImage))
       } else {
         setCurrentImage(null)
         setActiveTab('url')
@@ -139,7 +145,7 @@ export function ImageInsertModal({
                 </TabsContent>
 
                 <TabsContent value="gallery" className="mt-4">
-                  <ImageGalleryTab onSelect={handleGallerySelect} />
+                  <ImageGalleryTab onSelect={handleGallerySelect} currentImage={currentImage} />
                 </TabsContent>
 
                 <TabsContent value="variable" className="mt-4">

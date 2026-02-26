@@ -18,6 +18,19 @@ import type { ImageDisplayMode, ImageAlign, ImageShape } from './types';
 
 const MIN_IMAGE_DIMENSION = 24;
 
+function parseDimension(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return null;
+}
+
 export function ImageComponent({ node, updateAttributes, selected, deleteNode, editor, getPos }: NodeViewProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,14 +69,16 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
     src: string;
     alt?: string;
     title?: string;
-    width?: number;
-    height?: number;
+    width?: number | string;
+    height?: number | string;
     displayMode: ImageDisplayMode;
     align: ImageAlign;
     shape: ImageShape;
     injectableId?: string;
     injectableLabel?: string;
   };
+  const persistedWidth = parseDimension(width);
+  const persistedHeight = parseDimension(height);
 
   // Resolve storage:// URLs to actual HTTP URLs for display
   const isStorageUrl = src?.startsWith('storage://');
@@ -89,6 +104,11 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
       });
   }, [src, isStorageUrl]);
 
+  // Reset load state when source changes so Moveable doesn't keep stale dimensions.
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [src]);
+
   // Obtener el ancho máximo disponible del contenedor del editor
   const getMaxWidth = useCallback(() => {
     const editorContainer = containerRef.current?.closest('.ProseMirror');
@@ -108,13 +128,13 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
   const handleShapeToggle = useCallback(() => {
     const newShape: ImageShape = shape === 'square' ? 'circle' : 'square';
 
-    if (newShape === 'circle' && width && height && width !== height) {
-      const size = Math.min(width, height);
+    if (newShape === 'circle' && persistedWidth && persistedHeight && persistedWidth !== persistedHeight) {
+      const size = Math.min(persistedWidth, persistedHeight);
       updateAttributes({ shape: newShape, width: size, height: size });
     } else {
       updateAttributes({ shape: newShape });
     }
-  }, [shape, width, height, updateAttributes]);
+  }, [shape, persistedWidth, persistedHeight, updateAttributes]);
 
   const handleEdit = useCallback(() => {
     editor.view.dom.dispatchEvent(
@@ -150,7 +170,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
       // Limitar al ancho máximo de la página
       if (newWidth > maxWidth) {
         if (shape === 'circle') {
-          const ratio = e.width / e.height;
+          const ratio = newWidth / Math.max(newHeight, 1);
           newHeight = maxWidth / ratio;
         }
         newWidth = maxWidth;
@@ -189,43 +209,40 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
     [shape, updateAttributes]
   );
 
-  useEffect(() => {
-    if (imageRef.current) {
-      if (typeof width === 'number' && width > 0) {
-        imageRef.current.style.width = `${width}px`;
-      } else {
-        imageRef.current.style.width = '';
-      }
-
-      if (typeof height === 'number' && height > 0) {
-        imageRef.current.style.height = `${height}px`;
-      } else {
-        imageRef.current.style.height = '';
-      }
-    }
-  }, [width, height]);
-
   // Establecer dimensiones iniciales cuando la imagen carga (si no están definidas)
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
 
-    const hasValidSavedSize =
-      typeof width === 'number' && width > 0 &&
-      typeof height === 'number' && height > 0;
+    const hasValidSavedWidth = persistedWidth !== null;
+    const hasValidSavedHeight = persistedHeight !== null;
+    const hasValidSavedSize = hasValidSavedWidth && hasValidSavedHeight;
 
     if (!hasValidSavedSize) {
       const img = imageRef.current;
       if (!img) return;
 
       const maxWidth = getMaxWidth();
+      const ratio = img.naturalWidth > 0 && img.naturalHeight > 0
+        ? (img.naturalWidth / img.naturalHeight)
+        : 1;
+
       let newWidth = img.naturalWidth;
       let newHeight = img.naturalHeight;
 
+      // Preserve partial persisted size instead of resetting to natural dimensions.
+      if (hasValidSavedWidth && !hasValidSavedHeight) {
+        newWidth = persistedWidth as number;
+        newHeight = newWidth / ratio;
+      } else if (!hasValidSavedWidth && hasValidSavedHeight) {
+        newHeight = persistedHeight as number;
+        newWidth = newHeight * ratio;
+      }
+
       // Limitar al ancho de la página si es muy grande
       if (newWidth > maxWidth) {
-        const ratio = newWidth / newHeight;
+        const scale = maxWidth / newWidth;
         newWidth = maxWidth;
-        newHeight = newWidth / ratio;
+        newHeight = newHeight * scale;
       }
 
       updateAttributes({
@@ -233,7 +250,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
         height: Math.round(newHeight),
       });
     }
-  }, [width, height, getMaxWidth, updateAttributes]);
+  }, [persistedWidth, persistedHeight, getMaxWidth, updateAttributes]);
 
   // Use inline styles for dynamic layout (block vs inline/float)
   const containerStyles = useMemo((): React.CSSProperties => {
@@ -286,7 +303,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
         {isResolvingSrc ? (
           <div
             className={cn('flex items-center justify-center bg-muted', shape === 'circle' && 'rounded-full')}
-            style={{ width: width || 200, height: height || 150 }}
+            style={{ width: persistedWidth || 200, height: persistedHeight || 150 }}
           >
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
@@ -297,7 +314,13 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
             alt={alt || ''}
             title={title}
             className={imageStyles}
-            style={{ maxWidth: 'none', marginTop: 0, marginBottom: 0 }}
+            style={{
+              maxWidth: 'none',
+              marginTop: 0,
+              marginBottom: 0,
+              width: persistedWidth ? `${persistedWidth}px` : undefined,
+              height: persistedHeight ? `${persistedHeight}px` : undefined,
+            }}
             onLoad={handleImageLoad}
             onDoubleClick={handleDoubleClick}
             draggable={false}
@@ -364,6 +387,7 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
             <Moveable
               key={`${shape}-${displayMode}`}
               target={imageRef}
+              useResizeObserver
               resizable
               keepRatio={shape === 'circle'}
               throttleResize={0}

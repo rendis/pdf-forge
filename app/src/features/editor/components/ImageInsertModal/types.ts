@@ -45,6 +45,7 @@ export interface ImageCropperProps {
 
 export interface ImageGalleryTabProps {
   onSelect: (result: ImageInsertResult) => void;
+  currentImage: ImageInsertResult | null;
 }
 
 export interface ImageVariableTabProps {
