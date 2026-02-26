@@ -16,6 +16,8 @@ import { galleryApi } from '../../../editor/api/gallery-api';
 import { ImageAlignSelector } from './ImageAlignSelector';
 import type { ImageDisplayMode, ImageAlign, ImageShape } from './types';
 
+const MIN_IMAGE_DIMENSION = 24;
+
 export function ImageComponent({ node, updateAttributes, selected, deleteNode, editor, getPos }: NodeViewProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -137,8 +139,13 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
   const handleResize = useCallback(
     (e: { width: number; height: number; target: HTMLElement }) => {
       const maxWidth = getMaxWidth();
-      let newWidth = e.width;
-      let newHeight = e.height;
+      const rect = e.target.getBoundingClientRect();
+      let newWidth = Number.isFinite(e.width) ? e.width : rect.width;
+      let newHeight = Number.isFinite(e.height) ? e.height : rect.height;
+
+      // Prevent collapsing to 0 while dragging (common when floating inline)
+      newWidth = Math.max(MIN_IMAGE_DIMENSION, newWidth);
+      newHeight = Math.max(MIN_IMAGE_DIMENSION, newHeight);
 
       // Limitar al ancho máximo de la página
       if (newWidth > maxWidth) {
@@ -157,13 +164,24 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
 
   const handleResizeEnd = useCallback(
     (e: { target: HTMLElement }) => {
-      let newWidth = parseFloat(e.target.style.width);
-      let newHeight = parseFloat(e.target.style.height);
+      const rect = e.target.getBoundingClientRect();
+      const styleWidth = parseFloat(e.target.style.width);
+      const styleHeight = parseFloat(e.target.style.height);
+
+      let newWidth = Number.isFinite(styleWidth) && styleWidth > 0 ? styleWidth : rect.width;
+      let newHeight = Number.isFinite(styleHeight) && styleHeight > 0 ? styleHeight : rect.height;
 
       if (shape === 'circle') {
-        const size = Math.max(newWidth, newHeight);
+        const size = Math.max(newWidth, newHeight, MIN_IMAGE_DIMENSION);
         newWidth = size;
         newHeight = size;
+      } else {
+        newWidth = Math.max(MIN_IMAGE_DIMENSION, newWidth);
+        newHeight = Math.max(MIN_IMAGE_DIMENSION, newHeight);
+      }
+
+      if (!Number.isFinite(newWidth) || !Number.isFinite(newHeight)) {
+        return;
       }
 
       updateAttributes({ width: Math.round(newWidth), height: Math.round(newHeight) });
@@ -173,8 +191,17 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
 
   useEffect(() => {
     if (imageRef.current) {
-      if (width) imageRef.current.style.width = `${width}px`;
-      if (height) imageRef.current.style.height = `${height}px`;
+      if (typeof width === 'number' && width > 0) {
+        imageRef.current.style.width = `${width}px`;
+      } else {
+        imageRef.current.style.width = '';
+      }
+
+      if (typeof height === 'number' && height > 0) {
+        imageRef.current.style.height = `${height}px`;
+      } else {
+        imageRef.current.style.height = '';
+      }
     }
   }, [width, height]);
 
@@ -182,7 +209,11 @@ export function ImageComponent({ node, updateAttributes, selected, deleteNode, e
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
 
-    if (!width || !height) {
+    const hasValidSavedSize =
+      typeof width === 'number' && width > 0 &&
+      typeof height === 'number' && height > 0;
+
+    if (!hasValidSavedSize) {
       const img = imageRef.current;
       if (!img) return;
 
