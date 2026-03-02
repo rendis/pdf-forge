@@ -524,9 +524,9 @@ func (c *TypstConverter) image(node portabledoc.Node) string {
 // --- Hard Break Node ---
 
 func (c *TypstConverter) hardBreak(_ portabledoc.Node) string {
-	// Typst line break: backslash at end of line
-	// This creates a hard line break within the same paragraph
-	return "\\\n"
+	// Use #linebreak() instead of \ to avoid escaping the next character.
+	// A trailing \ before ] would produce \] (escaped ]), leaving content blocks unclosed.
+	return "#linebreak()\n"
 }
 
 // --- Text Node ---
@@ -1329,6 +1329,12 @@ func (c *TypstConverter) renderEditableTableCell(cell portabledoc.Node, isFirstR
 	content = strings.TrimSpace(content)
 	if content == "" {
 		content = "~" // Typst non-breaking space — has text line height
+	}
+
+	// Prevent trailing backslash from escaping the closing ] of the content block.
+	// In Typst, \] is an escape sequence (literal ]), not line break + close bracket.
+	if strings.HasSuffix(content, "\\") {
+		content += " "
 	}
 
 	// Note: bold/styling for header cells is handled by the user's own text marks
