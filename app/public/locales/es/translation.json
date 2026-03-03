@@ -968,7 +968,8 @@
     },
     "injectable": {
       "errors": {
-        "roleDeleted": "El rol asociado fue eliminado"
+        "roleDeleted": "El rol asociado fue eliminado",
+        "notFound": "Variable no disponible en este espacio de trabajo"
       }
     },
     "import": {

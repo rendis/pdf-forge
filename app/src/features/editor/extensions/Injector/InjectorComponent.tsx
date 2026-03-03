@@ -5,6 +5,7 @@ import type { NodeViewProps } from '@tiptap/react'
 import { NodeSelection } from '@tiptap/pm/state'
 import { cn } from '@/lib/utils'
 import {
+  AlertTriangle,
   Calendar,
   CheckSquare,
   Coins,
@@ -21,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useTranslation } from 'react-i18next'
 import { useInjectablesStore } from '../../stores/injectables-store'
 import type { InjectorType } from '../../types/variables'
 
@@ -41,6 +43,7 @@ const MIN_WIDTH = 40
 
 export const InjectorComponent = (props: NodeViewProps) => {
   const { node, selected, deleteNode, updateAttributes, editor, getPos } = props
+  const { t } = useTranslation()
   const { label, type, format, variableId, prefix, suffix, showLabelIfEmpty, defaultValue, width } = node.attrs
 
   const chipRef = useRef<HTMLSpanElement>(null)
@@ -74,12 +77,14 @@ export const InjectorComponent = (props: NodeViewProps) => {
 
   const isEditorEditable = editor.isEditable
 
-  const currentLabel = useInjectablesStore(
-    (s) => s.variables.find((v) => v.variableId === variableId)?.label
+  const variable = useInjectablesStore(
+    (s) => s.variables.find((v) => v.variableId === variableId)
   )
 
+  const isMissing = !!variableId && !variable
+
   const displayCode = variableId || 'variable'
-  const displayName = currentLabel || label || 'Variable'
+  const displayName = variable?.label || label || 'Variable'
   const Icon = icons[type as keyof typeof icons] || Type
 
   const supportsLabelConfig = SCALAR_TYPES.includes(type as InjectorType)
@@ -179,11 +184,17 @@ export const InjectorComponent = (props: NodeViewProps) => {
           selected
             ? 'ring-2 ring-ring'
             : '',
-          [
-            'border',
-            'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 hover:border-gray-300',
-            'dark:bg-info-muted dark:text-info-foreground dark:hover:bg-info-muted/80 dark:border-dashed dark:border-info-border',
-          ]
+          isMissing
+            ? [
+                'border border-dashed',
+                'border-destructive bg-destructive/10 text-destructive',
+                'dark:border-destructive dark:bg-destructive/15 dark:text-destructive',
+              ]
+            : [
+                'border',
+                'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 hover:border-gray-300',
+                'dark:bg-info-muted dark:text-info-foreground dark:hover:bg-info-muted/80 dark:border-dashed dark:border-info-border',
+              ]
         )}
         style={{
           width: width ? `${width}px` : undefined,
@@ -198,13 +209,19 @@ export const InjectorComponent = (props: NodeViewProps) => {
             {prefix}
           </span>
         )}
-        <Icon className="h-3 w-3 flex-shrink-0" />
+        {isMissing ? (
+          <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+        ) : (
+          <Icon className="h-3 w-3 flex-shrink-0" />
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="cursor-default truncate">{displayCode}</span>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-xs">
-            {displayName}
+            {isMissing
+              ? t('editor.injectable.errors.notFound')
+              : displayName}
           </TooltipContent>
         </Tooltip>
         {suffix && (

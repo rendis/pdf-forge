@@ -1,5 +1,12 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Editor } from '@tiptap/core'
+import { NodeSelection } from '@tiptap/pm/state'
+import { useInjectablesStore } from '../stores/injectables-store'
+
+interface InvalidNode {
+  pos: number
+  variableId: string
+}
 
 interface UseInconsistencyNavigationReturn {
   /** Total count of invalid injectables */
@@ -7,7 +14,7 @@ interface UseInconsistencyNavigationReturn {
   /** Current navigation index (-1 if not navigating) */
   currentIndex: number
   /** List of invalid nodes */
-  invalidNodes: never[]
+  invalidNodes: InvalidNode[]
   /** Navigate to next invalid node */
   next: () => void
   /** Navigate to previous invalid node */
@@ -18,23 +25,106 @@ interface UseInconsistencyNavigationReturn {
   reset: () => void
 }
 
+const INJECTOR_TYPES = new Set(['injector', 'tableInjector', 'listInjector'])
+const DEBOUNCE_MS = 300
+
 /**
  * Hook to find and navigate between invalid injectables in the editor.
- * Currently a no-op since role-based inconsistencies have been removed.
+ * An injectable is invalid when its variableId is not found in the
+ * available variables from the injectables store.
  */
 export function useInconsistencyNavigation(
-  _editor: Editor | null
+  editor: Editor | null
 ): UseInconsistencyNavigationReturn {
-  const noop = useCallback(() => {}, [])
-  const noopIndex = useCallback((_index: number) => {}, [])
+  const [currentIndex, setCurrentIndex] = useState(-1)
+  const [docVersion, setDocVersion] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const variables = useInjectablesStore((s) => s.variables)
+
+  // Subscribe to editor document changes (debounced)
+  useEffect(() => {
+    if (!editor) return
+    const onUpdate = () => {
+      clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => setDocVersion((v) => v + 1), DEBOUNCE_MS)
+    }
+    editor.on('update', onUpdate)
+    return () => {
+      editor.off('update', onUpdate)
+      clearTimeout(timerRef.current)
+    }
+  }, [editor])
+
+  const invalidNodes = useMemo(() => {
+    // docVersion included to re-run on editor changes
+    void docVersion
+    if (!editor) return []
+
+    const variableIds = new Set(variables.map((v) => v.variableId))
+    const nodes: InvalidNode[] = []
+
+    editor.state.doc.descendants((node, pos) => {
+      if (!INJECTOR_TYPES.has(node.type.name)) return
+      const vid = node.attrs.variableId as string | undefined
+      if (vid && !variableIds.has(vid)) {
+        nodes.push({ pos, variableId: vid })
+      }
+    })
+
+    return nodes
+  }, [editor, docVersion, variables])
+
+  // Reset index when invalid nodes change
+  useEffect(() => {
+    setCurrentIndex((prev) =>
+      invalidNodes.length === 0 ? -1 : prev >= invalidNodes.length ? 0 : prev
+    )
+  }, [invalidNodes])
+
+  const selectNode = useCallback(
+    (index: number) => {
+      if (!editor || index < 0 || index >= invalidNodes.length) return
+      const { pos } = invalidNodes[index]
+      try {
+        const { tr } = editor.state
+        tr.setSelection(NodeSelection.create(editor.state.doc, pos))
+        editor.view.dispatch(tr.scrollIntoView())
+        setCurrentIndex(index)
+      } catch {
+        // Position is stale after a document edit; force rescan
+        setDocVersion((v) => v + 1)
+      }
+    },
+    [editor, invalidNodes]
+  )
+
+  const next = useCallback(() => {
+    if (invalidNodes.length === 0) return
+    const nextIdx = currentIndex < 0 ? 0 : (currentIndex + 1) % invalidNodes.length
+    selectNode(nextIdx)
+  }, [currentIndex, invalidNodes.length, selectNode])
+
+  const prev = useCallback(() => {
+    if (invalidNodes.length === 0) return
+    const prevIdx =
+      currentIndex <= 0 ? invalidNodes.length - 1 : currentIndex - 1
+    selectNode(prevIdx)
+  }, [currentIndex, invalidNodes.length, selectNode])
+
+  const navigateTo = useCallback(
+    (index: number) => selectNode(index),
+    [selectNode]
+  )
+
+  const reset = useCallback(() => setCurrentIndex(-1), [])
 
   return {
-    count: 0,
-    currentIndex: -1,
-    invalidNodes: [],
-    next: noop,
-    prev: noop,
-    navigateTo: noopIndex,
-    reset: noop,
+    count: invalidNodes.length,
+    currentIndex,
+    invalidNodes,
+    next,
+    prev,
+    navigateTo,
+    reset,
   }
 }

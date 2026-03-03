@@ -968,7 +968,8 @@
     },
     "injectable": {
       "errors": {
-        "roleDeleted": "The associated role was deleted"
+        "roleDeleted": "The associated role was deleted",
+        "notFound": "Variable not available in this workspace"
       }
     },
     "import": {

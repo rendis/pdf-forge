@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react'
 import { useTranslation } from 'react-i18next'
-import { List, Settings, Trash2, Check, Pencil } from 'lucide-react'
+import { List, Settings, Trash2, Check, Pencil, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -32,9 +32,11 @@ export function ListInjectorComponent({ node, editor, selected, deleteNode, upda
   const labelInputRef = useRef<HTMLInputElement>(null)
   const attrs = node.attrs as ListInjectorAttrs
 
-  const _variable = useInjectablesStore((state) =>
+  const variable = useInjectablesStore((state) =>
     attrs.variableId ? selectVariableByVariableId(state, attrs.variableId) : undefined
   )
+
+  const isMissing = !!attrs.variableId && !variable
 
   const handleDelete = useCallback(() => {
     deleteNode()
@@ -70,7 +72,7 @@ export function ListInjectorComponent({ node, editor, selected, deleteNode, upda
     <NodeViewWrapper
       className={`
         relative my-4 p-4 rounded-lg border-2 border-dashed
-        ${selected ? 'border-primary bg-primary/5' : 'border-muted-foreground/30 bg-muted/50'}
+        ${isMissing ? 'border-destructive bg-destructive/5' : selected ? 'border-primary bg-primary/5' : 'border-muted-foreground/30 bg-muted/50'}
         transition-colors
       `}
     >
@@ -115,6 +117,12 @@ export function ListInjectorComponent({ node, editor, selected, deleteNode, upda
               ? `${t('editor.listInjector.variable', 'Variable')}: ${attrs.variableId}`
               : t('editor.listInjector.noVariable', 'No variable assigned')}
           </div>
+          {isMissing && (
+            <div className="flex items-center gap-1 text-xs text-destructive mt-0.5">
+              <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+              <span>{t('editor.injectable.errors.notFound')}</span>
+            </div>
+          )}
         </div>
 
         {/* Symbol selector */}
