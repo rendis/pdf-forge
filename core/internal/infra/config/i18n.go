@@ -39,6 +39,7 @@ type InjectorI18nConfig struct {
 // configPaths are the paths to search for config files.
 var configPaths = []string{
 	"./settings",
+	"./core/settings",
 	"../settings",
 	"../../settings",
 	".",
@@ -64,7 +65,7 @@ func LoadBuiltinInjectorI18n() (*InjectorI18nConfig, error) {
 	return parseI18nData(builtinI18nYAML)
 }
 
-// LoadInjectorI18n carga traducciones desde settings/injectors.i18n.yaml.
+// LoadInjectorI18n carga traducciones desde las rutas estándar de settings.
 // Si el archivo no existe, retorna un config vacío (el archivo es opcional).
 func LoadInjectorI18n() (*InjectorI18nConfig, error) {
 	var data []byte

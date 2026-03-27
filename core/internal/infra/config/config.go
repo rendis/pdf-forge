@@ -19,10 +19,15 @@ func Load() (*Config, error) {
 	v.SetConfigType("yaml")
 
 	// Add config paths (searched in order)
-	v.AddConfigPath("./settings")
-	v.AddConfigPath("../settings")
-	v.AddConfigPath("../../settings")
-	v.AddConfigPath(".")
+	for _, path := range []string{
+		"./settings",
+		"./core/settings",
+		"../settings",
+		"../../settings",
+		".",
+	} {
+		v.AddConfigPath(path)
+	}
 
 	// Environment variable settings
 	v.SetEnvPrefix("DOC_ENGINE")

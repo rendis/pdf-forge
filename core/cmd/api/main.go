@@ -8,6 +8,15 @@ import (
 	"github.com/rendis/pdf-forge/core/extensions"
 )
 
+func resolveSettingsPath(paths ...string) string {
+	for _, path := range paths {
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return paths[0]
+}
+
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		engine := bootstrap.New()
@@ -19,7 +28,10 @@ func main() {
 	}
 
 	engine := bootstrap.New().
-		SetI18nFilePath("settings/injectors.i18n.yaml")
+		SetI18nFilePath(resolveSettingsPath(
+			"settings/injectors.i18n.yaml",
+			"core/settings/injectors.i18n.yaml",
+		))
 	extensions.Register(engine)
 
 	if err := engine.Run(); err != nil {
