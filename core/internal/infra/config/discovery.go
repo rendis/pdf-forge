@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	neturl "net/url"
 	"strings"
 	"time"
 )
@@ -127,13 +128,17 @@ func fetchDiscoveryDocument(ctx context.Context, url string) (*discoveryResponse
 	ctx, cancel := context.WithTimeout(ctx, discoveryTimeout)
 	defer cancel()
 
+	if err := validateDiscoveryURL(url); err != nil {
+		return nil, err
+	}
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req) //nolint:gosec // Discovery URL is operator-configured and validated for http/https plus host.
 	if err != nil {
 		return nil, fmt.Errorf("fetch: %w", err)
 	}
@@ -156,4 +161,21 @@ func fetchDiscoveryDocument(ctx context.Context, url string) (*discoveryResponse
 	}
 
 	return &doc, nil
+}
+
+func validateDiscoveryURL(rawURL string) error {
+	parsedURL, err := neturl.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("invalid discovery URL %q: %w", rawURL, err)
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("unsupported discovery URL scheme %q", parsedURL.Scheme)
+	}
+
+	if parsedURL.Host == "" {
+		return fmt.Errorf("discovery URL host is required")
+	}
+
+	return nil
 }

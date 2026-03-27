@@ -11,6 +11,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	neturl "net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -197,12 +198,16 @@ func (s *Service) downloadFile(ctx context.Context, url, destPath string) (strin
 		return s.writeDataURL(url, destPath)
 	}
 
+	if err := validateRemoteImageURL(url); err != nil {
+		return "", err
+	}
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", fmt.Errorf("creating request: %w", err)
 	}
 
-	resp, err := s.httpClient.Do(req)
+	resp, err := s.httpClient.Do(req) //nolint:gosec // URL scheme and host are validated above; remote image download is expected behavior.
 	if err != nil {
 		return "", fmt.Errorf("downloading %s: %w", url, err)
 	}
@@ -236,6 +241,23 @@ func (s *Service) downloadFile(ctx context.Context, url, destPath string) (strin
 		return "", fmt.Errorf("writing file: %w", err)
 	}
 	return actualName, nil
+}
+
+func validateRemoteImageURL(rawURL string) error {
+	parsedURL, err := neturl.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("invalid image URL %q: %w", rawURL, err)
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("unsupported image URL scheme %q", parsedURL.Scheme)
+	}
+
+	if parsedURL.Host == "" {
+		return fmt.Errorf("image URL host is required")
+	}
+
+	return nil
 }
 
 // writeDataURL decodes a base64 data URL and writes the image to disk.

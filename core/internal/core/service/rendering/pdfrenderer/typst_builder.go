@@ -69,13 +69,13 @@ func (b *TypstBuilder) pageSetup(config *portabledoc.PageConfig) string {
 	// Check if this matches a standard paper size
 	paper := b.detectPaperSize(config.FormatID)
 	if paper != "" {
-		sb.WriteString(fmt.Sprintf("#set page(\n  paper: \"%s\",\n", paper))
+		fmt.Fprintf(&sb, "#set page(\n  paper: %q,\n", paper)
 	} else {
-		sb.WriteString(fmt.Sprintf("#set page(\n  width: %.1fpt,\n  height: %.1fpt,\n", widthPt, heightPt))
+		fmt.Fprintf(&sb, "#set page(\n  width: %.1fpt,\n  height: %.1fpt,\n", widthPt, heightPt)
 	}
 
-	sb.WriteString(fmt.Sprintf("  margin: (top: %.1fpt, bottom: %.1fpt, left: %.1fpt, right: %.1fpt),\n",
-		marginTopPt, marginBottomPt, marginLeftPt, marginRightPt))
+	fmt.Fprintf(&sb, "  margin: (top: %.1fpt, bottom: %.1fpt, left: %.1fpt, right: %.1fpt),\n",
+		marginTopPt, marginBottomPt, marginLeftPt, marginRightPt)
 
 	// Page numbering
 	if config.ShowPageNumbers {
@@ -109,9 +109,9 @@ func (b *TypstBuilder) typographySetup() string {
 	fontList := "(" + strings.Join(quoted, ", ") + ")"
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("#set text(\n  font: %s,\n  size: %s,\n  fill: rgb(\"%s\"),\n  hyphenate: true,\n  number-width: \"proportional\",\n)\n\n",
-		fontList, b.tokens.BaseFontSize, b.tokens.BaseTextColor))
-	sb.WriteString(fmt.Sprintf("#set par(leading: %s, spacing: %s)\n\n", b.tokens.ParagraphLeading, b.tokens.ParagraphSpacing))
+	fmt.Fprintf(&sb, "#set text(\n  font: %s,\n  size: %s,\n  fill: rgb(\"%s\"),\n  hyphenate: true,\n  number-width: \"proportional\",\n)\n\n",
+		fontList, b.tokens.BaseFontSize, b.tokens.BaseTextColor)
+	fmt.Fprintf(&sb, "#set par(leading: %s, spacing: %s)\n\n", b.tokens.ParagraphLeading, b.tokens.ParagraphSpacing)
 	return sb.String()
 }
 
@@ -119,7 +119,7 @@ func (b *TypstBuilder) typographySetup() string {
 func (b *TypstBuilder) headingStyles() string {
 	var sb strings.Builder
 	for i, size := range b.tokens.HeadingSizes {
-		sb.WriteString(fmt.Sprintf("#show heading.where(level: %d): set text(size: %s, weight: %s)\n", i+1, size, b.tokens.HeadingWeight))
+		fmt.Fprintf(&sb, "#show heading.where(level: %d): set text(size: %s, weight: %s)\n", i+1, size, b.tokens.HeadingWeight)
 	}
 	sb.WriteString("\n")
 	return sb.String()

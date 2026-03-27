@@ -1003,7 +1003,7 @@ func (c *TypstConverter) renderTypstTable(tableData *entity.TableValue, lang str
 
 	colWidths := c.buildTypstColumnWidths(tableData.Columns)
 	headerFill := c.getTableHeaderFillColor(headerStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: (x: 0pt, y: 0pt),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableStrokeColor, headerFill))
+	fmt.Fprintf(&sb, "#table(\n  columns: (%s),\n  inset: (x: 0pt, y: 0pt),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableStrokeColor, headerFill)
 	sb.WriteString(c.buildTableAlignParam(headerStyles, bodyStyles))
 	sb.WriteString(c.renderTypstTableHeader(tableData.Columns, lang))
 	sb.WriteString(c.renderTypstTableRows(tableData))
@@ -1019,7 +1019,7 @@ func (c *TypstConverter) renderTypstTableHeader(columns []entity.TableColumn, la
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		sb.WriteString(fmt.Sprintf("table.cell(inset: %s)[%s]", c.tokens.TableHeaderCellInset, escapeTypst(c.getColumnLabel(col, lang))))
+		fmt.Fprintf(&sb, "table.cell(inset: %s)[%s]", c.tokens.TableHeaderCellInset, escapeTypst(c.getColumnLabel(col, lang)))
 	}
 	sb.WriteString("),\n")
 	return sb.String()
@@ -1161,7 +1161,7 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	sb.WriteString(c.buildTableBodyStyleRules(c.currentTableBodyStyles))
 
 	headerFill := c.getTableHeaderFillColor(c.currentTableHeaderStyles)
-	sb.WriteString(fmt.Sprintf("#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill))
+	fmt.Fprintf(&sb, "#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill)
 	sb.WriteString(c.buildTableAlignParam(c.currentTableHeaderStyles, c.currentTableBodyStyles))
 
 	isFirstRow := true

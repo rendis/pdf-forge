@@ -177,16 +177,16 @@ func (c *TypstConverter) buildTableStyleRules(headerStyles *entity.TableStyles) 
 	var sb strings.Builder
 
 	if headerStyles.FontWeight != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(weight: \"%s\")\n", *headerStyles.FontWeight))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: 0): set text(weight: \"%s\")\n", *headerStyles.FontWeight)
 	}
 	if headerStyles.TextColor != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(fill: rgb(\"%s\"))\n", *headerStyles.TextColor))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: 0): set text(fill: rgb(\"%s\"))\n", *headerStyles.TextColor)
 	}
 	if headerStyles.FontSize != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(size: %dpt)\n", *headerStyles.FontSize))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: 0): set text(size: %dpt)\n", *headerStyles.FontSize)
 	}
 	if headerStyles.FontFamily != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: 0): set text(font: %s)\n", fontWithFallbacks(*headerStyles.FontFamily)))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: 0): set text(font: %s)\n", fontWithFallbacks(*headerStyles.FontFamily))
 	}
 
 	return sb.String()
@@ -202,16 +202,16 @@ func (c *TypstConverter) buildTableBodyStyleRules(bodyStyles *entity.TableStyles
 
 	// Body font styles
 	if bodyStyles.FontWeight != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(weight: \"%s\")\n", *bodyStyles.FontWeight))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: range(1, none)): set text(weight: \"%s\")\n", *bodyStyles.FontWeight)
 	}
 	if bodyStyles.TextColor != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(fill: rgb(\"%s\"))\n", *bodyStyles.TextColor))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: range(1, none)): set text(fill: rgb(\"%s\"))\n", *bodyStyles.TextColor)
 	}
 	if bodyStyles.FontSize != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(size: %dpt)\n", *bodyStyles.FontSize))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: range(1, none)): set text(size: %dpt)\n", *bodyStyles.FontSize)
 	}
 	if bodyStyles.FontFamily != nil {
-		sb.WriteString(fmt.Sprintf("#show table.cell.where(y: range(1, none)): set text(font: %s)\n", fontWithFallbacks(*bodyStyles.FontFamily)))
+		fmt.Fprintf(&sb, "#show table.cell.where(y: range(1, none)): set text(font: %s)\n", fontWithFallbacks(*bodyStyles.FontFamily))
 	}
 
 	return sb.String()

@@ -109,7 +109,7 @@ type DatabaseConfig struct {
 	Host               string `mapstructure:"host"`
 	Port               int    `mapstructure:"port"`
 	User               string `mapstructure:"user"`
-	Password           string `mapstructure:"password"`
+	Password           string `mapstructure:"password"` //nolint:gosec // Configuration must carry DB credentials for runtime connection setup.
 	Name               string `mapstructure:"name"`
 	SSLMode            string `mapstructure:"ssl_mode"`
 	MaxPoolSize        int    `mapstructure:"max_pool_size"`

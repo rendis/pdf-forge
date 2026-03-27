@@ -8,7 +8,7 @@ ifdef DUMMY
 export VITE_USE_MOCK_AUTH=true
 endif
 
-.PHONY: build build-core build-app embed-app run run-core run-dummy dev dev-dummy dev-app migrate test lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
+.PHONY: build build-core build-app embed-app run run-core run-dummy dev dev-dummy dev-app migrate test test-integration lint swagger docker-up docker-down clean help init-fork sync-upstream doctor check-upgrade
 
 # Build everything (frontend embedded in Go binary)
 build: embed-app build-core
@@ -66,6 +66,9 @@ migrate:
 # Quality
 test:
 	$(MAKE) -C core test
+
+test-integration:
+	$(MAKE) -C core test-integration
 
 lint:
 	$(MAKE) -C core lint

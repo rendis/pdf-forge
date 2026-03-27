@@ -172,7 +172,7 @@ func TestTypstConverter_ParagraphEmpty(t *testing.T) {
 func TestTypstConverter_HardBreak(t *testing.T) {
 	c := newConverter(nil, nil)
 	got := c.ConvertNode(portabledoc.Node{Type: portabledoc.NodeTypeHardBreak})
-	want := "\\\n"
+	want := "#linebreak()\n"
 	if got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
@@ -192,11 +192,52 @@ func TestTypstConverter_ParagraphWithHardBreaks(t *testing.T) {
 	}
 	got := c.ConvertNode(node)
 	// Should have line breaks but stay in same paragraph (ends with \n\n not multiple \n\n\n)
-	if !strings.Contains(got, "Line 1\\\nLine 2\\\nLine 3") {
+	if !strings.Contains(got, "Line 1#linebreak()\nLine 2#linebreak()\nLine 3") {
 		t.Errorf("expected hard breaks within paragraph, got %q", got)
 	}
 	if !strings.HasSuffix(got, "\n\n") {
 		t.Errorf("expected paragraph to end with double newline, got %q", got)
+	}
+}
+
+func TestTypstConverter_ResolveImagePath_PreservesHTTPURL(t *testing.T) {
+	c := newConverter(nil, nil)
+	got := c.resolveImagePath(map[string]any{"src": "https://example.com/image.png"})
+	if got == "" {
+		t.Fatal("expected resolved path for http URL")
+	}
+	if _, ok := c.RemoteImages()["https://example.com/image.png"]; !ok {
+		t.Fatalf("expected http URL to be registered as remote image, got %#v", c.RemoteImages())
+	}
+}
+
+func TestTypstConverter_ResolveImagePath_PreservesDataURL(t *testing.T) {
+	c := newConverter(nil, nil)
+	src := "data:image/png;base64,abc123"
+	got := c.resolveImagePath(map[string]any{"src": src})
+	if got == "" {
+		t.Fatal("expected resolved path for data URL")
+	}
+	if _, ok := c.RemoteImages()[src]; !ok {
+		t.Fatalf("expected data URL to be registered as remote image, got %#v", c.RemoteImages())
+	}
+}
+
+func TestTypstConverter_ResolveImagePath_UsesResolverForStorageURL(t *testing.T) {
+	c := newConverter(nil, nil)
+	c.imageURLResolver = func(url string) (string, error) {
+		if url != "storage://asset-key" {
+			t.Fatalf("unexpected resolver input: %s", url)
+		}
+		return "https://example.com/resolved.png", nil
+	}
+
+	got := c.resolveImagePath(map[string]any{"src": "storage://asset-key"})
+	if got == "" {
+		t.Fatal("expected resolved path for storage URL")
+	}
+	if _, ok := c.RemoteImages()["https://example.com/resolved.png"]; !ok {
+		t.Fatalf("expected resolved storage URL to be registered as remote image, got %#v", c.RemoteImages())
 	}
 }
 
@@ -224,7 +265,7 @@ func TestTypstConverter_TableCellWithLineBreaks(t *testing.T) {
 	}
 	got := c.ConvertNode(node)
 	// Should preserve line break structure within cell
-	if !strings.Contains(got, "First line\\\nSecond line") {
+	if !strings.Contains(got, "First line#linebreak()\nSecond line") {
 		t.Errorf("expected line breaks preserved in table cell, got %q", got)
 	}
 }

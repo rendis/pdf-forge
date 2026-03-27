@@ -1,4 +1,4 @@
-.PHONY: build run migrate dev test lint fmt swagger clean help
+.PHONY: build run migrate dev test test-integration lint fmt swagger clean help
 
 # Go commands use -C .. because go.mod is at project root
 build:
@@ -15,6 +15,9 @@ dev:
 
 test:
 	go test -C .. ./core/...
+
+test-integration:
+	go test -C .. -tags=integration ./core/internal/migrations ./core/cmd/api/bootstrap
 
 lint:
 	golangci-lint run
