@@ -1,11 +1,8 @@
 package controller
 
 import (
-	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,23 +10,18 @@ import (
 	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
 	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/middleware"
 	"github.com/rendis/pdf-forge/core/internal/core/port"
-)
-
-const (
-	defaultGalleryPage    = 1
-	defaultGalleryPerPage = 20
-	maxUploadSize         = 10 << 20 // 10 MB
+	galleryuc "github.com/rendis/pdf-forge/core/internal/core/usecase/gallery"
 )
 
 // GalleryController handles gallery asset HTTP requests.
 // All routes are workspace-scoped and require panel auth.
 type GalleryController struct {
-	storage port.StorageProvider
+	galleryUC galleryuc.GalleryUseCase
 }
 
 // NewGalleryController creates a new gallery controller.
-func NewGalleryController(storage port.StorageProvider) *GalleryController {
-	return &GalleryController{storage: storage}
+func NewGalleryController(galleryUC galleryuc.GalleryUseCase) *GalleryController {
+	return &GalleryController{galleryUC: galleryUC}
 }
 
 // RegisterRoutes registers all /workspace/gallery routes.
@@ -59,9 +51,9 @@ func (c *GalleryController) RegisterRoutes(rg *gin.RouterGroup, middlewareProvid
 // @Router /api/v1/workspace/gallery [get]
 func (c *GalleryController) ListAssets(ctx *gin.Context) {
 	storageCtx := buildStorageContext(ctx)
-	page, perPage := parsePagination(ctx)
+	page, perPage := parsePaginationParams(ctx)
 
-	result, err := c.storage.List(ctx.Request.Context(), &port.StorageListRequest{
+	result, err := c.galleryUC.List(ctx.Request.Context(), galleryuc.ListCommand{
 		Storage: storageCtx,
 		Page:    page,
 		PerPage: perPage,
@@ -87,18 +79,12 @@ func (c *GalleryController) ListAssets(ctx *gin.Context) {
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/workspace/gallery/search [get]
 func (c *GalleryController) SearchAssets(ctx *gin.Context) {
-	query := ctx.Query("q")
-	if query == "" {
-		respondError(ctx, http.StatusBadRequest, fmt.Errorf("query parameter 'q' is required"))
-		return
-	}
-
 	storageCtx := buildStorageContext(ctx)
-	page, perPage := parsePagination(ctx)
+	page, perPage := parsePaginationParams(ctx)
 
-	result, err := c.storage.Search(ctx.Request.Context(), &port.StorageSearchRequest{
+	result, err := c.galleryUC.Search(ctx.Request.Context(), galleryuc.SearchCommand{
 		Storage: storageCtx,
-		Query:   query,
+		Query:   ctx.Query("q"),
 		Page:    page,
 		PerPage: perPage,
 	})
@@ -128,13 +114,8 @@ func (c *GalleryController) InitUpload(ctx *gin.Context) {
 		return
 	}
 
-	if err := validateUploadMeta(req.ContentType, req.Size); err != nil {
-		respondError(ctx, http.StatusBadRequest, err)
-		return
-	}
-
 	storageCtx := buildStorageContext(ctx)
-	result, err := c.storage.InitUpload(ctx.Request.Context(), &port.StorageInitUploadRequest{
+	result, err := c.galleryUC.InitUpload(ctx.Request.Context(), galleryuc.InitUploadCommand{
 		Storage:     storageCtx,
 		Filename:    req.Filename,
 		ContentType: req.ContentType,
@@ -158,11 +139,6 @@ func (c *GalleryController) InitUpload(ctx *gin.Context) {
 		resp.Asset = &asset
 	}
 
-	slog.InfoContext(ctx.Request.Context(), "gallery upload initiated",
-		slog.Bool("duplicate", result.Duplicate),
-		slog.String("uploadId", result.UploadID),
-	)
-
 	ctx.JSON(http.StatusOK, resp)
 }
 
@@ -185,7 +161,7 @@ func (c *GalleryController) Complete(ctx *gin.Context) {
 	}
 
 	storageCtx := buildStorageContext(ctx)
-	result, err := c.storage.CompleteUpload(ctx.Request.Context(), &port.StorageCompleteUploadRequest{
+	result, err := c.galleryUC.CompleteUpload(ctx.Request.Context(), galleryuc.CompleteUploadCommand{
 		Storage:  storageCtx,
 		UploadID: req.UploadID,
 	})
@@ -193,12 +169,6 @@ func (c *GalleryController) Complete(ctx *gin.Context) {
 		HandleError(ctx, err)
 		return
 	}
-
-	slog.InfoContext(ctx.Request.Context(), "gallery upload completed",
-		slog.String("key", result.Asset.Key),
-		slog.String("name", result.Asset.Name),
-		slog.Int64("size", result.Asset.Size),
-	)
 
 	ctx.JSON(http.StatusCreated, dto.GalleryCompleteUploadResponse{
 		Asset: toGalleryAssetResponse(&result.Asset),
@@ -216,22 +186,15 @@ func (c *GalleryController) Complete(ctx *gin.Context) {
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/workspace/gallery [delete]
 func (c *GalleryController) DeleteAsset(ctx *gin.Context) {
-	key := ctx.Query("key")
-	if key == "" {
-		respondError(ctx, http.StatusBadRequest, fmt.Errorf("query parameter 'key' is required"))
-		return
-	}
-
 	storageCtx := buildStorageContext(ctx)
-	if err := c.storage.Delete(ctx.Request.Context(), &port.StorageDeleteRequest{
+	if err := c.galleryUC.Delete(ctx.Request.Context(), galleryuc.DeleteCommand{
 		Storage: storageCtx,
-		Key:     key,
+		Key:     ctx.Query("key"),
 	}); err != nil {
 		HandleError(ctx, err)
 		return
 	}
 
-	slog.InfoContext(ctx.Request.Context(), "gallery asset deleted", slog.String("key", key))
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -246,16 +209,10 @@ func (c *GalleryController) DeleteAsset(ctx *gin.Context) {
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/workspace/gallery/url [get]
 func (c *GalleryController) GetAssetURL(ctx *gin.Context) {
-	key := ctx.Query("key")
-	if key == "" {
-		respondError(ctx, http.StatusBadRequest, fmt.Errorf("query parameter 'key' is required"))
-		return
-	}
-
 	storageCtx := buildStorageContext(ctx)
-	result, err := c.storage.GetURL(ctx.Request.Context(), &port.StorageGetURLRequest{
+	result, err := c.galleryUC.GetURL(ctx.Request.Context(), galleryuc.GetURLCommand{
 		Storage: storageCtx,
-		Key:     key,
+		Key:     ctx.Query("key"),
 	})
 	if err != nil {
 		HandleError(ctx, err)
@@ -270,39 +227,19 @@ func buildStorageContext(ctx *gin.Context) port.StorageContext {
 	workspaceID, _ := middleware.GetWorkspaceID(ctx)
 	tenantID, _ := middleware.GetTenantIDFromHeader(ctx)
 
-	return port.StorageContext{
-		TenantID:      tenantID,
-		TenantCode:    ctx.GetHeader("X-Tenant-Code"),
-		WorkspaceID:   workspaceID,
-		WorkspaceCode: ctx.GetHeader("X-Workspace-Code"),
-	}
+	return port.NewGalleryStorageContext(
+		tenantID,
+		ctx.GetHeader("X-Tenant-Code"),
+		workspaceID,
+		ctx.GetHeader("X-Workspace-Code"),
+	)
 }
 
-// validateUploadMeta checks content type and file size constraints.
-func validateUploadMeta(contentType string, size int64) error {
-	if !strings.HasPrefix(contentType, "image/") {
-		return fmt.Errorf("only image files are allowed, got %q", contentType)
-	}
-	if size <= 0 {
-		return fmt.Errorf("file size must be positive")
-	}
-	if size > maxUploadSize {
-		return fmt.Errorf("file size %d exceeds maximum of %d bytes", size, maxUploadSize)
-	}
-	return nil
-}
-
-// parsePagination extracts page and perPage query parameters with defaults.
-func parsePagination(ctx *gin.Context) (int, int) {
-	page, _ := strconv.Atoi(ctx.DefaultQuery("page", strconv.Itoa(defaultGalleryPage)))
-	perPage, _ := strconv.Atoi(ctx.DefaultQuery("perPage", strconv.Itoa(defaultGalleryPerPage)))
-
-	if page < 1 {
-		page = defaultGalleryPage
-	}
-	if perPage < 1 {
-		perPage = defaultGalleryPerPage
-	}
+// parsePaginationParams extracts raw page/perPage query parameters.
+// Pagination defaults/clamping happen in the gallery service.
+func parsePaginationParams(ctx *gin.Context) (int, int) {
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	perPage, _ := strconv.Atoi(ctx.Query("perPage"))
 	return page, perPage
 }
 

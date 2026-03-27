@@ -9,6 +9,7 @@ import (
 
 	"github.com/rendis/pdf-forge/core/internal/adapters/primary/http/dto"
 	"github.com/rendis/pdf-forge/core/internal/core/entity"
+	galleryuc "github.com/rendis/pdf-forge/core/internal/core/usecase/gallery"
 )
 
 // respondError sends an error response.
@@ -138,6 +139,11 @@ func is400Error(err error) bool {
 		errors.Is(err, entity.ErrOnlyTextTypeAllowed) ||
 		errors.Is(err, entity.ErrWorkspaceIDRequired) ||
 		errors.Is(err, entity.ErrCannotModifyGlobal) ||
+		errors.Is(err, galleryuc.ErrQueryRequired) ||
+		errors.Is(err, galleryuc.ErrAssetKeyRequired) ||
+		errors.Is(err, galleryuc.ErrUploadContentTypeInvalid) ||
+		errors.Is(err, galleryuc.ErrUploadSizeInvalid) ||
+		errors.Is(err, galleryuc.ErrUploadSizeTooLarge) ||
 		errors.Is(err, entity.ErrDocumentTypeCodeImmutable) ||
 		errors.Is(err, entity.ErrDocumentTypeHasTemplates)
 }

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -74,17 +73,6 @@ func (c *RenderController) RegisterWorkspaceRoutes(workspaceGroup *gin.RouterGro
 func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 	versionID := ctx.Param("versionId")
 
-	// Parse request body
-	var req dto.RenderPreviewRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		// Allow empty body (no injectables)
-		if err.Error() != "EOF" {
-			respondError(ctx, http.StatusBadRequest, err)
-			return
-		}
-		req.Injectables = make(map[string]any)
-	}
-
 	// Get version with details
 	details, err := c.versionUC.GetVersionWithDetails(ctx.Request.Context(), versionID)
 	if err != nil {
@@ -108,19 +96,9 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 		return
 	}
 
-	// Build injectable defaults map from version injectables
-	injectableDefaults := templatesvc.BuildVersionInjectableDefaults(details.Injectables)
-
-	// Render PDF
-	renderReq := &port.RenderPreviewRequest{
-		Document:           doc,
-		Injectables:        req.Injectables,
-		InjectableDefaults: injectableDefaults,
-	}
-
-	if c.storageProvider != nil {
-		wsID, _ := middleware.GetWorkspaceID(ctx)
-		renderReq.ImageURLResolver = buildStoragePreviewResolver(c.storageProvider, wsID)
+	renderReq, ok := c.buildPreviewRenderRequest(ctx, details, doc)
+	if !ok {
+		return
 	}
 
 	result, err := c.pdfRenderer.RenderPreview(ctx.Request.Context(), renderReq)
@@ -140,6 +118,49 @@ func (c *RenderController) PreviewVersion(ctx *gin.Context) {
 
 	// Write PDF bytes
 	ctx.Data(http.StatusOK, "application/pdf", result.PDF)
+}
+
+func (c *RenderController) buildPreviewRenderRequest(
+	ctx *gin.Context,
+	details *entity.TemplateVersionWithDetails,
+	doc *portabledoc.Document,
+) (*port.RenderPreviewRequest, bool) {
+	req, ok := parsePreviewRequest(ctx)
+	if !ok {
+		return nil, false
+	}
+
+	renderReq := &port.RenderPreviewRequest{
+		Document:           doc,
+		Injectables:        req.Injectables,
+		InjectableDefaults: templatesvc.BuildVersionInjectableDefaults(details.Injectables),
+	}
+
+	if c.storageProvider == nil {
+		return renderReq, true
+	}
+
+	wsID, _ := middleware.GetWorkspaceID(ctx)
+	tenantID, _ := middleware.GetTenantIDFromHeader(ctx)
+	renderReq.ImageURLResolver = port.NewImageURLResolver(
+		c.storageProvider,
+		port.NewPreviewStorageContext(tenantID, wsID),
+	)
+
+	return renderReq, true
+}
+
+func parsePreviewRequest(ctx *gin.Context) (*dto.RenderPreviewRequest, bool) {
+	var req dto.RenderPreviewRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		if err.Error() != "EOF" {
+			respondError(ctx, http.StatusBadRequest, err)
+			return nil, false
+		}
+		req.Injectables = make(map[string]any)
+	}
+
+	return &req, true
 }
 
 // RenderByDocumentType resolves a template by document type code and renders a PDF.
@@ -290,25 +311,6 @@ func (c *RenderController) RenderByVersionID(ctx *gin.Context) {
 	)
 
 	sendPDFResponse(ctx, result)
-}
-
-// buildStoragePreviewResolver returns an ImageURLResolver that resolves storage:// URLs
-// using the given StorageProvider and workspace ID.
-func buildStoragePreviewResolver(sp port.StorageProvider, wsID string) func(context.Context, string) (string, error) {
-	return func(reqCtx context.Context, url string) (string, error) {
-		if !strings.HasPrefix(url, "storage://") {
-			return url, nil
-		}
-		key := strings.TrimPrefix(url, "storage://")
-		result, err := sp.GetURL(reqCtx, &port.StorageGetURLRequest{
-			Storage: port.StorageContext{WorkspaceID: wsID},
-			Key:     key,
-		})
-		if err != nil {
-			return "", err
-		}
-		return result.URL, nil
-	}
 }
 
 func extractHeaders(ctx *gin.Context) map[string]string {

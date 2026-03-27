@@ -14,6 +14,7 @@ internal/
 │   ├── usecase/              # Input ports organized by domain
 │   │   ├── access/           # System roles and access history
 │   │   ├── catalog/          # Folder and tag organization
+│   │   ├── gallery/          # Gallery/storage orchestration
 │   │   ├── injectable/       # Injectable definitions and assignments
 │   │   ├── organization/     # Tenant, workspace, member management
 │   │   └── template/         # Template and version management
@@ -21,6 +22,7 @@ internal/
 │   ├── service/              # Business logic organized by domain
 │   │   ├── access/           # Access control services
 │   │   ├── catalog/          # Catalog services
+│   │   ├── gallery/          # Gallery business rules on top of StorageProvider
 │   │   ├── injectable/       # Injectable services + dependency resolution
 │   │   ├── organization/     # Organization services
 │   │   ├── rendering/        # PDF rendering (pdfrenderer/)
@@ -56,6 +58,7 @@ internal/
 
 | Domain         | Description                                   |
 | -------------- | --------------------------------------------- |
+| `gallery`      | Gallery/storage orchestration and validation  |
 | `template`     | Template CRUD, versioning, content validation |
 | `organization` | Tenants, workspaces, members                  |
 | `injectable`   | Injectable definitions and assignments        |

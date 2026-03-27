@@ -31,6 +31,7 @@ import (
 	workspacerepo "github.com/rendis/pdf-forge/core/internal/adapters/secondary/database/postgres/workspace_repo"
 	accesssvc "github.com/rendis/pdf-forge/core/internal/core/service/access"
 	catalogsvc "github.com/rendis/pdf-forge/core/internal/core/service/catalog"
+	gallerysvc "github.com/rendis/pdf-forge/core/internal/core/service/gallery"
 	injectablesvc "github.com/rendis/pdf-forge/core/internal/core/service/injectable"
 	organizationsvc "github.com/rendis/pdf-forge/core/internal/core/service/organization"
 	"github.com/rendis/pdf-forge/core/internal/core/service/rendering/pdfrenderer"
@@ -240,7 +241,8 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	// --- Gallery Controller (optional) ---
 	var galleryCtrl *controller.GalleryController
 	if e.storageProvider != nil {
-		galleryCtrl = controller.NewGalleryController(e.storageProvider)
+		gallerySvc := gallerysvc.NewGalleryService(e.storageProvider)
+		galleryCtrl = controller.NewGalleryController(gallerySvc)
 	}
 
 	// --- HTTP Server ---
