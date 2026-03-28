@@ -30,6 +30,7 @@ type Service struct {
 	acquireTimeout time.Duration
 	imageCache     *ImageCache
 	designTokens   TypstDesignTokens
+	remotePolicy   *remoteImagePolicy
 }
 
 // NewService creates a new PDF renderer service.
@@ -45,14 +46,13 @@ func NewService(opts TypstOptions, imageCache *ImageCache, tokens *TypstDesignTo
 	}
 
 	s := &Service{
-		typst: typst,
-		httpClient: &http.Client{
-			Timeout: 15 * time.Second,
-		},
+		typst:          typst,
 		acquireTimeout: opts.AcquireTimeout,
 		imageCache:     imageCache,
 		designTokens:   dt,
+		remotePolicy:   newRemoteImagePolicy(),
 	}
+	s.httpClient = newRemoteImageHTTPClient(s.remotePolicy)
 
 	if opts.MaxConcurrent > 0 {
 		s.sem = make(chan struct{}, opts.MaxConcurrent)
@@ -198,28 +198,9 @@ func (s *Service) downloadFile(ctx context.Context, url, destPath string) (strin
 		return s.writeDataURL(url, destPath)
 	}
 
-	if err := validateRemoteImageURL(url); err != nil {
+	data, err := s.downloadRemoteImage(ctx, url)
+	if err != nil {
 		return "", err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("creating request: %w", err)
-	}
-
-	resp, err := s.httpClient.Do(req) //nolint:gosec // URL scheme and host are validated above; remote image download is expected behavior.
-	if err != nil {
-		return "", fmt.Errorf("downloading %s: %w", url, err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("downloading %s: status %d", url, resp.StatusCode)
-	}
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("reading response: %w", err)
 	}
 
 	// Detect real image type from magic bytes
@@ -243,21 +224,108 @@ func (s *Service) downloadFile(ctx context.Context, url, destPath string) (strin
 	return actualName, nil
 }
 
-func validateRemoteImageURL(rawURL string) error {
-	parsedURL, err := neturl.Parse(rawURL)
+func (s *Service) downloadRemoteImage(ctx context.Context, rawURL string) ([]byte, error) {
+	s.ensureRemoteImageClient()
+
+	currentURL := rawURL
+	for redirects := 0; redirects <= maxRemoteImageRedirects; redirects++ {
+		parsedURL, resp, err := s.fetchRemoteImageResponse(ctx, currentURL)
+		if err != nil {
+			return nil, err
+		}
+
+		nextURL, redirected, err := resolveRemoteImageRedirect(rawURL, parsedURL, resp, redirects)
+		if err != nil {
+			return nil, err
+		}
+		if redirected {
+			currentURL = nextURL
+			continue
+		}
+
+		return readRemoteImageBody(parsedURL, resp)
+	}
+
+	return nil, fmt.Errorf("downloading %s: too many redirects", rawURL)
+}
+
+func (s *Service) fetchRemoteImageResponse(ctx context.Context, rawURL string) (*neturl.URL, *http.Response, error) {
+	parsedURL, err := s.remotePolicy.validateURL(ctx, rawURL)
 	if err != nil {
-		return fmt.Errorf("invalid image URL %q: %w", rawURL, err)
+		return nil, nil, err
 	}
 
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return fmt.Errorf("unsupported image URL scheme %q", parsedURL.Scheme)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsedURL.String(), nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating request: %w", err)
 	}
 
-	if parsedURL.Host == "" {
-		return fmt.Errorf("image URL host is required")
+	resp, err := s.httpClient.Do(req) //nolint:gosec // Remote-image client disables env proxies, validates public destinations at URL and dial time, and follows redirects manually with revalidation.
+	if err != nil {
+		return nil, nil, fmt.Errorf("downloading %s: %w", parsedURL.String(), err)
 	}
 
-	return nil
+	return parsedURL, resp, nil
+}
+
+func resolveRemoteImageRedirect(rawURL string, parsedURL *neturl.URL, resp *http.Response, redirects int) (string, bool, error) {
+	if !isRedirectStatus(resp.StatusCode) {
+		return "", false, nil
+	}
+
+	location := resp.Header.Get("Location")
+	resp.Body.Close()
+
+	if redirects == maxRemoteImageRedirects {
+		return "", false, fmt.Errorf("downloading %s: too many redirects", rawURL)
+	}
+	if location == "" {
+		return "", false, fmt.Errorf("downloading %s: redirect missing location header", parsedURL.String())
+	}
+
+	nextURL, err := parsedURL.Parse(location)
+	if err != nil {
+		return "", false, fmt.Errorf("resolving redirect location %q: %w", location, err)
+	}
+
+	return nextURL.String(), true, nil
+}
+
+func readRemoteImageBody(parsedURL *neturl.URL, resp *http.Response) ([]byte, error) {
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("downloading %s: status %d", parsedURL.String(), resp.StatusCode)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+
+	return data, nil
+}
+
+func (s *Service) ensureRemoteImageClient() {
+	if s.remotePolicy == nil {
+		s.remotePolicy = newRemoteImagePolicy()
+	}
+	if s.httpClient == nil {
+		s.httpClient = newRemoteImageHTTPClient(s.remotePolicy)
+	}
+}
+
+func isRedirectStatus(statusCode int) bool {
+	switch statusCode {
+	case http.StatusMovedPermanently,
+		http.StatusFound,
+		http.StatusSeeOther,
+		http.StatusTemporaryRedirect,
+		http.StatusPermanentRedirect:
+		return true
+	default:
+		return false
+	}
 }
 
 // writeDataURL decodes a base64 data URL and writes the image to disk.
@@ -368,6 +436,11 @@ func (s *Service) releaseSlot() {
 
 // Close releases resources held by the service.
 func (s *Service) Close() error {
+	if s.httpClient != nil {
+		if transport, ok := s.httpClient.Transport.(*http.Transport); ok {
+			transport.CloseIdleConnections()
+		}
+	}
 	if s.typst != nil {
 		return s.typst.Close()
 	}
