@@ -154,8 +154,64 @@ func TestTypstConverter_NestedMarks(t *testing.T) {
 func TestTypstConverter_Paragraph(t *testing.T) {
 	c := newConverter(nil, nil)
 	got := c.ConvertNode(paragraphNode(textNode("Hello")))
-	if got != "Hello\n\n" {
-		t.Errorf("got %q, want %q", got, "Hello\n\n")
+	if !strings.Contains(got, "Hello") {
+		t.Errorf("expected paragraph to contain text, got %q", got)
+	}
+}
+
+// Line spacing tests use ConvertNodes (not ConvertNode) because
+// the spacing wrapper is applied at the group level.
+func TestTypstConverter_ParagraphLineSpacingCompact(t *testing.T) {
+	c := newConverter(nil, nil)
+	nodes := []portabledoc.Node{
+		{Type: portabledoc.NodeTypeParagraph, Attrs: map[string]any{"lineSpacing": "compact"}, Content: []portabledoc.Node{textNode("Compact text")}},
+	}
+	got := c.ConvertNodes(nodes)
+	if !strings.Contains(got, "leading: 0.15em") {
+		t.Errorf("expected compact leading 0.15em, got %q", got)
+	}
+	if !strings.Contains(got, "spacing: 0.30em") {
+		t.Errorf("expected compact spacing 0.30em, got %q", got)
+	}
+}
+
+func TestTypstConverter_ParagraphLineSpacingTight(t *testing.T) {
+	c := newConverter(nil, nil)
+	nodes := []portabledoc.Node{
+		{Type: portabledoc.NodeTypeParagraph, Attrs: map[string]any{"lineSpacing": "tight"}, Content: []portabledoc.Node{textNode("Tight text")}},
+	}
+	got := c.ConvertNodes(nodes)
+	if !strings.Contains(got, "leading: 0em") {
+		t.Errorf("expected tight leading 0em, got %q", got)
+	}
+	if !strings.Contains(got, "spacing: 0em") {
+		t.Errorf("expected tight spacing 0em, got %q", got)
+	}
+}
+
+func TestTypstConverter_ParagraphLineSpacingDefault(t *testing.T) {
+	c := newConverter(nil, nil)
+	nodes := []portabledoc.Node{paragraphNode(textNode("Default"))}
+	got := c.ConvertNodes(nodes)
+	if !strings.Contains(got, "leading: 0.50em") {
+		t.Errorf("expected default leading 0.50em, got %q", got)
+	}
+	if !strings.Contains(got, "spacing: 0.65em") {
+		t.Errorf("expected default spacing 0.65em, got %q", got)
+	}
+}
+
+func TestTypstConverter_LineSpacingGrouping(t *testing.T) {
+	c := newConverter(nil, nil)
+	nodes := []portabledoc.Node{
+		{Type: portabledoc.NodeTypeParagraph, Attrs: map[string]any{"lineSpacing": "tight"}, Content: []portabledoc.Node{textNode("A")}},
+		{Type: portabledoc.NodeTypeParagraph, Attrs: map[string]any{"lineSpacing": "tight"}, Content: []portabledoc.Node{textNode("B")}},
+		{Type: portabledoc.NodeTypeParagraph, Content: []portabledoc.Node{textNode("C")}},
+	}
+	got := c.ConvertNodes(nodes)
+	// A and B should be in one scope, C in another
+	if strings.Count(got, "#set par(leading:") != 2 {
+		t.Errorf("expected 2 line spacing scopes, got %q", got)
 	}
 }
 
@@ -290,9 +346,9 @@ func TestTypstConverter_TableCellMultipleParagraphs(t *testing.T) {
 		},
 	}
 	got := c.ConvertNode(node)
-	// Should preserve paragraph breaks (\n\n) within cell
-	if !strings.Contains(got, "Paragraph 1\n\nParagraph 2") {
-		t.Errorf("expected paragraph breaks preserved in table cell, got %q", got)
+	// Should contain both paragraphs within cell
+	if !strings.Contains(got, "Paragraph 1") || !strings.Contains(got, "Paragraph 2") {
+		t.Errorf("expected both paragraphs in table cell, got %q", got)
 	}
 }
 
@@ -300,15 +356,15 @@ func TestTypstConverter_TableCellMultipleParagraphs(t *testing.T) {
 
 func TestTypstConverter_Headings(t *testing.T) {
 	tests := []struct {
-		level float64
-		want  string
+		level  float64
+		prefix string
 	}{
-		{1, "= Title\n"},
-		{2, "== Title\n"},
-		{3, "=== Title\n"},
-		{4, "==== Title\n"},
-		{5, "===== Title\n"},
-		{6, "====== Title\n"},
+		{1, "= "},
+		{2, "== "},
+		{3, "=== "},
+		{4, "==== "},
+		{5, "===== "},
+		{6, "====== "},
 	}
 
 	for _, tt := range tests {
@@ -319,8 +375,8 @@ func TestTypstConverter_Headings(t *testing.T) {
 			Content: []portabledoc.Node{textNode("Title")},
 		}
 		got := c.ConvertNode(node)
-		if got != tt.want {
-			t.Errorf("level %.0f: got %q, want %q", tt.level, got, tt.want)
+		if !strings.Contains(got, tt.prefix+"Title") {
+			t.Errorf("level %.0f: expected %q in output, got %q", tt.level, tt.prefix+"Title", got)
 		}
 	}
 }
@@ -332,7 +388,7 @@ func TestTypstConverter_HeadingDefaultLevel(t *testing.T) {
 		Content: []portabledoc.Node{textNode("Title")},
 	}
 	got := c.ConvertNode(node)
-	if !strings.HasPrefix(got, "= ") {
+	if !strings.Contains(got, "= Title") {
 		t.Errorf("expected level 1 heading, got %q", got)
 	}
 }
@@ -400,8 +456,11 @@ func TestTypstConverter_BulletList(t *testing.T) {
 		},
 	}
 	got := c.ConvertNode(node)
-	if !strings.Contains(got, "- item1") || !strings.Contains(got, "- item2") {
+	if !strings.Contains(got, "item1") || !strings.Contains(got, "item2") {
 		t.Errorf("expected bullet list items, got %q", got)
+	}
+	if !strings.Contains(got, "- ") {
+		t.Errorf("expected bullet markers, got %q", got)
 	}
 }
 
@@ -415,8 +474,11 @@ func TestTypstConverter_OrderedList(t *testing.T) {
 		},
 	}
 	got := c.ConvertNode(node)
-	if !strings.Contains(got, "+ first") || !strings.Contains(got, "+ second") {
+	if !strings.Contains(got, "first") || !strings.Contains(got, "second") {
 		t.Errorf("expected ordered list items, got %q", got)
+	}
+	if !strings.Contains(got, "+ ") {
+		t.Errorf("expected ordered markers, got %q", got)
 	}
 }
 

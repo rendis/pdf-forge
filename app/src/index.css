@@ -624,14 +624,39 @@ body {
   background: hsl(var(--card));
   font-family: "Helvetica Neue", "Arial", sans-serif;
   font-size: 12pt;
-  line-height: 1.3;
   hyphens: auto;
   overflow-wrap: break-word;
 }
 
-.ProseMirror p {
-  margin-top: 0.75em;
-  margin-bottom: 0.75em;
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  line-height: 1.5 !important;
+}
+
+/* Line spacing presets */
+.ProseMirror [data-line-spacing='tight'] {
+  line-height: 1 !important;
+}
+
+.ProseMirror [data-line-spacing='compact'] {
+  line-height: 1.15 !important;
+}
+
+.ProseMirror [data-line-spacing='normal'] {
+  line-height: 1.5 !important;
+}
+
+.ProseMirror [data-line-spacing='relaxed'] {
+  line-height: 2 !important;
+}
+
+.ProseMirror [data-line-spacing='loose'] {
+  line-height: 2.5 !important;
 }
 
 /* Heading sizes matching Typst output (typst_builder.go) */

@@ -10,3 +10,12 @@ export { HEADING_LEVELS } from './headings'
 export type { HeadingLevel } from './headings'
 
 export { DEFAULT_TABLE_STYLES, TEXT_ALIGN_OPTIONS } from './table-defaults'
+
+export {
+  LINE_SPACING_PRESETS,
+  DEFAULT_LINE_SPACING,
+  normalizeLineSpacingPreset,
+  getLineSpacingCssValue,
+  getLineSpacingTypstLeading,
+} from './line-spacing'
+export type { LineSpacingPreset } from './line-spacing'

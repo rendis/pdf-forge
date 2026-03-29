@@ -16,6 +16,7 @@ interface PreviewButtonProps {
   versionId: string
   disabled?: boolean
   editor: Editor | null
+  beforeGenerate?: () => Promise<void>
 }
 
 export function PreviewButton({
@@ -23,6 +24,7 @@ export function PreviewButton({
   versionId,
   disabled,
   editor,
+  beforeGenerate,
 }: PreviewButtonProps) {
   const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -63,6 +65,7 @@ export function PreviewButton({
         onOpenChange={setIsModalOpen}
         templateId={templateId}
         versionId={versionId}
+        beforeGenerate={beforeGenerate}
         usedVariableIds={usedVariableIds}
       />
     </>

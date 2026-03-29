@@ -25,6 +25,7 @@ import { validateDocument, isVersionCompatible, compareVersions } from '../schem
 import { validateDocumentSemantics } from './document-validator'
 import { migrateDocument } from './document-migrations'
 import { PAGE_SIZES } from '../types'
+import { useDocumentHeaderStore } from '../stores/document-header-store'
 
 // =============================================================================
 // Types
@@ -309,9 +310,6 @@ export function importDocument(
     backendVariables
   )
 
-  // Restore page configuration
-  restorePageConfig(migratedDocument.pageConfig, storeActions)
-
   // Load content into editor
   const contentLoaded = loadContent(editor, migratedDocument.content)
 
@@ -329,6 +327,15 @@ export function importDocument(
       },
       document: migratedDocument,
     }
+  }
+
+  // Restore page configuration
+  restorePageConfig(migratedDocument.pageConfig, storeActions)
+
+  if (migratedDocument.header) {
+    useDocumentHeaderStore.getState().configure(migratedDocument.header)
+  } else {
+    useDocumentHeaderStore.getState().reset()
   }
 
   return {

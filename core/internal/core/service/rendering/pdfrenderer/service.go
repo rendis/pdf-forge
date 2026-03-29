@@ -87,6 +87,7 @@ func (s *Service) RenderPreview(ctx context.Context, req *port.RenderPreviewRequ
 		})
 	}
 	typstSource := builder.Build(req.Document)
+	slog.DebugContext(ctx, "typst source generated")
 	pageCount := builder.GetPageCount()
 
 	// Resolve remote images

@@ -39,8 +39,8 @@ func DefaultDesignTokens() TypstDesignTokens {
 		FontStack:        []string{"Helvetica Neue", "Arial", "Liberation Sans", "Libertinus Serif"},
 		BaseFontSize:     "12pt",
 		BaseTextColor:    "#333333",
-		ParagraphLeading: "0.75em",
-		ParagraphSpacing: "1.5em",
+		ParagraphLeading: "0.50em",
+		ParagraphSpacing: "0.65em",
 
 		HeadingSizes:  [6]string{"24pt", "20pt", "16pt", "14pt", "12pt", "11pt"},
 		HeadingWeight: "600",

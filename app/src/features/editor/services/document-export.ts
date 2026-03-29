@@ -18,10 +18,13 @@ import type {
   ExportInfo,
   ProseMirrorDocument,
   ProseMirrorNode,
+  DocumentHeaderConfig,
 } from '../types/document-format'
 import type { PaginationStore } from '../stores/pagination-store'
 import { DOCUMENT_FORMAT_VERSION } from '../types/document-format'
 import { PAGE_SIZES } from '../types'
+import { useDocumentHeaderStore } from '../stores/document-header-store'
+import { deriveHeaderEnabled } from '../utils/document-header'
 
 // =============================================================================
 // Helper Types
@@ -63,6 +66,13 @@ function findInjectorNodes(content: ProseMirrorNode[]): Set<string> {
         node.attrs?.variableId
       ) {
         variableIds.add(node.attrs.variableId as string)
+      }
+
+      if (
+        (node.type === 'image' || node.type === 'customImage') &&
+        node.attrs?.injectableId
+      ) {
+        variableIds.add(node.attrs.injectableId as string)
       }
 
       // Also check conditional nodes for variable references in conditions
@@ -108,7 +118,15 @@ function extractVariablesFromConditions(
  */
 function extractVariableIds(content: ProseMirrorDocument): string[] {
   const usedVariableIds = findInjectorNodes(content.content)
+  addHeaderVariableIds(usedVariableIds)
   return Array.from(usedVariableIds).sort()
+}
+
+function addHeaderVariableIds(variableIds: Set<string>) {
+  const headerState = useDocumentHeaderStore.getState()
+  if (headerState.imageInjectableId) {
+    variableIds.add(headerState.imageInjectableId)
+  }
 }
 
 // =============================================================================
@@ -199,6 +217,22 @@ export function exportDocument(
   // Generate export info
   const exportInfo = generateExportInfo(options)
 
+  // Read header state
+  const headerState = useDocumentHeaderStore.getState()
+  const headerEnabled = deriveHeaderEnabled(headerState)
+
+  const header: DocumentHeaderConfig = {
+    enabled: headerEnabled,
+    layout: headerState.layout,
+    imageUrl: headerState.imageUrl,
+    imageAlt: headerState.imageAlt,
+    imageInjectableId: headerState.imageInjectableId,
+    imageInjectableLabel: headerState.imageInjectableLabel,
+    imageWidth: headerState.imageWidth,
+    imageHeight: headerState.imageHeight,
+    content: headerState.content ?? undefined,
+  }
+
   // Assemble the document
   const document: PortableDocument = {
     version: DOCUMENT_FORMAT_VERSION,
@@ -206,6 +240,7 @@ export function exportDocument(
     pageConfig,
     variableIds,
     content,
+    header,
     exportInfo,
   }
 
@@ -304,5 +339,7 @@ function hasNodeType(content: ProseMirrorNode[], nodeType: string): boolean {
 export function extractVariableIdsFromEditor(editor: Editor): string[] {
   const json = editor.getJSON() as JSONContent
   const content = (json.content || []) as ProseMirrorNode[]
-  return Array.from(findInjectorNodes(content))
+  const ids = findInjectorNodes(content)
+  addHeaderVariableIds(ids)
+  return Array.from(ids)
 }

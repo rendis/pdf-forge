@@ -3,20 +3,15 @@
  *
  * Implements Google Docs-style auto-saving with debounce,
  * retry logic, and status indication.
- *
- * Copied from legacy system (../web-client) and adapted for v2 stores.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Editor } from '@tiptap/core'
 import { versionsApi } from '@/features/templates/api/templates-api'
 import { exportDocument } from '../services/document-export'
+import { useDocumentHeaderStore } from '../stores/document-header-store'
 import { usePaginationStore } from '../stores/pagination-store'
 import type { DocumentMeta } from '../types/document-format'
-
-// =============================================================================
-// Types
-// =============================================================================
 
 export type AutoSaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
@@ -38,20 +33,13 @@ export interface UseAutoSaveOptions {
 
 export interface UseAutoSaveReturn extends AutoSaveState {
   save: () => Promise<void>
+  ensureSaved: () => Promise<void>
   resetError: () => void
 }
-
-// =============================================================================
-// Constants
-// =============================================================================
 
 const DEFAULT_DEBOUNCE_MS = 2000
 const MAX_RETRIES = 2
 const SAVED_DISPLAY_MS = 3000
-
-// =============================================================================
-// Hook Implementation
-// =============================================================================
 
 export function useAutoSave({
   editor,
@@ -61,29 +49,61 @@ export function useAutoSave({
   debounceMs = DEFAULT_DEBOUNCE_MS,
   meta,
 }: UseAutoSaveOptions): UseAutoSaveReturn {
-  // State
   const [status, setStatus] = useState<AutoSaveStatus>('idle')
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
   const [error, setError] = useState<Error | null>(null)
   const [isDirty, setIsDirty] = useState(false)
 
-  // Refs
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const retryCountRef = useRef(0)
-  const isSavingRef = useRef(false)
+  const isInitializedRef = useRef(false)
+  const savePromiseRef = useRef<Promise<void> | null>(null)
+  const prevHeaderRef = useRef<string | null>(null)
 
-  // Store data - v2 has individual properties, not a `config` object
   const pageSize = usePaginationStore((s) => s.pageSize)
   const margins = usePaginationStore((s) => s.margins)
+  const headerLayout = useDocumentHeaderStore((s) => s.layout)
+  const headerImageUrl = useDocumentHeaderStore((s) => s.imageUrl)
+  const headerImageAlt = useDocumentHeaderStore((s) => s.imageAlt)
+  const headerImageInjectableId = useDocumentHeaderStore((s) => s.imageInjectableId)
+  const headerImageInjectableLabel = useDocumentHeaderStore((s) => s.imageInjectableLabel)
+  const headerImageWidth = useDocumentHeaderStore((s) => s.imageWidth)
+  const headerImageHeight = useDocumentHeaderStore((s) => s.imageHeight)
+  const headerContent = useDocumentHeaderStore((s) => s.content)
 
-  // Build pagination config in the format expected by exportDocument
-  const pagination = useMemo(() => ({
-    pageSize,
-    margins,
-  }), [pageSize, margins])
+  const headerSnapshot = useMemo(
+    () =>
+      JSON.stringify({
+        layout: headerLayout,
+        imageUrl: headerImageUrl,
+        imageAlt: headerImageAlt,
+        imageInjectableId: headerImageInjectableId,
+        imageInjectableLabel: headerImageInjectableLabel,
+        imageWidth: headerImageWidth,
+        imageHeight: headerImageHeight,
+        content: headerContent,
+      }),
+    [
+      headerContent,
+      headerImageAlt,
+      headerImageHeight,
+      headerImageInjectableId,
+      headerImageInjectableLabel,
+      headerImageUrl,
+      headerImageWidth,
+      headerLayout,
+    ]
+  )
 
-  // Clear timers on unmount
+  const pagination = useMemo(
+    () => ({
+      pageSize,
+      margins,
+    }),
+    [pageSize, margins]
+  )
+
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
@@ -91,100 +111,126 @@ export function useAutoSave({
     }
   }, [])
 
-  /**
-   * Core save function
-   */
-  const performSave = useCallback(async () => {
-    if (!editor || !enabled || isSavingRef.current) return
+  useEffect(() => {
+    if (!enabled || isInitializedRef.current) return
 
-    isSavingRef.current = true
-    setStatus('saving')
-    setError(null)
+    const timer = setTimeout(() => {
+      prevHeaderRef.current = headerSnapshot
+      isInitializedRef.current = true
+    }, 100)
 
-    try {
-      // Build document meta
-      const documentMeta: DocumentMeta = {
-        title: meta?.title || 'Untitled',
-        description: meta?.description,
-        language: meta?.language || 'es',
-        customFields: meta?.customFields,
-      }
+    return () => clearTimeout(timer)
+  }, [enabled, headerSnapshot])
 
-      // Export document
-      const portableDoc = exportDocument(
-        editor,
-        { pagination },
-        documentMeta,
-        { includeChecksum: true }
-      )
-
-      // Send document directly as JSON object
-      const contentStructure = portableDoc
-
-      // Call API
-      await versionsApi.update(templateId, versionId, { contentStructure })
-
-      // Success
-      setStatus('saved')
-      setLastSavedAt(new Date())
-      setIsDirty(false)
-      retryCountRef.current = 0
-
-      // Reset to idle after display time
-      if (savedTimerRef.current) clearTimeout(savedTimerRef.current)
-      savedTimerRef.current = setTimeout(() => {
-        setStatus('idle')
-      }, SAVED_DISPLAY_MS)
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Save failed')
-
-      // Retry logic
-      if (retryCountRef.current < MAX_RETRIES) {
-        retryCountRef.current++
-        isSavingRef.current = false
-        // Retry after a short delay
-        setTimeout(() => performSave(), 1000)
-        return
-      }
-
-      // Max retries reached
-      setStatus('error')
-      setError(error)
-      retryCountRef.current = 0
-    } finally {
-      isSavingRef.current = false
+  const performSave = useCallback(() => {
+    if (!editor || !enabled) {
+      return Promise.resolve()
     }
-  }, [
-    editor,
-    enabled,
-    templateId,
-    versionId,
-    meta,
-    pagination,
-  ])
 
-  /**
-   * Manual save (force, no debounce)
-   */
+    if (savePromiseRef.current) {
+      return savePromiseRef.current
+    }
+
+    const savePromise = (async () => {
+      setStatus('saving')
+      setError(null)
+
+      try {
+        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+          try {
+            const documentMeta: DocumentMeta = {
+              title: meta?.title || 'Untitled',
+              description: meta?.description,
+              language: meta?.language || 'es',
+              customFields: meta?.customFields,
+            }
+
+            const portableDoc = exportDocument(
+              editor,
+              { pagination },
+              documentMeta,
+              { includeChecksum: true }
+            )
+
+            await versionsApi.update(templateId, versionId, { contentStructure: portableDoc })
+
+            setStatus('saved')
+            setLastSavedAt(new Date())
+            setIsDirty(false)
+            retryCountRef.current = 0
+
+            if (savedTimerRef.current) clearTimeout(savedTimerRef.current)
+            savedTimerRef.current = setTimeout(() => {
+              setStatus('idle')
+            }, SAVED_DISPLAY_MS)
+
+            return
+          } catch (err) {
+            const saveError = err instanceof Error ? err : new Error('Save failed')
+
+            if (attempt < MAX_RETRIES) {
+              retryCountRef.current = attempt + 1
+              await new Promise((resolve) => setTimeout(resolve, 1000))
+              continue
+            }
+
+            setStatus('error')
+            setError(saveError)
+            retryCountRef.current = 0
+            throw saveError
+          }
+        }
+      } finally {
+        // noop
+      }
+    })()
+
+    const trackedPromise = savePromise.finally(() => {
+      if (savePromiseRef.current === trackedPromise) {
+        savePromiseRef.current = null
+      }
+    })
+    savePromiseRef.current = trackedPromise
+
+    return trackedPromise
+  }, [editor, enabled, meta, pagination, templateId, versionId])
+
   const save = useCallback(async () => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current)
       debounceTimerRef.current = null
     }
-    await performSave()
+
+    try {
+      await performSave()
+    } catch {
+      // performSave already updates UI state.
+    }
   }, [performSave])
 
-  /**
-   * Reset error state
-   */
+  const ensureSaved = useCallback(async () => {
+    if (!enabled || !editor) return
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+
+    if (savePromiseRef.current) {
+      await savePromiseRef.current
+      return
+    }
+
+    if (isDirty || status === 'pending') {
+      await performSave()
+    }
+  }, [editor, enabled, isDirty, performSave, status])
+
   const resetError = useCallback(() => {
     setError(null)
     setStatus(isDirty ? 'pending' : 'idle')
   }, [isDirty])
 
-  /**
-   * Schedule debounced save
-   */
   const scheduleSave = useCallback(() => {
     if (!enabled) return
 
@@ -197,13 +243,12 @@ export function useAutoSave({
 
     debounceTimerRef.current = setTimeout(() => {
       debounceTimerRef.current = null
-      performSave()
+      void performSave().catch(() => {
+        // performSave already updates UI state.
+      })
     }, debounceMs)
-  }, [enabled, debounceMs, performSave])
+  }, [debounceMs, enabled, performSave])
 
-  /**
-   * Listen to editor updates
-   */
   useEffect(() => {
     if (!editor || !enabled) return
 
@@ -218,12 +263,22 @@ export function useAutoSave({
     }
   }, [editor, enabled, scheduleSave])
 
+  useEffect(() => {
+    if (!enabled || !isInitializedRef.current) return
+
+    if (prevHeaderRef.current !== headerSnapshot) {
+      prevHeaderRef.current = headerSnapshot
+      scheduleSave()
+    }
+  }, [enabled, headerSnapshot, scheduleSave])
+
   return {
     status,
     lastSavedAt,
     error,
     isDirty,
     save,
+    ensureSaved,
     resetError,
   }
 }

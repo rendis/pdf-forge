@@ -54,18 +54,6 @@ function createContext(
 }
 
 /**
- * Adds an error to the context
- */
-function _addError(
-  context: ValidationContext,
-  code: string,
-  path: string,
-  message: string
-): void {
-  context.errors.push({ code, path, message })
-}
-
-/**
  * Adds a warning to the context
  */
 function addWarning(
@@ -131,6 +119,61 @@ function validateInjectorReferences(
     if (node.content) {
       validateInjectorReferences(node.content, context, nodePath)
     }
+  }
+}
+
+function validateImageVariableReferences(
+  document: PortableDocument,
+  context: ValidationContext
+): void {
+  function validateImageVariableId(variableId: string, path: string) {
+    if (!context.documentVariableIds.has(variableId)) {
+      addWarning(
+        context,
+        'UNDEFINED_IMAGE_VARIABLE',
+        path,
+        `Variable "${variableId}" referenciada en imagen no está en variableIds del documento`,
+        'Añade el ID de la variable a la lista variableIds'
+      )
+    }
+
+    if (
+      context.backendVariableIds.size > 0 &&
+      !context.backendVariableIds.has(variableId)
+    ) {
+      addWarning(
+        context,
+        'ORPHANED_IMAGE_VARIABLE',
+        path,
+        `Variable "${variableId}" referenciada en imagen no existe en el backend`,
+        'La variable puede haber sido eliminada o el ID es incorrecto'
+      )
+    }
+  }
+
+  function traverse(nodes: ProseMirrorNode[], path: string) {
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]
+      const nodePath = `${path}.content[${i}]`
+      const variableId = node.attrs?.injectableId as string | undefined
+
+      if ((node.type === 'image' || node.type === 'customImage') && variableId) {
+        validateImageVariableId(variableId, `${nodePath}.attrs.injectableId`)
+      }
+
+      if (node.content) {
+        traverse(node.content, nodePath)
+      }
+    }
+  }
+
+  traverse(document.content.content, 'content')
+
+  if (document.header?.imageInjectableId) {
+    validateImageVariableId(
+      document.header.imageInjectableId,
+      'header.imageInjectableId'
+    )
   }
 }
 
@@ -329,6 +372,7 @@ export function validateDocumentSemantics(
 
   // Validate content references
   validateInjectorReferences(document.content.content, context)
+  validateImageVariableReferences(document, context)
   validateConditionalReferences(document.content.content, context)
 
   // Validate image sizes
@@ -364,6 +408,13 @@ export function getUsedVariableIds(document: PortableDocument): string[] {
     for (const node of nodes) {
       if (node.type === 'injector' && node.attrs?.variableId) {
         ids.add(node.attrs.variableId as string)
+      }
+
+      if (
+        (node.type === 'image' || node.type === 'customImage') &&
+        node.attrs?.injectableId
+      ) {
+        ids.add(node.attrs.injectableId as string)
       }
 
       if (node.type === 'conditional' && node.attrs?.conditions) {
@@ -402,6 +453,11 @@ export function getUsedVariableIds(document: PortableDocument): string[] {
   }
 
   traverse(document.content.content)
+
+  if (document.header?.imageInjectableId) {
+    ids.add(document.header.imageInjectableId)
+  }
+
   return Array.from(ids)
 }
 

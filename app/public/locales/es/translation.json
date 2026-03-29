@@ -44,7 +44,8 @@
     "optional": "opcional",
     "processing": "Procesando...",
     "language": "Idioma",
-    "changeLanguage": "Cambiar idioma"
+    "changeLanguage": "Cambiar idioma",
+    "remove": "Eliminar"
   },
   "tags": {
     "searchPlaceholder": "Buscar o crear etiquetas...",
@@ -390,6 +391,16 @@
   },
   "editor": {
     "document": "Documento",
+    "documentHeader": {
+      "addLogo": "Haz clic para agregar logo",
+      "editLogo": "Editar logo del encabezado",
+      "textPlaceholder": "Agregar texto de encabezado...",
+      "surfaceLabel": "Encabezado del documento",
+      "surfaceHint": "Haz clic para editar el encabezado o agregar un logo",
+      "layoutImageLeft": "Imagen izquierda, texto derecha",
+      "layoutImageCenter": "Imagen centrada",
+      "layoutImageRight": "Texto izquierda, imagen derecha"
+    },
     "status": {
       "editable": "Editable",
       "readOnly": "Solo lectura",
@@ -466,7 +477,13 @@
       "exportDocumentShort": "Exportar documento",
       "importDocumentShort": "Importar documento",
       "textColor": "Color de texto",
-      "removeTextColor": "Quitar color"
+      "removeTextColor": "Quitar color",
+      "lineSpacing": "Interlineado",
+      "lineSpacingTight": "Estrecho",
+      "lineSpacingCompact": "Compacto",
+      "lineSpacingNormal": "Normal",
+      "lineSpacingRelaxed": "Relajado",
+      "lineSpacingLoose": "Amplio"
     },
     "preparation": {
       "title": "Preparando documento"

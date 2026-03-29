@@ -5,6 +5,7 @@ import axios from 'axios'
 interface UsePreviewPDFOptions {
   templateId: string
   versionId: string
+  beforeGenerate?: () => Promise<void>
 }
 
 interface UsePreviewPDFReturn {
@@ -22,6 +23,7 @@ interface UsePreviewPDFReturn {
 export function usePreviewPDF({
   templateId,
   versionId,
+  beforeGenerate,
 }: UsePreviewPDFOptions): UsePreviewPDFReturn {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -33,6 +35,7 @@ export function usePreviewPDF({
       setError(null)
 
       try {
+        await beforeGenerate?.()
         const blob = await previewApi.generate(templateId, versionId, {
           injectables,
         })
@@ -48,6 +51,8 @@ export function usePreviewPDF({
           } else if (err.response?.status === 500) {
             errorMessage = 'Error del servidor. Intenta nuevamente.'
           }
+        } else if (err instanceof Error) {
+          errorMessage = err.message
         }
 
         setError(new Error(errorMessage))
@@ -55,7 +60,7 @@ export function usePreviewPDF({
         setIsGenerating(false)
       }
     },
-    [templateId, versionId]
+    [beforeGenerate, templateId, versionId]
   )
 
   const clearError = useCallback(() => setError(null), [])

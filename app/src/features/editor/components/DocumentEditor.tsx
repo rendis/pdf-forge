@@ -41,6 +41,7 @@ import {
 import { TableInjectorExtension } from '../extensions/TableInjector'
 import { ListInjectorExtension } from '../extensions/ListInjector'
 import { StoredMarksPersistenceExtension } from '../extensions/StoredMarksPersistence'
+import { LineSpacingExtension } from '../extensions/LineSpacing'
 import { ImageInsertModal, type ImageInsertResult } from './ImageInsertModal'
 import { VariableFormatDialog } from './VariableFormatDialog'
 import { VariablesPanel } from './VariablesPanel'
@@ -48,12 +49,16 @@ import { VariableDragOverlay } from './VariableDragOverlay'
 import { InconsistencyNavigator } from './InconsistencyNavigator'
 import { TableBubbleMenu } from './TableBubbleMenu'
 import { TableCornerHandle } from './TableCornerHandle'
+import { DocumentPageHeader } from './DocumentPageHeader'
 import { hasConfigurableOptions } from '../types/injectable'
 import { cn } from '@/lib/utils'
 import { type Variable } from '../types'
-import { usePaginationStore } from '../stores'
+import { useDocumentHeaderStore, usePaginationStore } from '../stores'
 import type { VariableDragData } from '../types/drag'
 import type { Editor } from '@tiptap/core'
+import { deriveHeaderEnabled } from '../utils/document-header'
+
+type ActiveSurface = 'header' | 'body'
 
 interface DocumentEditorProps {
   initialContent?: string
@@ -70,6 +75,7 @@ interface DocumentEditorProps {
   templateId?: string
   /** Version ID for preview functionality */
   versionId?: string
+  onBeforePreview?: () => Promise<void>
 }
 
 export function DocumentEditor({
@@ -84,11 +90,24 @@ export function DocumentEditor({
   onFullyReady,
   templateId,
   versionId,
+  onBeforePreview,
 }: DocumentEditorProps) {
   const { t } = useTranslation()
 
   // Get page config from store (for visual width and margins)
   const { pageSize, margins } = usePaginationStore()
+  const headerContent = useDocumentHeaderStore((state) => state.content)
+  const headerImageUrl = useDocumentHeaderStore((state) => state.imageUrl)
+  const headerImageInjectableId = useDocumentHeaderStore((state) => state.imageInjectableId)
+  const headerHasMeaningfulContent = useMemo(
+    () =>
+      deriveHeaderEnabled({
+        content: headerContent,
+        imageUrl: headerImageUrl,
+        imageInjectableId: headerImageInjectableId,
+      }),
+    [headerContent, headerImageInjectableId, headerImageUrl]
+  )
 
   // Store current content for editor recreation
   const [latestContent, setLatestContent] = useState(initialContent)
@@ -112,6 +131,9 @@ export function DocumentEditor({
   const [pendingImagePosition, setPendingImagePosition] = useState<number | null>(null)
   const [editingImageShape, setEditingImageShape] = useState<ImageShape>('square')
   const [editingImageData, setEditingImageData] = useState<ImageInsertResult | null>(null)
+  const [headerImageModalToken, setHeaderImageModalToken] = useState(0)
+  const [activeSurface, setActiveSurface] = useState<ActiveSurface>('body')
+  const [headerToolbarEditor, setHeaderToolbarEditor] = useState<Editor | null>(null)
 
   // Format dialog state
   const [formatDialogOpen, setFormatDialogOpen] = useState(false)
@@ -138,6 +160,11 @@ export function DocumentEditor({
     })
   )
 
+  const bodyTopPadding = useMemo(
+    () => (headerHasMeaningfulContent ? Math.round(margins.top / 2) : margins.top),
+    [headerHasMeaningfulContent, margins.top]
+  )
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -151,6 +178,7 @@ export function DocumentEditor({
       FontFamily.configure({ types: ['textStyle'] }),
       FontSize.configure({ types: ['textStyle'] }),
       StoredMarksPersistenceExtension,
+      LineSpacingExtension,
       TextAlign.configure({ types: ['heading', 'paragraph', 'tableCell', 'tableHeader'] }),
       InjectorExtension,
       MentionExtension,
@@ -176,10 +204,13 @@ export function DocumentEditor({
       setLatestContent(html)
       onContentChange?.(html)
     },
+    onFocus: () => {
+      setActiveSurface('body')
+    },
     editorProps: {
       attributes: {
         class:
-          'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[200px]',
+          'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[200px] prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-ol:my-0',
       },
     },
   }, [editorKey]) // Recreate editor when editorKey changes
@@ -209,6 +240,15 @@ export function DocumentEditor({
 
     return () => cancelAnimationFrame(rafId)
   }, [editor, onFullyReady])
+
+  const showHeaderSurface = editable || headerHasMeaningfulContent
+  const toolbarEditor = activeSurface === 'header' ? headerToolbarEditor : editor
+
+  useEffect(() => {
+    if (!showHeaderSurface && activeSurface === 'header') {
+      setActiveSurface('body')
+    }
+  }, [activeSurface, showHeaderSurface])
 
   // Listen for image modal events
   useEffect(() => {
@@ -275,6 +315,41 @@ export function DocumentEditor({
       )
     }
   }, [editor])
+
+  const handleHeaderEditorFocus = useCallback((headerEditor: Editor) => {
+    setHeaderToolbarEditor(headerEditor)
+    setActiveSurface('header')
+  }, [])
+
+  const handleHeaderEditorReady = useCallback((headerEditor: Editor | null) => {
+    setHeaderToolbarEditor(headerEditor)
+  }, [])
+
+  const handleActivateHeader = useCallback(() => {
+    if (!editable) return
+    setActiveSurface('header')
+  }, [editable])
+
+  const handleActivateBody = useCallback(() => {
+    if (!editable) return
+    setActiveSurface('body')
+  }, [editable])
+
+  const handleOpenBodyImageModal = useCallback(() => {
+    if (!editor) return
+
+    setActiveSurface('body')
+    setPendingImagePosition(editor.state.selection.from)
+    setIsEditingImage(false)
+    setImageModalOpen(true)
+  }, [editor])
+
+  const handleOpenHeaderImageModal = useCallback(() => {
+    if (!editable) return
+
+    setActiveSurface('header')
+    setHeaderImageModalToken((token) => token + 1)
+  }, [editable])
 
   const handleImageInsert = useCallback((result: ImageInsertResult) => {
     if (!editor) return
@@ -530,9 +605,13 @@ export function DocumentEditor({
             <div className="flex items-center justify-between border-b border-border bg-card min-w-0">
               {editable ? (
                 <EditorToolbar
-                  editor={editor}
+                  editor={toolbarEditor ?? editor}
+                  documentEditor={editor}
+                  activeSurface={activeSurface}
+                  onOpenImage={activeSurface === 'header' ? handleOpenHeaderImageModal : handleOpenBodyImageModal}
                   onExport={onExport}
                   onImport={onImport}
+                  onBeforePreview={onBeforePreview}
                   templateId={templateId}
                   versionId={versionId}
                 />
@@ -551,7 +630,12 @@ export function DocumentEditor({
                   </Tooltip>
                 )}
                 {!editable && templateId && versionId && (
-                  <PreviewButton templateId={templateId} versionId={versionId} editor={editor} />
+                  <PreviewButton
+                    templateId={templateId}
+                    versionId={versionId}
+                    editor={editor}
+                    beforeGenerate={onBeforePreview}
+                  />
                 )}
                 <PageSettings disabled={!editable} />
               </div>
@@ -573,14 +657,33 @@ export function DocumentEditor({
                 style={{
                   width: pageSize.width,
                   minHeight: pageSize.height,
-                  paddingTop: margins.top,
                   paddingBottom: margins.bottom,
-                  paddingLeft: margins.left,
-                  paddingRight: margins.right,
                 }}
               >
+                {showHeaderSurface && (
+                  <DocumentPageHeader
+                    editable={editable}
+                    active={activeSurface === 'header'}
+                    onActivate={handleActivateHeader}
+                    onTextEditorFocus={handleHeaderEditorFocus}
+                    onEditorReady={handleHeaderEditorReady}
+                    openImageModalToken={headerImageModalToken}
+                    paddingLeft={margins.left}
+                    paddingRight={margins.right}
+                  />
+                )}
+                <div
+                  onMouseDownCapture={handleActivateBody}
+                  style={{
+                    paddingTop: bodyTopPadding,
+                    paddingBottom: 0,
+                    paddingLeft: margins.left,
+                    paddingRight: margins.right,
+                  }}
+                >
                 <EditorContent editor={editor} />
                 {editable && <TableBubbleMenu editor={editor} />}
+                </div>
               </div>
               {/* Table corner handle - positioned relative to scroll container */}
               {editable && <TableCornerHandle editor={editor} />}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Editor } from '@tiptap/react'
 import { Button } from '@/components/ui/button'
@@ -48,18 +48,35 @@ import { PreviewButton } from './preview'
 import { TextColorPicker } from './TextColorPicker'
 import { FontFamilyPicker } from './FontFamilyPicker'
 import { FontSizePicker } from './FontSizePicker'
+import { LineSpacingPicker } from './LineSpacingPicker'
 import { useOverflowScroll } from '@/hooks/use-overflow-scroll'
 import { cn } from '@/lib/utils'
 
+type ActiveSurface = 'header' | 'body'
+
 interface EditorToolbarProps {
   editor: Editor | null
+  documentEditor?: Editor | null
+  activeSurface?: ActiveSurface
+  onOpenImage?: () => void
   onExport?: () => void
   onImport?: () => void
+  onBeforePreview?: () => Promise<void>
   templateId?: string
   versionId?: string
 }
 
-export function EditorToolbar({ editor, onExport, onImport, templateId, versionId }: EditorToolbarProps) {
+export function EditorToolbar({
+  editor,
+  documentEditor,
+  activeSurface = 'body',
+  onOpenImage,
+  onExport,
+  onImport,
+  onBeforePreview,
+  templateId,
+  versionId,
+}: EditorToolbarProps) {
   const { t } = useTranslation()
   // Force re-render when editor state changes (for undo/redo buttons)
   const [, forceUpdate] = useState({})
@@ -86,6 +103,33 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
   }, [editor])
 
   if (!editor) return null
+
+  const isHeaderSurface = activeSurface === 'header'
+  const previewEditor = documentEditor ?? editor
+  const imageTooltip = isHeaderSurface
+    ? t('editor.documentHeader.editLogo')
+    : t('editor.toolbar.insertImage')
+
+  const handleOpenImage = () => {
+    if (onOpenImage) {
+      onOpenImage()
+      return
+    }
+
+    editor.view.dom.dispatchEvent(
+      new CustomEvent('editor:open-image-modal', { bubbles: true })
+    )
+  }
+
+  const handleInsertConditional = () => {
+    if (isHeaderSurface) return
+    editor.chain().focus().setConditional({}).run()
+  }
+
+  const handleInsertTable = () => {
+    if (isHeaderSurface) return
+    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+  }
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -143,6 +187,9 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
 
           {/* Font Size */}
           <FontSizePicker editor={editor} />
+
+          {/* Line Spacing */}
+          <LineSpacingPicker editor={editor} />
 
           <Separator orientation="vertical" className="h-6 mx-1" />
 
@@ -277,23 +324,21 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
             </span>
 
             <ToolbarButton
-              onClick={() => {
-                editor.view.dom.dispatchEvent(
-                  new CustomEvent('editor:open-image-modal', { bubbles: true })
-                )
-              }}
-              tooltip={t('editor.toolbar.insertImage')}
+              onClick={handleOpenImage}
+              tooltip={imageTooltip}
             >
               <ImageIcon className="h-4 w-4 text-success-foreground dark:text-success" />
             </ToolbarButton>
             <ToolbarButton
-              onClick={() => editor.chain().focus().setConditional({}).run()}
+              onClick={handleInsertConditional}
+              disabled={isHeaderSurface}
               tooltip={t('editor.toolbar.conditionalBlock')}
             >
               <GitBranch className="h-4 w-4 text-warning-foreground dark:text-warning" />
             </ToolbarButton>
             <ToolbarButton
-              onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+              onClick={handleInsertTable}
+              disabled={isHeaderSurface}
               tooltip={t('editor.insertTable')}
             >
               <Table2 className="h-4 w-4 text-primary" />
@@ -325,7 +370,8 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
                 <PreviewButton
                   templateId={templateId}
                   versionId={versionId}
-                  editor={editor}
+                  editor={previewEditor}
+                  beforeGenerate={onBeforePreview}
                 />
               )}
             </>
@@ -529,23 +575,21 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
                 {t('editor.toolbar.horizontalRule')}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  editor.view.dom.dispatchEvent(
-                    new CustomEvent('editor:open-image-modal', { bubbles: true })
-                  )
-                }}
+                onClick={handleOpenImage}
               >
                 <ImageIcon className="mr-2 h-4 w-4 text-success-foreground dark:text-success" />
-                {t('editor.toolbar.insertImage')}
+                {imageTooltip}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => editor.chain().focus().setConditional({}).run()}
+                onClick={handleInsertConditional}
+                disabled={isHeaderSurface}
               >
                 <GitBranch className="mr-2 h-4 w-4 text-warning-foreground dark:text-warning" />
                 {t('editor.toolbar.conditionalBlock')}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                onClick={handleInsertTable}
+                disabled={isHeaderSurface}
               >
                 <Table2 className="mr-2 h-4 w-4 text-primary" />
                 {t('editor.insertTable')}
@@ -581,7 +625,7 @@ export function EditorToolbar({ editor, onExport, onImport, templateId, versionI
 }
 
 interface ToolbarButtonProps {
-  children: React.ReactNode
+  children: ReactNode
   onClick: () => void
   isActive?: boolean
   disabled?: boolean
