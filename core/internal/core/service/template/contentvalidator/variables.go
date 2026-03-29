@@ -14,6 +14,9 @@ func (s *Service) validateVariables(vctx *validationContext) {
 
 	// Validate injector nodes in content
 	validateInjectorNodes(vctx)
+
+	// Validate image injectable references (body + header)
+	validateImageInjectableRefs(vctx)
 }
 
 // validateDeclaredVariables validates that all declared variableIds are accessible.
@@ -71,6 +74,49 @@ func validateInjectorNode(vctx *validationContext, node portabledoc.Node, path s
 	if !vctx.variableSet.Contains(attrs.VariableID) {
 		vctx.addErrorf(ErrCodeUnknownVariable, path+".attrs.variableId",
 			"Variable '%s' not found in document variableIds", attrs.VariableID)
+	}
+}
+
+// validateImageInjectableRefs validates that image nodes with injectableId
+// reference variables that are declared in variableIds and accessible.
+func validateImageInjectableRefs(vctx *validationContext) {
+	doc := vctx.doc
+
+	// Validate body image nodes
+	idx := 0
+	for _, node := range doc.NodesOfType(portabledoc.NodeTypeCustomImage) {
+		id, _ := node.Attrs["injectableId"].(string)
+		if id == "" {
+			continue
+		}
+		path := fmt.Sprintf("content.customImage[%d].attrs.injectableId", idx)
+		idx++
+
+		if !vctx.variableSet.Contains(id) {
+			vctx.addErrorf(ErrCodeUnknownVariable, path,
+				"Image injectable '%s' not found in document variableIds", id)
+		}
+
+		if vctx.accessibleInjectables.Len() > 0 && !vctx.accessibleInjectables.Contains(id) {
+			vctx.addErrorf(ErrCodeInaccessibleVariable, path,
+				"Image injectable '%s' is not accessible to this workspace", id)
+		}
+	}
+
+	// Validate header image injectable
+	if doc.Header != nil && doc.Header.ImageInjectableID != "" {
+		path := "header.imageInjectableId"
+		id := doc.Header.ImageInjectableID
+
+		if !vctx.variableSet.Contains(id) {
+			vctx.addErrorf(ErrCodeUnknownVariable, path,
+				"Header image injectable '%s' not found in document variableIds", id)
+		}
+
+		if vctx.accessibleInjectables.Len() > 0 && !vctx.accessibleInjectables.Contains(id) {
+			vctx.addErrorf(ErrCodeInaccessibleVariable, path,
+				"Header image injectable '%s' is not accessible to this workspace", id)
+		}
 	}
 }
 

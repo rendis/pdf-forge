@@ -86,7 +86,7 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 	templateVersionInjectableRepo := templateversioninjectablerepo.New(pool)
 	documentTypeRepo := documenttyperepo.New(pool)
 
-	// --- Dummy Auth: seed default user ---
+	// --- Dummy Auth: seed default user + sample data ---
 	if cfg.DummyAuth {
 		userID, err := seedDummyUser(ctx, pool)
 		if err != nil {
@@ -94,6 +94,8 @@ func (e *Engine) initialize(ctx context.Context) (*appComponents, error) {
 		}
 		cfg.DummyAuthUserID = userID
 		slog.InfoContext(ctx, "dummy auth user seeded", slog.String("user_id", userID))
+
+		seedDummyInjectables(ctx, pool)
 	}
 
 	// --- Middleware ---
@@ -300,4 +302,20 @@ func seedDummyUser(ctx context.Context, pool *pgxpool.Pool) (string, error) {
 	}
 
 	return userID, nil
+}
+
+// seedDummyInjectables creates sample injectable definitions for dev/testing.
+// Only inserts into workspaces that exist; safe to call multiple times.
+func seedDummyInjectables(ctx context.Context, pool *pgxpool.Pool) {
+	_, err := pool.Exec(ctx, `
+		INSERT INTO content.injectable_definitions (workspace_id, key, label, description, data_type, default_value, is_active)
+		SELECT w.id, 'sample_company_logo', 'Company Logo', 'Sample IMAGE injectable for testing header logos', 'IMAGE', 'https://picsum.photos/seed/logo/400/200', true
+		FROM tenancy.workspaces w
+		WHERE NOT EXISTS (
+			SELECT 1 FROM content.injectable_definitions d WHERE d.workspace_id = w.id AND d.key = 'sample_company_logo'
+		)
+	`)
+	if err != nil {
+		slog.WarnContext(ctx, "failed to seed dummy injectables", slog.String("error", err.Error()))
+	}
 }

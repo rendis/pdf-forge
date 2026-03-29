@@ -68,6 +68,31 @@ func (d *Document) HasNodeOfType(nodeType string) bool {
 	return false
 }
 
+// ImageInjectableIDs collects all injectable IDs referenced in image nodes
+// (customImage with injectableId attr) and the header image injectable.
+func (d *Document) ImageInjectableIDs() []string {
+	seen := make(Set[string])
+	var ids []string
+
+	for node := range d.AllNodes() {
+		if node.Type != NodeTypeCustomImage && node.Type != NodeTypeImage {
+			continue
+		}
+		id, _ := node.Attrs["injectableId"].(string)
+		if id == "" || seen.Contains(id) {
+			continue
+		}
+		seen[id] = struct{}{}
+		ids = append(ids, id)
+	}
+
+	if d.Header != nil && d.Header.ImageInjectableID != "" && !seen.Contains(d.Header.ImageInjectableID) {
+		ids = append(ids, d.Header.ImageInjectableID)
+	}
+
+	return ids
+}
+
 // AllNodesRecursive returns an iterator over all nodes using DFS traversal.
 func (d *Document) AllNodesRecursive() iter.Seq[Node] {
 	return func(yield func(Node) bool) {

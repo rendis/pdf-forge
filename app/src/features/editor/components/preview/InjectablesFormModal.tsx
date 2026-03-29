@@ -26,6 +26,7 @@ interface InjectablesFormModalProps {
   onOpenChange: (open: boolean) => void
   templateId: string
   versionId: string
+  beforeGenerate?: () => Promise<void>
   /** Variable IDs actually used in the document. If provided, only shows these variables */
   usedVariableIds?: string[]
 }
@@ -35,6 +36,7 @@ export function InjectablesFormModal({
   onOpenChange,
   templateId,
   versionId,
+  beforeGenerate,
   usedVariableIds,
 }: InjectablesFormModalProps) {
   const { t } = useTranslation()
@@ -49,6 +51,7 @@ export function InjectablesFormModal({
   } = usePreviewPDF({
     templateId,
     versionId,
+    beforeGenerate,
   })
   const { getEmulatedValue } = useEmulatedValues()
 
@@ -65,74 +68,69 @@ export function InjectablesFormModal({
     return variables.filter((v) => usedSet.has(v.variableId))
   }, [variables, usedVariableIds])
 
-  const standardVariables = useMemo(
-    () => filteredVariables,
-    [filteredVariables]
-  )
-
   // Separar variables de sistema de las normales
   const systemVariables = useMemo(
     () =>
-      standardVariables.filter((v) =>
+      filteredVariables.filter((v) =>
         INTERNAL_INJECTABLE_KEYS.includes(
           v.variableId as (typeof INTERNAL_INJECTABLE_KEYS)[number]
         )
       ),
-    [standardVariables]
+    [filteredVariables]
   )
 
   // Variables del documento (excluyendo las de sistema, TABLE e IMAGE types)
   const documentVariables = useMemo(
     () =>
-      standardVariables.filter(
+      filteredVariables.filter(
         (v) =>
           !INTERNAL_INJECTABLE_KEYS.includes(
             v.variableId as (typeof INTERNAL_INJECTABLE_KEYS)[number]
           ) && v.type !== 'TABLE' && v.type !== 'LIST' && v.type !== 'IMAGE'
       ),
-    [standardVariables]
+    [filteredVariables]
   )
 
   // TABLE type variables (handled by TableInjectablesSection)
   const tableVariables = useMemo(
     () =>
-      standardVariables.filter(
+      filteredVariables.filter(
         (v) =>
           v.type === 'TABLE' &&
           !INTERNAL_INJECTABLE_KEYS.includes(
             v.variableId as (typeof INTERNAL_INJECTABLE_KEYS)[number]
           )
       ),
-    [standardVariables]
+    [filteredVariables]
   )
 
   // LIST type variables (handled by ListInjectablesSection)
   const listVariables = useMemo(
     () =>
-      standardVariables.filter(
+      filteredVariables.filter(
         (v) =>
           v.type === 'LIST' &&
           !INTERNAL_INJECTABLE_KEYS.includes(
             v.variableId as (typeof INTERNAL_INJECTABLE_KEYS)[number]
           )
       ),
-    [standardVariables]
+    [filteredVariables]
   )
 
   // IMAGE type variables (handled by ImageInjectablesSection)
   const imageVariables = useMemo(
     () =>
-      standardVariables.filter(
+      filteredVariables.filter(
         (v) =>
           v.type === 'IMAGE' &&
           !INTERNAL_INJECTABLE_KEYS.includes(
             v.variableId as (typeof INTERNAL_INJECTABLE_KEYS)[number]
           )
       ),
-    [standardVariables]
+    [filteredVariables]
   )
 
-  const hasVariables = standardVariables.length > 0 || tableVariables.length > 0 || listVariables.length > 0 || imageVariables.length > 0
+  const hasVariables = filteredVariables.length > 0 || tableVariables.length > 0 || listVariables.length > 0 || imageVariables.length > 0
 
   // Auto-completar valores emulados al abrir el modal + limpiar al cerrar (store previous props pattern)
   const [prevOpen, setPrevOpen] = useState(open)

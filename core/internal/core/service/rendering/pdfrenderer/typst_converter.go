@@ -64,8 +64,8 @@ func (c *TypstConverter) registerRemoteImage(url string) string {
 }
 
 // ConvertNodes converts a slice of nodes to Typst markup.
-// It uses look-ahead to group inline images with their following paragraphs
-// for text wrapping via the wrap-it package.
+// Groups consecutive paragraphs/headings with the same lineSpacing into a single
+// scope so that par(spacing) applies between them correctly.
 func (c *TypstConverter) ConvertNodes(nodes []portabledoc.Node) string {
 	var sb strings.Builder
 	for i := 0; i < len(nodes); i++ {
@@ -82,11 +82,40 @@ func (c *TypstConverter) ConvertNodes(nodes []portabledoc.Node) string {
 			} else {
 				sb.WriteString(c.image(node)) // no body, fallback to block
 			}
+		} else if c.isLineSpacingNode(node) {
+			// Group consecutive paragraph/heading nodes with same lineSpacing
+			ls := c.resolveLineSpacing(node.Attrs)
+			group := []portabledoc.Node{node}
+			for j := i + 1; j < len(nodes); j++ {
+				next := nodes[j]
+				if !c.isLineSpacingNode(next) {
+					break
+				}
+				nextLS := c.resolveLineSpacing(next.Attrs)
+				if nextLS != ls {
+					break
+				}
+				group = append(group, next)
+			}
+			i += len(group) - 1 // skip consumed nodes
+
+			// Render group content
+			var groupContent strings.Builder
+			for _, gn := range group {
+				groupContent.WriteString(c.ConvertNode(gn))
+			}
+
+			sb.WriteString(wrapTypstBlockWithLineSpacing(groupContent.String(), ls))
 		} else {
 			sb.WriteString(c.ConvertNode(node))
 		}
 	}
 	return sb.String()
+}
+
+// isLineSpacingNode returns true for node types that support lineSpacing.
+func (c *TypstConverter) isLineSpacingNode(node portabledoc.Node) bool {
+	return node.Type == portabledoc.NodeTypeParagraph || node.Type == portabledoc.NodeTypeHeading
 }
 
 // ConvertNode converts a single node to Typst markup.
@@ -140,15 +169,15 @@ func (c *TypstConverter) handleUnknownNode(node portabledoc.Node) string {
 func (c *TypstConverter) paragraph(node portabledoc.Node) string {
 	content := c.ConvertNodes(node.Content)
 	if content == "" {
-		return "#v(1.5em)\n" // Match typst_builder.go paragraph spacing
+		return fmt.Sprintf("#v(%s)\n", c.tokens.ParagraphSpacing)
 	}
-	if align, ok := node.Attrs["textAlign"].(string); ok {
-		if align == "justify" {
-			return fmt.Sprintf("#par(justify: true)[%s]\n\n", content)
-		}
-		if typstAlign := toTypstAlign(align); typstAlign != "" {
-			return fmt.Sprintf("#align(%s)[%s]\n\n", typstAlign, content)
-		}
+
+	align, _ := node.Attrs["textAlign"].(string)
+	if align == "justify" {
+		return fmt.Sprintf("#par(justify: true)[%s]\n\n", content)
+	}
+	if typstAlign := toTypstAlign(align); typstAlign != "" {
+		return fmt.Sprintf("#align(%s)[%s]\n\n", typstAlign, content)
 	}
 	return content + "\n\n"
 }
@@ -157,16 +186,83 @@ func (c *TypstConverter) heading(node portabledoc.Node) string {
 	level := c.parseHeadingLevel(node.Attrs)
 	content := c.ConvertNodes(node.Content)
 	prefix := strings.Repeat("=", level)
-	heading := fmt.Sprintf("%s %s\n", prefix, content)
-	if align, ok := node.Attrs["textAlign"].(string); ok {
-		if align == "justify" {
-			return fmt.Sprintf("#par(justify: true)[%s]\n", strings.TrimSuffix(heading, "\n"))
-		}
-		if typstAlign := toTypstAlign(align); typstAlign != "" {
-			return fmt.Sprintf("#align(%s)[%s]\n", typstAlign, strings.TrimSuffix(heading, "\n"))
-		}
+	heading := fmt.Sprintf("%s %s", prefix, content)
+
+	align, _ := node.Attrs["textAlign"].(string)
+	if align == "justify" {
+		return fmt.Sprintf("#par(justify: true)[%s]\n", heading)
 	}
-	return heading
+	if typstAlign := toTypstAlign(align); typstAlign != "" {
+		return fmt.Sprintf("#align(%s)[%s]\n", typstAlign, heading)
+	}
+	return heading + "\n"
+}
+
+// lineSpacingValues holds both leading (within paragraph) and spacing (between paragraphs).
+type lineSpacingValues struct {
+	leading string
+	spacing string
+}
+
+// resolveLineSpacing returns the Typst leading and spacing values for a node's lineSpacing attribute.
+func (c *TypstConverter) resolveLineSpacing(attrs map[string]any) lineSpacingValues {
+	defaults := lineSpacingValues{
+		leading: c.tokens.ParagraphLeading,
+		spacing: c.tokens.ParagraphSpacing,
+	}
+
+	if attrs == nil {
+		return defaults
+	}
+
+	raw, ok := attrs["lineSpacing"].(string)
+	if !ok || raw == "" {
+		return defaults
+	}
+
+	switch portabledoc.NormalizeLineSpacing(raw) {
+	case portabledoc.LineSpacingTight:
+		return lineSpacingValues{leading: "0em", spacing: "0em"}
+	case portabledoc.LineSpacingCompact:
+		return lineSpacingValues{leading: "0.15em", spacing: "0.30em"}
+	case portabledoc.LineSpacingRelaxed:
+		return lineSpacingValues{leading: "1.00em", spacing: "1.30em"}
+	case portabledoc.LineSpacingLoose:
+		return lineSpacingValues{leading: "1.50em", spacing: "1.95em"}
+	default:
+		return defaults
+	}
+}
+
+// applyLocalParagraphFormatting wraps content with alignment and line spacing.
+func (c *TypstConverter) applyLocalParagraphFormatting(
+	content string,
+	attrs map[string]any,
+	ls lineSpacingValues,
+) string {
+	align, _ := attrs["textAlign"].(string)
+
+	if align == "justify" {
+		body := fmt.Sprintf("#par(justify: true)[%s]", content)
+		return wrapTypstBlockWithLineSpacing(body, ls)
+	}
+
+	body := wrapTypstBlockWithLineSpacing(content, ls)
+	if typstAlign := toTypstAlign(align); typstAlign != "" {
+		return fmt.Sprintf("#align(%s)[%s]", typstAlign, body)
+	}
+
+	return body
+}
+
+// wrapTypstBlockWithLineSpacing wraps content with text edge, leading, and spacing overrides.
+func wrapTypstBlockWithLineSpacing(content string, ls lineSpacingValues) string {
+	return fmt.Sprintf(
+		"#[\n#set text(top-edge: 0.8em, bottom-edge: -0.2em)\n#set par(leading: %s, spacing: %s)\n%s\n]",
+		ls.leading,
+		ls.spacing,
+		strings.TrimRight(content, "\n"),
+	)
 }
 
 func (c *TypstConverter) parseHeadingLevel(attrs map[string]any) int {

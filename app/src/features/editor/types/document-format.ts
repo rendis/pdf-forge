@@ -22,11 +22,12 @@ import type { PageMargins } from './index'
  * - Patch: Bug fixes, clarifications
  *
  * Changelog:
+ * - 2.1.0: Added document header support and header/body image injectable tracking
  * - 2.0.0: Removed signerRoles and signingWorkflow
  * - 1.1.0: Added signingWorkflow (orderMode, notifications)
  * - 1.0.0: Initial version
  */
-export const DOCUMENT_FORMAT_VERSION = '2.0.0'
+export const DOCUMENT_FORMAT_VERSION = '2.1.0'
 
 // =============================================================================
 // Document Envelope
@@ -53,6 +54,9 @@ export interface PortableDocument {
 
   /** ProseMirror-compatible content structure */
   content: ProseMirrorDocument
+
+  /** Optional document header rendered before the body content */
+  header?: DocumentHeaderConfig
 
   /** Export metadata (auto-generated) */
   exportInfo: ExportInfo
@@ -94,6 +98,20 @@ export interface PageConfig {
 
   /** Page margins in pixels */
   margins: PageMargins
+}
+
+export type DocumentHeaderLayout = 'image-left' | 'image-right' | 'image-center'
+
+export interface DocumentHeaderConfig {
+  enabled: boolean
+  layout?: DocumentHeaderLayout
+  imageUrl?: string | null
+  imageAlt?: string
+  imageInjectableId?: string | null
+  imageInjectableLabel?: string | null
+  imageWidth?: number | null
+  imageHeight?: number | null
+  content?: Record<string, unknown>
 }
 
 // =============================================================================
@@ -250,6 +268,8 @@ export interface ImageAttrs {
   displayMode: ImageDisplayMode
   align: ImageAlign
   shape: ImageShape
+  injectableId?: string | null
+  injectableLabel?: string | null
 }
 
 /** Conditional node attributes */

@@ -53,3 +53,29 @@ var ValidPageFormats = Set[string]{
 	PageFormatLegal:  {},
 	PageFormatCustom: {},
 }
+
+// Line spacing constants.
+const (
+	LineSpacingTight   = "tight"
+	LineSpacingCompact = "compact"
+	LineSpacingNormal  = "normal"
+	LineSpacingRelaxed = "relaxed"
+	LineSpacingLoose   = "loose"
+)
+
+// ValidLineSpacings contains allowed line spacing presets.
+var ValidLineSpacings = Set[string]{
+	LineSpacingTight:   {},
+	LineSpacingCompact: {},
+	LineSpacingNormal:  {},
+	LineSpacingRelaxed: {},
+	LineSpacingLoose:   {},
+}
+
+// NormalizeLineSpacing returns the default preset when empty or invalid.
+func NormalizeLineSpacing(value string) string {
+	if _, ok := ValidLineSpacings[value]; ok {
+		return value
+	}
+	return LineSpacingNormal
+}
