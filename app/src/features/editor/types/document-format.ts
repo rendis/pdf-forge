@@ -118,7 +118,16 @@ export interface DocumentHeaderConfig {
 // Backend Variable Types (source of truth from API)
 // =============================================================================
 
-export type VariableType = 'TEXT' | 'NUMBER' | 'DATE' | 'CURRENCY' | 'BOOLEAN' | 'IMAGE' | 'TABLE'
+export type VariableType =
+  | 'TEXT'
+  | 'NUMBER'
+  | 'DATE'
+  | 'CURRENCY'
+  | 'BOOLEAN'
+  | 'IMAGE'
+  | 'TABLE'
+  | 'LIST'
+  | 'ROLE_TEXT'
 
 export interface VariableValidation {
   /** Minimum value (NUMBER, DATE) */

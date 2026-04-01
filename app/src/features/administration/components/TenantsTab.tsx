@@ -132,7 +132,7 @@ export function TenantsTab(): React.ReactElement {
     }
     setSingleTenant(false)
     setCurrentTenant(tenantWithRole)
-    navigate({ to: '/select-tenant', search: { intent: 'switch' } })
+    navigate({ to: '/select-tenant' })
   }
 
   const getStatusAction = (tenant: SystemTenant) => {

@@ -20,6 +20,7 @@ export const VariableTypeSchema = z.enum([
   'BOOLEAN',
   'IMAGE',
   'TABLE',
+  'LIST',
   'ROLE_TEXT',
 ])
 
@@ -139,14 +140,14 @@ export type LogicGroupType = {
   children: (z.infer<typeof LogicRuleSchema> | LogicGroupType)[]
 }
 
-export const LogicGroupSchema: z.ZodType<LogicGroupType> = z.lazy(() =>
+export const LogicGroupSchema = z.lazy(() =>
   z.object({
     id: z.string(),
     type: z.literal('group'),
     logic: LogicOperatorSchema,
     children: z.array(z.union([LogicRuleSchema, LogicGroupSchema])),
   })
-)
+) as z.ZodType<LogicGroupType>
 
 // =============================================================================
 // ProseMirror Document Schema
@@ -166,7 +167,7 @@ export type ProseMirrorNodeType = {
   text?: string
 }
 
-export const ProseMirrorNodeSchema: z.ZodType<ProseMirrorNodeType> = z.lazy(() =>
+export const ProseMirrorNodeSchema = z.lazy(() =>
   z.object({
     type: z.string(),
     attrs: z.record(z.string(), z.unknown()).optional(),
@@ -174,7 +175,7 @@ export const ProseMirrorNodeSchema: z.ZodType<ProseMirrorNodeType> = z.lazy(() =
     marks: z.array(ProseMirrorMarkSchema).optional(),
     text: z.string().optional(),
   })
-)
+) as z.ZodType<ProseMirrorNodeType>
 
 export const ProseMirrorDocumentSchema = z.object({
   type: z.literal('doc'),

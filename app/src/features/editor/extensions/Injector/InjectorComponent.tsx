@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { NodeViewWrapper } from '@tiptap/react'
-// @ts-expect-error - NodeViewProps is not exported in type definitions
 import type { NodeViewProps } from '@tiptap/react'
 import { NodeSelection } from '@tiptap/pm/state'
 import { cn } from '@/lib/utils'

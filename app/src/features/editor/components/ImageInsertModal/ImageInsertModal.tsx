@@ -138,6 +138,7 @@ export function ImageInsertModal({
 
                 <TabsContent value="url" className="mt-4">
                   <ImageUrlTab
+                    key={`${currentImage?.src ?? 'none'}:${currentImage?.injectableId ?? 'none'}:${currentImage?.isBase64 ? 'base64' : 'regular'}`}
                     onImageReady={setCurrentImage}
                     onOpenCropper={handleOpenCropper}
                     currentImage={currentImage}

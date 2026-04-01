@@ -2,6 +2,9 @@ import { motion } from 'framer-motion'
 import { useLocation } from '@tanstack/react-router'
 import { ReactNode } from 'react'
 
+const EASE_OUT = [0.16, 1, 0.3, 1] as const
+const EASE_IN = [0.7, 0, 0.84, 0] as const
+
 const getPageType = (pathname: string): 'dashboard' | 'standard' => {
   if (pathname.match(/^\/workspace\/[^/]+\/?$/)) {
     return 'dashboard'
@@ -14,11 +17,11 @@ const standardVariants = {
   initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    transition: { duration: 0.25, ease: 'easeOut' },
+    transition: { duration: 0.25, ease: EASE_OUT },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.15, ease: 'easeIn' },
+    transition: { duration: 0.15, ease: EASE_IN },
   },
 }
 
@@ -28,12 +31,12 @@ const dashboardVariants = {
   animate: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.3, ease: 'easeOut' },
+    transition: { duration: 0.3, ease: EASE_OUT },
   },
   exit: {
     opacity: 0,
     scale: 0.98,
-    transition: { duration: 0.15, ease: 'easeIn' },
+    transition: { duration: 0.15, ease: EASE_IN },
   },
 }
 

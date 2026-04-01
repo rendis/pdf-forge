@@ -44,6 +44,7 @@ export const TYPE_OPERATORS: Record<InjectorType, RuleOperator[]> = {
   BOOLEAN: ['eq', 'neq', 'is_true', 'is_false', 'empty', 'not_empty'],
   IMAGE: ['empty', 'not_empty'],
   TABLE: ['empty', 'not_empty'],
+  LIST: ['empty', 'not_empty'],
   ROLE_TEXT: [
     'eq',
     'neq',

@@ -35,7 +35,7 @@ export default defineConfig(() => {
     server: {
       port: 3000,
       host: true,
-      allowedHosts: true,
+      allowedHosts: true as const,
       proxy: {
         [`${proxyPrefix}/api`]: {
           target: 'http://localhost:8080',

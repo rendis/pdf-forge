@@ -20,7 +20,7 @@ type Document struct {
 // The header is rendered only on the first page.
 type DocumentHeader struct {
 	Enabled              bool            `json:"enabled"`
-	Layout               string          `json:"layout"`                         // image-left | image-right | image-center
+	Layout               string          `json:"layout"` // image-left | image-right | image-center
 	ImageURL             string          `json:"imageUrl,omitempty"`
 	ImageAlt             string          `json:"imageAlt,omitempty"`
 	ImageInjectableID    string          `json:"imageInjectableId,omitempty"`

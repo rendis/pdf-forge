@@ -1,5 +1,6 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
+import { NodeSelection } from '@tiptap/pm/state'
 import { ConditionalComponent } from './ConditionalComponent'
 
 export type LogicOperator = 'AND' | 'OR'
@@ -121,14 +122,14 @@ export const ConditionalExtension = Node.create({
     return {
       'Mod-c': () => {
         const { selection } = this.editor.state
-        if (selection.node?.type.name === this.name) {
+        if (selection instanceof NodeSelection && selection.node.type.name === this.name) {
           return true // Prevenir copy
         }
         return false
       },
       'Mod-x': () => {
         const { selection } = this.editor.state
-        if (selection.node?.type.name === this.name) {
+        if (selection instanceof NodeSelection && selection.node.type.name === this.name) {
           return true // Prevenir cut
         }
         return false

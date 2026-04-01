@@ -28,7 +28,7 @@ function toIconComponentName(iconName: string): string {
  */
 function getIconComponent(iconName: string): LucideIcon {
   const componentName = toIconComponentName(iconName)
-  const icon = (LucideIcons as Record<string, LucideIcon>)[componentName]
+  const icon = (LucideIcons as unknown as Record<string, LucideIcon>)[componentName]
   return icon ?? FolderOpen
 }
 

@@ -38,7 +38,7 @@ export function useInconsistencyNavigation(
 ): UseInconsistencyNavigationReturn {
   const [currentIndex, setCurrentIndex] = useState(-1)
   const [docVersion, setDocVersion] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const variables = useInjectablesStore((s) => s.variables)
 
   // Subscribe to editor document changes (debounced)
@@ -74,12 +74,12 @@ export function useInconsistencyNavigation(
     return nodes
   }, [editor, docVersion, variables])
 
-  // Reset index when invalid nodes change
-  useEffect(() => {
-    setCurrentIndex((prev) =>
-      invalidNodes.length === 0 ? -1 : prev >= invalidNodes.length ? 0 : prev
-    )
-  }, [invalidNodes])
+  const normalizedCurrentIndex = useMemo(() => {
+    if (invalidNodes.length === 0) {
+      return -1
+    }
+    return currentIndex >= invalidNodes.length ? 0 : currentIndex
+  }, [currentIndex, invalidNodes.length])
 
   const selectNode = useCallback(
     (index: number) => {
@@ -107,9 +107,9 @@ export function useInconsistencyNavigation(
   const prev = useCallback(() => {
     if (invalidNodes.length === 0) return
     const prevIdx =
-      currentIndex <= 0 ? invalidNodes.length - 1 : currentIndex - 1
+      normalizedCurrentIndex <= 0 ? invalidNodes.length - 1 : normalizedCurrentIndex - 1
     selectNode(prevIdx)
-  }, [currentIndex, invalidNodes.length, selectNode])
+  }, [invalidNodes.length, normalizedCurrentIndex, selectNode])
 
   const navigateTo = useCallback(
     (index: number) => selectNode(index),
@@ -120,7 +120,7 @@ export function useInconsistencyNavigation(
 
   return {
     count: invalidNodes.length,
-    currentIndex,
+    currentIndex: normalizedCurrentIndex,
     invalidNodes,
     next,
     prev,

@@ -1,4 +1,3 @@
-// @ts-expect-error - TipTap types are not fully compatible with strict mode
 import { mergeAttributes, Node } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { InjectorComponent } from './InjectorComponent'
@@ -24,7 +23,9 @@ export interface InjectorOptions {
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
-    setInjector: (options: InjectorOptions) => ReturnType
+    injector: {
+      setInjector: (options: InjectorOptions) => ReturnType
+    }
   }
 }
 

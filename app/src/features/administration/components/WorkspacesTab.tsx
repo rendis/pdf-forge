@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { motion } from 'framer-motion'
 import { WorkspaceStatusBadge } from './WorkspaceStatusBadge'
 import { WorkspaceFormDialog } from './WorkspaceFormDialog'
@@ -64,7 +65,7 @@ interface WorkspaceRowProps {
   onEdit: (ws: Workspace) => void
   onArchive: (ws: Workspace) => void
   getStatusAction: (ws: Workspace) => { label: string; icon: React.ComponentType<{ size?: number; className?: string }>; onClick: () => void }
-  t: (key: string, fallback?: string) => string
+  t: TFunction<'translation', undefined>
 }
 
 function WorkspaceRow({

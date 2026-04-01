@@ -368,21 +368,6 @@ func renderHeaderImageSlot(imageTypst string, imageWidthPt float64, hasImageWidt
 	)
 }
 
-// renderHeaderSurface wraps header content in a fixed-height surface with padding.
-func renderHeaderSurface(content string, metrics headerRenderMetrics) string {
-	if strings.TrimSpace(content) == "" {
-		return ""
-	}
-
-	return fmt.Sprintf(
-		"#block(width: 100%%, height: %.1fpt)[\n  #place(top + left, dy: -%.1fpt)[\n    #block(width: 100%%)[\n      #pad(y: %.1fpt)[\n%s\n      ]\n    ]\n  ]\n]\n",
-		metrics.surfaceMinHeightPt,
-		metrics.headerVisualOffsetPt,
-		metrics.surfaceVerticalPadPt,
-		indentTypstBlock(strings.TrimRight(content, "\n"), "        "),
-	)
-}
-
 // --- Header helper functions ---
 
 func resolveHeaderRenderMetrics(pageConfig *portabledoc.PageConfig) headerRenderMetrics {
@@ -487,19 +472,4 @@ func cloneNode(node portabledoc.Node) portabledoc.Node {
 		cloned.Marks = append([]portabledoc.Mark(nil), node.Marks...)
 	}
 	return cloned
-}
-
-func indentTypstBlock(content, prefix string) string {
-	if content == "" {
-		return ""
-	}
-	lines := strings.Split(content, "\n")
-	for i, line := range lines {
-		if line == "" {
-			lines[i] = prefix
-			continue
-		}
-		lines[i] = prefix + line
-	}
-	return strings.Join(lines, "\n")
 }

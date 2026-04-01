@@ -10,7 +10,7 @@ type EmulatorFunction = () => unknown
 /**
  * Registro de emuladores por key de injectable
  */
-const emulators: Map<string, EmulatorFunction> = new Map([
+const emulators = new Map<string, EmulatorFunction>([
   [
     'date_time_now',
     () =>

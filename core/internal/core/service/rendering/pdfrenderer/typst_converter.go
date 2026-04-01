@@ -66,6 +66,8 @@ func (c *TypstConverter) registerRemoteImage(url string) string {
 // ConvertNodes converts a slice of nodes to Typst markup.
 // Groups consecutive paragraphs/headings with the same lineSpacing into a single
 // scope so that par(spacing) applies between them correctly.
+//
+//nolint:gocognit,nestif // Central dispatch loop keeps node grouping behavior in one place.
 func (c *TypstConverter) ConvertNodes(nodes []portabledoc.Node) string {
 	var sb strings.Builder
 	for i := 0; i < len(nodes); i++ {
@@ -232,27 +234,6 @@ func (c *TypstConverter) resolveLineSpacing(attrs map[string]any) lineSpacingVal
 	default:
 		return defaults
 	}
-}
-
-// applyLocalParagraphFormatting wraps content with alignment and line spacing.
-func (c *TypstConverter) applyLocalParagraphFormatting(
-	content string,
-	attrs map[string]any,
-	ls lineSpacingValues,
-) string {
-	align, _ := attrs["textAlign"].(string)
-
-	if align == "justify" {
-		body := fmt.Sprintf("#par(justify: true)[%s]", content)
-		return wrapTypstBlockWithLineSpacing(body, ls)
-	}
-
-	body := wrapTypstBlockWithLineSpacing(content, ls)
-	if typstAlign := toTypstAlign(align); typstAlign != "" {
-		return fmt.Sprintf("#align(%s)[%s]", typstAlign, body)
-	}
-
-	return body
 }
 
 // wrapTypstBlockWithLineSpacing wraps content with text edge, leading, and spacing overrides.

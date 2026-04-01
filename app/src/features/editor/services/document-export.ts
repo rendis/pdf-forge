@@ -8,7 +8,6 @@
  * Variables are stored as IDs only; full definitions come from the backend.
  */
 
-// @ts-expect-error - tiptap types incompatible with moduleResolution: bundler
 import type { Editor, JSONContent } from '@tiptap/core'
 import type {
   PortableDocument,

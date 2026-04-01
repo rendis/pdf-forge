@@ -1,5 +1,4 @@
 import Mention from '@tiptap/extension-mention'
-// @ts-expect-error - TipTap types compatibility
 import type { Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
 import { filterVariables, type MentionVariable } from './variables'
@@ -39,25 +38,6 @@ export const MentionExtension = Mention.configure({
           .setTableInjector({
             variableId: item.id,
             label: item.label,
-          })
-          .run()
-        return
-      }
-
-      // Si es un role injectable, insertar directamente con atributos de rol
-      if (item.isRoleVariable) {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setInjector({
-            type: 'ROLE_TEXT',
-            label: item.label,
-            variableId: item.id,
-            isRoleVariable: true,
-            roleId: item.roleId,
-            roleLabel: item.roleLabel,
-            propertyKey: item.propertyKey,
           })
           .run()
         return

@@ -24,13 +24,13 @@ export function ContextBreadcrumb({ className }: ContextBreadcrumbProps) {
   const handleTenantClick = () => {
     // Clear both tenant and workspace to show organization selection
     setCurrentTenant(null)
-    navigate({ to: '/select-tenant', search: { intent: 'switch' } })
+    navigate({ to: '/select-tenant' })
   }
 
   const handleWorkspaceClick = () => {
     // Clear only workspace to show workspace selection for current tenant
     setCurrentWorkspace(null)
-    navigate({ to: '/select-tenant', search: { intent: 'switch' } })
+    navigate({ to: '/select-tenant' })
   }
 
   return (

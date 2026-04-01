@@ -5,6 +5,11 @@ export { TableHeaderExtension } from './TableHeaderExtension'
 export { TableCellExtension } from './TableCellExtension'
 export { TableStylesPanel } from './TableStylesPanel'
 
+import { TableExtension } from './TableExtension'
+import { TableRowExtension } from './TableRowExtension'
+import { TableHeaderExtension } from './TableHeaderExtension'
+import { TableCellExtension } from './TableCellExtension'
+
 // Re-export types
 export type {
   TableStylesAttrs,

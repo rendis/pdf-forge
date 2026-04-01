@@ -244,7 +244,7 @@ func TestHeaderBlock_ImageWithDimensions(t *testing.T) {
 	})
 	got := b.headerBlock(doc)
 
-	if !strings.Contains(got, "75.0pt") { // 100 * 0.75 = width
+	if !strings.Contains(got, "75.0pt") {
 		t.Errorf("expected width 75.0pt, got %q", got)
 	}
 	if !strings.Contains(got, "height: 45.0pt") { // 60 * 0.75

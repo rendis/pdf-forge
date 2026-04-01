@@ -132,7 +132,6 @@ export function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
       options={{
         placement: 'bottom',
         offset: 8,
-        appendTo: () => document.querySelector('.overflow-auto.bg-background') || document.body,
       }}
       className="rounded-lg border bg-popover shadow-lg"
     >

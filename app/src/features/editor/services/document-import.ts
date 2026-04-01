@@ -7,7 +7,6 @@
  * Variables are resolved against the backend variable list.
  */
 
-// @ts-expect-error - tiptap types incompatible with moduleResolution: bundler
 import type { Editor } from '@tiptap/core'
 import type {
   PortableDocument,
@@ -19,7 +18,7 @@ import type {
   BackendVariable,
   VariableResolutionResult,
 } from '../types/document-format'
-import type { PageFormat } from '../types'
+import type { PageSize } from '../types'
 import { DOCUMENT_FORMAT_VERSION } from '../types/document-format'
 import { validateDocument, isVersionCompatible, compareVersions } from '../schemas/document-schema'
 import { validateDocumentSemantics } from './document-validator'
@@ -33,7 +32,7 @@ import { useDocumentHeaderStore } from '../stores/document-header-store'
 
 interface ImportStoreActions {
   setPaginationConfig: (config: Partial<{
-    pageSize: PageFormat
+    pageSize: PageSize
     margins: PageConfig['margins']
   }>) => void
 }
@@ -166,7 +165,7 @@ function validateImport(
 /**
  * Converts PageConfig back to PageFormat for pagination store
  */
-function pageConfigToFormat(pageConfig: PageConfig): PageFormat {
+function pageConfigToPageSize(pageConfig: PageConfig): PageSize {
   // Check if it matches a known format
   const knownFormat = PAGE_SIZES[pageConfig.formatId]
 
@@ -175,19 +174,14 @@ function pageConfigToFormat(pageConfig: PageConfig): PageFormat {
     knownFormat.width === pageConfig.width &&
     knownFormat.height === pageConfig.height
   ) {
-    return {
-      ...knownFormat,
-      margins: { ...pageConfig.margins },
-    }
+    return knownFormat
   }
 
   // Custom format
   return {
-    id: 'CUSTOM',
     label: 'Personalizado',
     width: pageConfig.width,
     height: pageConfig.height,
-    margins: { ...pageConfig.margins },
   }
 }
 
@@ -198,10 +192,11 @@ function restorePageConfig(
   pageConfig: PageConfig,
   actions: ImportStoreActions
 ): void {
-  const format = pageConfigToFormat(pageConfig)
+  const pageSize = pageConfigToPageSize(pageConfig)
 
   actions.setPaginationConfig({
-    pageSize: format,
+    pageSize,
+    margins: { ...pageConfig.margins },
   })
 }
 

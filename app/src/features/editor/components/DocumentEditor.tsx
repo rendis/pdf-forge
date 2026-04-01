@@ -242,13 +242,9 @@ export function DocumentEditor({
   }, [editor, onFullyReady])
 
   const showHeaderSurface = editable || headerHasMeaningfulContent
-  const toolbarEditor = activeSurface === 'header' ? headerToolbarEditor : editor
-
-  useEffect(() => {
-    if (!showHeaderSurface && activeSurface === 'header') {
-      setActiveSurface('body')
-    }
-  }, [activeSurface, showHeaderSurface])
+  const resolvedActiveSurface: ActiveSurface =
+    !showHeaderSurface && activeSurface === 'header' ? 'body' : activeSurface
+  const toolbarEditor = resolvedActiveSurface === 'header' ? headerToolbarEditor : editor
 
   // Listen for image modal events
   useEffect(() => {
@@ -607,8 +603,8 @@ export function DocumentEditor({
                 <EditorToolbar
                   editor={toolbarEditor ?? editor}
                   documentEditor={editor}
-                  activeSurface={activeSurface}
-                  onOpenImage={activeSurface === 'header' ? handleOpenHeaderImageModal : handleOpenBodyImageModal}
+                  activeSurface={resolvedActiveSurface}
+                  onOpenImage={resolvedActiveSurface === 'header' ? handleOpenHeaderImageModal : handleOpenBodyImageModal}
                   onExport={onExport}
                   onImport={onImport}
                   onBeforePreview={onBeforePreview}
@@ -663,7 +659,7 @@ export function DocumentEditor({
                 {showHeaderSurface && (
                   <DocumentPageHeader
                     editable={editable}
-                    active={activeSurface === 'header'}
+                    active={resolvedActiveSurface === 'header'}
                     onActivate={handleActivateHeader}
                     onTextEditorFocus={handleHeaderEditorFocus}
                     onEditorReady={handleHeaderEditorReady}

@@ -6,7 +6,7 @@ import { usePaginationStore } from '@/features/editor/stores'
 import { PAGE_SIZES, DEFAULT_MARGINS } from '@/features/editor'
 import { exportAndDownload, importFromFile, type ImportResult } from '@/features/editor/services'
 import { ImportValidationDialog } from '@/features/editor/components/ImportValidationDialog'
-import type { DocumentMeta } from '@/features/editor/types'
+import type { DocumentMeta, PageMargins, PageSize } from '@/features/editor/types'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -82,10 +82,15 @@ function EditorPage() {
     if (!editorRef.current) return
 
     const editor = editorRef.current
-    const paginationStore = usePaginationStore.getState()
-
     const stores = {
-      pagination: paginationStore,
+      setPaginationConfig: (config: { pageSize?: PageSize; margins?: PageMargins }) => {
+        if (config.pageSize) {
+          usePaginationStore.getState().setPageSize(config.pageSize)
+        }
+        if (config.margins) {
+          usePaginationStore.getState().setMargins(config.margins)
+        }
+      },
     }
 
     const result = await importFromFile(
@@ -122,7 +127,7 @@ function EditorPage() {
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-2 border-b bg-card">
         <div className="flex items-center gap-4">
-          <Link to="/workspace/$workspaceId/templates" params={{ workspaceId }}>
+          <Link to={`/workspace/${workspaceId}/templates`}>
             <button className="rounded-none border border-border bg-background px-6 py-2.5 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" />
               {t('common.back')}

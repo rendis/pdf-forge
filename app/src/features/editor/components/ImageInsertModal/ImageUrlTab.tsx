@@ -159,13 +159,6 @@ export function ImageUrlTab({
     };
   }, []);
 
-  // Sync tab state when modal opens with a different source type (URL/gallery/variable/base64).
-  useEffect(() => {
-    const next = resolveInitialUrlState(currentImage)
-    setUrl(next.url)
-    setPreview(next.preview)
-  }, [currentImage?.src, currentImage?.injectableId, currentImage?.isBase64])
-
   const handleCropClick = useCallback(() => {
     if (preview.src) {
       onOpenCropper(preview.src);

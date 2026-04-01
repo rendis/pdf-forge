@@ -45,16 +45,17 @@ export function TableStylesPanel({ editor, open, onOpenChange, nodeType = 'table
       const attrs = initialStyles ?? editor.getAttributes(nodeType)
 
       if (nodeType === 'listInjector') {
+        const listAttrs = attrs as Record<string, unknown>
         setStyles({
-          headerFontFamily: attrs.headerFontFamily || 'inherit',
-          headerFontSize: attrs.headerFontSize || 12,
-          headerFontWeight: attrs.headerFontWeight || 'bold',
-          headerTextColor: attrs.headerTextColor || '#333333',
-          headerBackground: attrs.headerBackground || '#f5f5f5',
-          bodyFontFamily: attrs.itemFontFamily || 'inherit',
-          bodyFontSize: attrs.itemFontSize || 12,
-          bodyFontWeight: attrs.itemFontWeight || 'normal',
-          bodyTextColor: attrs.itemTextColor || '#333333',
+          headerFontFamily: (listAttrs.headerFontFamily as string | null) || 'inherit',
+          headerFontSize: (listAttrs.headerFontSize as number | null) || 12,
+          headerFontWeight: (listAttrs.headerFontWeight as string | null) || 'bold',
+          headerTextColor: (listAttrs.headerTextColor as string | null) || '#333333',
+          headerBackground: (listAttrs.headerBackground as string | null) || '#f5f5f5',
+          bodyFontFamily: (listAttrs.itemFontFamily as string | null) || 'inherit',
+          bodyFontSize: (listAttrs.itemFontSize as number | null) || 12,
+          bodyFontWeight: (listAttrs.itemFontWeight as string | null) || 'normal',
+          bodyTextColor: (listAttrs.itemTextColor as string | null) || '#333333',
         })
       } else {
         setStyles({
