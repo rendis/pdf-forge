@@ -1,75 +1,108 @@
-# MCP Setup for API Schema
+# MCP Setup — mcp-openapi-proxy
 
-This guide explains how to configure the Model Context Protocol (MCP) server for the Doc Engine API schema, enabling AI agents to efficiently query the OpenAPI specification.
+This guide explains how to configure `pdf-forge` with `mcp-openapi-proxy`, the default MCP integration for this repo.
 
-## Why Use MCP?
+## What Is `mcp-openapi-proxy`?
 
-The Swagger/OpenAPI specification for this project is ~274KB (JSON) / ~147KB (YAML). Loading the entire file into an LLM's context window:
+`mcp-openapi-proxy` reads an **OpenAPI 3.x** spec and exposes a lightweight MCP navigator/executor surface.
 
-- Consumes a significant portion of the token budget
-- Increases costs per request
-- Reduces available context for actual work
+For `pdf-forge`, the default MCP server is:
 
-**MCP solves this** by exposing the API schema through on-demand tools. The LLM queries only what it needs (specific endpoints, schemas, parameters) instead of loading everything.
+- **server name**: `pdf-forge`
+- **tool prefix**: `pf`
+
+The proxy registers exactly 3 tools:
+
+- `pf_list_endpoints`
+- `pf_describe_endpoint`
+- `pf_call_endpoint`
+
+It does **not** register one MCP tool per endpoint. Each API operation is represented by a stable `toolName` passed into `pf_describe_endpoint` and `pf_call_endpoint`.
+
+Examples:
+
+- `pf_get_api_v1_content_templates`
+- `pf_get_api_v1_content_templates_templateId`
+- `pf_post_api_v1_workspace_document_types_code_render`
+- `pf_post_api_v1_workspace_templates_versions_versionId_render`
+
+## Canonical Spec
+
+`mcp-openapi-proxy` requires **OpenAPI 3.x**.
+
+This repo still generates Swagger 2.0 for Swagger UI, and `make swagger` now also converts it to:
+
+- `core/docs/openapi.yaml` ← canonical spec for MCP
+
+Default committed MCP config points to the GitHub raw URL:
+
+- `https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml`
+
+That default is intentionally machine-agnostic. If you are working with local, uncommitted API changes, regenerate the spec and temporarily point `MCP_SPEC` to `./core/docs/openapi.yaml`.
 
 ## Prerequisites
 
-- Node.js 18+ installed
-- npm/npx available in PATH
+1. **Go 1.25+**
+2. **Install the proxy binary**
+
+   ```bash
+   go install github.com/rendis/mcp-openapi-proxy/cmd/mcp-openapi-proxy@latest
+   ```
+
+3. **Regenerate specs after API changes**
+
+   ```bash
+   make swagger
+   ```
+
+## Environment Variables
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `MCP_SPEC` | OpenAPI 3.x spec URL or local path | `https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml` |
+| `MCP_BASE_URL` | Base URL for API calls | `http://localhost:8080` |
+| `MCP_TOOL_PREFIX` | Prefix for registered MCP tools and endpoint `toolName` values | `pf` |
+| `MCP_AUTH_TOKEN` | Static bearer token fallback | unset |
+| `MCP_OIDC_ISSUER` | OIDC issuer URL for protected environments | unset |
+| `MCP_OIDC_CLIENT_ID` | OIDC client ID | unset |
+| `MCP_EXTRA_HEADERS` | Comma-separated headers applied to every request | unset |
 
 ## Configuration by Agent
 
-### Claude Code (CLI)
+### Claude Code
 
-Add the MCP server using the CLI:
+The repo includes a versioned [`.mcp.json`](../../.mcp.json), so Claude Code can auto-detect the MCP server when the project is opened.
 
-```bash
-# Local scope (current project only, stored in ~/.claude.json)
-claude mcp add pdf-forge-api -- npx -y mcp-openapi-schema /path/to/docs/swagger.yaml
-
-# Project scope (shared via .mcp.json in repo)
-claude mcp add pdf-forge-api -s project -- npx -y mcp-openapi-schema ./docs/swagger.yaml
-
-# User scope (available in all projects)
-claude mcp add pdf-forge-api -s user -- npx -y mcp-openapi-schema /absolute/path/to/swagger.yaml
-```
-
-**Verify installation:**
+Verify:
 
 ```bash
 claude mcp list
-claude mcp get pdf-forge-api
+claude mcp get pdf-forge
 ```
-
-**Remove if needed:**
-
-```bash
-claude mcp remove pdf-forge-api
-```
-
----
 
 ### OpenAI Codex
 
-Edit `~/.codex/config.toml`:
+The repo includes a versioned [`../../.codex/config.toml`](../../.codex/config.toml) with a project-local MCP entry:
 
 ```toml
-[mcp_servers.pdf-forge-api]
-command = "npx"
-args = ["-y", "mcp-openapi-schema", "/path/to/docs/swagger.yaml"]
+[mcp_servers.pdf-forge]
+command = "mcp-openapi-proxy"
+args = []
 
-# Optional settings
-startup_timeout_sec = 30
-tool_timeout_sec = 60
+[mcp_servers.pdf-forge.env]
+MCP_SPEC = "https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml"
+MCP_BASE_URL = "http://localhost:8080"
+MCP_TOOL_PREFIX = "pf"
 ```
 
-**Via CLI:**
+If you prefer a global Codex config instead:
 
 ```bash
-codex mcp add pdf-forge-api -- npx -y mcp-openapi-schema /path/to/docs/swagger.yaml
+codex mcp add pdf-forge --command mcp-openapi-proxy \
+  --env MCP_SPEC=https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml \
+  --env MCP_BASE_URL=http://localhost:8080 \
+  --env MCP_TOOL_PREFIX=pf
 ```
-
----
 
 ### Gemini CLI
 
@@ -78,111 +111,169 @@ Edit `~/.gemini/settings.json` (global) or `.gemini/settings.json` (project):
 ```json
 {
   "mcpServers": {
-    "pdf-forge-api": {
-      "command": "npx",
-      "args": ["-y", "mcp-openapi-schema", "/path/to/docs/swagger.yaml"]
+    "pdf-forge": {
+      "command": "mcp-openapi-proxy",
+      "args": [],
+      "env": {
+        "MCP_SPEC": "https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml",
+        "MCP_BASE_URL": "http://localhost:8080",
+        "MCP_TOOL_PREFIX": "pf"
+      }
     }
   }
 }
 ```
 
-> **Note:** Restart Gemini CLI after modifying the configuration.
+## Multi-tenant Headers
 
----
+This is the part people usually miss: the proxy can call the API just fine, but `pdf-forge` is multi-tenant, so many routes require contextual headers.
 
-## Available Tools
+### Panel routes
 
-Once configured, the following tools are available to the LLM:
+Usually require:
 
-| Tool                    | Description                                                   |
-| ----------------------- | ------------------------------------------------------------- |
-| `list-endpoints`        | Lists all API paths with HTTP methods and summaries           |
-| `get-endpoint`          | Gets detailed information about a specific endpoint           |
-| `get-request-body`      | Gets the request body schema for an endpoint                  |
-| `get-response-schema`   | Gets the response schema by endpoint, method, and status code |
-| `get-path-parameters`   | Gets the parameters for a specific path                       |
-| `list-components`       | Lists all schema components (DTOs, responses, parameters)     |
-| `get-component`         | Gets the detailed definition for a specific component         |
-| `list-security-schemes` | Lists available security/authentication schemes               |
-| `get-examples`          | Gets examples for a component or endpoint                     |
-| `search-schema`         | Searches across paths, operations, and schemas                |
+- `X-Tenant-ID`
+- `X-Workspace-ID`
 
-## Usage Examples
+### Render routes
 
-### Finding Endpoints
+Require:
 
-Ask the LLM:
+- `X-Tenant-Code`
+- `X-Workspace-Code`
+- `X-Environment` (`dev` or `prod`)
 
-> "List all endpoints related to templates"
+You can pass them:
 
-The LLM will use `search-schema` or `list-endpoints` to find relevant paths.
+- per request in `pf_call_endpoint.headers`
+- globally via `MCP_EXTRA_HEADERS`
 
-### Understanding a Request
+Example:
 
-Ask the LLM:
+```json
+{
+  "toolName": "pf_get_api_v1_content_templates",
+  "headers": {
+    "X-Tenant-ID": "<tenant-uuid>",
+    "X-Workspace-ID": "<workspace-uuid>"
+  }
+}
+```
 
-> "What parameters does POST /api/v1/templates require?"
+## Authentication
 
-The LLM will use `get-endpoint`, `get-request-body`, and `get-path-parameters`.
+### Development (dummy auth)
 
-### Exploring DTOs
+In dummy mode, JWT validation is bypassed, so you usually do **not** need `MCP_AUTH_TOKEN`.
 
-Ask the LLM:
+Run the backend in dev dummy mode:
 
-> "Show me the structure of the TemplateResponse DTO"
+```bash
+make dev DUMMY=1
+```
 
-The LLM will use `get-component` to retrieve the schema definition.
+or omit the `auth` section in `core/settings/app.yaml`.
 
-### Generating Code
+### OIDC (production)
 
-Ask the LLM:
+For protected environments:
 
-> "Generate a Go client for the workspace endpoints"
+```bash
+mcp-openapi-proxy login pdf-forge
+mcp-openapi-proxy status
+mcp-openapi-proxy logout
+```
 
-The LLM will use multiple tools to understand the endpoints and generate accurate code.
+If you want Codex to read the repo-local config explicitly:
+
+```bash
+mcp-openapi-proxy login --codex-config ./.codex/config.toml --server pdf-forge
+```
+
+## Recommended Agent Workflow
+
+1. Call `pf_list_endpoints`
+2. Pick the endpoint `toolName`
+3. Call `pf_describe_endpoint` if you need the exact contract
+4. Call `pf_call_endpoint`
+
+Example discovery flow:
+
+```json
+{ "q": "templates", "path_prefix": "/api/v1/content" }
+```
+
+Example call:
+
+```json
+{
+  "toolName": "pf_get_api_v1_content_templates",
+  "headers": {
+    "X-Tenant-ID": "<tenant-uuid>",
+    "X-Workspace-ID": "<workspace-uuid>"
+  },
+  "query": {
+    "page": 1,
+    "perPage": 20
+  }
+}
+```
 
 ## Troubleshooting
 
-### Server Not Connecting
+### Binary Not Found
 
-1. Verify npx is in PATH:
-
-   ```bash
-   which npx
-   ```
-
-2. Test the MCP server manually:
+1. Verify the binary is in `PATH`:
 
    ```bash
-   npx -y mcp-openapi-schema /path/to/swagger.yaml --help
+   which mcp-openapi-proxy
    ```
 
-3. Check the swagger file exists and is valid:
+2. If missing, install it:
 
    ```bash
-   ls -la /path/to/swagger.yaml
+   go install github.com/rendis/mcp-openapi-proxy/cmd/mcp-openapi-proxy@latest
    ```
 
-### Tools Not Available
+### Spec Not Loading
 
-1. For Claude Code, verify with:
+1. Check the raw URL:
 
    ```bash
-   claude mcp list
+   curl -I https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml
    ```
 
-2. Ensure the server shows as "Connected"
+2. Or verify the local file:
 
-3. Restart the agent/CLI after configuration changes
+   ```bash
+   ls -la core/docs/openapi.yaml
+   ```
 
-### Slow Responses
+3. Regenerate if needed:
 
-The first invocation may be slow due to npx downloading the package. Subsequent calls are faster as the package is cached.
+   ```bash
+   make swagger
+   ```
+
+### Calls Failing With 401 / 403
+
+1. In dummy mode, make sure the backend is actually running without OIDC
+2. In OIDC mode, run:
+
+   ```bash
+   mcp-openapi-proxy status
+   ```
+
+3. Verify required tenant/workspace headers are present
+
+### Calls Hitting the Wrong Contract
+
+The committed default MCP config uses the raw GitHub spec from `main`. If you're working on local API changes, regenerate the local spec and temporarily override `MCP_SPEC=./core/docs/openapi.yaml`.
 
 ## References
 
-- [mcp-openapi-schema](https://github.com/hannesj/mcp-openapi-schema) - The MCP server package
+- [mcp-openapi-proxy](https://github.com/rendis/mcp-openapi-proxy)
 - [Claude Code MCP Docs](https://code.claude.com/docs/en/mcp)
 - [OpenAI Codex MCP](https://developers.openai.com/codex/mcp/)
 - [Gemini CLI MCP](https://geminicli.com/docs/tools/mcp-server/)
-- [Model Context Protocol](https://modelcontextprotocol.io/) - Official MCP specification
+- [Model Context Protocol](https://modelcontextprotocol.io/)

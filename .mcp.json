@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "pdf-forge": {
+      "command": "mcp-openapi-proxy",
+      "args": [],
+      "env": {
+        "MCP_SPEC": "https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml",
+        "MCP_BASE_URL": "http://localhost:8080",
+        "MCP_TOOL_PREFIX": "pf"
+      }
+    }
+  }
+}

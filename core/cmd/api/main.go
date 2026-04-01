@@ -8,6 +8,24 @@ import (
 	"github.com/rendis/pdf-forge/core/extensions"
 )
 
+// @title           Doc Engine API
+// @version         1.0
+// @description     Document Assembly System API - Template management and document generation
+
+// @contact.name    API Support
+// @contact.email   support@example.com
+
+// @license.name    MIT
+// @license.url     https://opensource.org/licenses/MIT
+
+// @host            localhost:8080
+// @BasePath        /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     Type "Bearer" followed by a space and JWT token
+
 func resolveSettingsPath(paths ...string) string {
 	for _, path := range paths {
 		if _, err := os.Stat(path); err == nil {

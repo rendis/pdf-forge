@@ -49,6 +49,7 @@ Build document templates visually, inject dynamic data through plugins, generate
 - [Roles](#roles)
 - [Architecture](#architecture)
 - [Endpoints](#endpoints)
+- [MCP Integration](#mcp-integration)
 - [Commands](#commands)
 - [Documentation](#documentation)
 - [AI Agent Skill](#ai-agent-skill)
@@ -498,6 +499,50 @@ POST /api/v1/workspace/document-types/{code}/render
 
 Frontend is served independently on port 3000 (nginx).
 
+## MCP Integration
+
+Uses `mcp-openapi-proxy` — the repo now ships a default MCP setup that reads the committed OpenAPI 3.x spec and exposes a small navigator/executor surface instead of loading the whole schema into the model context.
+
+Install:
+
+```bash
+go install github.com/rendis/mcp-openapi-proxy/cmd/mcp-openapi-proxy@latest
+```
+
+**Versioned repo config**:
+
+- Claude Code: [`.mcp.json`](.mcp.json)
+- Codex: [`.codex/config.toml`](.codex/config.toml)
+- Canonical MCP spec: [`core/docs/openapi.yaml`](core/docs/openapi.yaml)
+
+**Default contract**:
+
+- MCP server name: `pdf-forge`
+- Tool prefix: `pf`
+- Registered tools:
+  - `pf_list_endpoints`
+  - `pf_describe_endpoint`
+  - `pf_call_endpoint`
+
+**Endpoint discovery flow**:
+
+1. `pf_list_endpoints` → find candidate endpoints
+2. `pf_describe_endpoint` → inspect the exact request/response contract
+3. `pf_call_endpoint` → execute the request with `toolName`
+
+Example endpoint `toolName` values:
+
+- `pf_get_api_v1_content_templates`
+- `pf_get_api_v1_content_templates_templateId`
+- `pf_post_api_v1_workspace_document_types_code_render`
+- `pf_post_api_v1_workspace_templates_versions_versionId_render`
+
+**Important**: `mcp-openapi-proxy` requires **OpenAPI 3.x**. This repo still generates Swagger 2.0 for Swagger UI, and `make swagger` now also converts it to `core/docs/openapi.yaml` for MCP use.
+
+**Multi-tenant headers**: many panel routes require `X-Tenant-ID` and/or `X-Workspace-ID`; render routes require `X-Tenant-Code`, `X-Workspace-Code`, and `X-Environment`. Pass them per request in `pf_call_endpoint.headers` or set shared defaults via `MCP_EXTRA_HEADERS`.
+
+See [`app/docs/mcp_setup.md`](app/docs/mcp_setup.md) for full setup (Claude Code, Codex, Gemini CLI, OIDC, troubleshooting) and [`skills/pdf-forge/SKILL.md`](skills/pdf-forge/SKILL.md) for the agent-facing usage guide.
+
 ## Commands
 
 ```bash
@@ -511,7 +556,7 @@ make dev-app          # Start Vite dev server
 make migrate          # Apply database migrations
 make test             # Run Go tests
 make lint             # Run golangci-lint
-make swagger          # Regenerate OpenAPI spec
+make swagger          # Regenerate Swagger + OpenAPI specs
 
 # Docker
 make docker-up        # Start all services with Docker Compose
@@ -539,6 +584,7 @@ make clean            # Remove all build artifacts
 | [Database Schema](core/docs/database.md)                  | Multi-tenant model, ER diagrams       |
 | [Deployment](core/docs/deployment.md)                     | Docker, Kubernetes patterns           |
 | [Troubleshooting](core/docs/troubleshooting.md)           | Rendering, auth, DB, frontend issues  |
+| [MCP Setup](app/docs/mcp_setup.md)                        | `mcp-openapi-proxy`, Claude, Codex, OIDC |
 
 ## AI Agent Skill
 

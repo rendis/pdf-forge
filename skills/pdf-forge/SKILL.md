@@ -1,6 +1,8 @@
 ---
 name: pdf-forge
 description: Use when building, extending or using pdf-forge multi-tenant PDF template engine with Typst
+allowed-tools:
+  - mcp__pdf-forge__*
 ---
 
 # pdf-forge
@@ -12,6 +14,114 @@ Go module for multi-tenant document templates with PDF generation via Typst.
 ```bash
 npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
 ```
+
+## MCP Proxy
+
+This project uses [mcp-openapi-proxy](https://github.com/rendis/mcp-openapi-proxy) as the default MCP integration.
+
+**Repository**: https://github.com/rendis/mcp-openapi-proxy
+**Install**: `go install github.com/rendis/mcp-openapi-proxy/cmd/mcp-openapi-proxy@latest`
+**Repo config**: `.mcp.json` (Claude Code) + `.codex/config.toml` (Codex)
+**Canonical MCP spec**: `core/docs/openapi.yaml`
+**Default server name**: `pdf-forge`
+**Default tool prefix**: `pf`
+
+### MCP Tool Contract
+
+The proxy does **not** register one MCP tool per endpoint. It always exposes exactly 3 tools:
+
+- `pf_list_endpoints`
+- `pf_describe_endpoint`
+- `pf_call_endpoint`
+
+Recommended workflow:
+
+1. `pf_list_endpoints` → discover candidate endpoints
+2. `pf_describe_endpoint` → inspect the exact contract for one `toolName`
+3. `pf_call_endpoint` → execute the request with `path/query/headers/cookies/body`
+
+Example endpoint `toolName` values:
+
+- `pf_get_api_v1_content_templates`
+- `pf_get_api_v1_content_templates_templateId`
+- `pf_post_api_v1_workspace_document_types_code_render`
+- `pf_post_api_v1_workspace_templates_versions_versionId_render`
+
+### Setup
+
+#### Claude Code
+
+The repo includes `.mcp.json`, so Claude Code can auto-detect the MCP server when the project is opened.
+
+Verify:
+
+```bash
+claude mcp list
+claude mcp get pdf-forge
+```
+
+#### OpenAI Codex
+
+The repo includes `./.codex/config.toml` with a project-local MCP entry:
+
+```toml
+[mcp_servers.pdf-forge]
+command = "mcp-openapi-proxy"
+args = []
+
+[mcp_servers.pdf-forge.env]
+MCP_SPEC = "https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml"
+MCP_BASE_URL = "http://localhost:8080"
+MCP_TOOL_PREFIX = "pf"
+```
+
+#### OIDC Authentication
+
+For protected environments:
+
+```bash
+mcp-openapi-proxy login pdf-forge
+mcp-openapi-proxy status
+mcp-openapi-proxy logout
+```
+
+If using the repo-local Codex config explicitly:
+
+```bash
+mcp-openapi-proxy login --codex-config ./.codex/config.toml --server pdf-forge
+```
+
+### Multi-tenant Headers
+
+`pdf-forge` is multi-tenant. MCP calls often need contextual headers:
+
+**Panel routes**
+
+- `X-Tenant-ID`
+- `X-Workspace-ID`
+
+**Render routes**
+
+- `X-Tenant-Code`
+- `X-Workspace-Code`
+- `X-Environment` (`dev` or `prod`)
+
+Pass them:
+
+- per request in `pf_call_endpoint.headers`, or
+- globally with `MCP_EXTRA_HEADERS`
+
+Dummy auth mode skips JWT validation, but tenant/workspace headers are still required where the route expects them.
+
+### Spec Generation
+
+`mcp-openapi-proxy` requires **OpenAPI 3.x**. This repo still generates Swagger 2.0 for Swagger UI, and `make swagger` converts it into `core/docs/openapi.yaml` for MCP:
+
+```bash
+make swagger
+```
+
+If you are working with local, uncommitted API changes, regenerate the spec and temporarily point `MCP_SPEC` to `./core/docs/openapi.yaml`. The committed default config intentionally uses the GitHub raw URL from `main`.
 
 ## How It Works
 
@@ -137,7 +247,7 @@ make dev        # Hot reload backend (air)
 make migrate    # Apply database migrations
 make test       # Run tests
 make lint       # Run linter
-make swagger    # Regenerate OpenAPI spec
+make swagger    # Regenerate Swagger + OpenAPI specs
 make doctor     # Check system dependencies
 ```
 

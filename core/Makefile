@@ -26,7 +26,8 @@ fmt:
 	gofmt -w .
 
 swagger:
-	swag init -d .. -g core/cmd/api/main.go -o docs --parseDependency
+	swag init -d .. -g core/cmd/api/main.go -o docs --parseDependency --parseInternal
+	npx swagger2openapi docs/swagger.yaml -o docs/openapi.yaml --yaml
 
 clean:
 	rm -rf bin/
@@ -39,5 +40,5 @@ help:
 	@echo "test     - Run Go tests"
 	@echo "lint     - Run golangci-lint"
 	@echo "fmt      - Format Go code"
-	@echo "swagger  - Regenerate OpenAPI spec"
+	@echo "swagger  - Regenerate Swagger + OpenAPI specs"
 	@echo "clean    - Remove build artifacts"

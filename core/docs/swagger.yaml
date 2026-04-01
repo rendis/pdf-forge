@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   github_com_rendis_pdf-forge_core_internal_adapters_primary_http_dto.AddTagsRequest:
     properties:
@@ -1469,8 +1470,17 @@ definitions:
       updatedAt:
         type: string
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@example.com
+    name: API Support
+  description: Document Assembly System API - Template management and document generation
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Doc Engine API
+  version: "1.0"
 paths:
   /api/v1/content/injectables:
     get:
@@ -5420,4 +5430,10 @@ paths:
       summary: Render PDF by version ID
       tags:
       - Workspace - Render
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

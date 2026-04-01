@@ -1,0 +1,8 @@
+[mcp_servers.pdf-forge]
+command = "mcp-openapi-proxy"
+args = []
+
+[mcp_servers.pdf-forge.env]
+MCP_SPEC = "https://raw.githubusercontent.com/rendis/pdf-forge/main/core/docs/openapi.yaml"
+MCP_BASE_URL = "http://localhost:8080"
+MCP_TOOL_PREFIX = "pf"

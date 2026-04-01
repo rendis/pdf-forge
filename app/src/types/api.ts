@@ -1,7 +1,8 @@
 /**
  * API Response Types
- * Based on ../pdf-forge/docs/swagger.yaml definitions
- * Use the MCP `pdf-forge-api` to get the latest definitions
+ * Based on ../core/docs/openapi.yaml definitions
+ * Use the MCP `pdf-forge` tools (`pf_list_endpoints` -> `pf_describe_endpoint` -> `pf_call_endpoint`)
+ * to inspect the latest contract without loading the full spec into context.
  */
 
 // ============================================

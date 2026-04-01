@@ -188,7 +188,7 @@ help:
 	@echo "  migrate        Apply database migrations"
 	@echo "  test           Run Go tests"
 	@echo "  lint           Run golangci-lint"
-	@echo "  swagger        Regenerate OpenAPI spec"
+	@echo "  swagger        Regenerate Swagger + OpenAPI specs"
 	@echo ""
 	@echo "=== Docker ==="
 	@echo "  docker-up      Start all services with Docker Compose"
