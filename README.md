@@ -541,7 +541,7 @@ Example endpoint `toolName` values:
 
 **Multi-tenant headers**: many panel routes require `X-Tenant-ID` and/or `X-Workspace-ID`; render routes require `X-Tenant-Code`, `X-Workspace-Code`, and `X-Environment`. Pass them per request in `pf_call_endpoint.headers` or set shared defaults via `MCP_EXTRA_HEADERS`.
 
-See [`app/docs/mcp_setup.md`](app/docs/mcp_setup.md) for full setup (Claude Code, Codex, Gemini CLI, OIDC, troubleshooting) and [`skills/pdf-forge/SKILL.md`](skills/pdf-forge/SKILL.md) for the agent-facing usage guide.
+See [`app/docs/mcp_setup.md`](app/docs/mcp_setup.md) for full setup (Claude Code, Codex, Gemini CLI, OIDC, troubleshooting) and [`skills/pdf-forge/SKILL.md`](skills/pdf-forge/SKILL.md) for the agent-facing operating guide. For document editing through MCP, use the dedicated references: [`editor-capability-matrix.md`](skills/pdf-forge/editor-capability-matrix.md), [`portable-document-contract.md`](skills/pdf-forge/portable-document-contract.md), [`typst-rendering-boundaries.md`](skills/pdf-forge/typst-rendering-boundaries.md), and [`mcp-editor-workflows.md`](skills/pdf-forge/mcp-editor-workflows.md).
 
 ## Commands
 
@@ -585,14 +585,21 @@ make clean            # Remove all build artifacts
 | [Deployment](core/docs/deployment.md)                     | Docker, Kubernetes patterns           |
 | [Troubleshooting](core/docs/troubleshooting.md)           | Rendering, auth, DB, frontend issues  |
 | [MCP Setup](app/docs/mcp_setup.md)                        | `mcp-openapi-proxy`, Claude, Codex, OIDC |
+| [Agent Skill](skills/pdf-forge/SKILL.md)                    | Operational MCP guidance for agents      |
+| [Editor Capability Matrix](skills/pdf-forge/editor-capability-matrix.md) | UI vs schema vs Typst vs agent-safe support |
+| [Portable Document Contract](skills/pdf-forge/portable-document-contract.md) | `contentStructure` / PortableDoc envelope |
+| [Typst Rendering Boundaries](skills/pdf-forge/typst-rendering-boundaries.md) | Rendering limits and safe assumptions    |
+| [MCP Editor Workflows](skills/pdf-forge/mcp-editor-workflows.md) | Read-modify-write playbooks for agents   |
 
 ## AI Agent Skill
 
-pdf-forge is **agent-friendly**. Install the skill to let AI agents (Claude Code, Cursor, etc.) build and extend your project with full context:
+pdf-forge is **agent-friendly**. Install the skill to let AI agents (Claude Code, Codex, Gemini CLI, Cursor, etc.) operate templates and rendering through MCP with full project context:
 
 ```bash
 npx skills add https://github.com/rendis/pdf-forge --skill pdf-forge
 ```
+
+Start with [`skills/pdf-forge/SKILL.md`](skills/pdf-forge/SKILL.md), then follow the linked editor/PortableDoc/Typst references when editing `contentStructure`.
 
 ## Contributing
 

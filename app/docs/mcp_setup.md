@@ -197,6 +197,16 @@ mcp-openapi-proxy login --codex-config ./.codex/config.toml --server pdf-forge
 3. Call `pf_describe_endpoint` if you need the exact contract
 4. Call `pf_call_endpoint`
 
+If the task involves editing template documents or `contentStructure`, do not stop at the generic MCP setup. Continue with:
+
+- [`../../skills/pdf-forge/SKILL.md`](../../skills/pdf-forge/SKILL.md)
+- [`../../skills/pdf-forge/editor-capability-matrix.md`](../../skills/pdf-forge/editor-capability-matrix.md)
+- [`../../skills/pdf-forge/portable-document-contract.md`](../../skills/pdf-forge/portable-document-contract.md)
+- [`../../skills/pdf-forge/typst-rendering-boundaries.md`](../../skills/pdf-forge/typst-rendering-boundaries.md)
+- [`../../skills/pdf-forge/mcp-editor-workflows.md`](../../skills/pdf-forge/mcp-editor-workflows.md)
+
+Those references are the authoritative source for what agents can safely edit today.
+
 Example discovery flow:
 
 ```json

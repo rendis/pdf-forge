@@ -202,6 +202,23 @@ Correct workflow:
 
 Do **not** assume one MCP tool per endpoint. Endpoint-level identifiers are passed as `toolName` values to `pf_describe_endpoint` and `pf_call_endpoint`.
 
+When the task involves editing template documents or `contentStructure`, read these first:
+
+- `skills/pdf-forge/SKILL.md`
+- `skills/pdf-forge/editor-capability-matrix.md`
+- `skills/pdf-forge/portable-document-contract.md`
+- `skills/pdf-forge/typst-rendering-boundaries.md`
+- `skills/pdf-forge/mcp-editor-workflows.md`
+
+Always separate:
+
+1. current UI support
+2. PortableDoc / schema support
+3. Typst renderer support
+4. documented agent-safe support
+
+Never assume that TipTap support alone makes a feature safe to introduce via MCP.
+
 **Headers (Panel)**: `X-Tenant-ID`, `X-Workspace-ID`, `Authorization` (Bearer JWT)
 
 **Headers (Render)**: `X-Tenant-Code`, `X-Workspace-Code`, `X-Environment` (required, `dev` or `prod`), `Authorization` (Bearer JWT)
@@ -284,6 +301,9 @@ Current: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 ### Rich Text & i18n
 
 - **TipTap** editor with StarterKit in `src/features/editor/`, prose styling via `@tailwindcss/typography`
+- Body and header are different editing surfaces; do not treat header edits as generic body edits
+- Before changing template version `contentStructure`, verify the feature in the agent docs matrix/contract docs above
+- Distinguish what the UI exposes from what PortableDoc and Typst support internally
 - **i18next** — `public/locales/{lng}/translation.json`, supports `en`, `es`
 
 ### Frontend Environment
