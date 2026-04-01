@@ -58,7 +58,7 @@ func (b *TypstBuilder) Build(doc *portabledoc.Document) string {
 	sb.WriteString("#import \"@preview/wrap-it:0.1.1\": wrap-content\n\n")
 
 	// Page configuration
-	sb.WriteString(b.pageSetup(&doc.PageConfig, false))
+	sb.WriteString(b.pageSetup(&doc.PageConfig, doc.HeaderEnabled()))
 
 	// Base typography
 	sb.WriteString(b.typographySetup())

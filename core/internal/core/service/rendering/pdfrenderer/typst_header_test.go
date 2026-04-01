@@ -278,6 +278,31 @@ func TestBuild_IncludesHeader(t *testing.T) {
 	}
 }
 
+func TestBuild_HalvesTopMarginWhenHeaderEnabled(t *testing.T) {
+	b := newTestBuilder()
+	doc := testDoc(&portabledoc.DocumentHeader{
+		Enabled: true,
+		Content: headerText("Header Title"),
+	})
+
+	got := b.Build(doc)
+
+	if !strings.Contains(got, "margin: (top: 27.0pt, bottom: 54.0pt, left: 54.0pt, right: 54.0pt)") {
+		t.Errorf("expected top margin to be halved when header is enabled, got %q", got)
+	}
+}
+
+func TestBuild_KeepsTopMarginWhenHeaderDisabled(t *testing.T) {
+	b := newTestBuilder()
+	doc := testDoc(nil)
+
+	got := b.Build(doc)
+
+	if !strings.Contains(got, "margin: (top: 54.0pt, bottom: 54.0pt, left: 54.0pt, right: 54.0pt)") {
+		t.Errorf("expected top margin to stay unchanged without header, got %q", got)
+	}
+}
+
 func TestBuild_NoHeaderForOldDoc(t *testing.T) {
 	b := newTestBuilder()
 	doc := &portabledoc.Document{
