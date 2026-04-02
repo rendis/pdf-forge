@@ -118,16 +118,17 @@ The body is the richer editing surface and may contain:
 The header is a constrained surface with:
 
 - limited text content
+- text variable injectors (same `injector` node type as the body)
 - dedicated image/logo layout modes
 - its own image sizing and placement rules
 
 Do not model the header as if it were just another body fragment.
 
-Also be conservative about validation assumptions:
+Validation is symmetric for text injectors:
 
-- generic body node traversal/validation is not fully symmetric with header content handling
-- header image injectables are explicitly modeled and validated
-- generic header text injectors are **not** documented as a default-safe workflow
+- header text injectors are validated against `variableIds` during publish — same rules as body injectors
+- header image injectables are validated separately via `imageInjectableId`
+- when adding a text injector to the header, ensure its variable ID appears in `variableIds`
 
 ## Node Families
 

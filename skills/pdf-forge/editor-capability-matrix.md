@@ -71,7 +71,7 @@ This is the **authoritative agent-facing matrix** for what `pdf-forge` supports 
 
 | Feature | Body UI | Header UI | PortableDoc / schema | Typst renderer | Agent-safe today | Notes / limitations |
 | --- | --- | --- | --- | --- | --- | --- |
-| Injector placeholder | Yes | No | Caution | Caution | **Not documented as safe** | Body injectors are supported. Header text injectors are not exposed by the current header editor and are not documented as a safe default workflow. Header image injectables are a separate supported feature. |
+| Injector placeholder | Yes | Yes | Yes | Yes | **Supported** | Body and header text injectors are supported. Insert a text variable directly into the header rich-text area. `variableIds` is validated against injector nodes in both body and header content. Header image injectables remain a separate feature tracked via `imageInjectableId`. |
 | Conditional block | Yes | No | Yes | Yes | **Supported** | Body-only workflow. Keep `conditions` / `expression` structure intact. |
 | Editable table | Yes | No | Yes | Yes | **Supported** | Body-only feature. Safe when preserving row/cell structure. |
 | Table injector | Yes | No | Yes | Yes | **Supported** | Prefer for dynamic tabular data. |
