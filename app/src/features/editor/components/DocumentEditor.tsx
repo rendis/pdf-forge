@@ -49,7 +49,7 @@ import { VariableDragOverlay } from './VariableDragOverlay'
 import { InconsistencyNavigator } from './InconsistencyNavigator'
 import { TableBubbleMenu } from './TableBubbleMenu'
 import { TableCornerHandle } from './TableCornerHandle'
-import { DocumentPageHeader } from './DocumentPageHeader'
+import { DocumentPageHeader, HEADER_DROP_ZONE_ID } from './DocumentPageHeader'
 import { hasConfigurableOptions } from '../types/injectable'
 import { cn } from '@/lib/utils'
 import { type Variable } from '../types'
@@ -141,6 +141,7 @@ export function DocumentEditor({
     variable: Variable
     position: number
   } | null>(null)
+  const [pendingVariableEditor, setPendingVariableEditor] = useState<Editor | null>(null)
 
   // Drag & drop state
   const [activeDragData, setActiveDragData] = useState<VariableDragData | null>(null)
@@ -390,11 +391,13 @@ export function DocumentEditor({
 
   const handleFormatSelect = useCallback(
     (format: string) => {
-      if (!editor || !pendingVariable) return
+      if (!pendingVariable) return
 
-      // Use type assertion to bypass TipTap type limitations
+      const editorToUse = pendingVariableEditor ?? editor
+      if (!editorToUse) return
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(editor.chain().focus(pendingVariable.position) as any).setInjector({
+      ;(editorToUse.chain().focus(pendingVariable.position) as any).setInjector({
         type: pendingVariable.variable.type,
         label: pendingVariable.variable.label,
         variableId: pendingVariable.variable.variableId,
@@ -404,54 +407,55 @@ export function DocumentEditor({
       // Wait for exit animation (200ms) before unmounting
       setTimeout(() => {
         setPendingVariable(null)
+        setPendingVariableEditor(null)
       }, 200)
     },
-    [editor, pendingVariable]
+    [editor, pendingVariable, pendingVariableEditor]
   )
 
   const handleFormatCancel = useCallback(() => {
     // Wait for exit animation (200ms) before unmounting
     setTimeout(() => {
       setPendingVariable(null)
+      setPendingVariableEditor(null)
     }, 200)
   }, [])
 
   // --- DRAG & DROP HANDLERS ---
 
   /**
-   * Insert a variable into the editor at the current cursor position
-   * If variable has configurable options, open format dialog
+   * Insert a variable into the editor at the current cursor position.
+   * If variable has configurable options, open format dialog.
+   * TABLE and LIST injectors are block-level and always target the body editor.
    */
   const insertVariable = useCallback(
-    (data: VariableDragData, position?: number) => {
-      if (!editor) return
-
-      // Determine insertion position
-      const insertPos = position ?? editor.state.selection.from
-
-      // Si es TABLE, insertar como tableInjector (block)
-      if (data.injectorType === 'TABLE') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(editor.chain().focus(insertPos) as any).setTableInjector({
-          variableId: data.variableId,
-          label: data.label,
-        }).run()
+    (data: VariableDragData, position?: number, targetEditor?: Editor) => {
+      // TABLE and LIST are block-level — always go to body editor
+      if (data.injectorType === 'TABLE' || data.injectorType === 'LIST') {
+        if (!editor) return
+        const insertPos = position ?? editor.state.selection.from
+        if (data.injectorType === 'TABLE') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(editor.chain().focus(insertPos) as any).setTableInjector({
+            variableId: data.variableId,
+            label: data.label,
+          }).run()
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(editor.chain().focus(insertPos) as any).setListInjector({
+            variableId: data.variableId,
+            label: data.label,
+          }).run()
+        }
         return
       }
 
-      // Si es LIST, insertar como listInjector (block)
-      if (data.injectorType === 'LIST') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(editor.chain().focus(insertPos) as any).setListInjector({
-          variableId: data.variableId,
-          label: data.label,
-        }).run()
-        return
-      }
+      const editorToUse = targetEditor ?? editor
+      if (!editorToUse) return
+      const insertPos = position ?? editorToUse.state.selection.from
 
       // Check if variable has configurable format options
       if (hasConfigurableOptions(data.formatConfig)) {
-        // Open format dialog
         setPendingVariable({
           variable: {
             id: data.id,
@@ -463,12 +467,11 @@ export function DocumentEditor({
           },
           position: insertPos,
         })
+        setPendingVariableEditor(editorToUse)
         setFormatDialogOpen(true)
       } else {
-        // Insert directly without format dialog
-        // Use type assertion to bypass TipTap type limitations
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(editor.chain().focus(insertPos) as any).setInjector({
+        ;(editorToUse.chain().focus(insertPos) as any).setInjector({
           type: data.injectorType,
           label: data.label,
           variableId: data.variableId,
@@ -479,14 +482,16 @@ export function DocumentEditor({
   )
 
   /**
-   * Handle click on variable in VariablesPanel
-   * Inserts variable at current cursor position
+   * Handle click on variable in VariablesPanel.
+   * Routes to the active surface editor (header or body).
    */
   const handleVariableClick = useCallback(
     (data: VariableDragData) => {
-      insertVariable(data)
+      const targetEditor =
+        resolvedActiveSurface === 'header' ? (headerToolbarEditor ?? undefined) : undefined
+      insertVariable(data, undefined, targetEditor)
     },
-    [insertVariable]
+    [insertVariable, resolvedActiveSurface, headerToolbarEditor]
   )
 
   /**
@@ -500,8 +505,8 @@ export function DocumentEditor({
   }, [])
 
   /**
-   * Handle drag move - update drop cursor position
-   * Shows visual indicator of where the variable will be inserted
+   * Handle drag move - update drop cursor position in the body editor.
+   * Header drop detection is handled by useDroppable in DocumentPageHeader.
    */
   const handleDragMove = useCallback(
     (event: DragMoveEvent) => {
@@ -513,21 +518,14 @@ export function DocumentEditor({
       // Cast to MouseEvent since we use PointerSensor
       const pointer = activatorEvent as MouseEvent
 
-      // Calculate position in editor at pointer coordinates
       const pos = editor.view.posAtCoords({
         left: pointer.clientX + delta.x,
         top: pointer.clientY + delta.y,
       })
 
       if (pos) {
-        // Get visual coordinates for the drop cursor
         const coords = editor.view.coordsAtPos(pos.pos)
-        setDropCursorPos({
-          top: coords.top,
-          left: coords.left,
-          height: coords.bottom - coords.top,
-        })
-        // Save the position where we'll insert the variable
+        setDropCursorPos({ top: coords.top, left: coords.left, height: coords.bottom - coords.top })
         setDropPosition(pos.pos)
       } else {
         setDropCursorPos(null)
@@ -538,32 +536,36 @@ export function DocumentEditor({
   )
 
   /**
-   * Handle drag end - insert variable if dropped in editor
+   * Handle drag end - insert variable into the surface it was dropped on.
+   * Header drop is detected via event.over (useDroppable registered in DocumentPageHeader).
    */
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const { active } = event
+      const { active, over } = event
 
-      // Get the drag data before clearing state
       const data = active.data.current as VariableDragData | undefined
       const positionToInsert = dropPosition
 
-      // Always clear active drag data and drop cursor first
       setActiveDragData(null)
       setDropCursorPos(null)
       setDropPosition(null)
 
-      if (!data || !editor) return
+      if (!data) return
 
-      // Insert the variable at the calculated position (not current cursor position)
+      // If dropped on the header drop zone, route to header editor
+      if (over?.id === HEADER_DROP_ZONE_ID) {
+        insertVariable(data, undefined, headerToolbarEditor ?? undefined)
+        return
+      }
+
+      // Otherwise insert into body at the calculated drop position
       if (positionToInsert !== null) {
         insertVariable(data, positionToInsert)
       } else {
-        // Fallback to current cursor position if no drop position was calculated
         insertVariable(data)
       }
     },
-    [editor, insertVariable, dropPosition]
+    [headerToolbarEditor, insertVariable, dropPosition]
   )
 
   if (!editor) {

@@ -25,6 +25,10 @@ function hasTextOrStructuralContent(node: unknown): boolean {
     return true
   }
 
+  if (proseNode.type === 'injector') {
+    return true
+  }
+
   if (!Array.isArray(proseNode.content)) {
     return false
   }

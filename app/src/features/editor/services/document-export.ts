@@ -126,6 +126,10 @@ function addHeaderVariableIds(variableIds: Set<string>) {
   if (headerState.imageInjectableId) {
     variableIds.add(headerState.imageInjectableId)
   }
+  if (Array.isArray(headerState.content?.content)) {
+    const headerIds = findInjectorNodes(headerState.content.content as ProseMirrorNode[])
+    headerIds.forEach((id) => variableIds.add(id))
+  }
 }
 
 // =============================================================================

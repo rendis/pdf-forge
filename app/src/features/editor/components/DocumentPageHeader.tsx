@@ -6,6 +6,7 @@ import { TextStyle, FontFamily, FontSize } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import TextAlign from '@tiptap/extension-text-align'
 import Moveable from 'react-moveable'
+import { useDroppable } from '@dnd-kit/core'
 import { ImageIcon, PanelLeft, PanelRight, LayoutTemplate, Trash2 } from 'lucide-react'
 import { Extension, type Editor, type JSONContent } from '@tiptap/core'
 import { cn } from '@/lib/utils'
@@ -13,8 +14,11 @@ import { ImageInsertModal, type ImageInsertResult } from './ImageInsertModal'
 import { useDocumentHeaderStore, type DocumentHeaderLayout } from '../stores/document-header-store'
 import { StoredMarksPersistenceExtension } from '../extensions/StoredMarksPersistence'
 import { LineSpacingExtension } from '../extensions/LineSpacing'
+import { InjectorExtension } from '../extensions/Injector'
 import { hasMeaningfulHeaderContent, normalizeHeaderContent } from '../utils/document-header'
 import { IMAGE_VARIABLE_PLACEHOLDER_SRC } from '../utils/image-variable-placeholder'
+
+export const HEADER_DROP_ZONE_ID = 'editor-header-drop-zone'
 
 interface DocumentPageHeaderProps {
   editable: boolean
@@ -224,6 +228,8 @@ export function DocumentPageHeader({
     [storeContent]
   )
 
+  const { setNodeRef: setDropZoneRef, isOver } = useDroppable({ id: HEADER_DROP_ZONE_ID })
+
   const surfaceRef = useRef<HTMLDivElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
   const textSlotRef = useRef<HTMLDivElement>(null)
@@ -277,6 +283,7 @@ export function DocumentPageHeader({
       StoredMarksPersistenceExtension,
       LineSpacingExtension,
       HeaderEnterAsBreakExtension,
+      InjectorExtension,
     ],
     content: storeContent ?? EMPTY_HEADER_DOC,
     editable,
@@ -534,11 +541,15 @@ export function DocumentPageHeader({
   return (
     <>
       <div
-        ref={surfaceRef}
+        ref={(el) => {
+          surfaceRef.current = el
+          setDropZoneRef(el)
+        }}
         className={cn(
           'relative w-full transition-colors',
           editable && 'border-y border-dashed border-border/80 bg-background/70',
-          editable && active && 'border-primary/60 bg-primary/5'
+          editable && active && 'border-primary/60 bg-primary/5',
+          isOver && editable && 'border-primary bg-primary/10',
         )}
         onMouseDownCapture={handleSurfaceActivate}
         onClick={handleSurfaceClick}
