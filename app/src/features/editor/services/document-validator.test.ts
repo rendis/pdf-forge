@@ -69,3 +69,102 @@ describe('document-validator image injectables', () => {
     expect(getUsedVariableIds(document)).toEqual(['body_logo', 'header_logo'])
   })
 })
+
+describe('document-validator header text injectors', () => {
+  it('does not warn when header injector references a declared variable', () => {
+    const document = createDocument({
+      variableIds: ['greeting'],
+      header: {
+        enabled: true,
+        content: {
+          type: 'doc',
+          content: [{ type: 'injector', attrs: { variableId: 'greeting' } }],
+        },
+      },
+    })
+
+    const result = validateDocumentSemantics(document, { validateReferences: true })
+
+    expect(result.warnings.filter((w) => w.code === 'UNDEFINED_VARIABLE')).toHaveLength(0)
+  })
+
+  it('warns when header injector references an undeclared variable', () => {
+    const document = createDocument({
+      variableIds: [],
+      header: {
+        enabled: true,
+        content: {
+          type: 'doc',
+          content: [{ type: 'injector', attrs: { variableId: 'greeting' } }],
+        },
+      },
+    })
+
+    const result = validateDocumentSemantics(document, { validateReferences: true })
+
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'UNDEFINED_VARIABLE',
+          path: 'header.content.content[0].attrs.variableId',
+        }),
+      ])
+    )
+  })
+
+  it('getUsedVariableIds includes variable IDs from header text injectors', () => {
+    const document = createDocument({
+      content: { type: 'doc', content: [] },
+      header: {
+        enabled: true,
+        content: {
+          type: 'doc',
+          content: [{ type: 'injector', attrs: { variableId: 'greeting' } }],
+        },
+      },
+    })
+
+    expect(getUsedVariableIds(document)).toEqual(['greeting'])
+  })
+
+  it('produces no warnings when header injector is declared in variableIds and exists in backend', () => {
+    const document = createDocument({
+      variableIds: ['greeting'],
+      header: {
+        enabled: true,
+        content: {
+          type: 'doc',
+          content: [{ type: 'injector', attrs: { variableId: 'greeting' } }],
+        },
+      },
+    })
+
+    const backendVariables = [
+      { id: '1', variableId: 'greeting', label: 'Greeting', type: 'TEXT' as const },
+    ]
+
+    const result = validateDocumentSemantics(document, {}, backendVariables)
+
+    expect(result.warnings.filter((w) => w.code.includes('VARIABLE'))).toHaveLength(0)
+  })
+
+  it('getUsedVariableIds finds injectors in body and header simultaneously', () => {
+    const document = createDocument({
+      content: {
+        type: 'doc',
+        content: [{ type: 'injector', attrs: { variableId: 'name' } }],
+      },
+      header: {
+        enabled: true,
+        content: {
+          type: 'doc',
+          content: [{ type: 'injector', attrs: { variableId: 'greeting' } }],
+        },
+      },
+    })
+
+    const ids = getUsedVariableIds(document)
+    expect(ids).toContain('name')
+    expect(ids).toContain('greeting')
+  })
+})

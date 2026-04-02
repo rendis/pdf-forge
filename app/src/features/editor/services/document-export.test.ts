@@ -90,3 +90,82 @@ describe('document-export header/image injectables', () => {
     expect(extractVariableIdsFromEditor(editor)).toEqual(['header_only_logo'])
   })
 })
+
+describe('document-export header text injectors', () => {
+  beforeEach(() => {
+    useDocumentHeaderStore.getState().reset()
+    usePaginationStore.setState({
+      pageSize: PAGE_SIZES.A4,
+      margins: DEFAULT_MARGINS,
+    })
+  })
+
+  it('exports variable ID from a text injector inserted into header content', () => {
+    // Simulates the store state produced by click or drag insertion into the header editor
+    useDocumentHeaderStore.getState().configure({
+      content: {
+        type: 'doc',
+        content: [{
+          type: 'paragraph',
+          content: [{ type: 'injector', attrs: { variableId: 'greeting', type: 'text' } }],
+        }],
+      },
+    })
+
+    const editor = createEditor({ type: 'doc', content: [] })
+
+    const document = exportDocument(
+      editor,
+      { pagination: { pageSize: PAGE_SIZES.A4, margins: DEFAULT_MARGINS } },
+      { title: 'Test', language: 'es' }
+    )
+
+    expect(document.variableIds).toContain('greeting')
+    expect(document.header?.content?.content).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'paragraph',
+          content: expect.arrayContaining([
+            expect.objectContaining({ type: 'injector', attrs: expect.objectContaining({ variableId: 'greeting' }) }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  it('deduplicates variable IDs when the same injector appears in both body and header', () => {
+    useDocumentHeaderStore.getState().configure({
+      content: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'injector', attrs: { variableId: 'name', type: 'text' } }] }],
+      },
+    })
+
+    const editor = createEditor({
+      type: 'doc',
+      content: [{ type: 'injector', attrs: { variableId: 'name' } }],
+    })
+
+    const document = exportDocument(
+      editor,
+      { pagination: { pageSize: PAGE_SIZES.A4, margins: DEFAULT_MARGINS } },
+      { title: 'Test', language: 'es' }
+    )
+
+    const nameOccurrences = document.variableIds.filter((id) => id === 'name')
+    expect(nameOccurrences).toHaveLength(1)
+  })
+
+  it('extractVariableIdsFromEditor includes header text injector IDs', () => {
+    useDocumentHeaderStore.getState().configure({
+      content: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'injector', attrs: { variableId: 'greeting', type: 'text' } }] }],
+      },
+    })
+
+    const editor = createEditor({ type: 'doc', content: [] })
+
+    expect(extractVariableIdsFromEditor(editor)).toContain('greeting')
+  })
+})
