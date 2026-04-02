@@ -233,7 +233,7 @@ export function exportDocument(
     imageInjectableLabel: headerState.imageInjectableLabel,
     imageWidth: headerState.imageWidth,
     imageHeight: headerState.imageHeight,
-    content: headerState.content ?? undefined,
+    content: (headerState.content ?? undefined) as ProseMirrorDocument | undefined,
   }
 
   // Assemble the document

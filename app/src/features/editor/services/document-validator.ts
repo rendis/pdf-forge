@@ -372,6 +372,10 @@ export function validateDocumentSemantics(
 
   // Validate content references
   validateInjectorReferences(document.content.content, context)
+  const headerNodes = document.header?.content?.content
+  if (Array.isArray(headerNodes)) {
+    validateInjectorReferences(headerNodes, context, 'header.content')
+  }
   validateImageVariableReferences(document, context)
   validateConditionalReferences(document.content.content, context)
 
@@ -453,6 +457,11 @@ export function getUsedVariableIds(document: PortableDocument): string[] {
   }
 
   traverse(document.content.content)
+
+  const headerContentNodes = document.header?.content?.content
+  if (Array.isArray(headerContentNodes)) {
+    traverse(headerContentNodes)
+  }
 
   if (document.header?.imageInjectableId) {
     ids.add(document.header.imageInjectableId)
