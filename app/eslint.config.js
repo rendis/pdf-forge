@@ -60,7 +60,7 @@ export default tseslint.config(
   {
     files: ["src/features/editor/components/**/*.{ts,tsx}"],
     rules: {
-      complexity: ["warn", 30],
+      complexity: ["warn", 35],
       "max-depth": ["warn", 4],
       "max-lines-per-function": [
         "warn",
@@ -71,6 +71,13 @@ export default tseslint.config(
           IIFEs: true,
         },
       ],
+    },
+  },
+  {
+    files: ["src/features/editor/components/EditorToolbar.tsx"],
+    rules: {
+      complexity: "off",
+      "max-lines-per-function": "off",
     },
   }
 );

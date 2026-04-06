@@ -18,9 +18,6 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
-  type DragMoveEvent,
 } from '@dnd-kit/core'
 import { HEADING_LEVELS } from '../config'
 import { EditorToolbar } from './EditorToolbar'
@@ -50,15 +47,13 @@ import { InconsistencyNavigator } from './InconsistencyNavigator'
 import { TableBubbleMenu } from './TableBubbleMenu'
 import { TableCornerHandle } from './TableCornerHandle'
 import { DocumentPageHeader, HEADER_DROP_ZONE_ID } from './DocumentPageHeader'
-import { hasConfigurableOptions } from '../types/injectable'
 import { cn } from '@/lib/utils'
 import { type Variable } from '../types'
 import { useDocumentHeaderStore, usePaginationStore } from '../stores'
-import type { VariableDragData } from '../types/drag'
 import type { Editor } from '@tiptap/core'
 import { deriveHeaderEnabled } from '../utils/document-header'
-
-type ActiveSurface = 'header' | 'body'
+import { useVariableInsertion } from '../hooks/useVariableInsertion'
+import { resolveActiveSurface, type ActiveSurface } from '../services/variable-insertion'
 
 interface DocumentEditorProps {
   initialContent?: string
@@ -134,23 +129,6 @@ export function DocumentEditor({
   const [headerImageModalToken, setHeaderImageModalToken] = useState(0)
   const [activeSurface, setActiveSurface] = useState<ActiveSurface>('body')
   const [headerToolbarEditor, setHeaderToolbarEditor] = useState<Editor | null>(null)
-
-  // Format dialog state
-  const [formatDialogOpen, setFormatDialogOpen] = useState(false)
-  const [pendingVariable, setPendingVariable] = useState<{
-    variable: Variable
-    position: number
-  } | null>(null)
-  const [pendingVariableEditor, setPendingVariableEditor] = useState<Editor | null>(null)
-
-  // Drag & drop state
-  const [activeDragData, setActiveDragData] = useState<VariableDragData | null>(null)
-  const [dropCursorPos, setDropCursorPos] = useState<{
-    top: number
-    left: number
-    height: number
-  } | null>(null)
-  const [dropPosition, setDropPosition] = useState<number | null>(null)
 
   // DnD sensors - require 8px movement before drag starts (allows clicks to pass)
   const sensors = useSensors(
@@ -243,9 +221,27 @@ export function DocumentEditor({
   }, [editor, onFullyReady])
 
   const showHeaderSurface = editable || headerHasMeaningfulContent
-  const resolvedActiveSurface: ActiveSurface =
-    !showHeaderSurface && activeSurface === 'header' ? 'body' : activeSurface
+  const resolvedActiveSurface = resolveActiveSurface(showHeaderSurface, activeSurface)
   const toolbarEditor = resolvedActiveSurface === 'header' ? headerToolbarEditor : editor
+
+  const {
+    activeDragData,
+    dropCursorPos,
+    formatDialogOpen,
+    pendingVariable,
+    handleDragEnd,
+    handleDragMove,
+    handleDragStart,
+    handleFormatCancel,
+    handleFormatSelect,
+    handleVariableClick,
+    openPendingVariableDialog,
+  } = useVariableInsertion({
+    bodyEditor: editor,
+    headerEditor: headerToolbarEditor,
+    activeSurface: resolvedActiveSurface,
+    headerDropZoneId: HEADER_DROP_ZONE_ID,
+  })
 
   // Listen for image modal events
   useEffect(() => {
@@ -287,12 +283,20 @@ export function DocumentEditor({
       // Delete the @mention text
       editor.chain().focus().deleteRange(range).run()
 
-      // Save variable and position for the dialog
-      setPendingVariable({
-        variable,
-        position: editor.state.selection.from,
-      })
-      setFormatDialogOpen(true)
+      openPendingVariableDialog(
+        {
+          id: variable.id,
+          itemType: 'variable',
+          variableId: variable.variableId,
+          label: variable.label,
+          injectorType: variable.type,
+          formatConfig: variable.formatConfig,
+          sourceType: variable.sourceType,
+          description: variable.description,
+        },
+        editor.state.selection.from,
+        editor
+      )
     }
 
     const dom = editor.view.dom
@@ -311,7 +315,7 @@ export function DocumentEditor({
         handleSelectVariableFormat as EventListener
       )
     }
-  }, [editor])
+  }, [editor, openPendingVariableDialog])
 
   const handleHeaderEditorFocus = useCallback((headerEditor: Editor) => {
     setHeaderToolbarEditor(headerEditor)
@@ -388,185 +392,6 @@ export function DocumentEditor({
       setEditingImageData(null)
     }
   }, [])
-
-  const handleFormatSelect = useCallback(
-    (format: string) => {
-      if (!pendingVariable) return
-
-      const editorToUse = pendingVariableEditor ?? editor
-      if (!editorToUse) return
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(editorToUse.chain().focus(pendingVariable.position) as any).setInjector({
-        type: pendingVariable.variable.type,
-        label: pendingVariable.variable.label,
-        variableId: pendingVariable.variable.variableId,
-        format,
-      }).run()
-
-      // Wait for exit animation (200ms) before unmounting
-      setTimeout(() => {
-        setPendingVariable(null)
-        setPendingVariableEditor(null)
-      }, 200)
-    },
-    [editor, pendingVariable, pendingVariableEditor]
-  )
-
-  const handleFormatCancel = useCallback(() => {
-    // Wait for exit animation (200ms) before unmounting
-    setTimeout(() => {
-      setPendingVariable(null)
-      setPendingVariableEditor(null)
-    }, 200)
-  }, [])
-
-  // --- DRAG & DROP HANDLERS ---
-
-  /**
-   * Insert a variable into the editor at the current cursor position.
-   * If variable has configurable options, open format dialog.
-   * TABLE and LIST injectors are block-level and always target the body editor.
-   */
-  const insertVariable = useCallback(
-    (data: VariableDragData, position?: number, targetEditor?: Editor) => {
-      // TABLE and LIST are block-level — always go to body editor
-      if (data.injectorType === 'TABLE' || data.injectorType === 'LIST') {
-        if (!editor) return
-        const insertPos = position ?? editor.state.selection.from
-        if (data.injectorType === 'TABLE') {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(editor.chain().focus(insertPos) as any).setTableInjector({
-            variableId: data.variableId,
-            label: data.label,
-          }).run()
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(editor.chain().focus(insertPos) as any).setListInjector({
-            variableId: data.variableId,
-            label: data.label,
-          }).run()
-        }
-        return
-      }
-
-      const editorToUse = targetEditor ?? editor
-      if (!editorToUse) return
-      const insertPos = position ?? editorToUse.state.selection.from
-
-      // Check if variable has configurable format options
-      if (hasConfigurableOptions(data.formatConfig)) {
-        setPendingVariable({
-          variable: {
-            id: data.id,
-            variableId: data.variableId,
-            label: data.label,
-            type: data.injectorType,
-            formatConfig: data.formatConfig,
-            sourceType: data.sourceType || 'EXTERNAL',
-          },
-          position: insertPos,
-        })
-        setPendingVariableEditor(editorToUse)
-        setFormatDialogOpen(true)
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(editorToUse.chain().focus(insertPos) as any).setInjector({
-          type: data.injectorType,
-          label: data.label,
-          variableId: data.variableId,
-        }).run()
-      }
-    },
-    [editor]
-  )
-
-  /**
-   * Handle click on variable in VariablesPanel.
-   * Routes to the active surface editor (header or body).
-   */
-  const handleVariableClick = useCallback(
-    (data: VariableDragData) => {
-      const targetEditor =
-        resolvedActiveSurface === 'header' ? (headerToolbarEditor ?? undefined) : undefined
-      insertVariable(data, undefined, targetEditor)
-    },
-    [insertVariable, resolvedActiveSurface, headerToolbarEditor]
-  )
-
-  /**
-   * Handle drag start - show overlay with ghost image
-   */
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const data = event.active.data.current as VariableDragData
-    if (data) {
-      setActiveDragData(data)
-    }
-  }, [])
-
-  /**
-   * Handle drag move - update drop cursor position in the body editor.
-   * Header drop detection is handled by useDroppable in DocumentPageHeader.
-   */
-  const handleDragMove = useCallback(
-    (event: DragMoveEvent) => {
-      if (!editor) return
-
-      const { activatorEvent, delta } = event
-      if (!activatorEvent) return
-
-      // Cast to MouseEvent since we use PointerSensor
-      const pointer = activatorEvent as MouseEvent
-
-      const pos = editor.view.posAtCoords({
-        left: pointer.clientX + delta.x,
-        top: pointer.clientY + delta.y,
-      })
-
-      if (pos) {
-        const coords = editor.view.coordsAtPos(pos.pos)
-        setDropCursorPos({ top: coords.top, left: coords.left, height: coords.bottom - coords.top })
-        setDropPosition(pos.pos)
-      } else {
-        setDropCursorPos(null)
-        setDropPosition(null)
-      }
-    },
-    [editor]
-  )
-
-  /**
-   * Handle drag end - insert variable into the surface it was dropped on.
-   * Header drop is detected via event.over (useDroppable registered in DocumentPageHeader).
-   */
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event
-
-      const data = active.data.current as VariableDragData | undefined
-      const positionToInsert = dropPosition
-
-      setActiveDragData(null)
-      setDropCursorPos(null)
-      setDropPosition(null)
-
-      if (!data) return
-
-      // If dropped on the header drop zone, route to header editor
-      if (over?.id === HEADER_DROP_ZONE_ID) {
-        insertVariable(data, undefined, headerToolbarEditor ?? undefined)
-        return
-      }
-
-      // Otherwise insert into body at the calculated drop position
-      if (positionToInsert !== null) {
-        insertVariable(data, positionToInsert)
-      } else {
-        insertVariable(data)
-      }
-    },
-    [headerToolbarEditor, insertVariable, dropPosition]
-  )
 
   if (!editor) {
     return (
