@@ -72,6 +72,7 @@ test-integration:
 
 lint:
 	$(MAKE) -C core lint
+	$(MAKE) -C app lint
 
 swagger:
 	$(MAKE) -C core swagger
@@ -187,7 +188,7 @@ help:
 	@echo "  dev-app        Start Vite dev server only"
 	@echo "  migrate        Apply database migrations"
 	@echo "  test           Run Go tests"
-	@echo "  lint           Run golangci-lint"
+	@echo "  lint           Run backend and frontend linters"
 	@echo "  swagger        Regenerate Swagger + OpenAPI specs"
 	@echo ""
 	@echo "=== Docker ==="

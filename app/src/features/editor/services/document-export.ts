@@ -126,6 +126,10 @@ function addHeaderVariableIds(variableIds: Set<string>) {
   if (headerState.imageInjectableId) {
     variableIds.add(headerState.imageInjectableId)
   }
+  if (Array.isArray(headerState.content?.content)) {
+    const headerIds = findInjectorNodes(headerState.content.content as ProseMirrorNode[])
+    headerIds.forEach((id) => variableIds.add(id))
+  }
 }
 
 // =============================================================================
@@ -229,7 +233,7 @@ export function exportDocument(
     imageInjectableLabel: headerState.imageInjectableLabel,
     imageWidth: headerState.imageWidth,
     imageHeight: headerState.imageHeight,
-    content: headerState.content ?? undefined,
+    content: (headerState.content ?? undefined) as ProseMirrorDocument | undefined,
   }
 
   // Assemble the document

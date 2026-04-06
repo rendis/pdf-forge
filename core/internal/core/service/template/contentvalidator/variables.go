@@ -41,11 +41,36 @@ func validateDeclaredVariables(vctx *validationContext) {
 func validateInjectorNodes(vctx *validationContext) {
 	doc := vctx.doc
 
-	// Collect all injector nodes
+	// Collect all injector nodes in body content
 	for i, node := range doc.NodesOfType(portabledoc.NodeTypeInjector) {
 		path := fmt.Sprintf("content.injector[%d]", i)
 		validateInjectorNode(vctx, node, path)
 	}
+
+	// Validate injector nodes in header rich-text content
+	if doc.Header != nil {
+		validateInjectorNodesInSlice(vctx, doc.Header.ContentNodes(), "header.content")
+	}
+}
+
+// validateInjectorNodesInSlice recursively validates injector nodes in an arbitrary
+// node slice (e.g. header content), using pathPrefix as the JSON path root.
+func validateInjectorNodesInSlice(vctx *validationContext, nodes []portabledoc.Node, pathPrefix string) {
+	i := 0
+	var traverse func([]portabledoc.Node)
+	traverse = func(ns []portabledoc.Node) {
+		for _, node := range ns {
+			if node.Type == portabledoc.NodeTypeInjector {
+				path := fmt.Sprintf("%s.injector[%d]", pathPrefix, i)
+				validateInjectorNode(vctx, node, path)
+				i++
+			}
+			if len(node.Content) > 0 {
+				traverse(node.Content)
+			}
+		}
+	}
+	traverse(nodes)
 }
 
 // validateInjectorNode validates a single injector node.

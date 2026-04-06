@@ -111,7 +111,7 @@ export interface DocumentHeaderConfig {
   imageInjectableLabel?: string | null
   imageWidth?: number | null
   imageHeight?: number | null
-  content?: Record<string, unknown>
+  content?: ProseMirrorDocument
 }
 
 // =============================================================================

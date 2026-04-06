@@ -2,8 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Editor } from '@tiptap/core'
 import type { PortableDocument } from '../types/document-format'
 import { importDocument } from './document-import'
+import { exportDocument } from './document-export'
 import { useDocumentHeaderStore } from '../stores/document-header-store'
-import { PAGE_SIZES } from '../types'
+import { usePaginationStore } from '../stores/pagination-store'
+import { PAGE_SIZES, DEFAULT_MARGINS } from '../types'
 
 function createEditor(): Editor {
   return {
@@ -77,6 +79,84 @@ describe('document-import header handling', () => {
       imageWidth: 100,
       imageHeight: 32,
     })
+  })
+
+  it('restores header text injector content to store after import', () => {
+    const editor = createEditor()
+    const setPaginationConfig = vi.fn()
+
+    const result = importDocument(
+      createDocument({
+        variableIds: ['greeting'],
+        header: {
+          enabled: true,
+          layout: 'image-left',
+          content: {
+            type: 'doc',
+            content: [{
+              type: 'paragraph',
+              content: [{ type: 'injector', attrs: { variableId: 'greeting', type: 'text' } }],
+            }],
+          },
+        },
+      }),
+      editor,
+      { setPaginationConfig }
+    )
+
+    expect(result.success).toBe(true)
+    expect(useDocumentHeaderStore.getState().enabled).toBe(true)
+    expect(useDocumentHeaderStore.getState().content?.content).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'paragraph',
+          content: expect.arrayContaining([
+            expect.objectContaining({ type: 'injector', attrs: expect.objectContaining({ variableId: 'greeting' }) }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  it('full roundtrip: export with header text injector then re-import produces consistent state', () => {
+    // Step 1: set up header store as click/drag insertion would
+    usePaginationStore.setState({ pageSize: PAGE_SIZES.A4, margins: DEFAULT_MARGINS })
+    useDocumentHeaderStore.getState().configure({
+      content: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'injector', attrs: { variableId: 'greeting', type: 'text' } }] }],
+      },
+    })
+
+    // Step 2: export
+    const mockEditor = { getJSON: () => ({ type: 'doc', content: [] }) } as unknown as Editor
+    const exported = exportDocument(
+      mockEditor,
+      { pagination: { pageSize: PAGE_SIZES.A4, margins: DEFAULT_MARGINS } },
+      { title: 'Roundtrip', language: 'es' }
+    )
+
+    expect(exported.variableIds).toContain('greeting')
+
+    // Step 3: reset and re-import
+    useDocumentHeaderStore.getState().reset()
+
+    const editor = createEditor()
+    const result = importDocument(exported, editor, { setPaginationConfig: vi.fn() })
+
+    expect(result.success).toBe(true)
+    expect(result.document?.variableIds).toContain('greeting')
+    // The injector is inside a paragraph — match the paragraph that contains it
+    expect(useDocumentHeaderStore.getState().content?.content).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'paragraph',
+          content: expect.arrayContaining([
+            expect.objectContaining({ type: 'injector', attrs: expect.objectContaining({ variableId: 'greeting' }) }),
+          ]),
+        }),
+      ])
+    )
   })
 
   it('resets stale header state when importing a document without header and migrates 2.0.0 -> 2.1.0', () => {

@@ -56,5 +56,28 @@ export default tseslint.config(
       "react-hooks/preserve-manual-memoization": "warn",
       "react-hooks/purity": "warn",
     },
+  },
+  {
+    files: ["src/features/editor/components/**/*.{ts,tsx}"],
+    rules: {
+      complexity: ["warn", 35],
+      "max-depth": ["warn", 4],
+      "max-lines-per-function": [
+        "warn",
+        {
+          max: 450,
+          skipBlankLines: true,
+          skipComments: true,
+          IIFEs: true,
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/features/editor/components/EditorToolbar.tsx"],
+    rules: {
+      complexity: "off",
+      "max-lines-per-function": "off",
+    },
   }
 );

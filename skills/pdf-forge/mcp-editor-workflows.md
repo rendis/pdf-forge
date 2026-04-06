@@ -232,10 +232,17 @@ Use this when the user cares about the document type contract rather than a sing
 1. Read version detail
 2. Edit only the `header.imageInjectableId` / related header image fields
 3. Ensure `variableIds` includes the header image variable ID
-4. Do **not** model this as a generic header text injector workflow
+4. Save and render
+
+### F. Add a text variable injector to the header
+
+1. Read version detail
+2. Confirm the variable exists and is accessible in the workspace
+3. Inside `header.content`, add an `injector` node with `variableId` set to the variable's key
+4. Ensure `variableIds` includes that variable ID
 5. Save and render
 
-### F. Edit a conditional block or table injector safely
+### G. Edit a conditional block or table injector safely
 
 1. Read version detail
 2. Preserve the existing conditional/table injector attrs structure

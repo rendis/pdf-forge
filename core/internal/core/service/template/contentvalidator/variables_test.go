@@ -89,6 +89,88 @@ func TestValidateForPublish_RejectsUnknownImageInjectablesInBodyAndHeader(t *tes
 	assertError("header.imageInjectableId")
 }
 
+func TestValidateForPublish_RejectsUndeclaredInjectorInHeaderContent(t *testing.T) {
+	t.Parallel()
+
+	doc := baseDoc()
+	doc.VariableIDs = []string{}
+	doc.Header = &portabledoc.DocumentHeader{
+		Enabled: true,
+		Layout:  portabledoc.HeaderLayoutImageLeft,
+		Content: &portabledoc.ProseMirrorDoc{
+			Type: "doc",
+			Content: []portabledoc.Node{
+				{
+					Type: "paragraph",
+					Content: []portabledoc.Node{
+						{
+							Type:  portabledoc.NodeTypeInjector,
+							Attrs: map[string]any{"variableId": "greeting", "type": portabledoc.InjectorTypeText},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	result := New(nil).ValidateForPublish(context.Background(), "ws-1", "ver-1", mustMarshalDoc(t, doc))
+
+	if result.Valid {
+		t.Fatalf("expected validation to fail, got valid result")
+	}
+
+	for _, err := range result.Errors {
+		if err.Code == ErrCodeUnknownVariable && err.Path == "header.content.injector[0].attrs.variableId" {
+			return
+		}
+	}
+	t.Fatalf("expected UNKNOWN_VARIABLE at header.content.injector[0].attrs.variableId, got %+v", result.Errors)
+}
+
+func TestValidateForPublish_AcceptsAndExtractsDeclaredInjectorInHeaderContent(t *testing.T) {
+	t.Parallel()
+
+	workspaceID := "ws-1"
+	greetingInj := entity.NewInjectableDefinition(&workspaceID, "greeting", "Greeting", entity.InjectableDataTypeText)
+	greetingInj.ID = "inj-greeting"
+	greetingInj.SourceType = entity.InjectableSourceTypeInternal
+
+	doc := baseDoc()
+	doc.VariableIDs = []string{"greeting"}
+	doc.Header = &portabledoc.DocumentHeader{
+		Enabled: true,
+		Layout:  portabledoc.HeaderLayoutImageLeft,
+		Content: &portabledoc.ProseMirrorDoc{
+			Type: "doc",
+			Content: []portabledoc.Node{
+				{
+					Type: "paragraph",
+					Content: []portabledoc.Node{
+						{
+							Type:  portabledoc.NodeTypeInjector,
+							Attrs: map[string]any{"variableId": "greeting", "type": portabledoc.InjectorTypeText},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	service := New(injectableUCStub{injectables: []*entity.InjectableDefinition{greetingInj}})
+	result := service.ValidateForPublish(context.Background(), workspaceID, "ver-1", mustMarshalDoc(t, doc))
+
+	if !result.Valid {
+		t.Fatalf("expected validation success, got errors: %+v", result.Errors)
+	}
+	if len(result.ExtractedInjectables) != 1 {
+		t.Fatalf("expected 1 extracted injectable, got %d: %+v", len(result.ExtractedInjectables), result.ExtractedInjectables)
+	}
+	inj := result.ExtractedInjectables[0]
+	if inj.InjectableDefinitionID == nil || *inj.InjectableDefinitionID != "inj-greeting" {
+		t.Fatalf("expected extracted injectable with ID inj-greeting, got %+v", inj)
+	}
+}
+
 func TestValidateForPublish_ExtractsInjectablesUsedOnlyByImagesAndHeader(t *testing.T) {
 	t.Parallel()
 

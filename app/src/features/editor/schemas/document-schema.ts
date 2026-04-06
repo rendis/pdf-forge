@@ -206,7 +206,7 @@ export const DocumentHeaderConfigSchema = z.object({
   imageInjectableLabel: z.string().nullable().optional(),
   imageWidth: z.number().positive().nullable().optional(),
   imageHeight: z.number().positive().nullable().optional(),
-  content: z.record(z.string(), z.unknown()).optional(),
+  content: ProseMirrorDocumentSchema.optional(),
 }).transform((header) => ({
   ...header,
   imageUrl: header.imageUrl ?? null,
