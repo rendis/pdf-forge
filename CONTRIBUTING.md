@@ -312,7 +312,8 @@ make -C core fmt
 
 ### Frontend Code
 
-- **ESLint**: Enforced via `pnpm lint`
+- **ESLint**: Enforced via `pnpm lint` (and root `make lint`)
+- **Editor complexity alerts**: `src/features/editor/components/**` emits warnings for oversized / high-complexity components so refactors show up during review before they become unmaintainable
 - **Prettier**: Auto-formatting on save
 - **TypeScript**: Strict mode enabled
 - **React 19**: Use modern patterns (hooks, function components)

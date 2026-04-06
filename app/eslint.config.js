@@ -56,5 +56,21 @@ export default tseslint.config(
       "react-hooks/preserve-manual-memoization": "warn",
       "react-hooks/purity": "warn",
     },
+  },
+  {
+    files: ["src/features/editor/components/**/*.{ts,tsx}"],
+    rules: {
+      complexity: ["warn", 30],
+      "max-depth": ["warn", 4],
+      "max-lines-per-function": [
+        "warn",
+        {
+          max: 450,
+          skipBlankLines: true,
+          skipComments: true,
+          IIFEs: true,
+        },
+      ],
+    },
   }
 );
