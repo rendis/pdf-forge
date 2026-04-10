@@ -256,7 +256,7 @@ func (c *TypstConverter) parseHeadingLevel(attrs map[string]any) int {
 
 func (c *TypstConverter) blockquote(node portabledoc.Node) string {
 	content := c.ConvertNodes(node.Content)
-	return fmt.Sprintf("#block(width: 100%%, inset: (left: 1em, top: 0.5em, bottom: 0.5em, right: 1em), stroke: (left: 2pt + %s), fill: rgb(\"%s\"), above: 0.75em, below: 0.75em)[#emph[%s]]\n", c.tokens.BlockquoteStrokeColor, c.tokens.BlockquoteFill, content)
+	return fmt.Sprintf("#block(width: 100%%, inset: (left: 1em, top: 0.5em, bottom: 0.5em, right: 1em), stroke: (left: 2pt + %s), fill: %s, above: 0.75em, below: 0.75em)[#emph[%s]]\n", c.tokens.BlockquoteStrokeColor, typstColorExpr(c.tokens.BlockquoteFill), content)
 }
 
 func (c *TypstConverter) codeBlock(node portabledoc.Node) string {
@@ -649,7 +649,7 @@ func (c *TypstConverter) applyHighlightMark(text string, mark portabledoc.Mark) 
 	if clr, ok := mark.Attrs["color"].(string); ok && clr != "" {
 		color = clr
 	}
-	return fmt.Sprintf("#highlight(fill: rgb(\"%s\"))[%s]", escapeTypstString(color), text)
+	return fmt.Sprintf("#highlight(fill: %s)[%s]", typstColorExpr(color), text)
 }
 
 func (c *TypstConverter) applyLinkMark(text string, mark portabledoc.Mark) string {
@@ -664,7 +664,7 @@ func (c *TypstConverter) applyTextStyleMark(text string, mark portabledoc.Mark) 
 	var params []string
 
 	if color, ok := mark.Attrs["color"].(string); ok && color != "" {
-		params = append(params, fmt.Sprintf("fill: rgb(\"%s\")", escapeTypstString(color)))
+		params = append(params, fmt.Sprintf("fill: %s", typstColorExpr(color)))
 	}
 	if fontSize, ok := mark.Attrs["fontSize"].(string); ok && fontSize != "" {
 		// Convert CSS px to Typst pt (1px ≈ 0.75pt)
@@ -1080,7 +1080,7 @@ func (c *TypstConverter) renderTypstTable(tableData *entity.TableValue, lang str
 
 	colWidths := c.buildTypstColumnWidths(tableData.Columns)
 	headerFill := c.getTableHeaderFillColor(headerStyles)
-	fmt.Fprintf(&sb, "#table(\n  columns: (%s),\n  inset: (x: 0pt, y: 0pt),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableStrokeColor, headerFill)
+	fmt.Fprintf(&sb, "#table(\n  columns: (%s),\n  inset: (x: 0pt, y: 0pt),\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { %s },\n", colWidths, c.tokens.TableStrokeColor, typstColorExpr(headerFill))
 	sb.WriteString(c.buildTableAlignParam(headerStyles, bodyStyles))
 	sb.WriteString(c.renderTypstTableHeader(tableData.Columns, lang))
 	sb.WriteString(c.renderTypstTableRows(tableData))
@@ -1238,7 +1238,7 @@ func (c *TypstConverter) table(node portabledoc.Node) string {
 	sb.WriteString(c.buildTableBodyStyleRules(c.currentTableBodyStyles))
 
 	headerFill := c.getTableHeaderFillColor(c.currentTableHeaderStyles)
-	fmt.Fprintf(&sb, "#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { rgb(\"%s\") },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, headerFill)
+	fmt.Fprintf(&sb, "#table(\n  columns: (%s),\n  inset: %s,\n  stroke: 0.5pt + %s,\n  fill: (x, y) => if y == 0 { %s },\n", colWidths, c.tokens.TableCellInset, c.tokens.TableStrokeColor, typstColorExpr(headerFill))
 	sb.WriteString(c.buildTableAlignParam(c.currentTableHeaderStyles, c.currentTableBodyStyles))
 
 	isFirstRow := true

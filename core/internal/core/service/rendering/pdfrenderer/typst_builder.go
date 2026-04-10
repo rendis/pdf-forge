@@ -141,8 +141,8 @@ func (b *TypstBuilder) typographySetup() string {
 	fontList := "(" + strings.Join(quoted, ", ") + ")"
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "#set text(\n  font: %s,\n  size: %s,\n  fill: rgb(\"%s\"),\n  top-edge: 0.8em,\n  bottom-edge: -0.2em,\n  hyphenate: true,\n  number-width: \"proportional\",\n)\n\n",
-		fontList, b.tokens.BaseFontSize, b.tokens.BaseTextColor)
+	fmt.Fprintf(&sb, "#set text(\n  font: %s,\n  size: %s,\n  fill: %s,\n  top-edge: 0.8em,\n  bottom-edge: -0.2em,\n  hyphenate: true,\n  number-width: \"proportional\",\n)\n\n",
+		fontList, b.tokens.BaseFontSize, typstColorExpr(b.tokens.BaseTextColor))
 	fmt.Fprintf(&sb, "#set par(leading: %s, spacing: %s)\n\n", b.tokens.ParagraphLeading, b.tokens.ParagraphSpacing)
 	return sb.String()
 }
