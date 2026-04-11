@@ -17,13 +17,14 @@ import type {
   ExportInfo,
   ProseMirrorDocument,
   ProseMirrorNode,
-  DocumentHeaderConfig,
+  DocumentSurfaceConfig,
 } from '../types/document-format'
 import type { PaginationStore } from '../stores/pagination-store'
 import { DOCUMENT_FORMAT_VERSION } from '../types/document-format'
 import { PAGE_SIZES } from '../types'
 import { useDocumentHeaderStore } from '../stores/document-header-store'
-import { deriveHeaderEnabled } from '../utils/document-header'
+import { useDocumentFooterStore } from '../stores/document-footer-store'
+import { deriveSurfaceEnabled } from '../utils/document-surface'
 
 // =============================================================================
 // Helper Types
@@ -115,20 +116,47 @@ function extractVariablesFromConditions(
  * Extracts unique variable IDs from the document content
  * Only returns IDs; full definitions come from the backend
  */
-function extractVariableIds(content: ProseMirrorDocument): string[] {
+/** Stores for both surfaces, iterated during export */
+const SURFACE_STORES = [useDocumentHeaderStore, useDocumentFooterStore] as const
+
+/** Snapshot of a surface store's state, read once and reused. */
+type SurfaceSnapshot = ReturnType<(typeof SURFACE_STORES)[number]['getState']>
+
+function addSurfaceVariableIds(
+  state: SurfaceSnapshot,
+  variableIds: Set<string>,
+) {
+  if (state.imageInjectableId) {
+    variableIds.add(state.imageInjectableId)
+  }
+  if (Array.isArray(state.content?.content)) {
+    const ids = findInjectorNodes(state.content.content as ProseMirrorNode[])
+    ids.forEach((id) => variableIds.add(id))
+  }
+}
+
+function extractVariableIds(
+  content: ProseMirrorDocument,
+  surfaceSnapshots: SurfaceSnapshot[],
+): string[] {
   const usedVariableIds = findInjectorNodes(content.content)
-  addHeaderVariableIds(usedVariableIds)
+  for (const snapshot of surfaceSnapshots) {
+    addSurfaceVariableIds(snapshot, usedVariableIds)
+  }
   return Array.from(usedVariableIds).sort()
 }
 
-function addHeaderVariableIds(variableIds: Set<string>) {
-  const headerState = useDocumentHeaderStore.getState()
-  if (headerState.imageInjectableId) {
-    variableIds.add(headerState.imageInjectableId)
-  }
-  if (Array.isArray(headerState.content?.content)) {
-    const headerIds = findInjectorNodes(headerState.content.content as ProseMirrorNode[])
-    headerIds.forEach((id) => variableIds.add(id))
+function exportSurfaceConfig(state: SurfaceSnapshot): DocumentSurfaceConfig {
+  return {
+    enabled: deriveSurfaceEnabled(state),
+    layout: state.layout,
+    imageUrl: state.imageUrl,
+    imageAlt: state.imageAlt,
+    imageInjectableId: state.imageInjectableId,
+    imageInjectableLabel: state.imageInjectableLabel,
+    imageWidth: state.imageWidth,
+    imageHeight: state.imageHeight,
+    content: (state.content ?? undefined) as ProseMirrorDocument | undefined,
   }
 }
 
@@ -211,8 +239,11 @@ export function exportDocument(
   // Extract content from editor
   const content = extractContent(editor)
 
+  // Read surface states once, reuse for both variable extraction and config export
+  const surfaceSnapshots = SURFACE_STORES.map((store) => store.getState())
+
   // Extract variable IDs used in the document
-  const variableIds = extractVariableIds(content)
+  const variableIds = extractVariableIds(content, surfaceSnapshots)
 
   // Extract page configuration
   const pageConfig = extractPageConfig(storeData.pagination)
@@ -220,21 +251,10 @@ export function exportDocument(
   // Generate export info
   const exportInfo = generateExportInfo(options)
 
-  // Read header state
-  const headerState = useDocumentHeaderStore.getState()
-  const headerEnabled = deriveHeaderEnabled(headerState)
-
-  const header: DocumentHeaderConfig = {
-    enabled: headerEnabled,
-    layout: headerState.layout,
-    imageUrl: headerState.imageUrl,
-    imageAlt: headerState.imageAlt,
-    imageInjectableId: headerState.imageInjectableId,
-    imageInjectableLabel: headerState.imageInjectableLabel,
-    imageWidth: headerState.imageWidth,
-    imageHeight: headerState.imageHeight,
-    content: (headerState.content ?? undefined) as ProseMirrorDocument | undefined,
-  }
+  // Build surface configs from pre-read snapshots
+  const [headerSnapshot, footerSnapshot] = surfaceSnapshots
+  const header = exportSurfaceConfig(headerSnapshot)
+  const footer = exportSurfaceConfig(footerSnapshot)
 
   // Assemble the document
   const document: PortableDocument = {
@@ -244,6 +264,7 @@ export function exportDocument(
     variableIds,
     content,
     header,
+    footer,
     exportInfo,
   }
 
@@ -343,6 +364,8 @@ export function extractVariableIdsFromEditor(editor: Editor): string[] {
   const json = editor.getJSON() as JSONContent
   const content = (json.content || []) as ProseMirrorNode[]
   const ids = findInjectorNodes(content)
-  addHeaderVariableIds(ids)
+  for (const store of SURFACE_STORES) {
+    addSurfaceVariableIds(store.getState(), ids)
+  }
   return Array.from(ids)
 }

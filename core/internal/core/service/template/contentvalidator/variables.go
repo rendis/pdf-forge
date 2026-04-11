@@ -47,9 +47,12 @@ func validateInjectorNodes(vctx *validationContext) {
 		validateInjectorNode(vctx, node, path)
 	}
 
-	// Validate injector nodes in header rich-text content
+	// Validate injector nodes in header and footer rich-text content
 	if doc.Header != nil {
 		validateInjectorNodesInSlice(vctx, doc.Header.ContentNodes(), "header.content")
+	}
+	if doc.Footer != nil {
+		validateInjectorNodesInSlice(vctx, doc.Footer.ContentNodes(), "footer.content")
 	}
 }
 
@@ -128,20 +131,26 @@ func validateImageInjectableRefs(vctx *validationContext) {
 		}
 	}
 
-	// Validate header image injectable
-	if doc.Header != nil && doc.Header.ImageInjectableID != "" {
-		path := "header.imageInjectableId"
-		id := doc.Header.ImageInjectableID
+	// Validate header and footer image injectables
+	validateImageInjectableRef(vctx, "header", doc.HeaderImageInjectableID())
+	validateImageInjectableRef(vctx, "footer", doc.FooterImageInjectableID())
+}
 
-		if !vctx.variableSet.Contains(id) {
-			vctx.addErrorf(ErrCodeUnknownVariable, path,
-				"Header image injectable '%s' not found in document variableIds", id)
-		}
+// validateImageInjectableRef validates a single surface image injectable reference.
+func validateImageInjectableRef(vctx *validationContext, surface, id string) {
+	if id == "" {
+		return
+	}
+	path := surface + ".imageInjectableId"
 
-		if vctx.accessibleInjectables.Len() > 0 && !vctx.accessibleInjectables.Contains(id) {
-			vctx.addErrorf(ErrCodeInaccessibleVariable, path,
-				"Header image injectable '%s' is not accessible to this workspace", id)
-		}
+	if !vctx.variableSet.Contains(id) {
+		vctx.addErrorf(ErrCodeUnknownVariable, path,
+			"%s image injectable '%s' not found in document variableIds", surface, id)
+	}
+
+	if vctx.accessibleInjectables.Len() > 0 && !vctx.accessibleInjectables.Contains(id) {
+		vctx.addErrorf(ErrCodeInaccessibleVariable, path,
+			"%s image injectable '%s' is not accessible to this workspace", surface, id)
 	}
 }
 

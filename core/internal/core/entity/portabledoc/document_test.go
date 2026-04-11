@@ -23,24 +23,45 @@ func TestHeaderEnabled_EnabledHeader(t *testing.T) {
 	}
 }
 
-func TestHasHeaderImage_StaticImage(t *testing.T) {
+func TestDocumentHeader_HasImage_StaticImage(t *testing.T) {
 	h := &DocumentHeader{ImageURL: "https://example.com/logo.png"}
-	if !h.HasHeaderImage() {
-		t.Error("expected HasHeaderImage() == true for static image")
+	if !h.HasImage() {
+		t.Error("expected HasImage() == true for static image")
 	}
 }
 
-func TestHasHeaderImage_InjectableImage(t *testing.T) {
+func TestDocumentHeader_HasImage_InjectableImage(t *testing.T) {
 	h := &DocumentHeader{ImageInjectableID: "logo_var"}
-	if !h.HasHeaderImage() {
-		t.Error("expected HasHeaderImage() == true for injectable image")
+	if !h.HasImage() {
+		t.Error("expected HasImage() == true for injectable image")
 	}
 }
 
-func TestHasHeaderImage_NoImage(t *testing.T) {
+func TestDocumentHeader_HasImage_NoImage(t *testing.T) {
 	h := &DocumentHeader{}
-	if h.HasHeaderImage() {
-		t.Error("expected HasHeaderImage() == false for empty header")
+	if h.HasImage() {
+		t.Error("expected HasImage() == false for empty header")
+	}
+}
+
+func TestDocumentFooter_HasImage_StaticImage(t *testing.T) {
+	f := &DocumentFooter{ImageURL: "https://example.com/footer.png"}
+	if !f.HasImage() {
+		t.Error("expected HasImage() == true for static image")
+	}
+}
+
+func TestDocumentFooter_HasImage_InjectableImage(t *testing.T) {
+	f := &DocumentFooter{ImageInjectableID: "footer_var"}
+	if !f.HasImage() {
+		t.Error("expected HasImage() == true for injectable image")
+	}
+}
+
+func TestDocumentFooter_HasImage_NoImage(t *testing.T) {
+	f := &DocumentFooter{}
+	if f.HasImage() {
+		t.Error("expected HasImage() == false for empty footer")
 	}
 }
 

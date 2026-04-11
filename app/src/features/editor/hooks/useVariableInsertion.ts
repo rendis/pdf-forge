@@ -19,8 +19,10 @@ interface DropCursorPosition {
 interface UseVariableInsertionParams {
   bodyEditor: Editor | null
   headerEditor: Editor | null
+  footerEditor?: Editor | null
   activeSurface: ActiveSurface
   headerDropZoneId: UniqueIdentifier
+  footerDropZoneId?: UniqueIdentifier
 }
 
 interface InjectorChain {
@@ -81,8 +83,10 @@ export interface UseVariableInsertionResult {
 export function useVariableInsertion({
   bodyEditor,
   headerEditor,
+  footerEditor,
   activeSurface,
   headerDropZoneId,
+  footerDropZoneId,
 }: UseVariableInsertionParams): UseVariableInsertionResult {
   const [activeDragData, setActiveDragData] = useState<VariableDragData | null>(null)
   const [dropCursorPos, setDropCursorPos] = useState<DropCursorPosition | null>(null)
@@ -119,8 +123,12 @@ export function useVariableInsertion({
     ) => {
       if (!bodyEditor) return
 
-      const resolvedTargetSurface = resolveVariableTargetSurface(targetSurface, Boolean(headerEditor))
-      const targetEditor = resolvedTargetSurface === 'header' ? headerEditor : bodyEditor
+      const resolvedTargetSurface = resolveVariableTargetSurface(targetSurface, Boolean(headerEditor), Boolean(footerEditor))
+      const targetEditor = resolvedTargetSurface === 'header'
+        ? headerEditor
+        : resolvedTargetSurface === 'footer'
+          ? footerEditor
+          : bodyEditor
       if (!targetEditor) return
 
       const plan = buildVariableInsertPlan({
@@ -131,7 +139,11 @@ export function useVariableInsertion({
         position: options?.position,
       })
 
-      const planEditor = plan.targetSurface === 'header' ? headerEditor : bodyEditor
+      const planEditor = plan.targetSurface === 'header'
+        ? headerEditor
+        : plan.targetSurface === 'footer'
+          ? footerEditor
+          : bodyEditor
       if (!planEditor) return
 
       if (plan.requiresFormat) {
@@ -141,7 +153,7 @@ export function useVariableInsertion({
 
       runInsertPlan(planEditor, plan, data)
     },
-    [bodyEditor, headerEditor, openPendingVariableDialog]
+    [bodyEditor, headerEditor, footerEditor, openPendingVariableDialog]
   )
 
   const handleFormatSelect = useCallback(
@@ -218,6 +230,7 @@ export function useVariableInsertion({
     (event: DragEndEvent) => {
       const data = event.active.data.current as VariableDragData | undefined
       const droppedOnHeader = event.over?.id === headerDropZoneId
+      const droppedOnFooter = footerDropZoneId != null && event.over?.id === footerDropZoneId
       const positionToInsert = dropPosition
 
       setActiveDragData(null)
@@ -231,11 +244,16 @@ export function useVariableInsertion({
         return
       }
 
+      if (droppedOnFooter) {
+        applyInsert(data, 'footer')
+        return
+      }
+
       applyInsert(data, 'body', {
         position: positionToInsert ?? undefined,
       })
     },
-    [applyInsert, dropPosition, headerDropZoneId]
+    [applyInsert, dropPosition, footerDropZoneId, headerDropZoneId]
   )
 
   return useMemo(
