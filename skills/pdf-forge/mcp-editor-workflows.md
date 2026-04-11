@@ -258,6 +258,7 @@ Avoid these anti-patterns:
 - deleting `variableIds` that are still used elsewhere
 - treating header edits as body edits
 - inventing attrs or marks not covered by the capability matrix / contract docs
+- assuming `textStyle.color` is always hex and rewriting existing CSS `rgb(...)` / `rgba(...)` values without a task-driven reason
 - assuming renderer support implies UI-safe or agent-safe support
 
 ## Recommended Reading Order

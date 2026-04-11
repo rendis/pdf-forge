@@ -72,9 +72,16 @@ Prefer those established families for agent-generated content.
 
 ### Text color
 
-Text color is rendered through `textStyle` and converted into Typst `rgb(...)` values.
+Text color is rendered through `textStyle` and normalized into a Typst-compatible color expression during rendering.
 
-Prefer valid hex-style colors already used by the editor.
+Agent guidance:
+
+- prefer `#RRGGBB` / `#RGB` when introducing a new color manually
+- do **not** assume persisted documents are hex-only
+- expect existing content to contain CSS color strings such as `rgb(...)` or `rgba(...)`, especially when rich-text styling came from the editor
+- preserve existing color values unless the task explicitly changes the color itself
+
+The renderer now tolerates the common CSS color strings above, but agents should still keep edits minimal and validate by rendering after style changes.
 
 ## Line Spacing Boundaries
 

@@ -47,7 +47,7 @@ This is the **authoritative agent-facing matrix** for what `pdf-forge` supports 
 
 | Feature | Body UI | Header UI | PortableDoc / schema | Typst renderer | Agent-safe today | Notes / limitations |
 | --- | --- | --- | --- | --- | --- | --- |
-| Text color | Yes | Yes | Yes | Yes | **Supported** | Rendered through `textStyle`. |
+| Text color | Yes | Yes | Yes | Yes | **Supported** | Rendered through `textStyle`. Prefer hex for new manual input, but preserve existing CSS `rgb(...)` / `rgba(...)` values already stored in live content. |
 | Font family | Yes | Yes | Yes | Yes | **Supported** | Uses editor-defined options and Typst font fallbacks. |
 | Font size | Yes | Yes | Yes | Yes | **Supported** | Stored as CSS-like px strings and converted to Typst pt. |
 | Text alignment | Yes | Yes | Yes | Yes | **Supported** | Body applies to headings/paragraphs/table cells; header supports text alignment too. |
