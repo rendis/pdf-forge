@@ -124,7 +124,8 @@ When editing a template version through MCP:
 5. Validate **body** and **header** separately.
 6. Only use features documented as **Supported** or **Partially supported / use with caution**.
 7. If a feature is only known to exist in backend/schema but is not documented as agent-safe, do not introduce it casually.
-8. Do not treat a successful draft save as proof of semantic correctness; render/publish validation is stronger than draft update validation.
+8. Preserve existing style attrs unless the task explicitly changes them. In particular, do not rewrite `textStyle.color` values just because they are not in your preferred format.
+9. Do not treat a successful draft save as proof of semantic correctness; render/publish validation is stronger than draft update validation.
 
 ## Before Editing a Template Version
 
@@ -142,6 +143,21 @@ Minimum checklist:
 5. Update only the intended subtree/fields
 6. Save with the version update endpoint
 7. Render or preview to validate the result
+
+### Color Contract for Agents
+
+When editing or reviewing `contentStructure` styles:
+
+- prefer `#RRGGBB` / `#RGB` when introducing a new color manually
+- preserve existing `textStyle.color` values if they already exist in live content
+- do **not** assume stored documents are hex-only
+- expect persisted content to contain CSS color strings such as `rgb(...)` or `rgba(...)`, especially when rich-text styling came from the editor
+- if a change touches color-heavy content, render after saving instead of trusting the draft update alone
+
+For the detailed boundary and document-contract guidance, read:
+
+- [portable-document-contract.md](./portable-document-contract.md)
+- [typst-rendering-boundaries.md](./typst-rendering-boundaries.md)
 
 ## Recommended MCP Workflow
 
