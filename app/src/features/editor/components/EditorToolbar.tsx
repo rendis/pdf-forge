@@ -51,8 +51,7 @@ import { FontSizePicker } from './FontSizePicker'
 import { LineSpacingPicker } from './LineSpacingPicker'
 import { useOverflowScroll } from '@/hooks/use-overflow-scroll'
 import { cn } from '@/lib/utils'
-
-type ActiveSurface = 'header' | 'body'
+import type { ActiveSurface } from '../services/variable-insertion'
 
 interface EditorToolbarProps {
   editor: Editor | null
@@ -105,9 +104,13 @@ export function EditorToolbar({
   if (!editor) return null
 
   const isHeaderSurface = activeSurface === 'header'
+  const isFooterSurface = activeSurface === 'footer'
+  const isConstrainedSurface = isHeaderSurface || isFooterSurface
   const previewEditor = documentEditor ?? editor
-  const imageTooltip = isHeaderSurface
-    ? t('editor.documentHeader.editLogo')
+  const imageTooltip = isConstrainedSurface
+    ? isHeaderSurface
+      ? t('editor.documentHeader.editLogo')
+      : t('editor.documentFooter.editLogo')
     : t('editor.toolbar.insertImage')
 
   const handleOpenImage = () => {
@@ -122,12 +125,12 @@ export function EditorToolbar({
   }
 
   const handleInsertConditional = () => {
-    if (isHeaderSurface) return
+    if (isConstrainedSurface) return
     editor.chain().focus().setConditional({}).run()
   }
 
   const handleInsertTable = () => {
-    if (isHeaderSurface) return
+    if (isConstrainedSurface) return
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
   }
 
@@ -331,14 +334,14 @@ export function EditorToolbar({
             </ToolbarButton>
             <ToolbarButton
               onClick={handleInsertConditional}
-              disabled={isHeaderSurface}
+              disabled={isConstrainedSurface}
               tooltip={t('editor.toolbar.conditionalBlock')}
             >
               <GitBranch className="h-4 w-4 text-warning-foreground dark:text-warning" />
             </ToolbarButton>
             <ToolbarButton
               onClick={handleInsertTable}
-              disabled={isHeaderSurface}
+              disabled={isConstrainedSurface}
               tooltip={t('editor.insertTable')}
             >
               <Table2 className="h-4 w-4 text-primary" />
@@ -582,14 +585,14 @@ export function EditorToolbar({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleInsertConditional}
-                disabled={isHeaderSurface}
+                disabled={isConstrainedSurface}
               >
                 <GitBranch className="mr-2 h-4 w-4 text-warning-foreground dark:text-warning" />
                 {t('editor.toolbar.conditionalBlock')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleInsertTable}
-                disabled={isHeaderSurface}
+                disabled={isConstrainedSurface}
               >
                 <Table2 className="mr-2 h-4 w-4 text-primary" />
                 {t('editor.insertTable')}

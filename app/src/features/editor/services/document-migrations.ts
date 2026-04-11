@@ -23,6 +23,7 @@ type MigrationFunction = (doc: PortableDocument) => PortableDocument
  */
 const migrations: Record<string, MigrationFunction> = {
   '2.0.0': migrateFrom_2_0_0_to_2_1_0,
+  '2.1.0': migrateFrom_2_1_0_to_2_2_0,
 }
 
 // =============================================================================
@@ -33,6 +34,12 @@ const migrations: Record<string, MigrationFunction> = {
 // old documents without header remain valid (field is optional).
 // Version bump only; import code handles missing header via store reset.
 function migrateFrom_2_0_0_to_2_1_0(doc: PortableDocument): PortableDocument {
+  return { ...doc }
+}
+
+// 2.1.0 → 2.2.0: footer field added. No structural migration needed —
+// old documents without footer remain valid (field is optional).
+function migrateFrom_2_1_0_to_2_2_0(doc: PortableDocument): PortableDocument {
   return { ...doc }
 }
 
@@ -66,6 +73,8 @@ function getNextVersion(version: string): string {
   switch (version) {
     case '2.0.0':
       return '2.1.0'
+    case '2.1.0':
+      return '2.2.0'
     default:
       return version
   }

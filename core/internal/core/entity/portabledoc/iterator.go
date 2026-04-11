@@ -69,7 +69,7 @@ func (d *Document) HasNodeOfType(nodeType string) bool {
 }
 
 // ImageInjectableIDs collects all injectable IDs referenced in image nodes
-// (customImage with injectableId attr) and the header image injectable.
+// (customImage with injectableId attr) and the header/footer image injectables.
 func (d *Document) ImageInjectableIDs() []string {
 	seen := make(Set[string])
 	var ids []string
@@ -86,8 +86,14 @@ func (d *Document) ImageInjectableIDs() []string {
 		ids = append(ids, id)
 	}
 
+	// Collect header and footer image injectables.
 	if d.Header != nil && d.Header.ImageInjectableID != "" && !seen.Contains(d.Header.ImageInjectableID) {
+		seen[d.Header.ImageInjectableID] = struct{}{}
 		ids = append(ids, d.Header.ImageInjectableID)
+	}
+	if d.Footer != nil && d.Footer.ImageInjectableID != "" && !seen.Contains(d.Footer.ImageInjectableID) {
+		seen[d.Footer.ImageInjectableID] = struct{}{}
+		ids = append(ids, d.Footer.ImageInjectableID)
 	}
 
 	return ids

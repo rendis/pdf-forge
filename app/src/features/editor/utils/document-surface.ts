@@ -1,10 +1,11 @@
 import type { JSONContent } from '@tiptap/core'
 
-export interface DocumentHeaderSnapshot {
+export interface DocumentSurfaceSnapshot {
   imageUrl?: string | null
   imageInjectableId?: string | null
   content?: JSONContent | null
 }
+
 
 function hasTextOrStructuralContent(node: unknown): boolean {
   if (!node || typeof node !== 'object') {
@@ -36,27 +37,28 @@ function hasTextOrStructuralContent(node: unknown): boolean {
   return proseNode.content.some(hasTextOrStructuralContent)
 }
 
-export function hasHeaderImage(imageUrl?: string | null): boolean {
+export function hasSurfaceImage(imageUrl?: string | null): boolean {
   return typeof imageUrl === 'string' && imageUrl.trim().length > 0
 }
 
-export function hasHeaderImageInjectable(imageInjectableId?: string | null): boolean {
+export function hasSurfaceImageInjectable(imageInjectableId?: string | null): boolean {
   return typeof imageInjectableId === 'string' && imageInjectableId.trim().length > 0
 }
 
-export function hasMeaningfulHeaderContent(
+export function hasMeaningfulSurfaceContent(
   content?: JSONContent | null
 ): boolean {
   return hasTextOrStructuralContent(content)
 }
 
-export function deriveHeaderEnabled(snapshot: DocumentHeaderSnapshot): boolean {
+export function deriveSurfaceEnabled(snapshot: DocumentSurfaceSnapshot): boolean {
   return (
-    hasHeaderImage(snapshot.imageUrl) ||
-    hasHeaderImageInjectable(snapshot.imageInjectableId) ||
-    hasMeaningfulHeaderContent(snapshot.content)
+    hasSurfaceImage(snapshot.imageUrl) ||
+    hasSurfaceImageInjectable(snapshot.imageInjectableId) ||
+    hasMeaningfulSurfaceContent(snapshot.content)
   )
 }
+
 
 function isParagraphNode(node: JSONContent | undefined): node is JSONContent {
   return Boolean(node && node.type === 'paragraph')
@@ -66,7 +68,7 @@ function attrsKey(node: JSONContent): string {
   return JSON.stringify(node.attrs ?? {})
 }
 
-export function normalizeHeaderContent(content?: JSONContent | null): JSONContent | null {
+export function normalizeSurfaceContent(content?: JSONContent | null): JSONContent | null {
   if (!content || content.type !== 'doc' || !Array.isArray(content.content)) {
     return content ?? null
   }
@@ -109,3 +111,4 @@ export function normalizeHeaderContent(content?: JSONContent | null): JSONConten
     content: normalized,
   }
 }
+

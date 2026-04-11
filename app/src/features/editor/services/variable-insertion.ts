@@ -2,7 +2,7 @@ import type { Variable } from '../types'
 import type { VariableDragData } from '../types/drag'
 import { hasConfigurableOptions } from '../types/injectable'
 
-export type ActiveSurface = 'header' | 'body'
+export type ActiveSurface = 'header' | 'body' | 'footer'
 
 export interface PendingVariableState {
   variable: Variable
@@ -26,16 +26,22 @@ interface BuildVariableInsertPlanParams {
 
 export function resolveActiveSurface(
   showHeaderSurface: boolean,
-  activeSurface: ActiveSurface
+  activeSurface: ActiveSurface,
+  showFooterSurface = false
 ): ActiveSurface {
-  return !showHeaderSurface && activeSurface === 'header' ? 'body' : activeSurface
+  if (!showHeaderSurface && activeSurface === 'header') return 'body'
+  if (!showFooterSurface && activeSurface === 'footer') return 'body'
+  return activeSurface
 }
 
 export function resolveVariableTargetSurface(
   activeSurface: ActiveSurface,
-  hasHeaderEditor: boolean
+  hasHeaderEditor: boolean,
+  hasFooterEditor = false
 ): ActiveSurface {
-  return activeSurface === 'header' && hasHeaderEditor ? 'header' : 'body'
+  if (activeSurface === 'header' && hasHeaderEditor) return 'header'
+  if (activeSurface === 'footer' && hasFooterEditor) return 'footer'
+  return 'body'
 }
 
 export function buildPendingVariableState(

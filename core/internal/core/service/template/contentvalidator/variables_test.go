@@ -62,7 +62,7 @@ func TestValidateForPublish_RejectsUnknownImageInjectablesInBodyAndHeader(t *tes
 	}}
 	doc.Header = &portabledoc.DocumentHeader{
 		Enabled:           true,
-		Layout:            portabledoc.HeaderLayoutImageLeft,
+		Layout:            portabledoc.SurfaceLayoutImageLeft,
 		ImageInjectableID: "header_logo",
 	}
 
@@ -96,7 +96,7 @@ func TestValidateForPublish_RejectsUndeclaredInjectorInHeaderContent(t *testing.
 	doc.VariableIDs = []string{}
 	doc.Header = &portabledoc.DocumentHeader{
 		Enabled: true,
-		Layout:  portabledoc.HeaderLayoutImageLeft,
+		Layout:  portabledoc.SurfaceLayoutImageLeft,
 		Content: &portabledoc.ProseMirrorDoc{
 			Type: "doc",
 			Content: []portabledoc.Node{
@@ -139,7 +139,7 @@ func TestValidateForPublish_AcceptsAndExtractsDeclaredInjectorInHeaderContent(t 
 	doc.VariableIDs = []string{"greeting"}
 	doc.Header = &portabledoc.DocumentHeader{
 		Enabled: true,
-		Layout:  portabledoc.HeaderLayoutImageLeft,
+		Layout:  portabledoc.SurfaceLayoutImageLeft,
 		Content: &portabledoc.ProseMirrorDoc{
 			Type: "doc",
 			Content: []portabledoc.Node{
@@ -190,7 +190,7 @@ func TestValidateForPublish_ExtractsInjectablesUsedOnlyByImagesAndHeader(t *test
 	}}
 	doc.Header = &portabledoc.DocumentHeader{
 		Enabled:           true,
-		Layout:            portabledoc.HeaderLayoutImageRight,
+		Layout:            portabledoc.SurfaceLayoutImageRight,
 		ImageInjectableID: "header_logo",
 	}
 

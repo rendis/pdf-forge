@@ -25,6 +25,7 @@ import { validateDocumentSemantics } from './document-validator'
 import { migrateDocument } from './document-migrations'
 import { PAGE_SIZES } from '../types'
 import { useDocumentHeaderStore } from '../stores/document-header-store'
+import { useDocumentFooterStore } from '../stores/document-footer-store'
 
 // =============================================================================
 // Types
@@ -327,10 +328,18 @@ export function importDocument(
   // Restore page configuration
   restorePageConfig(migratedDocument.pageConfig, storeActions)
 
-  if (migratedDocument.header) {
-    useDocumentHeaderStore.getState().configure(migratedDocument.header)
-  } else {
-    useDocumentHeaderStore.getState().reset()
+  // Restore surface (header/footer) states
+  const surfaces = [
+    { store: useDocumentHeaderStore, config: migratedDocument.header },
+    { store: useDocumentFooterStore, config: migratedDocument.footer },
+  ] as const
+
+  for (const { store, config } of surfaces) {
+    if (config) {
+      store.getState().configure(config)
+    } else {
+      store.getState().reset()
+    }
   }
 
   return {

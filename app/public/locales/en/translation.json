@@ -401,6 +401,16 @@
       "layoutImageCenter": "Image centered",
       "layoutImageRight": "Text left, image right"
     },
+    "documentFooter": {
+      "addLogo": "Click to add logo",
+      "editLogo": "Edit footer logo",
+      "textPlaceholder": "Add footer text...",
+      "surfaceLabel": "Document footer",
+      "surfaceHint": "Click to edit the footer or add a logo",
+      "layoutImageLeft": "Image left, text right",
+      "layoutImageCenter": "Image centered",
+      "layoutImageRight": "Text left, image right"
+    },
     "status": {
       "editable": "Editable",
       "readOnly": "Read only",

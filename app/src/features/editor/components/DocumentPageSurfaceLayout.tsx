@@ -2,13 +2,32 @@ import { ImageIcon, LayoutTemplate, PanelLeft, PanelRight, Trash2 } from 'lucide
 import { useTranslation } from 'react-i18next'
 import type { ReactNode, RefObject } from 'react'
 import { cn } from '@/lib/utils'
-import type { DocumentHeaderLayout } from '../stores/document-header-store'
+import type { SurfaceKind, DocumentSurfaceLayout } from '../types/document-surface'
 import {
-  HEADER_IMAGE_HEIGHT,
-  HEADER_SURFACE_MIN_HEIGHT,
-} from '../utils/document-header-layout'
+  SURFACE_IMAGE_HEIGHT,
+  SURFACE_MIN_HEIGHT,
+} from '../utils/document-surface-layout'
 
-interface ImageSlotProps {
+// ---------------------------------------------------------------------------
+// Surface-specific config derived from `kind`
+// ---------------------------------------------------------------------------
+
+/** Derives the no-focus data attribute from surface kind. */
+function noFocusAttr(kind: SurfaceKind): string {
+  return `data-${kind}-no-focus`
+}
+
+/** Derives the i18n key prefix from surface kind. */
+function i18nPrefix(kind: SurfaceKind): string {
+  return kind === 'header' ? 'editor.documentHeader' : 'editor.documentFooter'
+}
+
+// ---------------------------------------------------------------------------
+// ImageSlot (shared, internal)
+// ---------------------------------------------------------------------------
+
+export interface ImageSlotProps {
+  kind: SurfaceKind
   imageUrl: string | null
   imageAlt: string
   imageWidth: number | null
@@ -25,6 +44,7 @@ interface ImageSlotProps {
 }
 
 function ImageSlot({
+  kind,
   imageUrl,
   imageAlt,
   imageWidth,
@@ -40,6 +60,7 @@ function ImageSlot({
   className,
 }: ImageSlotProps) {
   const { t } = useTranslation()
+  const nfProps = { [noFocusAttr(kind)]: 'true' } as Record<string, string>
 
   return (
     <div
@@ -51,7 +72,7 @@ function ImageSlot({
         active && editable && !imageUrl && 'border-primary/60 bg-primary/5',
         className
       )}
-      style={imageUrl ? { width: imageWidth ? `${imageWidth}px` : undefined, height: `${HEADER_IMAGE_HEIGHT}px` } : undefined}
+      style={imageUrl ? { width: imageWidth ? `${imageWidth}px` : undefined, height: `${SURFACE_IMAGE_HEIGHT}px` } : undefined}
     >
       {imageUrl ? (
         <>
@@ -67,7 +88,7 @@ function ImageSlot({
             )}
             style={{
               width: '100%',
-              height: `${HEADER_IMAGE_HEIGHT}px`,
+              height: `${SURFACE_IMAGE_HEIGHT}px`,
               maxWidth: 'none',
             }}
             onClick={(event) => {
@@ -82,16 +103,16 @@ function ImageSlot({
             <>
               <button
                 type="button"
-                data-header-no-focus="true"
+                {...nfProps}
                 onClick={onOpenModal}
                 className="absolute left-2 top-2 z-10 rounded-full bg-background/90 p-1 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-                title={t('editor.documentHeader.editLogo')}
+                title={t(`${i18nPrefix(kind)}.editLogo`)}
               >
                 <ImageIcon className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
-                data-header-no-focus="true"
+                {...nfProps}
                 onClick={onRemove}
                 className="absolute right-2 top-2 z-10 rounded-full bg-background/90 p-1 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
                 title={t('common.remove')}
@@ -106,31 +127,39 @@ function ImageSlot({
   )
 }
 
-const LAYOUTS: { value: DocumentHeaderLayout; icon: typeof PanelLeft; labelKey: string }[] = [
-  { value: 'image-left', icon: PanelLeft, labelKey: 'editor.documentHeader.layoutImageLeft' },
-  { value: 'image-center', icon: LayoutTemplate, labelKey: 'editor.documentHeader.layoutImageCenter' },
-  { value: 'image-right', icon: PanelRight, labelKey: 'editor.documentHeader.layoutImageRight' },
+// ---------------------------------------------------------------------------
+// SurfaceLayoutPicker
+// ---------------------------------------------------------------------------
+
+const LAYOUT_OPTIONS: { value: DocumentSurfaceLayout; icon: typeof PanelLeft; keySuffix: string }[] = [
+  { value: 'image-left', icon: PanelLeft, keySuffix: 'layoutImageLeft' },
+  { value: 'image-center', icon: LayoutTemplate, keySuffix: 'layoutImageCenter' },
+  { value: 'image-right', icon: PanelRight, keySuffix: 'layoutImageRight' },
 ]
 
-export function HeaderLayoutPicker({
+export function SurfaceLayoutPicker({
+  kind,
   current,
   onChange,
 }: {
-  current: DocumentHeaderLayout
-  onChange: (layout: DocumentHeaderLayout) => void
+  kind: SurfaceKind
+  current: DocumentSurfaceLayout
+  onChange: (layout: DocumentSurfaceLayout) => void
 }) {
   const { t } = useTranslation()
+  const prefix = i18nPrefix(kind)
+  const nfProps = { [noFocusAttr(kind)]: 'true' } as Record<string, string>
 
   return (
     <div className="flex items-center gap-1 rounded-full border border-border bg-background/90 p-1 shadow-sm">
-      {LAYOUTS.map(({ value, icon: Icon, labelKey }) => (
+      {LAYOUT_OPTIONS.map(({ value, icon: Icon, keySuffix }) => (
         <button
           key={value}
           type="button"
-          data-header-no-focus="true"
+          {...nfProps}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => onChange(value)}
-          title={t(labelKey)}
+          title={t(`${prefix}.${keySuffix}`)}
           className={cn(
             'rounded-full p-1.5 transition-colors',
             current === value
@@ -145,7 +174,12 @@ export function HeaderLayoutPicker({
   )
 }
 
-interface DocumentPageHeaderLayoutProps {
+// ---------------------------------------------------------------------------
+// DocumentPageSurfaceLayout
+// ---------------------------------------------------------------------------
+
+export interface DocumentPageSurfaceLayoutProps {
+  kind: SurfaceKind
   active: boolean
   displayImageUrl: string | null
   editable: boolean
@@ -155,7 +189,7 @@ interface DocumentPageHeaderLayoutProps {
   imageRef: RefObject<HTMLImageElement | null>
   imageSelected: boolean
   imageWidth: number | null
-  layout: DocumentHeaderLayout
+  layout: DocumentSurfaceLayout
   paddingLeft: number
   paddingRight: number
   rowRef: RefObject<HTMLDivElement | null>
@@ -166,7 +200,8 @@ interface DocumentPageHeaderLayoutProps {
   onSelectImage: () => void
 }
 
-export function DocumentPageHeaderLayout({
+export function DocumentPageSurfaceLayout({
+  kind,
   active,
   displayImageUrl,
   editable,
@@ -185,14 +220,15 @@ export function DocumentPageHeaderLayout({
   onOpenImageModal,
   onRemoveImage,
   onSelectImage,
-}: DocumentPageHeaderLayoutProps) {
+}: DocumentPageSurfaceLayoutProps) {
   const renderCenteredImageOnly = layout === 'image-center' && displayImageUrl
   const surfaceStyle = {
     paddingLeft,
     paddingRight,
-    minHeight: `${HEADER_SURFACE_MIN_HEIGHT}px`,
+    minHeight: `${SURFACE_MIN_HEIGHT}px`,
   }
   const sharedImageSlotProps = {
+    kind,
     imageUrl: displayImageUrl,
     imageAlt: imageAlt || imageInjectableLabel || '',
     imageWidth,

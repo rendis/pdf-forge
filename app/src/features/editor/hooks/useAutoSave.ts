@@ -10,6 +10,7 @@ import type { Editor } from '@tiptap/core'
 import { versionsApi } from '@/features/templates/api/templates-api'
 import { exportDocument } from '../services/document-export'
 import { useDocumentHeaderStore } from '../stores/document-header-store'
+import { useDocumentFooterStore } from '../stores/document-footer-store'
 import { usePaginationStore } from '../stores/pagination-store'
 import type { DocumentMeta } from '../types/document-format'
 
@@ -59,50 +60,23 @@ export function useAutoSave({
   const retryCountRef = useRef(0)
   const isInitializedRef = useRef(false)
   const savePromiseRef = useRef<Promise<void> | null>(null)
-  const prevHeaderRef = useRef<string | null>(null)
 
   const pageSize = usePaginationStore((s) => s.pageSize)
   const margins = usePaginationStore((s) => s.margins)
-  const headerLayout = useDocumentHeaderStore((s) => s.layout)
-  const headerImageUrl = useDocumentHeaderStore((s) => s.imageUrl)
-  const headerImageAlt = useDocumentHeaderStore((s) => s.imageAlt)
-  const headerImageInjectableId = useDocumentHeaderStore((s) => s.imageInjectableId)
-  const headerImageInjectableLabel = useDocumentHeaderStore((s) => s.imageInjectableLabel)
-  const headerImageWidth = useDocumentHeaderStore((s) => s.imageWidth)
-  const headerImageHeight = useDocumentHeaderStore((s) => s.imageHeight)
-  const headerContent = useDocumentHeaderStore((s) => s.content)
+  const pagination = useMemo(() => ({ pageSize, margins }), [pageSize, margins])
 
-  const headerSnapshot = useMemo(
-    () =>
-      JSON.stringify({
-        layout: headerLayout,
-        imageUrl: headerImageUrl,
-        imageAlt: headerImageAlt,
-        imageInjectableId: headerImageInjectableId,
-        imageInjectableLabel: headerImageInjectableLabel,
-        imageWidth: headerImageWidth,
-        imageHeight: headerImageHeight,
-        content: headerContent,
-      }),
-    [
-      headerContent,
-      headerImageAlt,
-      headerImageHeight,
-      headerImageInjectableId,
-      headerImageInjectableLabel,
-      headerImageUrl,
-      headerImageWidth,
-      headerLayout,
-    ]
-  )
+  const scheduleSaveRef = useRef<(() => void) | null>(null)
 
-  const pagination = useMemo(
-    () => ({
-      pageSize,
-      margins,
-    }),
-    [pageSize, margins]
-  )
+  // Subscribe to surface store changes outside React's selector system.
+  // These stores don't drive rendering — they only trigger auto-save.
+  useEffect(() => {
+    const unsubs = [useDocumentHeaderStore, useDocumentFooterStore].map((store) =>
+      store.subscribe(() => {
+        scheduleSaveRef.current?.()
+      })
+    )
+    return () => unsubs.forEach((unsub) => unsub())
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -115,12 +89,11 @@ export function useAutoSave({
     if (!enabled || isInitializedRef.current) return
 
     const timer = setTimeout(() => {
-      prevHeaderRef.current = headerSnapshot
       isInitializedRef.current = true
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [enabled, headerSnapshot])
+  }, [enabled])
 
   const performSave = useCallback(() => {
     if (!editor || !enabled) {
@@ -263,14 +236,18 @@ export function useAutoSave({
     }
   }, [editor, enabled, scheduleSave])
 
+  // Keep scheduleSaveRef in sync so store.subscribe callbacks use the latest closure.
   useEffect(() => {
-    if (!enabled || !isInitializedRef.current) return
-
-    if (prevHeaderRef.current !== headerSnapshot) {
-      prevHeaderRef.current = headerSnapshot
-      scheduleSave()
+    if (!enabled) {
+      scheduleSaveRef.current = null
+      return
     }
-  }, [enabled, headerSnapshot, scheduleSave])
+    scheduleSaveRef.current = () => {
+      if (isInitializedRef.current) {
+        scheduleSave()
+      }
+    }
+  }, [enabled, scheduleSave])
 
   return {
     status,

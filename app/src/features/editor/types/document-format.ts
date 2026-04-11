@@ -10,6 +10,9 @@
 
 import type { LogicGroup } from '../extensions/Conditional/ConditionalExtension'
 import type { PageMargins } from './index'
+import type { DocumentSurfaceConfig } from './document-surface'
+
+export type { SurfaceKind, DocumentSurfaceConfig, DocumentSurfaceLayout } from './document-surface'
 
 // =============================================================================
 // Document Format Version
@@ -27,7 +30,7 @@ import type { PageMargins } from './index'
  * - 1.1.0: Added signingWorkflow (orderMode, notifications)
  * - 1.0.0: Initial version
  */
-export const DOCUMENT_FORMAT_VERSION = '2.1.0'
+export const DOCUMENT_FORMAT_VERSION = '2.2.0'
 
 // =============================================================================
 // Document Envelope
@@ -56,7 +59,10 @@ export interface PortableDocument {
   content: ProseMirrorDocument
 
   /** Optional document header rendered before the body content */
-  header?: DocumentHeaderConfig
+  header?: DocumentSurfaceConfig
+
+  /** Optional document footer rendered after the body content on the last page */
+  footer?: DocumentSurfaceConfig
 
   /** Export metadata (auto-generated) */
   exportInfo: ExportInfo
@@ -100,19 +106,6 @@ export interface PageConfig {
   margins: PageMargins
 }
 
-export type DocumentHeaderLayout = 'image-left' | 'image-right' | 'image-center'
-
-export interface DocumentHeaderConfig {
-  enabled: boolean
-  layout?: DocumentHeaderLayout
-  imageUrl?: string | null
-  imageAlt?: string
-  imageInjectableId?: string | null
-  imageInjectableLabel?: string | null
-  imageWidth?: number | null
-  imageHeight?: number | null
-  content?: ProseMirrorDocument
-}
 
 // =============================================================================
 // Backend Variable Types (source of truth from API)

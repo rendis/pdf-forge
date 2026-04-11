@@ -11,25 +11,24 @@ import (
 // pixelsToPoints converts pixels (at 96 DPI) to typographic points.
 const pxToPt = 0.75 // 1px at 96 DPI = 0.75pt
 
-// Header rendering constants (metrics-driven layout).
+// Surface rendering constants shared by header and footer (metrics-driven layout).
 const (
-	headerImageMinWidthPx = 32.0
-	headerTextMinWidthPx  = 240.0
-	headerImageGapPx      = 16.0
-	headerImageHeightPx   = 96.0
-	headerTextHeightPx    = 96.0
-	headerTextBaseFontPt  = 10.5
-	headerSurfacePadPx    = 12.0
-	headerSurfaceMinPx    = headerTextHeightPx + (headerSurfacePadPx * 2)
+	surfaceImageMinWidthPx = 32.0
+	surfaceTextMinWidthPx  = 240.0
+	surfaceImageGapPx      = 16.0
+	surfaceImageHeightPx   = 96.0
+	surfaceTextHeightPx    = 96.0
+	surfaceTextBaseFontPt  = 10.5
+	surfacePadPx           = 12.0
+	surfaceMinHeightPx     = surfaceTextHeightPx + (surfacePadPx * 2)
 )
 
-// headerRenderMetrics holds precomputed dimensions for header layout.
-type headerRenderMetrics struct {
+// surfaceRenderMetrics holds precomputed dimensions for header/footer layout.
+type surfaceRenderMetrics struct {
 	surfaceMinHeightPt   float64
 	surfaceVerticalPadPt float64
 	textSlotHeightPt     float64
 	imageGapPt           float64
-	headerVisualOffsetPt float64
 }
 
 // TypstBuilder constructs complete Typst documents from portable documents.
@@ -58,7 +57,7 @@ func (b *TypstBuilder) Build(doc *portabledoc.Document) string {
 	sb.WriteString("#import \"@preview/wrap-it:0.1.1\": wrap-content\n\n")
 
 	// Page configuration
-	sb.WriteString(b.pageSetup(&doc.PageConfig, doc.HeaderEnabled()))
+	sb.WriteString(b.pageSetup(&doc.PageConfig, doc.HeaderEnabled(), doc.FooterEnabled()))
 
 	// Base typography
 	sb.WriteString(b.typographySetup())
@@ -69,9 +68,14 @@ func (b *TypstBuilder) Build(doc *portabledoc.Document) string {
 	// Set content area width for table column calculations
 	b.converter.contentWidthPx = doc.PageConfig.Width - doc.PageConfig.Margins.Left - doc.PageConfig.Margins.Right
 
-	// Render header (first page only, emitted as content block at top)
+	// Header/footer as native page header/footer — must be #set rules before content.
+	// Header renders only on page 1, footer only on the last page.
+	// Margins reserve space on ALL pages for consistent text flow area.
 	if doc.HeaderEnabled() {
 		sb.WriteString(b.headerBlock(doc))
+	}
+	if doc.FooterEnabled() {
+		sb.WriteString(b.footerBlock(doc))
 	}
 
 	// Render content
@@ -83,16 +87,19 @@ func (b *TypstBuilder) Build(doc *portabledoc.Document) string {
 }
 
 // pageSetup generates #set page(...) directive from PageConfig.
-// When hasHeader is true, top margin is halved — the header surface
-// uses #place(dy: -offset) to fill the reclaimed space.
-func (b *TypstBuilder) pageSetup(config *portabledoc.PageConfig, hasHeader bool) string {
+// When hasHeader is true, top margin is halved.
+// When hasFooter is true, bottom margin is halved.
+func (b *TypstBuilder) pageSetup(config *portabledoc.PageConfig, hasHeader, hasFooter bool) string {
 	widthPt := config.Width * pxToPt
 	heightPt := config.Height * pxToPt
 	marginTopPt := config.Margins.Top * pxToPt
 	if hasHeader {
-		marginTopPt /= 2
+		marginTopPt = surfaceMinHeightPx * pxToPt // reserve space for native page header
 	}
 	marginBottomPt := config.Margins.Bottom * pxToPt
+	if hasFooter {
+		marginBottomPt = surfaceMinHeightPx * pxToPt // reserve space for native page footer
+	}
 	marginLeftPt := config.Margins.Left * pxToPt
 	marginRightPt := config.Margins.Right * pxToPt
 
@@ -108,6 +115,16 @@ func (b *TypstBuilder) pageSetup(config *portabledoc.PageConfig, hasHeader bool)
 
 	fmt.Fprintf(&sb, "  margin: (top: %.1fpt, bottom: %.1fpt, left: %.1fpt, right: %.1fpt),\n",
 		marginTopPt, marginBottomPt, marginLeftPt, marginRightPt)
+
+	// Disable default header-ascent/footer-descent so the full margin space
+	// is available for our header/footer blocks. The blocks handle their own
+	// internal padding via inset.
+	if hasHeader {
+		sb.WriteString("  header-ascent: 0pt,\n")
+	}
+	if hasFooter {
+		sb.WriteString("  footer-descent: 0pt,\n")
+	}
 
 	// Page numbering
 	if config.ShowPageNumbers {
@@ -172,51 +189,114 @@ func (b *TypstBuilder) RemoteImages() map[string]string {
 	return b.converter.RemoteImages()
 }
 
-// headerBlock renders the document header as a Typst content block.
-// Supports three layout modes: image-left, image-right, and image-center.
-// In center mode, image takes priority over text (text is hidden when image exists).
+// renderSurfaceContent resolves text, image, and layout for a surface and returns
+// the inner Typst content string. Returns "" if the surface produces no visible output.
+func (b *TypstBuilder) renderSurfaceContent(
+	s portabledoc.DocumentSurface,
+	pageConfig *portabledoc.PageConfig,
+	metrics surfaceRenderMetrics,
+) string {
+	textNodes := s.ContentNodes()
+	textTypst := b.renderSurfaceText(textNodes, metrics)
+	hasText := strings.TrimSpace(textTypst) != ""
+	maxImageWidthPx := resolveSurfaceMaxImageWidthPx(pageConfig, hasText)
+	imageTypst := b.renderSurfaceImage(s, maxImageWidthPx)
+	imageWidthPt, hasImageWidth := resolveSurfaceImageWidthPt(s, maxImageWidthPx)
+	imageSlot := renderSurfaceImageSlot(imageTypst, imageWidthPt, hasImageWidth, metrics)
+
+	var content string
+	switch s.SurfaceLayout() {
+	case portabledoc.SurfaceLayoutImageCenter:
+		content = renderCenteredSurface(imageSlot, textTypst)
+	case portabledoc.SurfaceLayoutImageRight:
+		content = renderLateralSurface(textTypst, imageSlot, false, imageWidthPt, hasImageWidth, metrics)
+	default: // image-left
+		content = renderLateralSurface(imageSlot, textTypst, true, imageWidthPt, hasImageWidth, metrics)
+	}
+
+	if strings.TrimSpace(content) == "" {
+		return ""
+	}
+	return content
+}
+
+// headerBlock generates a #set page(header: ...) directive that renders the header
+// only on the first page using Typst's native page header mechanism.
 func (b *TypstBuilder) headerBlock(doc *portabledoc.Document) string {
 	h := doc.Header
 	if h == nil || !h.Enabled {
 		return ""
 	}
 
-	metrics := resolveHeaderRenderMetrics(&doc.PageConfig)
-	textNodes := h.ContentNodes()
-	textTypst := b.renderHeaderText(textNodes, metrics)
-	hasText := strings.TrimSpace(textTypst) != ""
-	maxImageWidthPx := resolveHeaderMaxImageWidthPx(&doc.PageConfig, hasText)
-	imageTypst := b.renderHeaderImage(h, maxImageWidthPx)
-	imageWidthPt, hasImageWidth := resolveHeaderImageWidthPt(h, maxImageWidthPx)
-	imageSlot := renderHeaderImageSlot(imageTypst, imageWidthPt, hasImageWidth, metrics)
-
-	var content string
-	switch h.Layout {
-	case portabledoc.HeaderLayoutImageCenter:
-		content = renderCenteredHeader(imageSlot, textTypst)
-	case portabledoc.HeaderLayoutImageRight:
-		content = renderLateralHeader(textTypst, imageSlot, false, imageWidthPt, hasImageWidth, metrics)
-	default: // image-left
-		content = renderLateralHeader(imageSlot, textTypst, true, imageWidthPt, hasImageWidth, metrics)
-	}
-
-	if strings.TrimSpace(content) == "" {
+	metrics := resolveSurfaceRenderMetrics(&doc.PageConfig)
+	content := b.renderSurfaceContent(h, &doc.PageConfig, metrics)
+	if content == "" {
 		return ""
 	}
 
-	return content + "#v(1.5em)\n"
+	// align(top) is required because Typst bottom-aligns header content by default.
+	return fmt.Sprintf(
+		"#set page(header: context {\n"+
+			"  let current = counter(page).get().first()\n"+
+			"  if current == 1 [\n"+
+			"    #block(width: 100%%, height: %.1fpt, inset: (top: %.1fpt, bottom: %.1fpt), clip: true)[\n"+
+			"      #align(top)[\n"+
+			"%s"+
+			"      ]\n"+
+			"    ]\n"+
+			"  ]\n"+
+			"})\n\n",
+		metrics.surfaceMinHeightPt,
+		metrics.surfaceVerticalPadPt,
+		metrics.surfaceVerticalPadPt,
+		content,
+	)
 }
 
-// renderHeaderImage generates the Typst #image() directive for the header image.
+// footerBlock generates a #set page(footer: ...) directive that renders the footer
+// only on the last page using Typst's native page footer mechanism.
+func (b *TypstBuilder) footerBlock(doc *portabledoc.Document) string {
+	f := doc.Footer
+	if f == nil || !f.Enabled {
+		return ""
+	}
+
+	metrics := resolveSurfaceRenderMetrics(&doc.PageConfig)
+	content := b.renderSurfaceContent(f, &doc.PageConfig, metrics)
+	if content == "" {
+		return ""
+	}
+
+	// align(top) matches the editor surface where footer text starts at the top.
+	return fmt.Sprintf(
+		"#set page(footer: context {\n"+
+			"  let total = counter(page).final().first()\n"+
+			"  let current = counter(page).get().first()\n"+
+			"  if current == total [\n"+
+			"    #block(width: 100%%, height: %.1fpt, inset: (top: %.1fpt, bottom: %.1fpt), clip: true)[\n"+
+			"      #align(top)[\n"+
+			"%s"+
+			"      ]\n"+
+			"    ]\n"+
+			"  ]\n"+
+			"})\n\n",
+		metrics.surfaceMinHeightPt,
+		metrics.surfaceVerticalPadPt,
+		metrics.surfaceVerticalPadPt,
+		content,
+	)
+}
+
+// renderSurfaceImage generates the Typst #image() directive for a surface (header or footer) image.
 // Uses height as primary dimension; fit depends on whether image is injectable.
-func (b *TypstBuilder) renderHeaderImage(h *portabledoc.DocumentHeader, maxWidthPx float64) string {
-	if !h.HasHeaderImage() {
+func (b *TypstBuilder) renderSurfaceImage(s portabledoc.DocumentSurface, maxWidthPx float64) string {
+	if !s.HasImage() {
 		return ""
 	}
 
 	attrs := map[string]any{
-		"src":          h.ImageURL,
-		"injectableId": h.ImageInjectableID,
+		"src":          s.SurfaceImageURL(),
+		"injectableId": s.SurfaceImageInjectableID(),
 	}
 	src := b.converter.resolveImagePath(attrs)
 	if src == "" {
@@ -230,9 +310,9 @@ func (b *TypstBuilder) renderHeaderImage(h *portabledoc.DocumentHeader, maxWidth
 		imageFilename = b.converter.registerRemoteImage(src)
 	}
 
-	heightPx := headerImageHeightPx
-	if h.ImageHeight > 0 {
-		heightPx = h.ImageHeight
+	heightPx := surfaceImageHeightPx
+	if s.SurfaceImageHeight() > 0 {
+		heightPx = s.SurfaceImageHeight()
 	}
 
 	args := []string{
@@ -240,8 +320,8 @@ func (b *TypstBuilder) renderHeaderImage(h *portabledoc.DocumentHeader, maxWidth
 		fmt.Sprintf("height: %.1fpt", heightPx*pxToPt),
 	}
 
-	isInjectable := h.ImageInjectableID != ""
-	if widthPt, ok := resolveHeaderImageWidthPt(h, maxWidthPx); ok {
+	isInjectable := s.SurfaceImageInjectableID() != ""
+	if widthPt, ok := resolveSurfaceImageWidthPt(s, maxWidthPx); ok {
 		args = append(args, fmt.Sprintf("width: %.1fpt", widthPt))
 		if isInjectable {
 			args = append(args, `fit: "contain"`)
@@ -253,36 +333,55 @@ func (b *TypstBuilder) renderHeaderImage(h *portabledoc.DocumentHeader, maxWidth
 	return fmt.Sprintf("#image(%s)", strings.Join(args, ", "))
 }
 
-// renderHeaderText converts header ProseMirror nodes to Typst with constrained dimensions.
+// resolveSurfaceImageWidthPt computes the surface image width in points.
+func resolveSurfaceImageWidthPt(s portabledoc.DocumentSurface, maxWidthPx float64) (float64, bool) {
+	if s == nil || s.SurfaceImageWidth() <= 0 {
+		return 0, false
+	}
+
+	widthPx := min(s.SurfaceImageWidth(), maxWidthPx)
+	widthPx = max(surfaceImageMinWidthPx, widthPx)
+
+	return widthPx * pxToPt, true
+}
+
+// renderSurfaceText converts header/footer ProseMirror nodes to Typst with constrained dimensions.
 // Renders node content inline (without per-paragraph wrappers) since the outer block
 // already controls text size, leading, and spacing.
-func (b *TypstBuilder) renderHeaderText(nodes []portabledoc.Node, metrics headerRenderMetrics) string {
+func (b *TypstBuilder) renderSurfaceText(nodes []portabledoc.Node, metrics surfaceRenderMetrics) string {
 	if len(nodes) == 0 {
 		return ""
 	}
 
-	normalized := normalizeHeaderTextNodes(nodes)
-	converted := b.convertHeaderNodes(normalized)
+	normalized := normalizeSurfaceTextNodes(nodes)
+	converted := b.convertSurfaceNodes(normalized)
 	if strings.TrimSpace(converted) == "" {
 		return ""
 	}
 
 	return fmt.Sprintf(
 		"#[\n#set text(size: %.1fpt)\n#set par(linebreaks: \"simple\", spacing: 0pt)\n%s\n]\n",
-		headerTextBaseFontPt,
+		surfaceTextBaseFontPt,
 		strings.TrimRight(converted, "\n"),
 	)
 }
 
-// convertHeaderNodes renders header content nodes extracting inline text
-// from paragraphs, wrapping each text run in #text(size) for the header font size.
-func (b *TypstBuilder) convertHeaderNodes(nodes []portabledoc.Node) string {
+// convertSurfaceNodes renders header/footer content nodes extracting inline text
+// from paragraphs, wrapping each text run in #text(size) for the surface font size.
+func (b *TypstBuilder) convertSurfaceNodes(nodes []portabledoc.Node) string {
 	var sb strings.Builder
 	for _, node := range nodes {
 		if node.Type == portabledoc.NodeTypeParagraph {
 			content := b.converter.ConvertNodes(node.Content)
 			if content != "" {
-				sb.WriteString(content)
+				align, _ := node.Attrs["textAlign"].(string)
+				if align == "justify" {
+					sb.WriteString(fmt.Sprintf("#par(justify: true)[%s]", content))
+				} else if typstAlign := toTypstAlign(align); typstAlign != "" {
+					sb.WriteString(fmt.Sprintf("#align(%s)[%s]", typstAlign, content))
+				} else {
+					sb.WriteString(content)
+				}
 				sb.WriteString("\n")
 			}
 		} else {
@@ -292,8 +391,8 @@ func (b *TypstBuilder) convertHeaderNodes(nodes []portabledoc.Node) string {
 	return sb.String()
 }
 
-// renderCenteredHeader renders center layout: image has priority, text only if no image.
-func renderCenteredHeader(imageSlot, textTypst string) string {
+// renderCenteredSurface renders center layout: image has priority, text only if no image.
+func renderCenteredSurface(imageSlot, textTypst string) string {
 	if imageSlot != "" {
 		return fmt.Sprintf("#align(center)[%s]\n", imageSlot)
 	}
@@ -303,13 +402,13 @@ func renderCenteredHeader(imageSlot, textTypst string) string {
 	return ""
 }
 
-// renderLateralHeader renders side-by-side layout using a grid.
-func renderLateralHeader(
+// renderLateralSurface renders side-by-side layout using a grid.
+func renderLateralSurface(
 	leftContent, rightContent string,
 	imageOnLeft bool,
 	imageWidthPt float64,
 	hasImageWidth bool,
-	metrics headerRenderMetrics,
+	metrics surfaceRenderMetrics,
 ) string {
 	switch {
 	case leftContent != "" && rightContent != "":
@@ -346,8 +445,8 @@ func renderLateralHeader(
 	}
 }
 
-// renderHeaderImageSlot wraps the image in a block with centered alignment.
-func renderHeaderImageSlot(imageTypst string, imageWidthPt float64, hasImageWidth bool, metrics headerRenderMetrics) string {
+// renderSurfaceImageSlot wraps the image in a block with centered alignment.
+func renderSurfaceImageSlot(imageTypst string, imageWidthPt float64, hasImageWidth bool, metrics surfaceRenderMetrics) string {
 	if imageTypst == "" {
 		return ""
 	}
@@ -368,51 +467,34 @@ func renderHeaderImageSlot(imageTypst string, imageWidthPt float64, hasImageWidt
 	)
 }
 
-// --- Header helper functions ---
+// --- Surface helper functions (shared by header and footer) ---
 
-func resolveHeaderRenderMetrics(pageConfig *portabledoc.PageConfig) headerRenderMetrics {
-	headerVisualOffsetPx := 0.0
-	if pageConfig != nil {
-		headerVisualOffsetPx = pageConfig.Margins.Top / 2
-	}
-
-	return headerRenderMetrics{
-		surfaceMinHeightPt:   headerSurfaceMinPx * pxToPt,
-		surfaceVerticalPadPt: headerSurfacePadPx * pxToPt,
-		textSlotHeightPt:     headerTextHeightPx * pxToPt,
-		imageGapPt:           headerImageGapPx * pxToPt,
-		headerVisualOffsetPt: headerVisualOffsetPx * pxToPt,
+func resolveSurfaceRenderMetrics(pageConfig *portabledoc.PageConfig) surfaceRenderMetrics {
+	return surfaceRenderMetrics{
+		surfaceMinHeightPt:   surfaceMinHeightPx * pxToPt,
+		surfaceVerticalPadPt: surfacePadPx * pxToPt,
+		textSlotHeightPt:     surfaceTextHeightPx * pxToPt,
+		imageGapPt:           surfaceImageGapPx * pxToPt,
 	}
 }
 
-func resolveHeaderMaxImageWidthPx(pageConfig *portabledoc.PageConfig, hasText bool) float64 {
+func resolveSurfaceMaxImageWidthPx(pageConfig *portabledoc.PageConfig, hasText bool) float64 {
 	if pageConfig == nil {
 		if hasText {
-			return headerTextMinWidthPx
+			return surfaceTextMinWidthPx
 		}
 		return 0
 	}
 
 	usableWidth := pageConfig.Width - pageConfig.Margins.Left - pageConfig.Margins.Right
 	if !hasText {
-		return max(headerImageMinWidthPx, usableWidth)
+		return max(surfaceImageMinWidthPx, usableWidth)
 	}
 
-	return max(headerImageMinWidthPx, usableWidth-headerImageGapPx-headerTextMinWidthPx)
+	return max(surfaceImageMinWidthPx, usableWidth-surfaceImageGapPx-surfaceTextMinWidthPx)
 }
 
-func resolveHeaderImageWidthPt(h *portabledoc.DocumentHeader, maxWidthPx float64) (float64, bool) {
-	if h == nil || h.ImageWidth <= 0 {
-		return 0, false
-	}
-
-	widthPx := min(h.ImageWidth, maxWidthPx)
-	widthPx = max(headerImageMinWidthPx, widthPx)
-
-	return widthPx * pxToPt, true
-}
-
-func normalizeHeaderTextNodes(nodes []portabledoc.Node) []portabledoc.Node {
+func normalizeSurfaceTextNodes(nodes []portabledoc.Node) []portabledoc.Node {
 	if len(nodes) <= 1 {
 		return nodes
 	}

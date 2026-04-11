@@ -1,9 +1,9 @@
 import { type Editor } from '@tiptap/core'
-import { DocumentPageSurface, HEADER_DROP_ZONE_ID } from './DocumentPageSurface'
+import { DocumentPageSurface, FOOTER_DROP_ZONE_ID } from './DocumentPageSurface'
 
-export { HEADER_DROP_ZONE_ID }
+export { FOOTER_DROP_ZONE_ID }
 
-interface DocumentPageHeaderProps {
+interface DocumentPageFooterProps {
   editable: boolean
   active?: boolean
   onActivate?: () => void
@@ -14,6 +14,6 @@ interface DocumentPageHeaderProps {
   paddingRight?: number
 }
 
-export function DocumentPageHeader(props: DocumentPageHeaderProps) {
-  return <DocumentPageSurface kind="header" {...props} />
+export function DocumentPageFooter(props: DocumentPageFooterProps) {
+  return <DocumentPageSurface kind="footer" {...props} />
 }

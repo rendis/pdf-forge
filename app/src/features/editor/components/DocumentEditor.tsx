@@ -47,11 +47,12 @@ import { InconsistencyNavigator } from './InconsistencyNavigator'
 import { TableBubbleMenu } from './TableBubbleMenu'
 import { TableCornerHandle } from './TableCornerHandle'
 import { DocumentPageHeader, HEADER_DROP_ZONE_ID } from './DocumentPageHeader'
+import { DocumentPageFooter, FOOTER_DROP_ZONE_ID } from './DocumentPageFooter'
 import { cn } from '@/lib/utils'
 import { type Variable } from '../types'
-import { useDocumentHeaderStore, usePaginationStore } from '../stores'
+import type { SurfaceKind } from '../types/document-surface'
+import { useDocumentHeaderStore, useDocumentFooterStore, usePaginationStore } from '../stores'
 import type { Editor } from '@tiptap/core'
-import { deriveHeaderEnabled } from '../utils/document-header'
 import { useVariableInsertion } from '../hooks/useVariableInsertion'
 import { resolveActiveSurface, type ActiveSurface } from '../services/variable-insertion'
 
@@ -91,18 +92,8 @@ export function DocumentEditor({
 
   // Get page config from store (for visual width and margins)
   const { pageSize, margins } = usePaginationStore()
-  const headerContent = useDocumentHeaderStore((state) => state.content)
-  const headerImageUrl = useDocumentHeaderStore((state) => state.imageUrl)
-  const headerImageInjectableId = useDocumentHeaderStore((state) => state.imageInjectableId)
-  const headerHasMeaningfulContent = useMemo(
-    () =>
-      deriveHeaderEnabled({
-        content: headerContent,
-        imageUrl: headerImageUrl,
-        imageInjectableId: headerImageInjectableId,
-      }),
-    [headerContent, headerImageInjectableId, headerImageUrl]
-  )
+  const headerHasMeaningfulContent = useDocumentHeaderStore((s) => s.enabled)
+  const footerHasMeaningfulContent = useDocumentFooterStore((s) => s.enabled)
 
   // Store current content for editor recreation
   const [latestContent, setLatestContent] = useState(initialContent)
@@ -126,9 +117,15 @@ export function DocumentEditor({
   const [pendingImagePosition, setPendingImagePosition] = useState<number | null>(null)
   const [editingImageShape, setEditingImageShape] = useState<ImageShape>('square')
   const [editingImageData, setEditingImageData] = useState<ImageInsertResult | null>(null)
-  const [headerImageModalToken, setHeaderImageModalToken] = useState(0)
   const [activeSurface, setActiveSurface] = useState<ActiveSurface>('body')
-  const [headerToolbarEditor, setHeaderToolbarEditor] = useState<Editor | null>(null)
+  const [surfaceEditors, setSurfaceEditors] = useState<Record<SurfaceKind, Editor | null>>({
+    header: null,
+    footer: null,
+  })
+  const [imageModalTokens, setImageModalTokens] = useState<Record<SurfaceKind, number>>({
+    header: 0,
+    footer: 0,
+  })
 
   // DnD sensors - require 8px movement before drag starts (allows clicks to pass)
   const sensors = useSensors(
@@ -139,9 +136,24 @@ export function DocumentEditor({
     })
   )
 
+  // When header is present, the header surface occupies the top margin area.
+  // The body starts with a small fixed gap (matching Typst's #v(0.5em) ≈ 7px).
   const bodyTopPadding = useMemo(
-    () => (headerHasMeaningfulContent ? Math.round(margins.top / 2) : margins.top),
+    () => (headerHasMeaningfulContent ? 8 : margins.top),
     [headerHasMeaningfulContent, margins.top]
+  )
+
+  // When footer is present, the footer surface occupies the bottom margin area.
+  const bodyBottomPadding = useMemo(
+    () => (footerHasMeaningfulContent ? 8 : 0),
+    [footerHasMeaningfulContent]
+  )
+
+  // When footer is present, remove the page container's bottom padding
+  // because the footer occupies that margin area.
+  const pageBottomPadding = useMemo(
+    () => (footerHasMeaningfulContent ? 0 : margins.bottom),
+    [footerHasMeaningfulContent, margins.bottom]
   )
 
   const editor = useEditor({
@@ -221,8 +233,11 @@ export function DocumentEditor({
   }, [editor, onFullyReady])
 
   const showHeaderSurface = editable || headerHasMeaningfulContent
-  const resolvedActiveSurface = resolveActiveSurface(showHeaderSurface, activeSurface)
-  const toolbarEditor = resolvedActiveSurface === 'header' ? headerToolbarEditor : editor
+  const showFooterSurface = editable || footerHasMeaningfulContent
+  const resolvedActiveSurface = resolveActiveSurface(showHeaderSurface, activeSurface, showFooterSurface)
+  const toolbarEditor = resolvedActiveSurface === 'body'
+    ? editor
+    : (surfaceEditors[resolvedActiveSurface] ?? editor)
 
   const {
     activeDragData,
@@ -238,9 +253,11 @@ export function DocumentEditor({
     openPendingVariableDialog,
   } = useVariableInsertion({
     bodyEditor: editor,
-    headerEditor: headerToolbarEditor,
+    headerEditor: surfaceEditors.header,
+    footerEditor: surfaceEditors.footer,
     activeSurface: resolvedActiveSurface,
     headerDropZoneId: HEADER_DROP_ZONE_ID,
+    footerDropZoneId: FOOTER_DROP_ZONE_ID,
   })
 
   // Listen for image modal events
@@ -317,18 +334,18 @@ export function DocumentEditor({
     }
   }, [editor, openPendingVariableDialog])
 
-  const handleHeaderEditorFocus = useCallback((headerEditor: Editor) => {
-    setHeaderToolbarEditor(headerEditor)
-    setActiveSurface('header')
+  const handleSurfaceEditorFocus = useCallback((kind: SurfaceKind, surfaceEditor: Editor) => {
+    setSurfaceEditors((prev) => ({ ...prev, [kind]: surfaceEditor }))
+    setActiveSurface(kind)
   }, [])
 
-  const handleHeaderEditorReady = useCallback((headerEditor: Editor | null) => {
-    setHeaderToolbarEditor(headerEditor)
+  const handleSurfaceEditorReady = useCallback((kind: SurfaceKind, surfaceEditor: Editor | null) => {
+    setSurfaceEditors((prev) => ({ ...prev, [kind]: surfaceEditor }))
   }, [])
 
-  const handleActivateHeader = useCallback(() => {
+  const handleActivateSurface = useCallback((kind: SurfaceKind) => {
     if (!editable) return
-    setActiveSurface('header')
+    setActiveSurface(kind)
   }, [editable])
 
   const handleActivateBody = useCallback(() => {
@@ -345,11 +362,10 @@ export function DocumentEditor({
     setImageModalOpen(true)
   }, [editor])
 
-  const handleOpenHeaderImageModal = useCallback(() => {
+  const handleOpenSurfaceImageModal = useCallback((kind: SurfaceKind) => {
     if (!editable) return
-
-    setActiveSurface('header')
-    setHeaderImageModalToken((token) => token + 1)
+    setActiveSurface(kind)
+    setImageModalTokens((prev) => ({ ...prev, [kind]: prev[kind] + 1 }))
   }, [editable])
 
   const handleImageInsert = useCallback((result: ImageInsertResult) => {
@@ -431,7 +447,11 @@ export function DocumentEditor({
                   editor={toolbarEditor ?? editor}
                   documentEditor={editor}
                   activeSurface={resolvedActiveSurface}
-                  onOpenImage={resolvedActiveSurface === 'header' ? handleOpenHeaderImageModal : handleOpenBodyImageModal}
+                  onOpenImage={
+                    resolvedActiveSurface === 'body'
+                      ? handleOpenBodyImageModal
+                      : () => handleOpenSurfaceImageModal(resolvedActiveSurface as SurfaceKind)
+                  }
                   onExport={onExport}
                   onImport={onImport}
                   onBeforePreview={onBeforePreview}
@@ -476,30 +496,31 @@ export function DocumentEditor({
               )}
 
               <div
-                className="mx-auto bg-muted shadow-lg"
+                className="mx-auto bg-muted shadow-lg flex flex-col"
                 style={{
                   width: pageSize.width,
                   minHeight: pageSize.height,
-                  paddingBottom: margins.bottom,
+                  paddingBottom: pageBottomPadding,
                 }}
               >
                 {showHeaderSurface && (
                   <DocumentPageHeader
                     editable={editable}
                     active={resolvedActiveSurface === 'header'}
-                    onActivate={handleActivateHeader}
-                    onTextEditorFocus={handleHeaderEditorFocus}
-                    onEditorReady={handleHeaderEditorReady}
-                    openImageModalToken={headerImageModalToken}
+                    onActivate={() => handleActivateSurface('header')}
+                    onTextEditorFocus={(e) => handleSurfaceEditorFocus('header', e)}
+                    onEditorReady={(e) => handleSurfaceEditorReady('header', e)}
+                    openImageModalToken={imageModalTokens.header}
                     paddingLeft={margins.left}
                     paddingRight={margins.right}
                   />
                 )}
                 <div
+                  className="flex-1"
                   onMouseDownCapture={handleActivateBody}
                   style={{
                     paddingTop: bodyTopPadding,
-                    paddingBottom: 0,
+                    paddingBottom: bodyBottomPadding,
                     paddingLeft: margins.left,
                     paddingRight: margins.right,
                   }}
@@ -507,6 +528,18 @@ export function DocumentEditor({
                 <EditorContent editor={editor} />
                 {editable && <TableBubbleMenu editor={editor} />}
                 </div>
+                {showFooterSurface && (
+                  <DocumentPageFooter
+                    editable={editable}
+                    active={resolvedActiveSurface === 'footer'}
+                    onActivate={() => handleActivateSurface('footer')}
+                    onTextEditorFocus={(e) => handleSurfaceEditorFocus('footer', e)}
+                    onEditorReady={(e) => handleSurfaceEditorReady('footer', e)}
+                    openImageModalToken={imageModalTokens.footer}
+                    paddingLeft={margins.left}
+                    paddingRight={margins.right}
+                  />
+                )}
               </div>
               {/* Table corner handle - positioned relative to scroll container */}
               {editable && <TableCornerHandle editor={editor} />}

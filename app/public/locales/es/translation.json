@@ -401,6 +401,16 @@
       "layoutImageCenter": "Imagen centrada",
       "layoutImageRight": "Texto izquierda, imagen derecha"
     },
+    "documentFooter": {
+      "addLogo": "Haz clic para agregar logo",
+      "editLogo": "Editar logo del pie de página",
+      "textPlaceholder": "Agregar texto de pie de página...",
+      "surfaceLabel": "Pie de página del documento",
+      "surfaceHint": "Haz clic para editar el pie de página o agregar un logo",
+      "layoutImageLeft": "Imagen izquierda, texto derecha",
+      "layoutImageCenter": "Imagen centrada",
+      "layoutImageRight": "Texto izquierda, imagen derecha"
+    },
     "status": {
       "editable": "Editable",
       "readOnly": "Solo lectura",
