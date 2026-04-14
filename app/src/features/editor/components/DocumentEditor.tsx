@@ -56,6 +56,21 @@ import type { Editor } from '@tiptap/core'
 import { useVariableInsertion } from '../hooks/useVariableInsertion'
 import { resolveActiveSurface, type ActiveSurface } from '../services/variable-insertion'
 
+function setSurfaceEditorIfChanged(
+  previous: Record<SurfaceKind, Editor | null>,
+  kind: SurfaceKind,
+  nextEditor: Editor | null
+) {
+  if (previous[kind] === nextEditor) {
+    return previous
+  }
+
+  return {
+    ...previous,
+    [kind]: nextEditor,
+  }
+}
+
 interface DocumentEditorProps {
   initialContent?: string
   onContentChange?: (content: string) => void
@@ -334,23 +349,32 @@ export function DocumentEditor({
     }
   }, [editor, openPendingVariableDialog])
 
-  const handleSurfaceEditorFocus = useCallback((kind: SurfaceKind, surfaceEditor: Editor) => {
-    setSurfaceEditors((prev) => ({ ...prev, [kind]: surfaceEditor }))
-    setActiveSurface(kind)
+  const handleHeaderEditorFocus = useCallback((surfaceEditor: Editor) => {
+    setSurfaceEditors((prev) => setSurfaceEditorIfChanged(prev, 'header', surfaceEditor))
+    setActiveSurface((prev) => (prev === 'header' ? prev : 'header'))
   }, [])
 
-  const handleSurfaceEditorReady = useCallback((kind: SurfaceKind, surfaceEditor: Editor | null) => {
-    setSurfaceEditors((prev) => ({ ...prev, [kind]: surfaceEditor }))
+  const handleFooterEditorFocus = useCallback((surfaceEditor: Editor) => {
+    setSurfaceEditors((prev) => setSurfaceEditorIfChanged(prev, 'footer', surfaceEditor))
+    setActiveSurface((prev) => (prev === 'footer' ? prev : 'footer'))
+  }, [])
+
+  const handleHeaderEditorReady = useCallback((surfaceEditor: Editor | null) => {
+    setSurfaceEditors((prev) => setSurfaceEditorIfChanged(prev, 'header', surfaceEditor))
+  }, [])
+
+  const handleFooterEditorReady = useCallback((surfaceEditor: Editor | null) => {
+    setSurfaceEditors((prev) => setSurfaceEditorIfChanged(prev, 'footer', surfaceEditor))
   }, [])
 
   const handleActivateSurface = useCallback((kind: SurfaceKind) => {
     if (!editable) return
-    setActiveSurface(kind)
+    setActiveSurface((prev) => (prev === kind ? prev : kind))
   }, [editable])
 
   const handleActivateBody = useCallback(() => {
     if (!editable) return
-    setActiveSurface('body')
+    setActiveSurface((prev) => (prev === 'body' ? prev : 'body'))
   }, [editable])
 
   const handleOpenBodyImageModal = useCallback(() => {
@@ -364,7 +388,7 @@ export function DocumentEditor({
 
   const handleOpenSurfaceImageModal = useCallback((kind: SurfaceKind) => {
     if (!editable) return
-    setActiveSurface(kind)
+    setActiveSurface((prev) => (prev === kind ? prev : kind))
     setImageModalTokens((prev) => ({ ...prev, [kind]: prev[kind] + 1 }))
   }, [editable])
 
@@ -508,8 +532,8 @@ export function DocumentEditor({
                     editable={editable}
                     active={resolvedActiveSurface === 'header'}
                     onActivate={() => handleActivateSurface('header')}
-                    onTextEditorFocus={(e) => handleSurfaceEditorFocus('header', e)}
-                    onEditorReady={(e) => handleSurfaceEditorReady('header', e)}
+                    onTextEditorFocus={handleHeaderEditorFocus}
+                    onEditorReady={handleHeaderEditorReady}
                     openImageModalToken={imageModalTokens.header}
                     paddingLeft={margins.left}
                     paddingRight={margins.right}
@@ -533,8 +557,8 @@ export function DocumentEditor({
                     editable={editable}
                     active={resolvedActiveSurface === 'footer'}
                     onActivate={() => handleActivateSurface('footer')}
-                    onTextEditorFocus={(e) => handleSurfaceEditorFocus('footer', e)}
-                    onEditorReady={(e) => handleSurfaceEditorReady('footer', e)}
+                    onTextEditorFocus={handleFooterEditorFocus}
+                    onEditorReady={handleFooterEditorReady}
                     openImageModalToken={imageModalTokens.footer}
                     paddingLeft={margins.left}
                     paddingRight={margins.right}
