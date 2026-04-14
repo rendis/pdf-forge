@@ -146,6 +146,11 @@ export function DocumentPageSurface({
 }: DocumentPageSurfaceProps) {
   const { t } = useTranslation()
   const cfg = SURFACE_CONFIGS[kind]
+  const onEditorReadyRef = useRef(onEditorReady)
+
+  useEffect(() => {
+    onEditorReadyRef.current = onEditorReady
+  }, [onEditorReady])
 
   const {
     layout,
@@ -272,9 +277,11 @@ export function DocumentPageSurface({
   })
 
   useEffect(() => {
-    onEditorReady?.(surfaceEditor ?? null)
-    return () => { onEditorReady?.(null) }
-  }, [surfaceEditor, onEditorReady])
+    onEditorReadyRef.current?.(surfaceEditor ?? null)
+    return () => {
+      onEditorReadyRef.current?.(null)
+    }
+  }, [surfaceEditor])
 
   // Sync store → editor when content changes externally
   useEffect(() => {
