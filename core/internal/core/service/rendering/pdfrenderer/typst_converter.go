@@ -395,7 +395,7 @@ func (c *TypstConverter) injector(node portabledoc.Node) string {
 	if value == "" {
 		if showLabelIfEmpty {
 			// Show labels without value
-			return escapeTypst(prefix) + escapeTypst(suffix)
+			return c.applyMarks(escapeTypst(prefix)+escapeTypst(suffix), node.Marks)
 		}
 		return ""
 	}
@@ -410,7 +410,7 @@ func (c *TypstConverter) injector(node portabledoc.Node) string {
 		parts = append(parts, escapeTypst(suffix))
 	}
 
-	content := strings.Join(parts, "")
+	content := c.applyMarks(strings.Join(parts, ""), node.Marks)
 
 	if hasWidth && widthPx > 0 {
 		widthPt := widthPx * pxToPt
@@ -612,12 +612,7 @@ func (c *TypstConverter) text(node portabledoc.Node) string {
 	if node.Text == nil {
 		return ""
 	}
-
-	text := escapeTypst(*node.Text)
-	for _, mark := range node.Marks {
-		text = c.applyMark(text, mark)
-	}
-	return text
+	return c.applyMarks(escapeTypst(*node.Text), node.Marks)
 }
 
 func (c *TypstConverter) applyMark(text string, mark portabledoc.Mark) string {
@@ -642,6 +637,13 @@ func (c *TypstConverter) applyMark(text string, mark portabledoc.Mark) string {
 	default:
 		return text
 	}
+}
+
+func (c *TypstConverter) applyMarks(content string, marks []portabledoc.Mark) string {
+	for _, m := range marks {
+		content = c.applyMark(content, m)
+	}
+	return content
 }
 
 func (c *TypstConverter) applyHighlightMark(text string, mark portabledoc.Mark) string {
