@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { PRESET_COLORS } from '../config'
+import { getEffectiveMarkAttrs } from '../utils/mark-attributes'
 
 interface TextColorPickerProps {
   editor: Editor
@@ -23,7 +24,7 @@ interface TextColorPickerProps {
 export function TextColorPicker({ editor }: TextColorPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const currentColor = editor.getAttributes('textStyle').color as string | undefined
+  const currentColor = getEffectiveMarkAttrs(editor, 'textStyle').color as string | undefined
 
   const applyColor = (color: string) => {
     editor.chain().focus().setColor(color).run()

@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { TOOLBAR_FONT_FAMILIES } from '../config'
+import { getEffectiveMarkAttrs } from '../utils/mark-attributes'
 
 interface FontFamilyPickerProps {
   editor: Editor
@@ -17,7 +18,7 @@ interface FontFamilyPickerProps {
 export function FontFamilyPicker({ editor }: FontFamilyPickerProps) {
   const [open, setOpen] = useState(false)
   const currentFamily =
-    editor.getAttributes('textStyle').fontFamily || 'Inter'
+    (getEffectiveMarkAttrs(editor, 'textStyle').fontFamily as string) || 'Inter'
 
   const currentLabel =
     TOOLBAR_FONT_FAMILIES.find((f) => f.value === currentFamily)?.label ??

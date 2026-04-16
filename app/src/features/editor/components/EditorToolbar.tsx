@@ -50,6 +50,7 @@ import { FontFamilyPicker } from './FontFamilyPicker'
 import { FontSizePicker } from './FontSizePicker'
 import { LineSpacingPicker } from './LineSpacingPicker'
 import { useOverflowScroll } from '@/hooks/use-overflow-scroll'
+import { getEffectiveMarkAttrs } from '../utils/mark-attributes'
 import { cn } from '@/lib/utils'
 import type { ActiveSurface } from '../services/variable-insertion'
 
@@ -107,6 +108,7 @@ export function EditorToolbar({
   const isFooterSurface = activeSurface === 'footer'
   const isConstrainedSurface = isHeaderSurface || isFooterSurface
   const previewEditor = documentEditor ?? editor
+  const currentColor = getEffectiveMarkAttrs(editor, 'textStyle').color as string | undefined
   const imageTooltip = isConstrainedSurface
     ? isHeaderSurface
       ? t('editor.documentHeader.editLogo')
@@ -491,11 +493,11 @@ export function EditorToolbar({
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <Paintbrush className="h-4 w-4" style={{ color: editor.getAttributes('textStyle').color || undefined }} />
+                  <Paintbrush className="h-4 w-4" style={{ color: currentColor || undefined }} />
                   {t('editor.toolbar.textColor')}
                   <input
                     type="color"
-                    value={editor.getAttributes('textStyle').color || '#000000'}
+                    value={currentColor || '#000000'}
                     onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
                     className="w-6 h-6 p-0 border border-border rounded-sm cursor-pointer ml-auto"
                   />

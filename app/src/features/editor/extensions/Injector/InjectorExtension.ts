@@ -38,6 +38,8 @@ export const InjectorExtension = Node.create({
 
   atom: true,
 
+  marks: '_',
+
   allowGapCursor: false,
 
   addAttributes() {

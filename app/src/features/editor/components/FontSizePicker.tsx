@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Editor } from '@tiptap/react'
 import { ChevronDown, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import {
   Popover,
   PopoverContent,
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { TOOLBAR_FONT_SIZES } from '../config'
+import { getEffectiveMarkAttrs } from '../utils/mark-attributes'
 
 interface FontSizePickerProps {
   editor: Editor
@@ -16,16 +18,23 @@ interface FontSizePickerProps {
 
 export function FontSizePicker({ editor }: FontSizePickerProps) {
   const [open, setOpen] = useState(false)
+  const [customValue, setCustomValue] = useState('')
+  const attrs = getEffectiveMarkAttrs(editor, 'textStyle')
   const currentSize =
-    editor.getAttributes('textStyle').fontSize?.replace('px', '') || '14'
+    (attrs.fontSize as string)?.replace('px', '') || '14'
 
   const applySize = (value: number) => {
     editor.chain().focus().setFontSize(`${value}px`).run()
     setOpen(false)
   }
 
+  const applyCustomSize = () => {
+    const n = parseInt(customValue, 10)
+    if (n >= 1 && n <= 200) applySize(n)
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (!v) setCustomValue('') }}>
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -46,6 +55,18 @@ export function FontSizePicker({ editor }: FontSizePickerProps) {
         onOpenAutoFocus={(e) => e.preventDefault()}
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
+        <input
+          type="number"
+          min={1}
+          max={200}
+          value={customValue}
+          placeholder={currentSize}
+          onChange={(e) => setCustomValue(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') applyCustomSize() }}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="w-full px-2 py-1 text-sm text-center border border-border rounded-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+        <Separator className="my-1" />
         {TOOLBAR_FONT_SIZES.map((s) => (
           <button
             key={s.value}

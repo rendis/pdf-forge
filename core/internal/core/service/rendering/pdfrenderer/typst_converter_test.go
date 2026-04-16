@@ -802,6 +802,100 @@ func TestTypstConverter_InjectorBackwardCompatNoLabels(t *testing.T) {
 	}
 }
 
+// --- Injector with Marks ---
+
+func TestTypstConverter_InjectorWithBoldMark(t *testing.T) {
+	c := newConverter(map[string]any{"name": "John"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "name"},
+		Marks: []portabledoc.Mark{{Type: portabledoc.MarkTypeBold}},
+	}
+	got := c.ConvertNode(node)
+	want := "#strong[John]"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorWithTextStyleMark(t *testing.T) {
+	c := newConverter(map[string]any{"amount": "100"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "amount"},
+		Marks: []portabledoc.Mark{
+			{Type: portabledoc.MarkTypeTextStyle, Attrs: map[string]any{
+				"fontSize": "18px",
+				"color":    "#ff0000",
+			}},
+		},
+	}
+	got := c.ConvertNode(node)
+	if !strings.Contains(got, "size: 13.5pt") {
+		t.Errorf("expected font size 13.5pt, got %q", got)
+	}
+	if !strings.Contains(got, "ff0000") {
+		t.Errorf("expected color ff0000, got %q", got)
+	}
+}
+
+func TestTypstConverter_InjectorWithPrefixSuffixAndItalicMark(t *testing.T) {
+	c := newConverter(map[string]any{"val": "John"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "val", "prefix": "Name: ", "suffix": "!"},
+		Marks: []portabledoc.Mark{{Type: portabledoc.MarkTypeItalic}},
+	}
+	got := c.ConvertNode(node)
+	want := "#emph[Name: John!]"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorWithMarksAndWidth(t *testing.T) {
+	c := newConverter(map[string]any{"name": "John"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "name", "width": float64(100)},
+		Marks: []portabledoc.Mark{{Type: portabledoc.MarkTypeBold}},
+	}
+	got := c.ConvertNode(node)
+	if !strings.Contains(got, "#box(width: 75.0pt)") {
+		t.Errorf("expected box wrapping, got %q", got)
+	}
+	if !strings.Contains(got, "#strong[John]") {
+		t.Errorf("expected bold content inside box, got %q", got)
+	}
+}
+
+func TestTypstConverter_InjectorNoMarksBackwardCompat(t *testing.T) {
+	c := newConverter(map[string]any{"name": "John"}, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "name"},
+	}
+	got := c.ConvertNode(node)
+	want := "John"
+	if got != want {
+		t.Errorf("backward compat: got %q, want %q", got, want)
+	}
+}
+
+func TestTypstConverter_InjectorShowLabelIfEmptyWithMark(t *testing.T) {
+	c := newConverter(nil, nil)
+	node := portabledoc.Node{
+		Type:  portabledoc.NodeTypeInjector,
+		Attrs: map[string]any{"variableId": "x", "prefix": "Name: ", "showLabelIfEmpty": true},
+		Marks: []portabledoc.Mark{{Type: portabledoc.MarkTypeBold}},
+	}
+	got := c.ConvertNode(node)
+	want := "#strong[Name: ]"
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
 // --- Conditional ---
 
 func TestTypstConverter_ConditionalTrue(t *testing.T) {
