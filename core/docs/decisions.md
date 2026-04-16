@@ -36,8 +36,8 @@ Chose a **single database, schema-based isolation** approach:
 
 **Immutable versions with state machine**:
 
-- DRAFT → PUBLISHED → ARCHIVED (one-way transitions)
-- Can't edit PUBLISHED versions
+- DRAFT → STAGING → PUBLISHED → ARCHIVED (with schedule/unstage transitions)
+- DRAFT and STAGING can be edited; PUBLISHED cannot
 - Rationale: Audit trail, reproducibility, rollback capability
 
 ### Injectable Resolution

@@ -51,7 +51,7 @@ DRAFT ──→ STAGING ──→ PUBLISHED ──→ ARCHIVED
 | PUBLISHED | No       | Yes                               | Active version (ONE per template)      |
 | ARCHIVED  | No       | No                                | Historical, read-only                  |
 
-**STAGING**: Activated when `X-Environment: dev` header is sent. Resolver searches STAGING first, falls back to PUBLISHED. Auto-unstages previous staging version when a new one is staged.
+**STAGING**: Activated when `X-Environment: dev` header is sent. For the default **document-type render resolver**, `dev` mode tries STAGING first and then falls back to PUBLISHED. This is **not** the same as the low-level template-version search API, which does not auto-fallback. Auto-unstages previous staging version when a new one is staged.
 
 ## Roles & Permissions
 
@@ -74,8 +74,8 @@ DRAFT ──→ STAGING ──→ PUBLISHED ──→ ARCHIVED
 | Role     | Weight | Permissions                                                                                     |
 | -------- | ------ | ----------------------------------------------------------------------------------------------- |
 | OWNER    | 50     | Full workspace control. Manage members, change roles, archive workspace.                        |
-| ADMIN    | 40     | Publish/archive versions. Delete content. Invite members (no role changes).                     |
-| EDITOR   | 30     | Create/edit templates, injectables (TEXT only), folders, tags. Clone templates. Cannot publish. |
+| ADMIN    | 40     | Stage/publish/archive versions. Delete content. Invite members (no role changes).                |
+| EDITOR   | 30     | Create/edit templates, injectables (TEXT only), folders, tags. Clone templates. Cannot stage/publish. |
 | OPERATOR | 20     | Generate PDFs from PUBLISHED templates only. Read-only otherwise.                               |
 | VIEWER   | 10     | Read-only access. No create/edit/generate.                                                      |
 

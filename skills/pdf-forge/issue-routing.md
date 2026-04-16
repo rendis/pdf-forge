@@ -29,6 +29,7 @@ Typical implementation ownership:
 - domain-specific injectors
 - `WorkspaceInjectableProvider`
 - `RequestMapper`
+- custom template resolver
 - custom middleware
 - custom auth wiring
 - external integrations
@@ -78,7 +79,8 @@ Default target: **`pdf-forge`**
 Examples:
 
 - margins behave incorrectly
-- header layout renders incorrectly
+- header/footer surface layout renders incorrectly
+- render-by-version / staging behavior is incorrect or documented incorrectly
 - PortableDoc validation behaves incorrectly
 - skill or MCP guidance is misleading
 
@@ -111,7 +113,7 @@ Default:
 
 Example:
 
-- auth, mapper, provider, or middleware behavior is wrong
+- auth, mapper, provider, custom resolver, or middleware behavior is wrong
 
 Default:
 
@@ -145,6 +147,7 @@ Before offering issue creation, gather at least:
   - render
   - PortableDoc
   - MCP/docs
+  - template resolution
   - custom injector/provider/mapper
   - auth/middleware
 - evidence:
@@ -160,7 +163,8 @@ If the downstream repo is unknown, explicitly mark that the probable owner is im
 ### Route to `pdf-forge`
 
 - “Margins behave strangely across rendered PDFs.”
-- “The header image layout is incorrect in the core editor/render pipeline.”
+- “The header/footer surface layout is incorrect in the core editor/render pipeline.”
+- “Render-by-version rejects my draft, but the docs/skill imply that any saved version should render.”
 - “The skill documents an MCP call incorrectly.”
 - “The framework does not expose a generic extension point needed for a reusable integration.”
 
@@ -169,6 +173,7 @@ If the downstream repo is unknown, explicitly mark that the probable owner is im
 - “We need an injector for our internal SAP customer balance.”
 - “Our custom `RequestMapper` does not transform the payload the way our business flow needs.”
 - “Our custom `WorkspaceInjectableProvider` is not returning the expected domain fields.”
+- “Our custom template resolver chooses the wrong version for our business rules.”
 - “Our custom API-key auth flow fails in the consuming service.”
 
 ## Final Rule

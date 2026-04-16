@@ -101,7 +101,7 @@ pdf-forge follows a **plugin-based architecture**:
 | **Typst Rendering**      | Fast concurrent PDF generation with image caching    |
 | **Multi-Tenant**         | Tenant/workspace isolation with 3-level RBAC         |
 | **Multi-OIDC**           | Support N identity providers (Keycloak, Auth0, etc.) |
-| **Independent Frontend** | React 19 SPA with nginx, separately deployable       |
+| **Embedded SPA (default)** | React 19 SPA embedded in the Go binary by default |
 | **Forkeable**            | Fork, customize `core/extensions/`, deploy           |
 | **Lifecycle Hooks**      | `OnStart()` / `OnShutdown()` for background workers  |
 | **Custom Middleware**    | Global + API-only middleware chains                  |
@@ -117,7 +117,7 @@ pdf-forge follows a **plugin-based architecture**:
 | Frontend  | React 19, TypeScript, TanStack Router, Zustand       |
 | UI        | Tailwind CSS, Radix UI, TipTap (rich text editor)    |
 | Auth      | OIDC/JWKS (Keycloak, Auth0, Okta, Azure AD, etc.)    |
-| Serving   | nginx (SPA + API reverse proxy)                      |
+| Serving   | Go HTTP server + embedded SPA (optional standalone app image) |
 | Infra     | Docker Compose, multi-stage builds                   |
 
 ## Quick Start
@@ -243,17 +243,19 @@ core/                            ← Backend Go (module: github.com/rendis/pdf-f
   cmd/api/                       ← Server entrypoint + bootstrap
   extensions/                    ← YOUR CODE: injectors, mapper, middleware, hooks
   internal/                      ← Engine internals (don't modify)
+    frontend/                    ← Embedded SPA assets served by Go (`go:embed`)
   settings/                      ← Default configuration
   docs/                          ← Architecture, auth, extensibility docs
   Makefile                       ← Backend-specific targets
-  Dockerfile                     ← Backend Docker image
-app/                             ← Frontend React SPA (independent service)
+app/                             ← Frontend React SPA source
   src/                           ← React 19 + TypeScript + TanStack Router
+  dist/                          ← Built SPA assets
+  Dockerfile                     ← Optional standalone frontend image (nginx)
+  nginx.conf                     ← Optional standalone SPA config
   Makefile                       ← Frontend-specific targets
-  Dockerfile                     ← Frontend Docker image (multi-stage: node + nginx)
-  nginx.conf                     ← SPA fallback + API reverse proxy
 Makefile                         ← Root orchestrator (delegates to core/ and app/)
-docker-compose.yaml              ← Full stack: postgres + api + web
+Dockerfile                       ← Unified image: frontend build + embedded backend
+docker-compose.yaml              ← Full stack: postgres + api
 ```
 
 **You only need to modify `core/extensions/`** to customize the engine.
@@ -422,7 +424,7 @@ See [Configuration Guide](core/docs/configuration.md) for OIDC, logging, perform
 ## Docker
 
 ```bash
-# Full stack (API + Frontend + PostgreSQL)
+# Full stack (embedded frontend + API + PostgreSQL)
 docker compose up --build
 
 # Only database (for local dev)
@@ -432,11 +434,10 @@ docker compose up postgres
 make migrate
 ```
 
-The stack runs three services:
+The default stack runs two services:
 
 - **postgres** (port 5432) - Database
-- **api** (port 8080) - Go backend with Typst
-- **web** (port 3000) - React frontend with nginx
+- **api** (port 8080) - Go backend with Typst and embedded frontend
 
 Use `docker-compose.override.yaml` for local overrides (gitignored). See [FORKING.md](FORKING.md#docker-customization) for examples.
 
@@ -491,13 +492,12 @@ POST /api/v1/workspace/document-types/{code}/render
 
 ## Endpoints
 
-| Route               | Description             | Auth             |
-| ------------------- | ----------------------- | ---------------- |
-| `/api/v1/*`         | Management + render API | OIDC JWT / Dummy |
-| `/swagger/*`        | API documentation       | None             |
-| `/health`, `/ready` | Health checks           | None             |
-
-Frontend is served independently on port 3000 (nginx).
+| Route               | Description                                    | Auth             |
+| ------------------- | ---------------------------------------------- | ---------------- |
+| `/api/v1/*`         | Management API + render endpoints              | OIDC JWT / Dummy |
+| `/swagger/*`        | API documentation                              | None             |
+| `/health`, `/ready` | Health checks                                  | None             |
+| `/*`                | Embedded React SPA served by the Go HTTP server | None             |
 
 ## MCP Integration
 

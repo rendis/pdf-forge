@@ -4,7 +4,7 @@
 
 It is **not** HTML and **not** just editor JSON content.
 
-It is a **PortableDoc envelope** that includes the body content plus document metadata, page configuration, variable references, optional header state, and export metadata.
+It is a **PortableDoc envelope** that includes the body content plus document metadata, page configuration, variable references, optional header/footer state, and export metadata.
 
 ## Canonical Shape
 
@@ -18,6 +18,7 @@ Conceptually, the envelope contains:
 - `variableIds`
 - `content`
 - `header` (optional)
+- `footer` (optional)
 - `exportInfo`
 
 ## Top-Level Fields
@@ -26,7 +27,7 @@ Conceptually, the envelope contains:
 
 Document format version string.
 
-Current editor format version is `2.1.0`.
+Current editor format version is `2.2.0`.
 
 Use this for migration awareness, not feature guessing.
 
@@ -59,7 +60,7 @@ A list of variable IDs referenced by the document.
 This list matters because validation checks it against:
 
 - injector nodes
-- image injectables in body/header
+- image injectables in body/header/footer
 - accessible workspace/system injectables
 
 If an agent introduces a new variable-backed structure, it must keep `variableIds` consistent.
@@ -94,13 +95,31 @@ The header contains dedicated state such as:
 
 Treat header edits as a distinct surface with separate constraints.
 
+### `footer` (optional)
+
+Optional document footer configuration. It uses the same surface contract as the header, but it is rendered on the **last page**.
+
+The footer contains the same dedicated state shape:
+
+- `enabled`
+- `layout`
+- `imageUrl`
+- `imageAlt`
+- `imageInjectableId`
+- `imageInjectableLabel`
+- `imageWidth`
+- `imageHeight`
+- `content`
+
+Treat footer edits as a distinct surface with separate constraints.
+
 ### `exportInfo`
 
 Export metadata such as timestamps, source app, optional checksum, and audit metadata.
 
 Preserve this structure unless a workflow explicitly regenerates it.
 
-## Body vs Header
+## Body vs Surfaces
 
 ### Body
 
@@ -124,11 +143,23 @@ The header is a constrained surface with:
 
 Do not model the header as if it were just another body fragment.
 
-Validation is symmetric for text injectors:
+### Footer
 
-- header text injectors are validated against `variableIds` during publish — same rules as body injectors
-- header image injectables are validated separately via `imageInjectableId`
-- when adding a text injector to the header, ensure its variable ID appears in `variableIds`
+The footer is another constrained surface with:
+
+- limited text content
+- text variable injectors (same `injector` node type as the body/header)
+- dedicated image/logo layout modes
+- its own image sizing and placement rules
+- last-page-only rendering behavior
+
+Do not model the footer as if it were just another body fragment.
+
+Validation is symmetric for text injectors across all surfaces:
+
+- header/footer text injectors are validated against `variableIds` during publish — same rules as body injectors
+- header/footer image injectables are validated separately via `imageInjectableId`
+- when adding a text injector to the header or footer, ensure its variable ID appears in `variableIds`
 
 ## Node Families
 
@@ -180,6 +211,7 @@ PortableDoc includes:
 - `conditional`
 
 These are not plain text placeholders; they carry structured attrs and are validated against variables.
+Inline injector nodes may also carry marks such as bold, italic, strike, and `textStyle`.
 
 ## Image nodes
 
@@ -279,8 +311,9 @@ Agents should therefore treat:
 
 Known format evolution includes:
 
+- `2.2.0` → adds document footer support and shared surface handling for header/footer
 - `2.1.0` → adds document header support and header/body image injectable tracking
-- `2.0.0` → older documents may omit `header`
+- `2.0.0` → older documents may omit `header` / `footer`
 
 The import/migration path can normalize old documents. Agents editing existing version content should preserve the current version unless a project-specific migration step is explicitly required.
 

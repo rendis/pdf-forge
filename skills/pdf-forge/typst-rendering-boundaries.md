@@ -23,7 +23,7 @@ The current backend converter handles:
 - blockquote and horizontal rule
 - bullet / ordered lists
 - injectors and conditionals
-- body images and header images
+- body images and header/footer surface images
 - editable tables
 - list injectors and table injectors
 - hard breaks
@@ -43,6 +43,8 @@ The backend has explicit rendering paths for:
 - `textStyle`
 
 This means the renderer can process them, but agents should still check the capability matrix before introducing marks that are not part of the documented default workflow.
+
+Inline injector nodes go through the same mark application pipeline, so supported marks/styles on injectors survive PDF rendering too.
 
 ## Text Style Boundaries
 
@@ -152,9 +154,9 @@ Documented image shapes include:
 
 Circular rendering depends on dimensions and results in clipped image markup. Treat it as safe only when existing dimensions are preserved or intentionally controlled.
 
-## Header Rendering Boundaries
+## Surface Rendering Boundaries
 
-The document header is rendered as a dedicated Typst block with specialized layout behavior.
+The document header/footer surfaces are rendered as dedicated Typst blocks with specialized layout behavior.
 
 Supported layout modes:
 
@@ -166,9 +168,12 @@ Important behavior:
 
 - in `image-center`, image takes priority over text when an image exists
 - header sizing/layout is not the same as body flow
-- header image sizing has minimum/maximum constraints derived from page config
+- footer sizing/layout is not the same as body flow
+- header/footer image sizing has minimum/maximum constraints derived from page config
+- header renders on the first page
+- footer renders on the last page
 
-Agents should not treat header layout as if it were generic body markup.
+Agents should not treat header/footer layout as if it were generic body markup.
 
 ## Dynamic Content Boundaries
 

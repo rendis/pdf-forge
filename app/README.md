@@ -21,7 +21,7 @@ React 19 + TypeScript SPA. Uses Vite for bundling.
 
 ### Deployment
 
-- **Development**: `pnpm dev` starts Vite on port 3000, API requests proxy to `VITE_API_URL` (default: `http://localhost:8080`)
+- **Development**: `pnpm dev` starts Vite on port 3000 and proxies `${VITE_BASE_PATH}/api`, `/health`, `/ready`, and `/swagger` to `http://localhost:8080`
 - **Production**: `make build` (from root) embeds the SPA into the Go binary. Backend serves both API and frontend on a single port.
 - **Build pipeline**: `make embed-app` builds the SPA and copies output to `core/internal/frontend/dist/` for `go:embed`
 
@@ -40,7 +40,7 @@ React 19 + TypeScript SPA. Uses Vite for bundling.
 
 ### Authentication & Authorization
 
-- **OIDC config fetched at runtime** from backend `{VITE_API_URL}/v1/config` — see `src/lib/auth-config.ts`
+- **OIDC config fetched at runtime** from backend `{VITE_BASE_PATH}/api/v1/config` — see `src/lib/auth-config.ts`
 - OIDC operations in `src/lib/oidc.ts` (no external auth library)
 - Mock auth mode: Set `VITE_USE_MOCK_AUTH=true` to bypass OIDC
 - **RBAC system** in `src/features/auth/rbac/`:
@@ -54,7 +54,8 @@ React 19 + TypeScript SPA. Uses Vite for bundling.
 - Axios client (`src/lib/api-client.ts`) auto-attaches:
   - `Authorization` header (Bearer token)
   - `X-Tenant-ID` and `X-Workspace-ID` headers from context
-- Base URL: `${VITE_API_URL}/v1`
+  - `X-Environment` when the editor environment store is active
+- Base URL: `${VITE_BASE_PATH}/api/v1`
 
 ### Feature Structure
 
@@ -88,17 +89,17 @@ Current features: `auth`, `tenants`, `workspaces`, `documents`, `editor`
 ## Environment Variables
 
 ```plaintext
-VITE_API_URL        # Backend API base URL (dev: http://localhost:8080, prod: /api)
+VITE_BASE_PATH      # URL prefix for routes/assets/API (empty = root, e.g. /pdf-forge)
 VITE_USE_MOCK_AUTH  # Set to "true" to skip OIDC (dev only)
 ```
 
 Env files:
 
-- `.env.development` — Used by `pnpm dev` (`VITE_API_URL=http://localhost:8080`)
-- `.env.production` — Used by `pnpm build` (`VITE_API_URL=/api`)
+- `.env.development` — Used by `pnpm dev` (typically `VITE_BASE_PATH=`)
+- `.env.production` — Used by `pnpm build` (typically `VITE_BASE_PATH=` or a deployed sub-path)
 - `.env.local` — Local overrides (not committed)
 
-> OIDC configuration is fetched at runtime from `{VITE_API_URL}/v1/config`. Configure OIDC in the backend's `settings/app.yaml`.
+> OIDC configuration is fetched at runtime from `{VITE_BASE_PATH}/api/v1/config`. Configure OIDC in the backend's `settings/app.yaml`.
 
 ## Path Aliases
 

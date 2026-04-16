@@ -18,7 +18,7 @@ make init-fork
 docker compose up --build
 ```
 
-Frontend: [http://localhost:3000](http://localhost:3000) · API: [http://localhost:8080](http://localhost:8080)
+App + API (embedded): [http://localhost:8080](http://localhost:8080) · Swagger: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
 ## What to Customize
 
@@ -123,12 +123,11 @@ services:
     ports:
       - "9090:9090"
 
-  web:
-    environment:
-      VITE_BASE_PATH: ""
 ```
 
 Docker Compose automatically merges `docker-compose.yaml` + `docker-compose.override.yaml`.
+
+The default compose stack exposes only `postgres` and `api`. The React app is embedded in the `api` service. If you want a standalone frontend image, use `app/Dockerfile` explicitly — it is optional and not part of the base compose stack.
 
 ## Go Module Path FAQ
 

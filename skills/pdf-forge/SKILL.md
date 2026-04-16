@@ -42,7 +42,7 @@ This is the rule that matters:
 
 Always separate these layers:
 
-1. **UI support** — what the current body/header editing surfaces expose
+1. **UI support** — what the current body/header/footer editing surfaces expose
 2. **PortableDoc support** — what `contentStructure` can legally encode
 3. **Typst support** — what the backend converter renders into PDF
 4. **Agent-safe support** — what is documented as safe for MCP automation today
@@ -121,11 +121,14 @@ When editing a template version through MCP:
 2. Treat `contentStructure` as the **canonical document contract**.
 3. Preserve unknown fields and untouched subtrees.
 4. Do **read → modify → write**, never blind overwrite.
-5. Validate **body** and **header** separately.
+5. Validate **body**, **header**, and **footer** separately.
 6. Only use features documented as **Supported** or **Partially supported / use with caution**.
 7. If a feature is only known to exist in backend/schema but is not documented as agent-safe, do not introduce it casually.
 8. Preserve existing style attrs unless the task explicitly changes them. In particular, do not rewrite `textStyle.color` values just because they are not in your preferred format.
-9. Do not treat a successful draft save as proof of semantic correctness; render/publish validation is stronger than draft update validation.
+9. Inline injector placeholders can carry supported text marks/styles (for example bold, italic, strike, font family, font size, and color). Preserve those marks when editing injector nodes.
+10. `POST /api/v1/workspace/templates/versions/{versionId}/render` does **not** make DRAFT versions renderable. It only renders PUBLISHED versions, plus STAGING versions when `X-Environment: dev`.
+11. If you need MCP render validation for a version that is still DRAFT, stage it first, then render it in `dev`.
+12. Do not treat a successful draft save as proof of semantic correctness; render/publish validation is stronger than draft update validation.
 
 ## Before Editing a Template Version
 
@@ -136,7 +139,8 @@ Minimum checklist:
 3. Confirm whether the change affects:
    - body content
    - header content
-   - header image/layout
+   - footer content
+   - header/footer image/layout
    - `variableIds`
    - `pageConfig`
 4. Preserve document versioning and unknown metadata
@@ -178,7 +182,7 @@ Typical read flow:
 ### 3) Modify `contentStructure`
 
 - preserve the existing envelope
-- update only the relevant body/header/page config subtree
+- update only the relevant body/header/footer/page config subtree
 - keep `variableIds` consistent with the content you introduce
 
 ### 4) Persist
@@ -191,6 +195,12 @@ Use either:
 
 - `POST /api/v1/workspace/templates/versions/{versionId}/render`
 - `POST /api/v1/workspace/document-types/{code}/render`
+
+Important nuance:
+
+- render-by-version does **not** validate arbitrary saved drafts; it still enforces renderable statuses
+- in practice that means **PUBLISHED** always, and **STAGING** only with `X-Environment: dev`
+- if your edited version is still **DRAFT**, stage it first before claiming MCP render validation is available
 
 ## Important Validation Boundary
 
@@ -300,7 +310,8 @@ Use [issue-routing.md](./issue-routing.md) for detailed routing rules, examples,
 - conditional blocks
 - editable tables
 - table injectors and list injectors
-- header text + header image layouts
+- header/footer text + surface image layouts
+- inline injector placeholders with supported text marks/styles
 
 ### Use with caution
 
@@ -322,18 +333,20 @@ Use [issue-routing.md](./issue-routing.md) for detailed routing rules, examples,
 - `variableIds`
 - body `content`
 - optional `header`
+- optional `footer`
 - `exportInfo`
 
 That envelope is what the backend validates and renders.
 
 ## Editor Surface Reminder
 
-The **body** and **header** are not equivalent surfaces.
+The **body**, **header**, and **footer** are not equivalent surfaces.
 
 - body supports richer structures such as conditionals and tables
-- header is intentionally constrained and has dedicated image/layout behavior
+- header and footer are intentionally constrained surfaces with dedicated image/layout behavior
+- header renders on the first page; footer renders on the last page
 
-Never assume a body-safe operation is automatically header-safe.
+Never assume a body-safe operation is automatically safe for header/footer surfaces.
 
 ## Typst Reminder
 

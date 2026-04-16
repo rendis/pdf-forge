@@ -363,7 +363,7 @@ flowchart LR
 | ------------------------------ | ------------------------------------------------------------------------------- |
 | `injectable_definitions`       | The universe of available variables                                             |
 | `templates`                    | Document blueprint metadata (title, folder, workspace)                          |
-| `template_versions`            | Versioned content with lifecycle states (DRAFT, SCHEDULED, PUBLISHED, ARCHIVED) |
+| `template_versions`            | Versioned content with lifecycle states (DRAFT, STAGING, SCHEDULED, PUBLISHED, ARCHIVED) |
 | `template_version_injectables` | Configuration of which variables a version uses                                 |
 | `template_tags`                | Many-to-many relationship between templates and tags (shared across versions)   |
 
@@ -886,7 +886,7 @@ Valid values:
 | `name`                 | VARCHAR(100)   | NOT NULL                  | Human-readable version name (e.g., "v2.0 - Simplified") |
 | `description`          | TEXT           | -                         | Optional description of changes                         |
 | `content_structure`    | JSONB          | -                         | Editor node tree (document structure)                   |
-| `status`               | version_status | NOT NULL, DEFAULT 'DRAFT' | `DRAFT`, `SCHEDULED`, `PUBLISHED`, `ARCHIVED`           |
+| `status`               | version_status | NOT NULL, DEFAULT 'DRAFT' | `DRAFT`, `STAGING`, `SCHEDULED`, `PUBLISHED`, `ARCHIVED` |
 | `scheduled_publish_at` | TIMESTAMPTZ    | -                         | When to auto-publish (for SCHEDULED versions)           |
 | `scheduled_archive_at` | TIMESTAMPTZ    | -                         | When to auto-archive (for PUBLISHED versions)           |
 | `published_at`         | TIMESTAMPTZ    | -                         | When version was published                              |
@@ -921,10 +921,11 @@ Valid values:
 **Version Status Flow**:
 
 ```plaintext
-DRAFT → PUBLISHED → ARCHIVED
-  │         ▲           ▲
-  └→ SCHEDULED ─┘       │
-         └──────────────┘
+DRAFT → STAGING → PUBLISHED → ARCHIVED
+  │        │              ▲         ▲
+  │        └→ DRAFT       │         │
+  └→ SCHEDULED ───────────┘         │
+           └────────────────────────┘
 ```
 
 ---
@@ -1340,15 +1341,18 @@ LIMIT 10;
 
 **Purpose**: Lifecycle status of template versions.
 
-| Value       | Description                                                      |
-| ----------- | ---------------------------------------------------------------- |
-| `DRAFT`     | Work in progress, editable, not usable for PDF generation        |
-| `SCHEDULED` | Ready and scheduled for future publication                       |
-| `PUBLISHED` | Active version, ready for PDF generation (only ONE per template) |
-| `ARCHIVED`  | Historical version, read-only                                    |
+| Value       | Description                                                                    |
+| ----------- | ------------------------------------------------------------------------------ |
+| `DRAFT`     | Work in progress, editable, not usable for PDF generation                      |
+| `STAGING`   | Pre-publish testing state; editable and renderable only in `dev` environment   |
+| `SCHEDULED` | Ready and scheduled for future publication                                     |
+| `PUBLISHED` | Active version, ready for PDF generation (only ONE per template)               |
+| `ARCHIVED`  | Historical version, read-only                                                  |
 
 **Status Flow**:
 
+- `DRAFT` → `STAGING` → `PUBLISHED`
+- `STAGING` → `DRAFT` (unstage)
 - `DRAFT` → `PUBLISHED` (direct publish)
 - `DRAFT` → `SCHEDULED` → `PUBLISHED` (scheduled publish)
 - `PUBLISHED` → `ARCHIVED` (manual or scheduled archive)
